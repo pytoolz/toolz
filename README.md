@@ -1,5 +1,5 @@
-Itertoolz
-=========
+Toolz
+=====
 
 More tools for Python.  A set of common utility functions.
 
