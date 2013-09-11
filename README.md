@@ -31,10 +31,8 @@ Dependencies
 
 `toolz` supports Python 2.6+ and Python 3.2+ with a common codebase.
 
-It has no dependencies outside of the standard library.
-
-See Also
---------
+Toolz is thin interface on top of the following two libraries, each of which
+depends only on the standard library.
 
 *   [`itertoolz`](http://github.com/mrocklin/itertoolz)
 *   [`functoolz`](http://github.com/mrocklin/functoolz)
