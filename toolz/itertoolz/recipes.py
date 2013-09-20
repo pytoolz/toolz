@@ -1,4 +1,4 @@
-from .itertoolz import groupby, identity
+from .core import groupby, identity
 
 
 def countby(func, seq):

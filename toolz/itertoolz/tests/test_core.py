@@ -1,7 +1,7 @@
 import itertools
 from toolz.utils import raises
 from functools import partial
-from toolz.itertoolz import (remove, groupby, merge_sorted, merge_dict,
+from toolz.itertoolz.core import (remove, groupby, merge_sorted, merge_dict,
                        concat, concatv, interleave, unique, identity,
                        intersection, iterable, mapcat, distinct,
                        first, second, nth, take, drop, interpose, get,

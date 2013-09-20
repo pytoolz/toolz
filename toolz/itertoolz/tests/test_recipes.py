@@ -1,4 +1,4 @@
-from toolz import countby, frequencies
+from toolz.itertoolz.recipes import countby, frequencies
 
 
 def even(x):
