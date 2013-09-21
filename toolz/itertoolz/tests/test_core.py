@@ -1,7 +1,7 @@
 import itertools
 from toolz.utils import raises
 from functools import partial
-from toolz.itertoolz.core import (remove, groupby, merge_sorted, merge_dict,
+from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                        concat, concatv, interleave, unique, identity,
                        intersection, iterable, mapcat, distinct,
                        first, second, nth, take, drop, interpose, get,
@@ -28,10 +28,6 @@ def test_merge_sorted():
     assert list(merge_sorted([1, 2, 3], [1, 2, 3])) == [1, 1, 2, 2, 3, 3]
     assert list(merge_sorted([1, 3, 5], [2, 4, 6])) == [1, 2, 3, 4, 5, 6]
     assert list(merge_sorted([1], [2, 4], [3], [])) == [1, 2, 3, 4]
-
-
-def test_merge_dict():
-    assert merge_dict({1: 1, 2: 2}, {3: 4}) == {1: 1, 2: 2, 3: 4}
 
 
 def test_interleave():

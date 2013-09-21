@@ -64,23 +64,6 @@ def merge_sorted(*iters, **kwargs):
         inject_first_element(it, tb)
 
 
-def merge_dict(*dicts):
-    """ Merge a collection of dictionaries
-
-    >>> merge_dict({1: 'one'}, {2: 'two'})
-    {1: 'one', 2: 'two'}
-
-    Later dictionaries have precedence
-
-    >>> merge_dict({1: 2, 3: 4}, {3: 3, 4: 4})
-    {1: 2, 3: 3, 4: 4}
-    """
-    rv = dict()
-    for d in dicts:
-        rv.update(d)
-    return rv
-
-
 def interleave(seqs, pass_exceptions=()):
     """ Interleave a sequence of sequences
 
