@@ -214,7 +214,9 @@ second = partial(nth, 1)
 rest = partial(drop, 1)
 
 
-no_default='__no__default__'
+no_default = '__no__default__'
+
+
 def get(ind, seq, default=no_default):
     """ Get element in a sequence or dict
 

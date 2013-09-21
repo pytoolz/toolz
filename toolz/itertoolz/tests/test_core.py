@@ -2,11 +2,13 @@ import itertools
 from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz.core import (remove, groupby, merge_sorted,
-                       concat, concatv, interleave, unique, identity,
-                       intersection, iterable, mapcat, distinct,
-                       first, second, nth, take, drop, interpose, get,
-                       rest, last, cons)
+                                  concat, concatv, interleave, unique,
+                                  identity, intersection, iterable,
+                                  mapcat, distinct, first, second,
+                                  nth, take, drop, interpose, get,
+                                  rest, last, cons)
 from toolz.compatibility import range
+
 
 def even(x):
     return x % 2 == 0
@@ -103,8 +105,8 @@ def test_get():
 
     assert get('foo', {}, default='bar') == 'bar'
 
-    assert raises(IndexError, lambda : get(10, 'ABC'))
-    assert raises(KeyError, lambda : get(10, {'a': 1}))
+    assert raises(IndexError, lambda: get(10, 'ABC'))
+    assert raises(KeyError, lambda: get(10, {'a': 1}))
 
 
 def test_mapcat():
