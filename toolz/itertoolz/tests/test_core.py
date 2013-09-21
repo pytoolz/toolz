@@ -6,8 +6,9 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   identity, intersection, iterable,
                                   mapcat, distinct, first, second,
                                   nth, take, drop, interpose, get,
-                                  rest, last, cons, frequencies)
+                                  rest, last, cons, frequencies, reduceby)
 from toolz.compatibility import range
+from operator import add, mul
 
 
 def even(x):
@@ -149,3 +150,18 @@ def test_frequencies():
     assert frequencies([]) == {}
     assert frequencies("onomatopoeia") == {"a": 2, "e": 1, "i": 1, "m": 1,
                                            "o": 4, "n": 1, "p": 1, "t": 1}
+
+
+def test_reduceby():
+    data = [1, 2, 3, 4, 5]
+    iseven = lambda x: x % 2 == 0
+    assert reduceby(iseven, add, data, 0) == {False: 9, True: 6}
+    assert reduceby(iseven, mul, data, 1) == {False: 15, True: 8}
+
+    projects = [{'name': 'build roads', 'state': 'CA', 'cost': 1000000},
+                {'name': 'fight crime', 'state': 'IL', 'cost': 100000},
+                {'name': 'help farmers', 'state': 'IL', 'cost': 2000000},
+                {'name': 'help farmers', 'state': 'CA', 'cost': 200000}]
+    assert reduceby(lambda x: x['state'],
+                    lambda acc, x: acc + x['cost'],
+                    projects, 0) == {'CA': 1200000, 'IL': 2100000}

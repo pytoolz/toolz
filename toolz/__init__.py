@@ -1,4 +1,4 @@
-from .itertoolz import (groupby, countby, frequencies,
+from .itertoolz import (groupby, countby, frequencies, reduceby,
         first, second, nth, take, drop, rest, last, get,
         merge_sorted,
         interleave, unique, intersection, iterable, distinct)

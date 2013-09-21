@@ -331,3 +331,30 @@ def frequencies(seq):
         except KeyError:
             d[item] = 1
     return d
+
+
+def reduceby(keyfn, binop, seq, init):
+    """ Reduce values in collection by key function
+
+    ``reduceby(first, add, seq, 0)``
+    is equivalent to
+    ``valmap(sum, groupby(first, seq))``
+    but does not build the intermediate groups, allowing it to operate in much
+    less space.  This makes it suitable for larger datasets that do not fit in
+    memory
+
+    >>> from operator import add, mul
+    >>> data = [1, 2, 3, 4, 5]
+    >>> iseven = lambda x: x % 2 == 0
+    >>> reduceby(iseven, add, data, 0)
+    {False: 9, True: 6}
+    >>> reduceby(iseven, mul, data, 1)
+    {False: 15, True: 8}
+    """
+    d = {}
+    for item in seq:
+        key = keyfn(item)
+        if key not in d:
+            d[key] = init
+        d[key] = binop(d[key], item)
+    return d
