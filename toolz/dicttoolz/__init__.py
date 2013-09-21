@@ -1,1 +1,1 @@
-from .core import merge
+from .core import merge, valmap, keymap

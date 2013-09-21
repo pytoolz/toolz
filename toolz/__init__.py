@@ -7,4 +7,4 @@ from .functoolz import (remove, iterate, accumulate,
         memoize, curry,
         thread_first, thread_last)
 
-from .dicttoolz import merge
+from .dicttoolz import merge, keymap, valmap
