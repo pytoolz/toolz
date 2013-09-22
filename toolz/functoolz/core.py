@@ -1,6 +1,7 @@
 from functools import reduce
 import itertools
 
+
 def identity(x):
     return x
 
@@ -103,6 +104,7 @@ def memoize(f, cache=None):
     """
     if cache == None:
         cache = {}
+
     def memof(*args):
         if not hashable(args):
             return f(*args)
@@ -185,6 +187,7 @@ def iterate(f, x):
     while True:
         yield x
         x = f(x)
+
 
 def accumulate(f, seq):
     """ Repeatedly apply binary function f to a sequence, accumulating results
