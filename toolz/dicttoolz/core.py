@@ -62,9 +62,6 @@ def update_in(dikt, keys, f):
     gives the "location" of the value in dikt; f is the function which
     operates on the value to produce an updated value.
 
-    Translated from Clojure,
-    http://clojuredocs.org/clojure_core/1.2.0/clojure.core/update-in
-
     >>> update_in({"x": {"a": 33}}, ["x", "a"], str)
     {'x': {'a': '33'}}
     """
