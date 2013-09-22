@@ -1,6 +1,6 @@
 from toolz.functoolz import (accumulate, iterate, remove,
                              thread_first, thread_last,
-                             memoize, curry)
+                             memoize, curry, comp)
 from operator import add, mul
 
 import itertools
@@ -69,6 +69,13 @@ def test_curry_kwargs():
     assert f(1, 2) == 30
     assert f(1, c=3)(2) == 9
     assert f(c=3)(1, 2) == 9
+
+
+def test_comp():
+    assert comp()(0) == 0
+    assert comp(inc)(0) == 1
+    assert comp(double, inc)(0) == 2
+    assert comp(str, even, inc, double)(3) == "False"
 
 
 def test_iterate():

@@ -213,3 +213,20 @@ def accumulate(f, seq):
     for elem in itertools.islice(seq, 1, None):
         result = f(result, elem)
         yield result
+
+
+def comp(*funcs):
+    if not funcs:
+        return identity
+    if len(funcs) == 1:
+        return funcs[0]
+    else:
+        fns = list(reversed(funcs))
+
+        def loop(*args, **kwargs):
+            ret = fns[0](*args, **kwargs)
+            for f in fns[1:]:
+                ret = f(ret)
+            return ret
+
+        return loop
