@@ -39,3 +39,38 @@ def keymap(fn, d):
         valmap
     """
     return dict(zip(map(fn, d.keys()), d.values()))
+
+
+def assoc(d, q, r):
+    """
+    Return a new dict with q: r added in
+
+    New dict has d["q"] set to r. Do not modify the initial dict.
+
+    >>> assoc({"z": 1}, "z", 2)
+    {'z': 2}
+    >>> assoc({"z": 1}, "b", 3)   # doctest: +SKIP
+    {'z': 1, 'b': 3}
+    """
+    return dict(list(d.items()) + [(q, r)])
+
+
+def update_in(dikt, keys, f):
+    """ Immutably update value in a (potentially) nested dictionary.
+
+    keys is a list or tuple or anything which supports indexing, which
+    gives the "location" of the value in dikt; f is the function which
+    operates on the value to produce an updated value.
+
+    Translated from Clojure,
+    http://clojuredocs.org/clojure_core/1.2.0/clojure.core/update-in
+
+    >>> update_in({"x": {"a": 33}}, ["x", "a"], str)
+    {'x': {'a': '33'}}
+    """
+    assert len(keys) > 0
+    if len(keys) == 1:
+        return assoc(dikt, keys[0], f(dikt.get(keys[0], None)))
+    else:
+        return assoc(dikt, keys[0], update_in(dikt.get(keys[0], None),
+                                              keys[1:], f))

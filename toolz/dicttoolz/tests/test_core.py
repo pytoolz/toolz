@@ -1,4 +1,5 @@
-from toolz.dicttoolz import merge, valmap, keymap
+from toolz.utils import raises
+from toolz.dicttoolz import merge, valmap, keymap, update_in, assoc
 
 
 inc = lambda x: x + 1
@@ -14,3 +15,23 @@ def test_valmap():
 
 def test_keymap():
     assert keymap(inc, {1: 1, 2: 2}) == {2: 1, 3: 2}
+
+
+def test_assoc():
+    assert assoc({}, "a", 1) == {"a": 1}
+    assert assoc({"a": 1}, "a", 3) == {"a": 3}
+    assert assoc({"a": 1}, "b", 3) == {"a": 1, "b": 3}
+
+
+def test_update_in():
+    assert update_in({"a": 0}, ["a"], inc) == {"a": 1}
+    assert update_in({"a": 0, "b": 1}, ["b"], str) == {"a": 0, "b": "1"}
+    assert (update_in({"t": 1,
+                       "v": {"a": 0}}, ["v", "a"], inc) ==
+            {"t": 1, "v": {"a": 1}})
+    # Handle missing element one deep:
+    assert update_in({}, ["z"], str) == {"z": "None"}
+    # Same semantics as Clojure, raises an error if going deeper than
+    # one level into a dict which doesn't have the initial key:
+    assert raises(AttributeError,
+                  lambda: update_in({}, ["z", "q"], str))
