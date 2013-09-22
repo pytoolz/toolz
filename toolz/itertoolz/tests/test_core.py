@@ -1,12 +1,14 @@
 import itertools
 from toolz.utils import raises
 from functools import partial
-from toolz.itertoolz.core import (remove, groupby, merge_sorted, merge_dict,
-                       concat, concatv, interleave, unique, identity,
-                       intersection, iterable, mapcat, distinct,
-                       first, second, nth, take, drop, interpose, get,
-                       rest, last, cons)
+from toolz.itertoolz.core import (remove, groupby, merge_sorted,
+                                  concat, concatv, interleave, unique,
+                                  identity, intersection, iterable,
+                                  mapcat, distinct, first, second,
+                                  nth, take, drop, interpose, get,
+                                  rest, last, cons)
 from toolz.compatibility import range
+
 
 def even(x):
     return x % 2 == 0
@@ -28,10 +30,6 @@ def test_merge_sorted():
     assert list(merge_sorted([1, 2, 3], [1, 2, 3])) == [1, 1, 2, 2, 3, 3]
     assert list(merge_sorted([1, 3, 5], [2, 4, 6])) == [1, 2, 3, 4, 5, 6]
     assert list(merge_sorted([1], [2, 4], [3], [])) == [1, 2, 3, 4]
-
-
-def test_merge_dict():
-    assert merge_dict({1: 1, 2: 2}, {3: 4}) == {1: 1, 2: 2, 3: 4}
 
 
 def test_interleave():
@@ -107,8 +105,8 @@ def test_get():
 
     assert get('foo', {}, default='bar') == 'bar'
 
-    assert raises(IndexError, lambda : get(10, 'ABC'))
-    assert raises(KeyError, lambda : get(10, {'a': 1}))
+    assert raises(IndexError, lambda: get(10, 'ABC'))
+    assert raises(KeyError, lambda: get(10, {'a': 1}))
 
 
 def test_mapcat():
