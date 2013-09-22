@@ -14,6 +14,7 @@ def merge(*dicts):
         rv.update(d)
     return rv
 
+
 def valmap(fn, d):
     """ Apply function to values of dictionary
 
@@ -25,6 +26,7 @@ def valmap(fn, d):
         keymap
     """
     return dict(zip(d.keys(), map(fn, d.values())))
+
 
 def keymap(fn, d):
     """ Apply function to keys of dictionary
