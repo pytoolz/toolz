@@ -216,6 +216,15 @@ def accumulate(f, seq):
 
 
 def comp(*funcs):
+    """ Compose zero or more functions to operate in series.
+
+    Returns a function which consists of the composition of the
+    functions `funcs`, applied right to left.
+
+    >>> inc = lambda i: i + 1
+    >>> comp(str, inc)(3)
+    '4'
+    """
     if not funcs:
         return identity
     if len(funcs) == 1:
