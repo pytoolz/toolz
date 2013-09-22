@@ -56,11 +56,13 @@ def assoc(d, q, r):
 
 
 def update_in(dikt, keys, f):
-    """ Immutably update value in a (potentially) nested dictionary.
+    """ Update value in a (potentially) nested dictionary
 
     keys is a list or tuple or anything which supports indexing, which
     gives the "location" of the value in dikt; f is the function which
     operates on the value to produce an updated value.
+
+    Returns a copy of the original rather than mutating it.
 
     >>> update_in({"x": {"a": 33}}, ["x", "a"], str)
     {'x': {'a': '33'}}
