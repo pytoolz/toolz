@@ -213,3 +213,32 @@ def accumulate(f, seq):
     for elem in itertools.islice(seq, 1, None):
         result = f(result, elem)
         yield result
+
+
+def comp(*funcs):
+    """ Compose functions to operate in series.
+
+    Returns a function that applies other functions in sequence.
+
+    Functions are applied from right to left so that ``comp(f, g,
+    h)(x, y)`` is the same as ``f(g(h(x, y)))``. If no arguments are
+    provided, the identity function (f(x) = x) is returned.
+
+    >>> inc = lambda i: i + 1
+    >>> comp(str, inc)(3)
+    '4'
+    """
+    if not funcs:
+        return identity
+    if len(funcs) == 1:
+        return funcs[0]
+    else:
+        fns = list(reversed(funcs))
+
+        def composed(*args, **kwargs):
+            ret = fns[0](*args, **kwargs)
+            for f in fns[1:]:
+                ret = f(ret)
+            return ret
+
+        return composed
