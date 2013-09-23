@@ -216,10 +216,12 @@ def accumulate(f, seq):
 
 
 def comp(*funcs):
-    """ Compose zero or more functions to operate in series.
+    """ Compose functions to operate in series.
 
-    Returns a function which consists of the composition of the
-    functions `funcs`, applied right to left.
+    Returns a function that applies other functions in sequence.
+
+    Functions are applied from right to left so that ``comp(f, g, h)(x, y)`` is
+    the same as ``f(g(h(x, y)))``
 
     >>> inc = lambda i: i + 1
     >>> comp(str, inc)(3)
@@ -232,10 +234,10 @@ def comp(*funcs):
     else:
         fns = list(reversed(funcs))
 
-        def loop(*args, **kwargs):
+        def composed(*args, **kwargs):
             ret = fns[0](*args, **kwargs)
             for f in fns[1:]:
                 ret = f(ret)
             return ret
 
-        return loop
+        return composed
