@@ -8,3 +8,5 @@ from .functoolz import (remove, iterate, accumulate,
         thread_first, thread_last)
 
 from .dicttoolz import merge, keymap, valmap
+
+nth, take, drop, get, groupby, countby, remove, map, filter, accumulate, keymap, valmap = map(curry, [nth, take, drop, get, groupby, countby, remove, map, filter, accumulate, keymap, valmap])
