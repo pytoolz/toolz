@@ -1,7 +1,6 @@
 from toolz.functoolz import (accumulate, iterate, remove,
                              thread_first, thread_last,
                              memoize, curry, comp)
-from toolz.itertoolz import groupby, identity
 from operator import add, mul
 
 import itertools
@@ -77,15 +76,12 @@ def test_comp():
     assert comp(inc)(0) == 1
     assert comp(double, inc)(0) == 2
     assert comp(str, even, inc, double)(3) == "False"
-    assert groupby(comp(), range(3)) == {0: [0], 1: [1], 2: [2]}
-    assert groupby(comp(identity,
-                        identity,
-                        even), range(3)) == {True: [0, 2], False: [1]}
-    small = lambda x: x < 10
-    square = lambda x: x * x
-    assert groupby(comp(small,
-                        square), range(10)) == {True: [0, 1, 2, 3],
-                                                False: [4, 5, 6, 7, 8, 9]}
+    assert comp(str, add)(1, 2) == '3'
+
+    def f(a, b, c=10):
+        return (a + b) * c
+
+    assert comp(str, inc, f)(1, 2, c=3) == '10'
 
 
 def test_iterate():
