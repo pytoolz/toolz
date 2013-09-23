@@ -22,6 +22,11 @@ def test_assoc():
     assert assoc({"a": 1}, "a", 3) == {"a": 3}
     assert assoc({"a": 1}, "b", 3) == {"a": 1, "b": 3}
 
+    d = {'x': 1}
+    oldd = d
+    assoc(d, 'x', 2)
+    assert d is oldd
+
 
 def test_update_in():
     assert update_in({"a": 0}, ["a"], inc) == {"a": 1}
@@ -35,3 +40,8 @@ def test_update_in():
     # one level into a dict which doesn't have the initial key:
     assert raises(AttributeError,
                   lambda: update_in({}, ["z", "q"], str))
+
+    d = {'x': 1}
+    oldd = d
+    update_in(d, ['x'], inc)
+    assert d is oldd
