@@ -52,7 +52,9 @@ def assoc(d, key, value):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    return dict(list(d.items()) + [(key, value)])
+    d = d.copy()
+    d[key] = value
+    return d
 
 
 def update_in(d, keys, f):
