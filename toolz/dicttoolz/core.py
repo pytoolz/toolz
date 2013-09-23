@@ -41,18 +41,18 @@ def keymap(fn, d):
     return dict(zip(map(fn, d.keys()), d.values()))
 
 
-def assoc(d, q, r):
+def assoc(d, key, value):
     """
-    Return a new dict with q: r added in
+    Return a new dict with new key value pair
 
-    New dict has d["q"] set to r. Do not modify the initial dict.
+    New dict has d[key] set to value. Does not modify the initial dictionary.
 
-    >>> assoc({"z": 1}, "z", 2)
-    {'z': 2}
-    >>> assoc({"z": 1}, "b", 3)   # doctest: +SKIP
-    {'z': 1, 'b': 3}
+    >>> assoc({'x': 1}, 'x', 2)
+    {'x': 2}
+    >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
+    {'x': 1, 'y': 3}
     """
-    return dict(list(d.items()) + [(q, r)])
+    return dict(list(d.items()) + [(key, value)])
 
 
 def update_in(d, keys, f):
