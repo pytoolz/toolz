@@ -20,7 +20,7 @@ These three are implemented as separate directories but are imported from a sing
     >>> square = lambda x: x * x
     >>> small = lambda x: x < 10
     >>> groupby(comp(small, square), range(10))
-    {False: [4, 5, 6, 7, 8, 9, 10], True: [0, 1, 2, 3]}
+    {False: [4, 5, 6, 7, 8, 9], True: [0, 1, 2, 3]}
 
 Author
 ------
