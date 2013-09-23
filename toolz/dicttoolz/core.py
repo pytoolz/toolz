@@ -55,21 +55,32 @@ def assoc(d, q, r):
     return dict(list(d.items()) + [(q, r)])
 
 
-def update_in(dikt, keys, f):
+def update_in(d, keys, f):
     """ Update value in a (potentially) nested dictionary
 
-    keys is a list or tuple or anything which supports indexing, which
-    gives the "location" of the value in dikt; f is the function which
-    operates on the value to produce an updated value.
+    inputs:
+    d - nested dictionary on which to operate
+    keys - list or tuple giving the location of the value to be changed in d
+    f - function to operate on that value
 
     Returns a copy of the original rather than mutating it.
 
-    >>> update_in({"x": {"a": 33}}, ["x", "a"], str)
-    {'x': {'a': '33'}}
+    >>> inc = lambda x: x + 1
+    >>> update_in({'a': 0}, ['a'], inc)
+    {'a': 1}
+
+    >>> transaction = {'name': 'Alice',
+    ...                'purchase': {'items': ['Apple', 'Orange'],
+    ...                             'costs': [0.50, 1.25]},
+    ...                'credit card': '5555-1234-1234-1234'}
+    >>> update_in(transaction, ['purchase', 'costs'], sum) # doctest: +SKIP
+    {'credit card': '5555-1234-1234-1234',
+     'name': 'Alice',
+     'purchase': {'costs': 1.75, 'items': ['Apple', 'Orange']}}
     """
     assert len(keys) > 0
     if len(keys) == 1:
-        return assoc(dikt, keys[0], f(dikt.get(keys[0], None)))
+        return assoc(d, keys[0], f(d.get(keys[0], None)))
     else:
-        return assoc(dikt, keys[0], update_in(dikt.get(keys[0], None),
+        return assoc(d, keys[0], update_in(d.get(keys[0], None),
                                               keys[1:], f))
