@@ -6,7 +6,7 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   identity, intersection, iterable,
                                   mapcat, distinct, first, second,
                                   nth, take, drop, interpose, get,
-                                  rest, last, cons)
+                                  rest, last, cons, frequencies)
 from toolz.compatibility import range
 
 
@@ -140,3 +140,12 @@ def test_concatv():
 def test_interpose():
     assert "a" == first(rest(interpose("a", range(10000000000))))
     assert "tXaXrXzXaXn" == "".join(interpose("X", "tarzan"))
+
+
+def test_frequencies():
+    assert (frequencies(["cat", "pig", "cat", "eel",
+                        "pig", "dog", "dog", "dog"]) ==
+            {"cat": 2, "eel": 1, "pig": 2, "dog": 3})
+    assert frequencies([]) == {}
+    assert frequencies("onomatopoeia") == {"a": 2, "e": 1, "i": 1, "m": 1,
+                                           "o": 4, "n": 1, "p": 1, "t": 1}
