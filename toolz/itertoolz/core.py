@@ -312,3 +312,22 @@ def interpose(el, seq):
     [1, 'a', 2, 'a', 3]
     """
     return rest(mapcat(lambda x: [el, x], seq))
+
+
+def frequencies(seq):
+    """ Find number of occurrences of each value in seq
+
+    >>> frequencies(['cat', 'cat', 'ox', 'pig', 'pig', 'cat'])  #doctest: +SKIP
+    {'cat': 3, 'ox': 1, 'pig': 2}
+
+    See Also:
+        countby
+        groupby
+    """
+    d = dict()
+    for item in seq:
+        try:
+            d[item] += 1
+        except KeyError:
+            d[item] = 1
+    return d
