@@ -22,6 +22,7 @@ def test_assoc():
     assert assoc({"a": 1}, "a", 3) == {"a": 3}
     assert assoc({"a": 1}, "b", 3) == {"a": 1, "b": 3}
 
+    # Verify immutability:
     d = {'x': 1}
     oldd = d
     assoc(d, 'x', 2)
@@ -41,6 +42,7 @@ def test_update_in():
     assert raises(AttributeError,
                   lambda: update_in({}, ["z", "q"], str))
 
+    # Verify immutability:
     d = {'x': 1}
     oldd = d
     update_in(d, ['x'], inc)
