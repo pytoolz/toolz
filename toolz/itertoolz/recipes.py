@@ -1,4 +1,4 @@
-from .core import groupby, identity
+from .core import groupby, frequencies
 
 
 def countby(func, seq):
@@ -14,4 +14,4 @@ def countby(func, seq):
     See Also:
         groupby
     """
-    return dict([(k, len(v)) for k, v in groupby(func, seq).items()])
+    return frequencies(map(func, seq))
