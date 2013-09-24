@@ -334,22 +334,39 @@ def frequencies(seq):
 
 
 def reduceby(keyfn, binop, seq, init):
-    """ Reduce values in collection by key function
+    """ Perform a simultaneous groupby and reduction
 
-    ``reduceby(first, add, seq, 0)``
-    is equivalent to
-    ``valmap(sum, groupby(first, seq))``
-    but does not build the intermediate groups, allowing it to operate in much
-    less space.  This makes it suitable for larger datasets that do not fit in
-    memory
+    The computation:
+        result = reduceby(keyfn, binop, seq, init)
+
+    is equivalent to the following:
+        groups = groupby(keyfn, seq)
+
+        def reduction(group):
+            return reduce(binop, group, init)
+
+        result = {k: reduction(group) for k, group in groups.items()}
+
+    But the former does not build the intermediate groups, allowing it to
+    operate in much less space.  This makes it suitable for larger datasets
+    that do not fit comfortably in memory
 
     >>> from operator import add, mul
     >>> data = [1, 2, 3, 4, 5]
-    >>> iseven = lambda x: x % 2 == 0
-    >>> reduceby(iseven, add, data, 0)
+    >>> is_even = lambda x: x % 2 == 0
+    >>> reduceby(is_even, add, data, 0)
     {False: 9, True: 6}
-    >>> reduceby(iseven, mul, data, 1)
+    >>> reduceby(is_even, mul, data, 1)
     {False: 15, True: 8}
+
+    >>> projects = [{'name': 'build roads', 'state': 'CA', 'cost': 1000000},
+    ...             {'name': 'fight crime', 'state': 'IL', 'cost': 100000},
+    ...             {'name': 'help farmers', 'state': 'IL', 'cost': 2000000},
+    ...             {'name': 'help farmers', 'state': 'CA', 'cost': 200000}]
+    >>> reduceby(lambda x: x['state'],
+    ...          lambda acc, x: acc + x['cost'],
+    ...          projects, 0)
+    {'CA': 1200000, 'IL': 2100000}
     """
     d = {}
     for item in seq:
