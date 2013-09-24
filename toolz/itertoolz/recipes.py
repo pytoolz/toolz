@@ -1,4 +1,5 @@
 from .core import groupby, frequencies
+from toolz.compatibility import imap
 
 
 def countby(func, seq):
@@ -14,4 +15,4 @@ def countby(func, seq):
     See Also:
         groupby
     """
-    return frequencies(map(func, seq))
+    return frequencies(imap(func, seq))
