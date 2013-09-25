@@ -1,5 +1,5 @@
 Functoolz
 =========
 
-.. automodule:: toolz.functoolz
+.. automodule:: toolz.functoolz.core
    :members:

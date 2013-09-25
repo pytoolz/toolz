@@ -1,5 +1,5 @@
 Itertoolz
 =========
 
-.. automodule:: toolz.itertoolz
+.. automodule:: toolz.itertoolz.core
    :members: 

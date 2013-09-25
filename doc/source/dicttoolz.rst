@@ -1,5 +1,5 @@
 Dicttoolz
 =========
 
-.. automodule:: toolz.dicttoolz
+.. automodule:: toolz.dicttoolz.core
    :members:
