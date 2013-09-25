@@ -14,9 +14,11 @@ Example:
     evaluated form
     >>> data = [(1, 2), (11, 22), (111, 222)])
     >>> map(lambda seq: get(0, seq), data)
+    [1, 11, 111]
 
     The curried version allows simple expression of partial evaluation
     >>> map(get(0), data)
+    [1, 11, 111]
 
 See Also:
     toolz.functoolz.curry
