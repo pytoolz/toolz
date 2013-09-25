@@ -41,7 +41,7 @@ def should_curry(f):
 
 
 d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
-        for name, f in toolz.__dict__.items())
+         for name, f in toolz.__dict__.items())
 
 
 locals().update(d)
