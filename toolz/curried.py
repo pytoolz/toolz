@@ -26,16 +26,20 @@ import toolz
 from .functoolz import curry
 import inspect
 
+
 def nargs(f):
     try:
         return len(inspect.getargspec(f).args)
     except TypeError:
         return None
 
+
 def should_curry(f):
     return callable(f) and nargs(f) and nargs(f) > 1
 
+
 d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
         for name, f in toolz.__dict__.items())
+
 
 locals().update(d)
