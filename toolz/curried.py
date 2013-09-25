@@ -35,7 +35,7 @@ def nargs(f):
 def should_curry(f):
     return callable(f) and nargs(f) and nargs(f) > 1
 
-d = {name: curry(f) if '__' not in name and should_curry(f) else f
-        for name, f in toolz.__dict__.items()}
+d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
+        for name, f in toolz.__dict__.items())
 
 locals().update(d)
