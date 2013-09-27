@@ -8,3 +8,5 @@ from .functoolz import (remove, iterate, accumulate,
         thread_first, thread_last)
 
 from .dicttoolz import merge, keymap, valmap, assoc, update_in
+
+__version__ = '0.2'
