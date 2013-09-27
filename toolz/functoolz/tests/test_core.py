@@ -70,6 +70,18 @@ def test_curry_kwargs():
     assert f(1, c=3)(2) == 9
     assert f(c=3)(1, 2) == 9
 
+def test_curry_docstring():
+    def f(x, y):
+        """ A docstring """
+        return x
+
+    g = curry(f)
+    assert g.__doc__ == f.__doc__
+    assert g.func_name == f.func_name
+    print str(g)
+    print str(f)
+    assert str(g) == str(f)
+
 
 def test_comp():
     assert comp()(0) == 0
