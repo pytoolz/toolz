@@ -14,7 +14,7 @@ New BSD.  See [License File](LICENSE.TXT).
 Install
 -------
 
-`toolz` is on the Python Package Index (PyPi)
+`toolz` is on the Python Package Index (PyPi):
 
     pip install toolz
 
@@ -43,7 +43,7 @@ processing.  They interoperate well to accomplish common complex tasks.
 Example
 -------
 
-This builds a standard wordcount function from pieces within `toolz`
+This builds a standard wordcount function from pieces within `toolz`:
 
     >>> def stem(word):
     ...     """ Stem word to primitive form """
