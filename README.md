@@ -18,8 +18,8 @@ Install
 
     pip install toolz
 
-or 
-    
+or
+
     easy_install toolz
 
 Structure and Heritage
@@ -27,7 +27,7 @@ Structure and Heritage
 
 Toolz is implemented in three parts:
 
-[`itertoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py), 
+[`itertoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py),
 for opertions on iterables.  Examples: `groupby`, `unique`, `interpose`,
 
 [`functoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/functoolz/core.py),
@@ -36,7 +36,7 @@ for higher-order functions.  Examples: `memoize`, `curry`, `comp`
 [`dicttoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/dicttoolz/core.py),
 for operations on dictionaries.  Examples: `assoc`, `update-in`, `merge`.
 
-These functions come from the legacy of functional languages for list 
+These functions come from the legacy of functional languages for list
 processing.  They interoperate well to accomplish common complex tasks.
 
 
@@ -82,11 +82,10 @@ See Also
 Contributions Welcome
 ---------------------
 
-`Toolz` aims to be a central repository for common utility functions,
-particularly those that come from the functional programming and list
-processing traditions.  We welcome contributions that fall within this scope
-and encourage users to scrape their `util.py` files for functions that are
-broadly useful.
+`Toolz` aims to be a repository for utility functions, particularly those that
+come from the functional programming and list processing traditions.
+We welcome contributions that fall within this scope and encourage users to
+scrape their `util.py` files for functions that are broadly useful.
 
 Please take a look at our [issue page](https://github.com/pytoolz/toolz/issues)
 for contribution ideas.
