@@ -35,6 +35,7 @@ def nargs(f):
     except TypeError:
         return None
 
+
 exceptions = set((toolz.map, toolz.filter))
 
 def should_curry(f):
