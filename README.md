@@ -62,3 +62,17 @@ Dependencies
 
 `toolz` supports Python 2.6+ and Python 3.2+ with a common codebase.  It is
 pure Python and requires no dependencies beyond the standard library.
+
+
+See Also
+--------
+
+*   [Underscore.js](http://underscorejs.org): A similar library for JavaScript
+*   [Enumerable](http://ruby-doc.org/core-2.0.0/Enumerable.html): A similar
+    library for Ruby
+*   [Clojure](http://clojure.org): A functional language whose standard
+    library matches the toolz API closely.
+*   [itertoolz](http://docs.python.org/2/library/itertools.html): The
+    Python standard library for iterator tools
+*   [functoolz](http://docs.python.org/2/library/functools.html): The
+    Python standard library for function tools
