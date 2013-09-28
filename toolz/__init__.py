@@ -9,4 +9,7 @@ from .functoolz import (remove, iterate, accumulate,
 
 from .dicttoolz import merge, keymap, valmap, assoc, update_in
 
+# Aliases
+comp = compose
+
 __version__ = '0.2'
