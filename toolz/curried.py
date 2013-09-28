@@ -35,9 +35,11 @@ def nargs(f):
     except TypeError:
         return None
 
+exceptions = set((toolz.map, toolz.filter))
 
 def should_curry(f):
-    return callable(f) and nargs(f) and nargs(f) > 1
+    return (callable(f) and nargs(f) and nargs(f) > 1
+            or f in exceptions)
 
 
 d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
