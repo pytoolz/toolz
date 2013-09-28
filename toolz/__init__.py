@@ -4,7 +4,7 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
         interleave, unique, intersection, iterable, distinct)
 
 from .functoolz import (remove, iterate, accumulate,
-        memoize, curry, comp,
+        memoize, curry, compose,
         thread_first, thread_last)
 
 from .dicttoolz import merge, keymap, valmap, assoc, update_in

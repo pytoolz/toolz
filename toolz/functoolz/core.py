@@ -226,18 +226,18 @@ def accumulate(f, seq):
         yield result
 
 
-def comp(*funcs):
+def compose(*funcs):
     """ Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
 
     Functions are applied from right to left so that
-    ``comp(f, g, h)(x, y)`` is the same as ``f(g(h(x, y)))``.
+    ``compose(f, g, h)(x, y)`` is the same as ``f(g(h(x, y)))``.
 
     If no arguments are provided, the identity function (f(x) = x) is returned.
 
     >>> inc = lambda i: i + 1
-    >>> comp(str, inc)(3)
+    >>> compose(str, inc)(3)
     '4'
     """
     if not funcs:
