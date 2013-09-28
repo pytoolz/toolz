@@ -3,7 +3,7 @@ Toolz
 
 A set of common utility functions for iterators, functions, and dictionaries.
 
-[![Build Status](https://travis-ci.org/mrocklin/toolz.png)](https://travis-ci.org/mrocklin/toolz)
+[![Build Status](https://travis-ci.org/pytoolz/toolz.png)](https://travis-ci.org/pytoolz/toolz)
 
 
 LICENSE
