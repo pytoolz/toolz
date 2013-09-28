@@ -1,7 +1,7 @@
 Toolz
 =====
 
-A set of common utility functions for iterators, functions, and dictionaries.
+A set of utility functions for iterators, functions, and dictionaries.
 
 [![Build Status](https://travis-ci.org/pytoolz/toolz.png)](https://travis-ci.org/pytoolz/toolz)
 
