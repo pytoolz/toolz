@@ -147,6 +147,17 @@ class curry(object):
         self.func = func
         self.args = args
         self.kwargs = kwargs
+        self.__doc__ = self.func.__doc__
+        try:
+            self.func_name = self.func.func_name
+        except AttributeError:
+            pass
+
+    def __str__(self):
+        return str(self.func)
+
+    def __repr__(self):
+        return repr(self.func)
 
     def __call__(self, *args, **_kwargs):
         args = self.args + args

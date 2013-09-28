@@ -1,6 +1,6 @@
 from .itertoolz import (groupby, countby, frequencies, reduceby,
         first, second, nth, take, drop, rest, last, get,
-        merge_sorted,
+        merge_sorted, concat, mapcat,
         interleave, unique, intersection, iterable, distinct)
 
 from .functoolz import (remove, iterate, accumulate,
