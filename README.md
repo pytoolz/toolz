@@ -76,3 +76,16 @@ See Also
     Python standard library for iterator tools
 *   [functools](http://docs.python.org/2/library/functools.html): The
     Python standard library for function tools
+
+
+Contributions Welcome
+---------------------
+
+`Toolz` aims to be a central repository for common utility functions,
+particularly those that come from the functional programming and list
+processing traditions.  We welcome contributions that fall within this scope
+and encourage users to scrape their `util.py` files for functions that are
+broody useful.
+
+Please take a look at our [issue page](https://github.com/pytoolz/toolz/issues)
+for contribution ideas.
