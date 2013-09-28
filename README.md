@@ -25,7 +25,7 @@ or
 Structure and Heritage
 ----------------------
 
-Toolz is implemented in three parts:
+`toolz` is implemented in three parts:
 
 [`itertoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py),
 for opertions on iterables.  Examples: `groupby`, `unique`, `interpose`,
@@ -47,7 +47,7 @@ This builds a standard wordcount function from pieces within `toolz`:
 
     >>> def stem(word):
     ...     """ Stem word to primitive form """
-    ...     return word.lower().rstrip(",.!'")
+    ...     return word.lower().rstrip(",.!:;'-\"").lstrip("'\"")
 
     >>> from toolz import comp, frequencies
     >>> from functools import partial
