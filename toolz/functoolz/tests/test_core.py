@@ -1,6 +1,6 @@
 from toolz.functoolz import (accumulate, iterate, remove,
                              thread_first, thread_last,
-                             memoize, curry, comp)
+                             memoize, curry, compose)
 from operator import add, mul
 
 import itertools
@@ -80,17 +80,17 @@ def test_curry_docstring():
     assert str(g) == str(f)
 
 
-def test_comp():
-    assert comp()(0) == 0
-    assert comp(inc)(0) == 1
-    assert comp(double, inc)(0) == 2
-    assert comp(str, even, inc, double)(3) == "False"
-    assert comp(str, add)(1, 2) == '3'
+def test_compose():
+    assert compose()(0) == 0
+    assert compose(inc)(0) == 1
+    assert compose(double, inc)(0) == 2
+    assert compose(str, even, inc, double)(3) == "False"
+    assert compose(str, add)(1, 2) == '3'
 
     def f(a, b, c=10):
         return (a + b) * c
 
-    assert comp(str, inc, f)(1, 2, c=3) == '10'
+    assert compose(str, inc, f)(1, 2, c=3) == '10'
 
 
 def test_iterate():
