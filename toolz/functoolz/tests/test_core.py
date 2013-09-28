@@ -77,9 +77,6 @@ def test_curry_docstring():
 
     g = curry(f)
     assert g.__doc__ == f.__doc__
-    assert g.func_name == f.func_name
-    print str(g)
-    print str(f)
     assert str(g) == str(f)
 
 
