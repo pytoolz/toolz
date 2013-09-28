@@ -9,6 +9,8 @@ from .functoolz import (remove, iterate, accumulate,
 
 from .dicttoolz import merge, keymap, valmap, assoc, update_in
 
+from .compatibility import map, filter
+
 # Aliases
 comp = compose
 
