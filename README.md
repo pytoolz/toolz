@@ -72,7 +72,7 @@ See Also
     library for Ruby
 *   [Clojure](http://clojure.org): A functional language whose standard
     library matches the toolz API closely.
-*   [itertoolz](http://docs.python.org/2/library/itertools.html): The
+*   [itertools](http://docs.python.org/2/library/itertools.html): The
     Python standard library for iterator tools
-*   [functoolz](http://docs.python.org/2/library/functools.html): The
+*   [functools](http://docs.python.org/2/library/functools.html): The
     Python standard library for function tools
