@@ -45,16 +45,16 @@ Example
 
 This builds a standard wordcount function from pieces within `toolz`
 
->>> def stem(word):
-...     """ Stem word to primitive form """
-...     return word.lower().rstrip(",.!'")
+    >>> def stem(word):
+    ...     """ Stem word to primitive form """
+    ...     return word.lower().rstrip(",.!'")
 
->>> from toolz.curried import comp, frequencies, map
->>> wordcount = comp(frequencies, map(stem), str.split)
+    >>> from toolz.curried import comp, frequencies, map
+    >>> wordcount = comp(frequencies, map(stem), str.split)
 
->>> sentence = "This cat jumped over this other cat!"
->>> wordcount(sentence)
-{'this': 2, 'cat': 2, 'jumped': 1, 'over': 1, 'other': 1}
+    >>> sentence = "This cat jumped over this other cat!"
+    >>> wordcount(sentence)
+    {'this': 2, 'cat': 2, 'jumped': 1, 'over': 1, 'other': 1}
 
 
 Dependencies
