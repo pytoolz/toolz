@@ -1,6 +1,6 @@
 import itertools
 from functools import partial
-from toolz.compatibility import Queue, imap
+from toolz.compatibility import Queue, map
 
 
 identity = lambda x: x
@@ -291,7 +291,7 @@ def mapcat(f, seqs):
     ...             [["a", "b"], ["c", "d", "e"]]))
     ['A', 'B', 'C', 'D', 'E']
     """
-    return concat(imap(f, seqs))
+    return concat(map(f, seqs))
 
 
 def cons(el, seq):
