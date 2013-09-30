@@ -3,9 +3,11 @@ PY3 = sys.version_info[0] > 2
 
 if PY3:
     import queue as Queue
-    imap = map
+    map = map
+    filter = filter
     range = range
 else:
     import Queue
     range = xrange
-    from itertools import imap
+    from itertools import imap as map
+    from itertools import ifilter as filter
