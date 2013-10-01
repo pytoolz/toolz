@@ -10,6 +10,8 @@ from toolz.dicttoolz import merge, keymap, valmap, assoc, update_in
 
 from toolz.compatibility import map, filter
 
+from functools import partial, reduce
+
 # Aliases
 comp = compose
 

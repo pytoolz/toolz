@@ -1,4 +1,5 @@
 from toolz.compatibility import map, filter
+from toolz import reduce
 
 def test_map_filter_are_lazy():
     def bad(x):
