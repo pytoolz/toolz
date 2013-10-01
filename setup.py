@@ -4,7 +4,7 @@ from os.path import exists
 from setuptools import setup
 
 setup(name='toolz',
-      version='0.2',
+      version='0.2.1',
       description='More tools',
       url='http://github.com/mrocklin/toolz',
       author='Matthew Rocklin',
