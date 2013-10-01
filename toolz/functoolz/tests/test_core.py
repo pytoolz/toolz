@@ -1,6 +1,4 @@
-from toolz.functoolz import (accumulate, iterate, remove,
-                             thread_first, thread_last,
-                             memoize, curry, compose)
+from toolz.functoolz import thread_first, thread_last, memoize, curry, compose
 from operator import add, mul
 
 import itertools
@@ -20,10 +18,6 @@ def inc(x):
 
 def double(x):
     return 2 * x
-
-
-def test_remove():
-    assert list(remove(even, range(5))) == list(filter(odd, range(5)))
 
 
 def test_thread_first():
@@ -91,12 +85,3 @@ def test_compose():
         return (a + b) * c
 
     assert compose(str, inc, f)(1, 2, c=3) == '10'
-
-
-def test_iterate():
-    assert list(itertools.islice(iterate(inc, 0), 0, 5)) == [0, 1, 2, 3, 4]
-
-
-def test_accumulate():
-    assert list(accumulate(add, [1, 2, 3, 4, 5])) == [1, 3, 6, 10, 15]
-    assert list(accumulate(mul, [1, 2, 3, 4, 5])) == [1, 2, 6, 24, 120]
