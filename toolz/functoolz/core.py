@@ -170,62 +170,6 @@ class curry(object):
             return curry(self.func, *args, **kwargs)
 
 
-def remove(predicate, coll):
-    """ Return those items of collection for which predicate(item) is true.
-
-    >>> def even(x):
-    ...     return x % 2 == 0
-    >>> list(remove(even, [1, 2, 3, 4]))
-    [1, 3]
-    """
-    return filter(lambda x: not predicate(x), coll)
-
-
-def iterate(f, x):
-    """ Repeatedly apply a function f onto an original input
-
-    Yields x, then f(x), then f(f(x)), then f(f(f(x))), etc..
-
-    >>> def inc(x):  return x + 1
-    >>> it = iterate(inc, 0)
-    >>> next(it)
-    0
-    >>> next(it)
-    1
-    >>> next(it)
-    2
-    """
-    while True:
-        yield x
-        x = f(x)
-
-
-def accumulate(f, seq):
-    """ Repeatedly apply binary function f to a sequence, accumulating results
-
-    >>> from operator import add, mul
-    >>> list(accumulate(add, [1, 2, 3, 4, 5]))
-    [1, 3, 6, 10, 15]
-    >>> list(accumulate(mul, [1, 2, 3, 4, 5]))
-    [1, 2, 6, 24, 120]
-
-    Accumulate is similar to ``reduce`` and is good for making functions like
-    cumulative sum
-
-    >>> from functools import partial
-    >>> sum    = partial(reduce, add)
-    >>> cumsum = partial(accumulate, add)
-
-    See Also:
-        itertools.accumulate :  In standard itertools for Python 3.2+
-    """
-    result = next(iter(seq))
-    yield result
-    for elem in itertools.islice(seq, 1, None):
-        result = f(result, elem)
-        yield result
-
-
 def compose(*funcs):
     """ Compose functions to operate in series.
 

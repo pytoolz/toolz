@@ -4,6 +4,6 @@ from toolz.itertoolz.core import (groupby, remove, concat, concatv,
                                   rest, get, last, merge_sorted,
                                   interleave, unique, reduceby,
                                   identity, intersection, iterable,
-                                  distinct, cons)
+                                  distinct, cons, iterate, accumulate)
 
 from toolz.itertoolz.recipes import countby
