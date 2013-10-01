@@ -17,6 +17,32 @@ def remove(predicate, coll):
     return filter(lambda x: not predicate(x), coll)
 
 
+def accumulate(f, seq):
+    """ Repeatedly apply binary function f to a sequence, accumulating results
+
+    >>> from operator import add, mul
+    >>> list(accumulate(add, [1, 2, 3, 4, 5]))
+    [1, 3, 6, 10, 15]
+    >>> list(accumulate(mul, [1, 2, 3, 4, 5]))
+    [1, 2, 6, 24, 120]
+
+    Accumulate is similar to ``reduce`` and is good for making functions like
+    cumulative sum
+
+    >>> from functools import partial, reduce
+    >>> sum    = partial(reduce, add)
+    >>> cumsum = partial(accumulate, add)
+
+    See Also:
+        itertools.accumulate :  In standard itertools for Python 3.2+
+    """
+    result = next(iter(seq))
+    yield result
+    for elem in itertools.islice(seq, 1, None):
+        result = f(result, elem)
+        yield result
+
+
 def groupby(f, coll):
     """ Group a collection by a key function
 
@@ -375,3 +401,22 @@ def reduceby(keyfn, binop, seq, init):
             d[key] = init
         d[key] = binop(d[key], item)
     return d
+
+
+def iterate(f, x):
+    """ Repeatedly apply a function f onto an original input
+
+    Yields x, then f(x), then f(f(x)), then f(f(f(x))), etc..
+
+    >>> def inc(x):  return x + 1
+    >>> it = iterate(inc, 0)
+    >>> next(it)
+    0
+    >>> next(it)
+    1
+    >>> next(it)
+    2
+    """
+    while True:
+        yield x
+        x = f(x)

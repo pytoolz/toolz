@@ -6,7 +6,8 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   identity, intersection, iterable,
                                   mapcat, distinct, first, second,
                                   nth, take, drop, interpose, get,
-                                  rest, last, cons, frequencies, reduceby)
+                                  rest, last, cons, frequencies, reduceby,
+                                  iterate, accumulate)
 from toolz.compatibility import range
 from operator import add, mul
 
@@ -17,6 +18,14 @@ def even(x):
 
 def odd(x):
     return x % 2 == 1
+
+
+def inc(x):
+    return x + 1
+
+
+def double(x):
+    return 2 * x
 
 
 def test_remove():
@@ -165,3 +174,12 @@ def test_reduceby():
     assert reduceby(lambda x: x['state'],
                     lambda acc, x: acc + x['cost'],
                     projects, 0) == {'CA': 1200000, 'IL': 2100000}
+
+
+def test_iterate():
+    assert list(itertools.islice(iterate(inc, 0), 0, 5)) == [0, 1, 2, 3, 4]
+
+
+def test_accumulate():
+    assert list(accumulate(add, [1, 2, 3, 4, 5])) == [1, 3, 6, 10, 15]
+    assert list(accumulate(mul, [1, 2, 3, 4, 5])) == [1, 2, 6, 24, 120]
