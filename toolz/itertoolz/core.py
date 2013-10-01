@@ -27,7 +27,7 @@ def accumulate(f, seq):
     [1, 2, 6, 24, 120]
 
     Accumulate is similar to ``reduce`` and is good for making functions like
-    cumulative sum
+    cumulative sum:
 
     >>> from functools import partial, reduce
     >>> sum    = partial(reduce, add)
