@@ -1,8 +1,8 @@
 from toolz.itertoolz import (groupby, countby, frequencies, reduceby,
-        first, second, nth, take, drop, rest, last, get,
-        merge_sorted, concat, mapcat,
-        interleave, unique, intersection, iterable, distinct,
-        remove, iterate, accumulate)
+                             first, second, nth, take, drop, rest, last, get,
+                             merge_sorted, concat, concatv, mapcat, distinct,
+                             interleave, unique, intersection, iterable,
+                             remove, iterate, accumulate)
 
 from toolz.functoolz import memoize, curry, compose, thread_first, thread_last
 
