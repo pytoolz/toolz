@@ -23,4 +23,4 @@ def test_partitionby():
             [1, 2, 3, 2, 3])
 
     assert ''.join(map(first,
-                       partitionby(identity, "Leeeeeerrroyyy"))) == 'Leroy'
+                       partitionby(identity, "Khhhaaaaannnnn!!!!"))) == 'Khan!'
