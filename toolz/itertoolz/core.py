@@ -1,6 +1,6 @@
 import itertools
 from functools import partial
-from ..functoolz import identity, compose
+from ..functoolz import identity
 from toolz.compatibility import Queue, map
 
 
