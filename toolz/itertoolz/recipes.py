@@ -27,10 +27,6 @@ def partitionby(f, seq):
     `s`, every time the output of `f` changes a new list is started
     and that and subsequent items are collected into that list.
 
-    Note: mapping `compose(list, second)` is required to make this
-    both Python 2 and 3 compatible (Python 3 works without the
-    application of `list`).
-
     >>> is_space = lambda c: c == " "
     >>> list(partitionby(is_space, "I have spaces"))
     [['I'], [' '], ['h', 'a', 'v', 'e'], [' '], ['s', 'p', 'a', 'c', 'e', 's']]
@@ -43,4 +39,7 @@ def partitionby(f, seq):
         partition
         groupby
     """
+    # Note: mapping `compose(list, second)` is required to make this
+    # both Python 2 and 3 compatible (Python 3 works without the
+    # application of `list`).
     return map(compose(list, second), itertools.groupby(seq, key=f))
