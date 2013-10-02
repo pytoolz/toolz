@@ -38,6 +38,7 @@ def partitionby(f, seq):
     See also:
         partition
         groupby
+        itertools.groupby
     """
     # Note: mapping `compose(list, second)` is required to make this
     # both Python 2 and 3 compatible (Python 3 works without the
