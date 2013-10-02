@@ -1,7 +1,9 @@
 import itertools
 from functools import partial
-from ..functoolz import identity
 from toolz.compatibility import Queue, map
+
+
+identity = lambda x: x
 
 
 def remove(predicate, coll):
