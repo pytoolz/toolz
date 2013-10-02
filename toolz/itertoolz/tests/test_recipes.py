@@ -13,8 +13,8 @@ def test_countby():
 def test_partitionby():
     assert list(partitionby(identity, [])) == []
 
-    vowel = lambda l: l in "aeiou"
-    assert (list(partitionby(vowel, "abcdefghi")) ==
+    vowels = "aeiou"
+    assert (list(partitionby(vowels.__contains__, "abcdefghi")) ==
             [["a"], ["b", "c", "d"], ["e"], ["f", "g", "h"], ["i"]])
 
     assert (list(map(first,
