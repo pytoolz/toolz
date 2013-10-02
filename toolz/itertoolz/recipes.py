@@ -20,7 +20,7 @@ def countby(func, seq):
     return frequencies(map(func, seq))
 
 
-def partitionby(f, s):
+def partitionby(f, seq):
     """ Partition a sequence according to a function
 
     Partition `s` into a sequence of lists such that every time `f(s)`
@@ -43,4 +43,4 @@ def partitionby(f, s):
         partition
         groupby
     """
-    return map(compose(list, second), itertools.groupby(s, key=f))
+    return map(compose(list, second), itertools.groupby(seq, key=f))
