@@ -6,7 +6,7 @@ from setuptools import setup
 setup(name='toolz',
       version='0.2.2',
       description='More tools',
-      url='http://github.com/mrocklin/toolz',
+      url='http://github.com/pytoolz/toolz/',
       author='Matthew Rocklin',
       author_email='mrocklin@gmail.com',
       license='BSD',
