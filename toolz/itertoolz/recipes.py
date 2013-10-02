@@ -23,9 +23,9 @@ def countby(func, seq):
 def partitionby(f, seq):
     """ Partition a sequence according to a function
 
-    Partition `s` into a sequence of lists such that every time `f(s)`
-    changes, a new list is started and items are collected into that
-    list.
+    Partition `s` into a sequence of lists such that, when traversing
+    `s`, every time the output of `f` changes a new list is started
+    and that and subsequent items are collected into that list.
 
     Note: mapping `compose(list, second)` is required to make this
     both Python 2 and 3 compatible (Python 3 works without the
