@@ -1,6 +1,5 @@
 import itertools
-from .core import groupby, frequencies, second
-from ..functoolz import compose
+from .core import frequencies
 from ..compatibility import map
 
 
@@ -40,7 +39,6 @@ def partitionby(f, seq):
         groupby
         itertools.groupby
     """
-    # Note: mapping `compose(list, second)` is required to make this
-    # both Python 2 and 3 compatible (Python 3 works without the
-    # application of `list`).
-    return map(compose(list, second), itertools.groupby(seq, key=f))
+    # Note: applying `list` seems to be required both Python 2 and 3
+    # compatible (Python 3 works without it).
+    return (list(v) for k, v in itertools.groupby(seq, key=f))
