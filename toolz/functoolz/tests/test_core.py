@@ -64,6 +64,7 @@ def test_curry_kwargs():
     assert f(1, c=3)(2) == 9
     assert f(c=3)(1, 2) == 9
 
+
 def test_curry_docstring():
     def f(x, y):
         """ A docstring """
