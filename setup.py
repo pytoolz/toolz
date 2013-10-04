@@ -5,11 +5,13 @@ from setuptools import setup
 
 setup(name='toolz',
       version='0.2.2',
-      description='More tools',
+      description='List processing tools and functional utilities',
       url='http://github.com/pytoolz/toolz/',
       author='Matthew Rocklin',
       author_email='mrocklin@gmail.com',
       license='BSD',
+      keywords='functional utility itertools functools',
+
       packages=['toolz',
                 'toolz.itertoolz',
                 'toolz.functoolz',
