@@ -31,7 +31,7 @@ Structure and Heritage
 for opertions on iterables.  Examples: `groupby`, `unique`, `interpose`,
 
 [`functoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/functoolz/core.py),
-for higher-order functions.  Examples: `memoize`, `curry`, `comp`
+for higher-order functions.  Examples: `memoize`, `curry`, `compose`
 
 [`dicttoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/dicttoolz/core.py),
 for operations on dictionaries.  Examples: `assoc`, `update-in`, `merge`.
@@ -49,9 +49,8 @@ This builds a standard wordcount function from pieces within `toolz`:
     ...     """ Stem word to primitive form """
     ...     return word.lower().rstrip(",.!:;'-\"").lstrip("'\"")
 
-    >>> from toolz import comp, frequencies
-    >>> from functools import partial
-    >>> wordcount = comp(frequencies, partial(map, stem), str.split)
+    >>> from toolz import compose, frequencies, partial
+    >>> wordcount = compose(frequencies, partial(map, stem), str.split)
 
     >>> sentence = "This cat jumped over this other cat!"
     >>> wordcount(sentence)
