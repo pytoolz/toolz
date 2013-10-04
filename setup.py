@@ -2,9 +2,10 @@
 
 from os.path import exists
 from setuptools import setup
+import toolz
 
 setup(name='toolz',
-      version='0.2.2',
+      version=toolz.__version__,
       description='List processing tools and functional utilities',
       url='http://github.com/pytoolz/toolz/',
       author='Matthew Rocklin',
