@@ -24,9 +24,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   itertoolz.rst
-   functoolz.rst
-   dicttoolz.rst
+   api.rst
 
 Indices and tables
 ==================
