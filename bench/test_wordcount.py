@@ -2,9 +2,8 @@ from toolz.curried import *
 import os
 
 if not os.path.exists('bench/shakespeare.txt'):
-    os.system('wget http://www.gutenberg.org/ebooks/100.txt.utf-8')
-    os.system('mv 100.txt.utf-8 shakespeare.txt')
-
+    os.system('wget http://www.gutenberg.org/ebooks/100.txt.utf-8'
+              ' -o bench/shakespeare.txt')
 
 def stem(word):
     """ Stem word to primitive form """
