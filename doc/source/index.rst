@@ -6,19 +6,23 @@
 Toolz API Documentation
 =======================
 
-Contents:
+The Toolz project provides a set of utility functions for iterators, functions,
+and dictionaries.  These functions are designed to interoperate well, forming
+the building blocks of common data analytic operations.
+
+
+Contents
+^^^^^^^^
 
 .. toctree::
    :maxdepth: 2
 
-   itertoolz.rst
-   functoolz.rst
-   dicttoolz.rst
+   api.rst
+   install.rst
 
-Indices and tables
-==================
+Back Matter
+^^^^^^^^^^^
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
