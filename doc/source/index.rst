@@ -25,6 +25,7 @@ Contents:
    :maxdepth: 2
 
    api.rst
+   install.rst
 
 Indices and tables
 ==================
