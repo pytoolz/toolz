@@ -6,7 +6,9 @@
 Toolz API Documentation
 =======================
 
-The Toolz project provides a set of utility functions for iterators, functions, and dictionaries.  These functions are designed to interoperate well, forming the building blocks of common data analytic operations.
+The Toolz project provides a set of utility functions for iterators, functions,
+and dictionaries.  These functions are designed to interoperate well, forming
+the building blocks of common data analytic operations.
 
 
 Contents

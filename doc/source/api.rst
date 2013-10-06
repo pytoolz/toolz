@@ -1,7 +1,7 @@
 API
 ===
 
-This page contains a comprehensive list of all functions within `Toolz`.
+This page contains a comprehensive list of all functions within ``toolz``.
 Docstrings should provide sufficient understanding for any individual function.
 
 Itertoolz
