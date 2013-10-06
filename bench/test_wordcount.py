@@ -3,7 +3,7 @@ import os
 
 if not os.path.exists('bench/shakespeare.txt'):
     os.system('wget http://www.gutenberg.org/ebooks/100.txt.utf-8'
-              ' -o bench/shakespeare.txt')
+              ' -O bench/shakespeare.txt')
 
 def stem(word):
     """ Stem word to primitive form """
