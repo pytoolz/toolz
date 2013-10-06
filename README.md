@@ -11,6 +11,7 @@ LICENSE
 
 New BSD.  See [License File](LICENSE.TXT).
 
+
 Install
 -------
 
@@ -21,6 +22,7 @@ Install
 or
 
     easy_install toolz
+
 
 Structure and Heritage
 ----------------------
@@ -39,6 +41,8 @@ for operations on dictionaries.  Examples: `assoc`, `update-in`, `merge`.
 These functions come from the legacy of functional languages for list
 processing.  They interoperate well to accomplish common complex tasks.
 
+
+Read our [Documentation](http://toolz.readthedocs.org) for more details.
 
 Example
 -------
