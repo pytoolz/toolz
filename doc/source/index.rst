@@ -20,6 +20,7 @@ Contents
 
    api.rst
    install.rst
+   references.rst
 
 Back Matter
 ^^^^^^^^^^^
