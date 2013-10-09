@@ -1,11 +1,11 @@
 Heritage 
 ========
 
-The Python language provides a high quality set of core data structures (i.e.
-tuples, lists, dictionaries, sets), lazy iterators, and functions as first
-class objects.  While Python was originally intended as an imperative language
-[Guido_], these elements also support a rich set of features from the
-functional paradigm.
+While Python was originally intended as an imperative language
+[Guido_], it contains all elements necessary to support a rich set of features 
+from the functional paradigm.  In particular its core data structures, lazy
+iterators, and functions as first class objects can be combined to implement a
+common standard library of functions shared among many functional languages.
 
 This was first recognized and supported through the standard libraries
 itertools_ and functools_ which contain functions like ``permutations``,
@@ -19,8 +19,8 @@ incomplete and lack a number of commonly related functions like ``compose`` and
 A completion of this set of functions was first attempted in the projects
 itertoolz_ and functoolz_ (note the z).  These libraries contained several
 several functions that were absent in the standard itertools_/functools_
-libraries.  The ``*toolz`` libraries were eventually merged into the monolithic
-``toolz`` project.
+libraries.  The ``itertoolz``/``functoolz`` libraries were eventually merged
+into the monolithic ``toolz`` project.
 
 Most contemporary functional languages (Haskell, Scala, Clojure, ...) contain
 some variation of the functions found in ``toolz``.  The ``toolz`` project
@@ -31,12 +31,12 @@ language itself, and often makes deviations in order to be more approachable by
 that community.
 
 The development of a functional standard library within a popular imperative
-language is not unique.  Similar functional projects have arisen in other
+language is not unique.  Similar projects have arisen in other
 imperative-by-design languages that contain the necessary elements to support a
-functional standard library.  Notably Underscore.js_ in JavaScript has attained
+functional standard library.  Underscore.js_ in JavaScript has attained
 notable popularity in the web community.  ``LINQ`` in C# follows a similar
 philosophy but mimics declarative database languages rather than functional
-ones.  ``Enumerable`` is is the closest project in Ruby.
+ones.  Enumerable_ is is the closest project in Ruby.
 
 .. [itertools] http://docs.python.org/2/library/itertools.html
 .. [functools] http://docs.python.org/2/library/functools.html
@@ -45,3 +45,4 @@ ones.  ``Enumerable`` is is the closest project in Ruby.
 .. [Underscore.js] http://underscorejs.org
 .. [cheatsheet] http://clojure.org/cheatsheet
 .. [Guido] http://python-history.blogspot.com/2009/04/origins-of-pythons-functional-features.html
+.. [Enumerable] http://ruby-doc.org/core-2.0.0/Enumerable.html
