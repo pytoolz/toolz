@@ -472,3 +472,23 @@ def iterate(f, x):
     while True:
         yield x
         x = f(x)
+
+
+def rolling_partition(n, seq):
+    """ A sequence of overlapping subsequences
+
+    >>> list(rolling_partition(2, [1, 2, 3, 4]))
+    [(1, 2), (2, 3), (3, 4)]
+
+    This function creates a sliding window suitable for transformations like
+    sliding means / smoothing
+
+    >>> mean = lambda seq: float(sum(seq)) / len(seq)
+    >>> list(map(mean, rolling_partition(2, [1, 2, 3, 4])))
+    [1.5, 2.5, 3.5]
+    """
+    it = iter(seq)
+    buff = [None] + list(take(n - 1, it))
+    for item in it:
+        buff = buff[1:] + [item]
+        yield tuple(buff)

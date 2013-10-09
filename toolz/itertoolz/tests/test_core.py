@@ -7,7 +7,7 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   mapcat, isdistinct, first, second,
                                   nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies, reduceby,
-                                  iterate, accumulate)
+                                  iterate, accumulate, rolling_partition)
 from toolz.compatibility import range
 from operator import add, mul
 
@@ -189,3 +189,7 @@ def test_iterate():
 def test_accumulate():
     assert list(accumulate(add, [1, 2, 3, 4, 5])) == [1, 3, 6, 10, 15]
     assert list(accumulate(mul, [1, 2, 3, 4, 5])) == [1, 2, 6, 24, 120]
+
+def test_rolling_partition():
+    assert list(rolling_partition(2, [1, 2, 3, 4])) == [(1, 2), (2, 3), (3, 4)]
+    assert list(rolling_partition(3, [1, 2, 3, 4])) == [(1, 2, 3), (2, 3, 4)]
