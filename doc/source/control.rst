@@ -17,7 +17,7 @@ Here is a piece of code; see if you can label each term as either
 variable/value, function/computation, or control flow
 
 .. code::
-    
+
     def fib(n):
         a, b = 0, 1
         for i in range(n):
@@ -25,13 +25,13 @@ variable/value, function/computation, or control flow
         return b
 
 Programming is hard when we have to juggle many code elements of each type at
-the same time.  Good programming is about managing these three elements so that 
-the developer must only think about a handful of them at a time.  For example
-we might collect many integer variables into a list of integers or build a big
-function out of smaller ones.  While we have natural ways to manage data and
-functions, control flow presents more of a challenge.
+the same time.  Good programming is about managing these three elements so that
+the developer is only required to think about a handful of them at a time.  For
+example we might collect many integer variables into a list of integers or
+build a big function out of smaller ones.  While we have natural ways to manage
+data and functions, control flow presents more of a challenge.
 
-We organize our data into **data structures** like lists, dictionaries, or objects 
+We organize our data into **data structures** like lists, dictionaries, or objects
 in order to group related data together -- this allows us to manipulate large
 collections of related data as if we were only manipulating a single entity.
 
@@ -39,7 +39,7 @@ We **build large functions out of smaller ones**; enabling us to break up a
 complex task like doing laundry into a sequence of simpler tasks.
 
 .. code::
-    
+
     def do_laundry(clothes):
         wet_clothes = wash(clothes, coins)
         dry_clothes = dry(clothes, coins)
@@ -47,7 +47,7 @@ complex task like doing laundry into a sequence of simpler tasks.
 
 **Control flow is more challenging**; how do we break down complex control flow
 into simpler pieces that fit in our brain?  How do we encapsulate commonly
-recurring patterns?  
+recurring patterns?
 
 Lets motivate this with an example of a common control structure, applying a
 function to each element in a list.  Imagine we want to download the HTML
@@ -81,10 +81,10 @@ this control flow pattern is so common we give it a name, ``map``, and say that
 we map a function (like ``urlopen``) onto a list (like ``urls``).
 
 Because Python can treat functions like variables we can encode this control
-pattern into a higher-order-function
+pattern into a higher-order-function as follows:
 
 .. code::
-    
+
     def map(function, sequence):
         output = []
         for item in sequence:
@@ -94,7 +94,7 @@ pattern into a higher-order-function
 This allows us to simplify our code above to the following, pithy solutions
 
 .. code::
-    
+
     html_texts = map(urlopen, urls)
     fib_integers = map(fib, integers)
 
@@ -103,7 +103,7 @@ that it has been elevated to the status of **syntax** with the popular list
 comprehension
 
 .. code::
-    
+
     html_texts = [urlopen(url) for url in urls]
 
 
@@ -119,11 +119,13 @@ Managing Complexity
 The higher order function ``map`` gives us a name to call a particular control
 pattern.  Irregardless of whether or not you use a for loop, a list
 comprehension, or ``map`` itself, it is useful to recognize the operation
-and to give it a name.  Naming control patterns lets us scale out and tackle more complex problems.  It is just as important as bundling data into
-data structures or building complex functions out of simple ones.
+and to give it a name.  Naming control patterns lets us scale out and tackle
+more complex problems without burdening our mind with rote details.  It is just
+as important as bundling data into data structures or building complex
+functions out of simple ones.
 
-*Giving names to control flow patterns enables programmers to manipulate 
-increasingly complex operations*
+*Naming control flow patterns enables programmers to manipulate increasingly
+complex operations.*
 
 Other Patterns
 ^^^^^^^^^^^^^^
@@ -176,7 +178,7 @@ a single concept.
 
 The Toolz library contains dozens of patterns like ``map`` and ``groupby``.
 Learning a core set (maybe a dozen) covers the vast majority of common
-programming tasks often done by hand.  
+programming tasks often done by hand.
 
 *A rich vocabulary of core control functions conveys the following benefits:*
 

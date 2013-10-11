@@ -1,8 +1,8 @@
-Heritage 
+Heritage
 ========
 
 While Python was originally intended as an imperative language
-[Guido_], it contains all elements necessary to support a rich set of features 
+[Guido_], it contains all elements necessary to support a rich set of features
 from the functional paradigm.  In particular its core data structures, lazy
 iterators, and functions as first class objects can be combined to implement a
 common standard library of functions shared among many functional languages.
@@ -17,17 +17,17 @@ incomplete and lack a number of commonly related functions like ``compose`` and
 ``groupby`` which often complement these core operations.
 
 A completion of this set of functions was first attempted in the projects
-itertoolz_ and functoolz_ (note the z).  These libraries contained several
+itertoolz_ and functoolz_ (note the z).  These libraries contained
 several functions that were absent in the standard itertools_/functools_
 libraries.  The ``itertoolz``/``functoolz`` libraries were eventually merged
-into the monolithic ``toolz`` project.
+into the monolithic ``toolz`` project described here.
 
 Most contemporary functional languages (Haskell, Scala, Clojure, ...) contain
 some variation of the functions found in ``toolz``.  The ``toolz`` project
 generally adheres closely to the API found in the Clojure standard library (see
 cheatsheet_) and where disagreements occur that API usually dominates.  The
 ``toolz`` API is also strongly affected by the principles of the Python
-language itself, and often makes deviations in order to be more approachable by
+language itself, and often makes deviations in order to be more approachable to
 that community.
 
 The development of a functional standard library within a popular imperative
