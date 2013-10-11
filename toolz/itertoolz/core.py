@@ -413,12 +413,12 @@ def iterate(f, x):
     Yields x, then f(x), then f(f(x)), then f(f(f(x))), etc..
 
     >>> def inc(x):  return x + 1
-    >>> it = iterate(inc, 0)
-    >>> next(it)
+    >>> counter = iterate(inc, 0)
+    >>> next(counter)
     0
-    >>> next(it)
+    >>> next(counter)
     1
-    >>> next(it)
+    >>> next(counter)
     2
     """
     while True:
