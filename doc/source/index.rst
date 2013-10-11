@@ -1,7 +1,3 @@
-.. Toolz documentation master file, created by
-   sphinx-quickstart on Sun Sep 22 18:06:00 2013.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
 Toolz API Documentation
 =======================
@@ -13,10 +9,10 @@ standard libraries `itertools` and `functools`.
 
 Toolz provides a suite of functions which have the following virtues:
 
--   **Composable**: They interoperate due to their use of core data structures
--   **Pure**:  They don't change their inputs or rely on external state
+-   **Composable**: They interoperate due to their use of core data structures.
+-   **Pure**:  They don't change their inputs or rely on external state.
 -   **Lazy**:  They don't run until absolutely necessary, allowing them to
-           support large streaming data sets
+           support large streaming data sets.
 
 This gives developers the power to write *powerful* programs to solve *complex
 problems* with relatively *simple code* which is *easy to understand* without
@@ -31,13 +27,13 @@ Contents
    :maxdepth: 2
 
    heritage.rst
-   api.rst
    install.rst
    references.rst
+   control.rst
+   api.rst
 
 Back Matter
 ^^^^^^^^^^^
 
 * :ref:`genindex`
 * :ref:`search`
-
