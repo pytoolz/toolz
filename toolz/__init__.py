@@ -2,7 +2,7 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
                         first, second, nth, take, drop, rest, last,
                         get, merge_sorted, concat, concatv, mapcat,
                         isdistinct, interleave, unique, intersection,
-                        iterable, remove, iterate, accumulate,
+                        isiterable, remove, iterate, accumulate,
                         partitionby)
 
 from .functoolz import (memoize, curry, compose, thread_first,

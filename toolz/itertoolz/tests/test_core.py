@@ -3,7 +3,7 @@ from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   concat, concatv, interleave, unique,
-                                  identity, intersection, iterable,
+                                  identity, intersection, isiterable,
                                   mapcat, isdistinct, first, second,
                                   nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies, reduceby,
@@ -58,10 +58,10 @@ def test_intersection():
     assert list(intersection([3, 4], itertools.count(0))) == [3, 4]
 
 
-def test_iterable():
-    assert iterable([1, 2, 3]) == True
-    assert iterable('abc') == True
-    assert iterable(5) == False
+def test_isiterable():
+    assert isiterable([1, 2, 3]) == True
+    assert isiterable('abc') == True
+    assert isiterable(5) == False
 
 
 def test_isdistinct():

@@ -146,14 +146,14 @@ def intersection(*seqs):
                  if all(item in seq for seq in seqs[1:]))
 
 
-def iterable(x):
+def isiterable(x):
     """ Is x iterable?
 
-    >>> iterable([1, 2, 3])
+    >>> isiterable([1, 2, 3])
     True
-    >>> iterable('abc')
+    >>> isiterable('abc')
     True
-    >>> iterable(5)
+    >>> isiterable(5)
     False
     """
     try:
