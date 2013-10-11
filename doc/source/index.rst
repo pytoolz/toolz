@@ -9,9 +9,9 @@ standard libraries `itertools` and `functools`.
 
 Toolz provides a suite of functions which have the following virtues:
 
--   **Composable**: They interoperate due to their use of core data structures.
--   **Pure**:  They don't change their inputs or rely on external state.
--   **Lazy**:  They don't run until absolutely necessary, allowing them to
+-   **Composable:** They interoperate due to their use of core data structures.
+-   **Pure:**  They don't change their inputs or rely on external state.
+-   **Lazy:**  They don't run until absolutely necessary, allowing them to
            support large streaming data sets.
 
 This gives developers the power to write *powerful* programs to solve *complex
