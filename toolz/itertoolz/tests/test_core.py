@@ -4,7 +4,7 @@ from functools import partial
 from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   concat, concatv, interleave, unique,
                                   identity, intersection, iterable,
-                                  mapcat, distinct, first, second,
+                                  mapcat, isdistinct, first, second,
                                   nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies, reduceby,
                                   iterate, accumulate)
@@ -64,12 +64,12 @@ def test_iterable():
     assert iterable(5) == False
 
 
-def test_distinct():
-    assert distinct([1, 2, 3]) == True
-    assert distinct([1, 2, 1]) == False
+def test_isdistinct():
+    assert isdistinct([1, 2, 3]) == True
+    assert isdistinct([1, 2, 1]) == False
 
-    assert distinct("Hello") == False
-    assert distinct("World") == True
+    assert isdistinct("Hello") == False
+    assert isdistinct("World") == True
 
 
 def test_nth():

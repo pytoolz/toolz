@@ -163,17 +163,17 @@ def iterable(x):
         return False
 
 
-def distinct(seq):
+def isdistinct(seq):
     """ All values in sequence are distinct
 
-    >>> distinct([1, 2, 3])
+    >>> isdistinct([1, 2, 3])
     True
-    >>> distinct([1, 2, 1])
+    >>> isdistinct([1, 2, 1])
     False
 
-    >>> distinct("Hello")
+    >>> isdistinct("Hello")
     False
-    >>> distinct("World")
+    >>> isdistinct("World")
     True
     """
     return len(seq) == len(set(seq))
