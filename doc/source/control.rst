@@ -23,30 +23,35 @@ variable/value, function/computation, or control flow
         for i in range(n):
             a, b = b, a + b
         return b
-        
+
 Programming is hard when we have to juggle many code elements of each type at
 the same time.  Good programming is about managing these three elements so that 
-the developer must only think about a handful of them at a time.  For example we might collect many integer variables into a list or build a big function out of smaller ones.  While we have natural ways to manage data and functions; control flow 
-is more challenging.
+the developer must only think about a handful of them at a time.  For example
+we might collect many integer variables into a list of integers or build a big
+function out of smaller ones.  While we have natural ways to manage data and
+functions, control flow presents more of a challenge.
 
-We organize our data into data structures like lists, dictionaries, or objects 
+We organize our data into **data structures** like lists, dictionaries, or objects 
 in order to group related data together -- this allows us to manipulate large
 collections of related data as if we were only manipulating a single entity.
 
-We often build large functions out of smaller ones; enabling us to break up a
+We **build large functions out of smaller ones**; enabling us to break up a
 complex task like doing laundry into a sequence of simpler tasks.
 
 .. code::
-
+    
     def do_laundry(clothes):
-        wet_clothes = wash(clothes, quarters)
-        dry_clothes = dry(clothes, quarters)
+        wet_clothes = wash(clothes, coins)
+        dry_clothes = dry(clothes, coins)
         return = fold(clothes)
 
-Control flow is more challenging to think about; how do we break down complex
-control flow into simpler pieces that fit in our brain?  How do we encapsulate
-commonly recurring patterns?  Lets motivate this with an example.  Imagine we
-want to download the html for a number of webpages.
+**Control flow is more challenging**; how do we break down complex control flow
+into simpler pieces that fit in our brain?  How do we encapsulate commonly
+recurring patterns?  
+
+Lets motivate this with an example of a common control structure, applying a
+function to each element in a list.  Imagine we want to download the HTML
+source for a number of webpages.
 
 .. code::
 
@@ -114,7 +119,7 @@ Managing Complexity
 The higher order function ``map`` gives us a name to call a particular control
 pattern.  Irregardless of whether or not you use a for loop, a list
 comprehension, or ``map`` itself, it is useful to recognize the operation
-and to give it a name.  This naming of control patterns lets us scale out and tackle more complex problems.  It is just as important as bundling data into
+and to give it a name.  Naming control patterns lets us scale out and tackle more complex problems.  It is just as important as bundling data into
 data structures or building complex functions out of simple ones.
 
 *Giving names to control flow patterns enables programmers to manipulate 
@@ -140,7 +145,8 @@ Most programmers however don't know about the many cousins of
     {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
 
 Groupby collects each element of a list into sublists determined by the value
-of a function.  Lets see ``groupby`` in action again
+of a function.  Lets see ``groupby`` in action again, grouping numbers by
+evenness.
 
 .. code::
 

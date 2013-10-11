@@ -90,8 +90,8 @@ def memoize(f, cache=None):
     """ Cache a function's result for speedy future evaluation
 
     Considerations:
-        Trades memory for speed
-        Only use on pure functions
+        Trades memory for speed.
+        Only use on pure functions.
 
     >>> def add(x, y):  return x + y
     >>> add = memoize(add)
