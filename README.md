@@ -5,6 +5,8 @@ A set of utility functions for iterators, functions, and dictionaries.
 
 [![Build Status](https://travis-ci.org/pytoolz/toolz.png)](https://travis-ci.org/pytoolz/toolz)
 
+See our documentation at http://toolz.readthedocs.org
+
 
 LICENSE
 -------
@@ -42,7 +44,8 @@ These functions come from the legacy of functional languages for list
 processing.  They interoperate well to accomplish common complex tasks.
 
 
-Read our [Documentation](http://toolz.readthedocs.org) for more details.
+Read our [API Documentation](http://toolz.readthedocs.org/en/latest/api.html)
+for more details.
 
 Example
 -------
