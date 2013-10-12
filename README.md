@@ -5,7 +5,7 @@ A set of utility functions for iterators, functions, and dictionaries.
 
 [![Build Status](https://travis-ci.org/pytoolz/toolz.png)](https://travis-ci.org/pytoolz/toolz)
 
-See our documentation at http://toolz.readthedocs.org
+See the PyToolz documentation at http://toolz.readthedocs.org
 
 
 LICENSE
