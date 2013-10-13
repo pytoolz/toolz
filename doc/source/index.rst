@@ -5,7 +5,7 @@ PyToolz API Documentation
 The Toolz project provides a set of utility functions for iterators, functions,
 and dictionaries.  These functions are designed to interoperate well, forming
 the building blocks of common data analytic operations.  They extend the
-standard libraries `itertools` and `functools`.
+standard libraries `itertools` and `functools` and borrow heavily from the standard libraries of contemporary functional languages.
 
 Toolz provides a suite of functions which have the following virtues:
 
