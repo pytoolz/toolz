@@ -30,9 +30,3 @@ Contents
    references.rst
    control.rst
    api.rst
-
-Back Matter
-^^^^^^^^^^^
-
-* :ref:`genindex`
-* :ref:`search`
