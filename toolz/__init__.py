@@ -17,4 +17,4 @@ from functools import partial, reduce
 # Aliases
 comp = compose
 
-__version__ = '0.2.2'
+__version__ = '0.3.0'
