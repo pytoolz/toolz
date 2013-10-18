@@ -74,7 +74,7 @@ compute a result.
 
     >>> double = mul(2)     # mul didn't receive enough arguments to evaluate
     ...                     # so it holds onto the 2 and waits, returning a
-    ...                     # partially evaluted function, double
+    ...                     # partially evaluated function, double
 
     >>> double(5)
     10
