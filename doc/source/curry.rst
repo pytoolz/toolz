@@ -17,7 +17,7 @@ Partial Evaluation
 ------------------
 
 Often when composing smaller functions to form big ones we need partial
-evaluation.  We do this in the wordcounting example:
+evaluation.  We do this in the word counting example:
 
 .. code::
 
@@ -43,6 +43,20 @@ The ``partial`` function lets us create this function more naturally.
 
     >>> stem_many = partial(map, stem)
 
+In general
+
+.. code::
+
+    >>> def f(x, y, z):
+    ...     # Do stuff with x, y, and z
+
+    >>> # partially evaluate f with known values a and b
+    >>> def g(z):
+    ...     return f(a, b, z)
+
+    >>> # partially evaluate f with known values a and b
+    >>> g = partial(f, a, b)
+
 Curry
 -----
 
@@ -52,13 +66,15 @@ compute a result.
 
 .. code::
 
+    >>> from toolz import curry
+
     >>> @curry              # We can use curry as a decorator
     ... def mul(x, y):
     ...     return x * y
 
     >>> double = mul(2)     # mul didn't receive enough arguments to evaluate
     ...                     # so it holds onto the 2 and waits, returning a
-    ...                     # partially evalated function
+    ...                     # partially evaluted function, double
 
     >>> double(5)
     10
@@ -69,7 +85,7 @@ So if ``map`` was curried...
 
     >>> map = curry(map)
 
-Then we can replace the ``partial`` with a normal function evaluation
+Then we could replace the ``partial`` with a function evaluation
 
 .. code::
 
