@@ -117,7 +117,7 @@ Managing Complexity
 ^^^^^^^^^^^^^^^^^^^
 
 The higher order function ``map`` gives us a name to call a particular control
-pattern.  Irregardless of whether or not you use a for loop, a list
+pattern.  Regardless of whether or not you use a for loop, a list
 comprehension, or ``map`` itself, it is useful to recognize the operation
 and to give it a name.  Naming control patterns lets us scale out and tackle
 more complex problems without burdening our mind with rote details.  It is just
