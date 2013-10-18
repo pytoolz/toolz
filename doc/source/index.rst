@@ -29,5 +29,6 @@ Contents
    install.rst
    control.rst
    composition.rst
+   curry.rst
    api.rst
    references.rst
