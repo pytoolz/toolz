@@ -142,6 +142,10 @@ class curry(object):
     >>> add = f(a=1)
     >>> add(2, 3)
     5
+
+    See Also:
+        toolz.curried - namespace of curried functions
+                        http://toolz.readthedocs.org/en/latest/curry.html
     """
     def __init__(self, func, *args, **kwargs):
         self.func = func
