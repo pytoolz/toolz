@@ -427,6 +427,18 @@ def iterate(f, x):
     1
     >>> next(counter)
     2
+
+    >>> double = lambda x: x * 2
+    >>> powers_of_two = iterate(double, 1)
+    >>> next(powers_of_two)
+    1
+    >>> next(powers_of_two)
+    2
+    >>> next(powers_of_two)
+    4
+    >>> next(powers_of_two)
+    8
+
     """
     while True:
         yield x
