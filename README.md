@@ -70,6 +70,8 @@ Dependencies
 `toolz` supports Python 2.6+ and Python 3.2+ with a common codebase.  It is
 pure Python and requires no dependencies beyond the standard library.
 
+It is, in short, a light weight dependency.
+
 
 See Also
 --------
