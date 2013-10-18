@@ -27,6 +27,7 @@ Contents
 
    heritage.rst
    install.rst
-   references.rst
    control.rst
+   composition.rst
    api.rst
+   references.rst
