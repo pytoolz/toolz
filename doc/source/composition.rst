@@ -2,7 +2,7 @@ Composability
 =============
 
 Toolz functions interoperate because they consume and produce only a small
-set of common, core data structures.  Each `toolz` function consumes iterables,
+set of common, core data structures.  Each ``toolz`` function consumes iterables,
 dictionaries, and functions and produces iterables, dictionaries, and
 functions.  This standardized interface enables us to compose several general
 purpose functions to solve custom problems.
@@ -17,6 +17,9 @@ Standard Interface
 
 This is best explained by a two examples; the automobile industry and LEGOs.
 
+Autos
+^^^^^
+
 Automobile pieces are not composable because they do not adhere to a standard
 interface.  You can't connect a Porsche engine to the body of a Volkswagen
 Beetle but include the safety features of your favorite luxury car.  As a
@@ -26,6 +29,9 @@ model, replacement parts may be hard to find.  While the customization provides
 a number of efficiencies important for automobiles, it limits the ability of
 downstream tinkerers.  This ability for future developers to tinker is
 paramount in good software design.
+
+LEGOs
+^^^^^
 
 Contrast this with LEGO toys.  With LEGOs you *can* connect a rocket engine and
 skis to a rowboat.  This is a perfectly natural thing to do because every piece
