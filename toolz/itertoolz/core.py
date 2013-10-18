@@ -374,15 +374,16 @@ def reduceby(keyfn, binop, seq, init):
     """ Perform a simultaneous groupby and reduction
 
     The computation:
-        result = reduceby(keyfn, binop, seq, init)
+
+    >>> result = reduceby(keyfn, binop, seq, init)      # doctest: +SKIP
 
     is equivalent to the following:
-        groups = groupby(keyfn, seq)
 
-        def reduction(group):
-            return reduce(binop, group, init)
+    >>> def reduction(group):                           # doctest: +SKIP
+    ...     return reduce(binop, group, init)           # doctest: +SKIP
 
-        result = {k: reduction(group) for k, group in groups.items()}
+    >>> groups = groupby(keyfn, seq)                    # doctest: +SKIP
+    >>> result = valmap(reduction, groups)              # doctest: +SKIP
 
     But the former does not build the intermediate groups, allowing it to
     operate in much less space.  This makes it suitable for larger datasets
