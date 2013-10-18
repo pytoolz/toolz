@@ -32,7 +32,7 @@ Structure and Heritage
 `toolz` is implemented in three parts:
 
 [`itertoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py),
-for opertions on iterables.  Examples: `groupby`, `unique`, `interpose`,
+for operations on iterables.  Examples: `groupby`, `unique`, `interpose`,
 
 [`functoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/functoolz/core.py),
 for higher-order functions.  Examples: `memoize`, `curry`, `compose`
