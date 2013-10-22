@@ -32,7 +32,7 @@ Structure and Heritage
 `toolz` is implemented in three parts:
 
 [`itertoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py),
-for opertions on iterables.  Examples: `groupby`, `unique`, `interpose`,
+for operations on iterables.  Examples: `groupby`, `unique`, `interpose`,
 
 [`functoolz`](https://github.com/pytoolz/toolz/blob/master/toolz/functoolz/core.py),
 for higher-order functions.  Examples: `memoize`, `curry`, `compose`
@@ -69,6 +69,8 @@ Dependencies
 
 `toolz` supports Python 2.6+ and Python 3.2+ with a common codebase.  It is
 pure Python and requires no dependencies beyond the standard library.
+
+It is, in short, a light weight dependency.
 
 
 See Also

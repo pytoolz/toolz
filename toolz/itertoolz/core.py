@@ -49,6 +49,13 @@ def groupby(f, coll):
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
     >>> groupby(len, names)
     {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
+
+    >>> iseven = lambda x: x % 2 == 0
+    >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])
+    {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
+
+    See Also:
+        ``countby``
     """
     d = dict()
     for item in coll:
@@ -367,15 +374,16 @@ def reduceby(keyfn, binop, seq, init):
     """ Perform a simultaneous groupby and reduction
 
     The computation:
-        result = reduceby(keyfn, binop, seq, init)
+
+    >>> result = reduceby(keyfn, binop, seq, init)      # doctest: +SKIP
 
     is equivalent to the following:
-        groups = groupby(keyfn, seq)
 
-        def reduction(group):
-            return reduce(binop, group, init)
+    >>> def reduction(group):                           # doctest: +SKIP
+    ...     return reduce(binop, group, init)           # doctest: +SKIP
 
-        result = {k: reduction(group) for k, group in groups.items()}
+    >>> groups = groupby(keyfn, seq)                    # doctest: +SKIP
+    >>> result = valmap(reduction, groups)              # doctest: +SKIP
 
     But the former does not build the intermediate groups, allowing it to
     operate in much less space.  This makes it suitable for larger datasets
@@ -420,6 +428,18 @@ def iterate(f, x):
     1
     >>> next(counter)
     2
+
+    >>> double = lambda x: x * 2
+    >>> powers_of_two = iterate(double, 1)
+    >>> next(powers_of_two)
+    1
+    >>> next(powers_of_two)
+    2
+    >>> next(powers_of_two)
+    4
+    >>> next(powers_of_two)
+    8
+
     """
     while True:
         yield x

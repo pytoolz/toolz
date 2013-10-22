@@ -1,4 +1,3 @@
-
 Control Flow
 ============
 
@@ -42,8 +41,8 @@ complex task like doing laundry into a sequence of simpler tasks.
 
     def do_laundry(clothes):
         wet_clothes = wash(clothes, coins)
-        dry_clothes = dry(clothes, coins)
-        return = fold(clothes)
+        dry_clothes = dry(wet_clothes, coins)
+        return fold(dry_clothes)
 
 **Control flow is more challenging**; how do we break down complex control flow
 into simpler pieces that fit in our brain?  How do we encapsulate commonly
@@ -117,7 +116,7 @@ Managing Complexity
 ^^^^^^^^^^^^^^^^^^^
 
 The higher order function ``map`` gives us a name to call a particular control
-pattern.  Irregardless of whether or not you use a for loop, a list
+pattern.  Regardless of whether or not you use a for loop, a list
 comprehension, or ``map`` itself, it is useful to recognize the operation
 and to give it a name.  Naming control patterns lets us scale out and tackle
 more complex problems without burdening our mind with rote details.  It is just
