@@ -1,4 +1,4 @@
-def merge(*dicts):
+def merge(*dicts, **kwargs):
     """ Merge a collection of dictionaries
 
     >>> merge({1: 'one'}, {2: 'two'})
@@ -9,10 +9,18 @@ def merge(*dicts):
     >>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
     {1: 2, 3: 3, 4: 4}
     """
-    rv = dict()
-    for d in dicts:
-        rv.update(d)
-    return rv
+    key = kwargs.get('key', None)
+
+    if not key:
+        rv = dict()
+        for d in dicts:
+            rv.update(d)
+        return rv
+    else:
+        keys = tuple(set((k for d in dicts for k in d)))
+        values = tuple(key([d[k] for d in dicts if k in d])
+                                 for k in keys)
+        return dict(zip(keys, values))
 
 
 def valmap(fn, d):
