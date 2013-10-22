@@ -9,8 +9,8 @@ def countby(func, seq):
     >>> countby(len, ['cat', 'mouse', 'dog'])
     {3: 2, 5: 1}
 
-    >>> def even(x): return x % 2 == 0
-    >>> countby(even, [1, 2, 3])  # doctest:+SKIP
+    >>> def iseven(x): return x % 2 == 0
+    >>> countby(iseven, [1, 2, 3])  # doctest:+SKIP
     {True: 1, False: 2}
 
     See Also:

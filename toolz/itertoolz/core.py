@@ -9,9 +9,9 @@ identity = lambda x: x
 def remove(predicate, coll):
     """ Return those items of collection for which predicate(item) is true.
 
-    >>> def even(x):
+    >>> def iseven(x):
     ...     return x % 2 == 0
-    >>> list(remove(even, [1, 2, 3, 4]))
+    >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
     return filter(lambda x: not predicate(x), coll)
@@ -383,10 +383,10 @@ def reduceby(keyfn, binop, seq, init):
 
     >>> from operator import add, mul
     >>> data = [1, 2, 3, 4, 5]
-    >>> is_even = lambda x: x % 2 == 0
-    >>> reduceby(is_even, add, data, 0)
+    >>> iseven = lambda x: x % 2 == 0
+    >>> reduceby(iseven, add, data, 0)
     {False: 9, True: 6}
-    >>> reduceby(is_even, mul, data, 1)
+    >>> reduceby(iseven, mul, data, 1)
     {False: 15, True: 8}
 
     >>> projects = [{'name': 'build roads', 'state': 'CA', 'cost': 1000000},

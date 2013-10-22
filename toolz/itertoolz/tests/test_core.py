@@ -12,11 +12,11 @@ from toolz.compatibility import range
 from operator import add, mul
 
 
-def even(x):
+def iseven(x):
     return x % 2 == 0
 
 
-def odd(x):
+def isodd(x):
     return x % 2 == 1
 
 
@@ -29,11 +29,11 @@ def double(x):
 
 
 def test_remove():
-    assert list(remove(even, range(5))) == list(filter(odd, range(5)))
+    assert list(remove(iseven, range(5))) == list(filter(isodd, range(5)))
 
 
 def test_groupby():
-    assert groupby(even, [1, 2, 3, 4]) == {True: [2, 4], False: [1, 3]}
+    assert groupby(iseven, [1, 2, 3, 4]) == {True: [2, 4], False: [1, 3]}
 
 
 def test_merge_sorted():
@@ -50,7 +50,7 @@ def test_interleave():
 def test_unique():
     assert tuple(unique((1, 2, 3))) == (1, 2, 3)
     assert tuple(unique((1, 2, 1, 3))) == (1, 2, 3)
-    assert tuple(unique((1, 2, 3), key=even)) == (1, 2)
+    assert tuple(unique((1, 2, 3), key=iseven)) == (1, 2)
 
 
 def test_intersection():
