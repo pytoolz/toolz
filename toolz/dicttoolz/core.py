@@ -1,15 +1,24 @@
 def merge(*dicts, **kwargs):
     """ Merge a collection of dictionaries
 
-    >>> merge({1: 'one'}, {2: 'two'})
-    {1: 'one', 2: 'two'}
+    >>> merge({1: 'one'}, {2: 'two'}, {3: 'three'})
+    {1: 'one', 2: 'two', 3: 'three'}
 
     Later dictionaries have precedence
 
     >>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
     {1: 2, 3: 3, 4: 4}
+
+    Merge can also be given an iterable of dictionaries
+
+    >>> dicts = ({1: 'one'}, {2: 'two'}, {3: 'three'})
+    >>> merge(dicts)
+    {1: 'one', 2: 'two', 3: 'three'}
     """
     key = kwargs.get('key', None)
+
+    if (len(dicts) == 1 and not isinstance(dicts[0], dict)):
+        dicts = dicts[0]
 
     if not key:
         rv = dict()

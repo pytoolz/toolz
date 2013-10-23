@@ -15,6 +15,12 @@ def test_merge_with_key():
     dicts = {1: 1, 2: 2, 3: 3}, {1: 10, 2: 20}
     assert merge(*dicts, key=sum) == {1: 11, 2:22, 3: 3}
 
+def test_merge_iterable():
+    assert merge(({1: 1, 2: 2}, {3: 4})) == {1: 1, 2: 2, 3: 4}
+    assert merge([{1: 1, 2: 2}, {3: 4}]) == {1: 1, 2: 2, 3: 4}
+    assert merge(iter([{1: 1, 2: 2}, {3: 4}])) == {1: 1, 2: 2, 3: 4}
+    assert merge({1: 1}) == {1: 1}
+
 def test_valmap():
     assert valmap(inc, {1: 1, 2: 2}) == {1: 2, 2: 3}
 
