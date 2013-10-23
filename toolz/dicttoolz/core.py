@@ -15,19 +15,19 @@ def merge(*dicts, **kwargs):
     >>> merge(dicts)
     {1: 'one', 2: 'two', 3: 'three'}
     """
-    key = kwargs.get('key', None)
+    func = kwargs.get('func', None)
 
     if (len(dicts) == 1 and not isinstance(dicts[0], dict)):
         dicts = dicts[0]
 
-    if not key:
+    if not func:
         rv = dict()
         for d in dicts:
             rv.update(d)
         return rv
     else:
         keys = tuple(set((k for d in dicts for k in d)))
-        values = tuple(key([d[k] for d in dicts if k in d])
+        values = tuple(func([d[k] for d in dicts if k in d])
                                  for k in keys)
         return dict(zip(keys, values))
 
