@@ -49,7 +49,7 @@ to give up customization and embrace simple core standards.
 Other Standard Interfaces
 -------------------------
 
-The Toolz project relies on core Python data structures.  This choice is not
+The Toolz project builds off of a standard interface -- this choice is not
 unique.  Other standard interfaces exist and provide immeasurable benefit to
 their application areas.
 
@@ -59,17 +59,20 @@ NumPy arrays is largely responsible for the broad success of the
 various SciPy projects.  We see similar development today with the Pandas
 DataFrame.
 
+The UNIX toolset relies on files and streams of text.
+
 JSON emerged as the standard interface for communication over the web.  The
 virtues of standardization become glaringly apparent when we contrast JSON with
-its predecessor, XML.  XML was designed to be extensible, allowing each
-application to design its own interface.  This resulted in a sea of difficult
-to understand custom data languages that failed to develop a common analytic
-and data processing infrastructure.  In contrast JSON is very restrictive and
-allows only a fixed set of data structures, namely lists, dictionaries,
-numbers, strings.  Fortunately this set is common to most modern languages and
-so JSON is extremely widely supported, perhaps falling second only to CSV.
+its predecessor, XML.  XML was designed to be extensible/customizable, allowing
+each application to design its own interface.  This resulted in a sea of
+difficult to understand custom data languages that failed to develop a common
+analytic and data processing infrastructure.  In contrast JSON is very
+restrictive and allows only a fixed set of data structures, namely lists,
+dictionaries, numbers, strings.  Fortunately this set is common to most modern
+languages and so JSON is extremely widely supported, perhaps falling second
+only to CSV.
 
 Standard interfaces permeate physical reality as well.  Examples range
 from supra-national currencies to drill bits and electrical circuitry.  In all
 cases the interoperation that results becomes a defining and invaluable feature
-of the solution.
+of each solution.
