@@ -2,6 +2,17 @@
 Control Flow
 ============
 
+Programming is hard when we need to think simultaneously about several
+concepts.  Good programming involves breaking down big problems into smaller
+problems and building up small solutions into big solutions so that
+simultaneous thought is restricted to only a few elements at a time.
+
+All modern languages provide mechanisms to build data into data structures and
+to build functions out of other functions.  The third element of programming,
+besides data and functions is control flow.  Building complex control flow out
+of simple control flow presents deeper challenges.
+
+
 What?
 -----
 
@@ -119,10 +130,10 @@ Managing Complexity
 The higher order function ``map`` gives us a name to call a particular control
 pattern.  Regardless of whether or not you use a for loop, a list
 comprehension, or ``map`` itself, it is useful to recognize the operation
-and to give it a name.  Naming control patterns lets us scale out and tackle
-more complex problems without burdening our mind with rote details.  It is just
-as important as bundling data into data structures or building complex
-functions out of simple ones.
+and to give it a name.  Naming control patterns lets us tackle
+complex problems a larger scale without burdening our mind with rote details.
+It is just as important as bundling data into data structures or building
+complex functions out of simple ones.
 
 *Naming control flow patterns enables programmers to manipulate increasingly
 complex operations.*
