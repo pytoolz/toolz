@@ -2,10 +2,10 @@ Composability
 =============
 
 Toolz functions interoperate because they consume and produce only a small
-set of common, core data structures.  Each ``toolz`` function consumes iterables,
-dictionaries, and functions and produces iterables, dictionaries, and
-functions.  This standardized interface enables us to compose several general
-purpose functions to solve custom problems.
+set of common, core data structures.  Each ``toolz`` function consumes
+iterables, dictionaries, and each ``toolz`` function produces iterables,
+dictionaries, and functions.  This standardized interface enables us to compose
+several general purpose functions to solve custom problems.
 
 Standard interfaces enable us to use many tools together, even if those tools
 were not designed with each other in mind.  We call this "using together"
@@ -45,4 +45,31 @@ or memory issues but this affects only a very small fraction of applications.
 Most of the time we have the freedom to operate in the LEGO model if we choose
 to give up customization and embrace simple core standards.
 
-This principle of standard interfaces is what separates XML (customizable) from JSON (standardized.)
+
+Other Standard Interfaces
+-------------------------
+
+The Toolz project relies on core Python data structures.  This choice is not
+unique.  Other standard interfaces exist and provide immeasurable benefit to
+their application areas.
+
+The NumPy array serves as a foundational object for numeric and scientific
+computing within Python.  The ability of any project to consume and produce
+NumPy arrays is largely responsible for the broad success of the
+various SciPy projects.  We see similar development today with the Pandas
+DataFrame.
+
+JSON emerged as the standard interface for communication over the web.  The
+virtues of standardization become glaringly apparent when we contrast JSON with
+its predecessor, XML.  XML was designed to be extensible, allowing each
+application to design its own interface.  This resulted in a sea of difficult
+to understand custom data languages that failed to develop a common analytic
+and data processing infrastructure.  In contrast JSON is very restrictive and
+allows only a fixed set of data structures, namely lists, dictionaries,
+numbers, strings.  Fortunately this set is common to most modern languages and
+so JSON is extremely widely supported, perhaps falling second only to CSV.
+
+Standard interfaces permeate physical reality as well.  Examples range
+from supra-national currencies to drill bits and electrical circuitry.  In all
+cases the interoperation that results becomes a defining and invaluable feature
+of the solution.
