@@ -28,8 +28,9 @@ Contents
    heritage.rst
    install.rst
    composition.rst
-   control.rst
    purity.rst
+   laziness.rst
+   control.rst
    curry.rst
    api.rst
    references.rst
