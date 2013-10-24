@@ -1,15 +1,16 @@
 Control Flow
 ============
 
-Programming is hard when we need to think simultaneously about several
-concepts.  Good programming involves breaking down big problems into smaller
-problems and building up small solutions into big solutions so that
-simultaneous thought is restricted to only a few elements at a time.
+Programming is hard when we think simultaneously about several concepts.  Good
+programming breaks down big problems into small problems and
+builds up small solutions into big solutions.  By this practice the
+need for simultaneous thought is restricted to only a few elements at a time.
 
 All modern languages provide mechanisms to build data into data structures and
 to build functions out of other functions.  The third element of programming,
-besides data and functions is control flow.  Building complex control flow out
-of simple control flow presents deeper challenges.
+besides data and functions is control flow.  Control flow is the third
+element of programming, after data and functions.  Building complex control
+flow out of simple control flow presents deeper challenges.
 
 
 What?
