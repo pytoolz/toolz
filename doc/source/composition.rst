@@ -30,19 +30,19 @@ a number of efficiencies important for automobiles, it limits the ability of
 downstream tinkerers.  This ability for future developers to tinker is
 paramount in good software design.
 
-LEGOs
-^^^^^
+Lego
+^^^^
 
-Contrast this with LEGO toys.  With LEGOs you *can* connect a rocket engine and
+Contrast this with Lego toys.  With Lego you *can* connect a rocket engine and
 skis to a rowboat.  This is a perfectly natural thing to do because every piece
-adheres to a simple interface - those simple and regular 8mm circular bumps.
+adheres to a simple interface - those simple and regular 5mm circular bumps.
 This freedom to connect pieces at will lets children unleash their imagination
 in such varied ways (like going arctic shark hunting with a rocket-ski-boat).
 
-The abstractions in programming make it far more like LEGO than like building
+The abstractions in programming make it far more like Lego than like building
 cars.  This breaks down a little when we start to be constrained by performance
 or memory issues but this affects only a very small fraction of applications.
-Most of the time we have the freedom to operate in the LEGO model if we choose
+Most of the time we have the freedom to operate in the Lego model if we choose
 to give up customization and embrace simple core standards.
 
 

@@ -1,4 +1,3 @@
-
 Control Flow
 ============
 
@@ -53,8 +52,8 @@ complex task like doing laundry into a sequence of simpler tasks.
 
     def do_laundry(clothes):
         wet_clothes = wash(clothes, coins)
-        dry_clothes = dry(clothes, coins)
-        return = fold(clothes)
+        dry_clothes = dry(wet_clothes, coins)
+        return fold(dry_clothes)
 
 **Control flow is more challenging**; how do we break down complex control flow
 into simpler pieces that fit in our brain?  How do we encapsulate commonly

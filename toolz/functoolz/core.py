@@ -61,8 +61,9 @@ def thread_last(val, *forms):
     expands to
         g(y, z, f(x))
 
-    >>> def even(x): return x % 2 == 0
-    >>> list(thread_last([1, 2, 3], (map, inc), (filter, even)))
+    >>> def iseven(x):
+    ...     return x % 2 == 0
+    >>> list(thread_last([1, 2, 3], (map, inc), (filter, iseven)))
     [2, 4]
 
     See Also:

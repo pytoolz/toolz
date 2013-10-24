@@ -4,11 +4,11 @@ from operator import add, mul
 import itertools
 
 
-def even(x):
+def iseven(x):
     return x % 2 == 0
 
 
-def odd(x):
+def isodd(x):
     return x % 2 == 1
 
 
@@ -29,7 +29,7 @@ def test_thread_first():
 
 
 def test_thread_last():
-    assert list(thread_last([1, 2, 3], (map, inc), (filter, even))) == [2, 4]
+    assert list(thread_last([1, 2, 3], (map, inc), (filter, iseven))) == [2, 4]
 
 
 def test_memoize():
@@ -79,7 +79,7 @@ def test_compose():
     assert compose()(0) == 0
     assert compose(inc)(0) == 1
     assert compose(double, inc)(0) == 2
-    assert compose(str, even, inc, double)(3) == "False"
+    assert compose(str, iseven, inc, double)(3) == "False"
     assert compose(str, add)(1, 2) == '3'
 
     def f(a, b, c=10):
