@@ -104,7 +104,7 @@ def memoize(f, cache=None):
     ... def add(x, y):
     ...     return x + y
     """
-    if cache == None:
+    if cache is None:
         cache = {}
 
     def memof(*args):
@@ -195,7 +195,6 @@ class curry(object):
         kwargs = {}
         kwargs.update(self.kwargs)
         kwargs.update(_kwargs)
-
 
         required_args = _num_required_args(self.func)
         if (required_args is not None):
