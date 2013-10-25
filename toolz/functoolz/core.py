@@ -1,5 +1,6 @@
 from functools import reduce
 import itertools
+import inspect
 
 
 def identity(x):
@@ -120,6 +121,12 @@ def memoize(f, cache=None):
     return memof
 
 
+def _numargs(func):
+    """ Number of args for func """
+    spec = inspect.getargspec(foo)
+    return len(spec.args) - len(spec.defaults)
+
+
 class curry(object):
     """ Curry a callable function
 
@@ -151,6 +158,10 @@ class curry(object):
     def __init__(self, func, *args, **kwargs):
         self.func = func
         self.args = args
+        try:
+            self.spec = inspect.getargspec(func)  # violates SPOT
+        except:
+            self.spec = False
         self.kwargs = kwargs
         self.__doc__ = self.func.__doc__
         try:
@@ -169,10 +180,19 @@ class curry(object):
         kwargs = {}
         kwargs.update(self.kwargs)
         kwargs.update(_kwargs)
-        try:
-            return self.func(*args, **kwargs)
-        except TypeError:
-            return curry(self.func, *args, **kwargs)
+
+        if (self.spec and not self.spec.varargs):
+            num_stored = len(args)
+            ndefaults = 0 if not self.spec.defaults else len(self.spec.defaults)
+            num_required = len(self.spec.args) - ndefaults
+            if num_stored >= num_required:
+                return self.func(*args, **kwargs)
+        else:
+            try:
+                return self.func(*args, **kwargs)
+            except TypeError:
+                pass
+        return curry(self.func, *args, **kwargs)
 
 
 def compose(*funcs):
