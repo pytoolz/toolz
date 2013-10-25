@@ -1,5 +1,6 @@
 from toolz.functoolz import thread_first, thread_last, memoize, curry, compose
 from operator import add, mul
+from toolz.utils import raises
 
 import itertools
 
@@ -63,6 +64,19 @@ def test_curry_kwargs():
     assert f(1, 2) == 30
     assert f(1, c=3)(2) == 9
     assert f(c=3)(1, 2) == 9
+
+
+def test_curry_passes_errors():
+    @curry
+    def f(a, b):
+        if not isinstance(a, int):
+            raise TypeError()
+        return a + b
+
+    assert f(1, 2) == 3
+    assert raises(TypeError, lambda : f('1', 2))
+    assert raises(TypeError, lambda : f('1')(2))
+    assert raises(TypeError, lambda : f(1, 2, 3))
 
 
 def test_curry_docstring():
