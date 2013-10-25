@@ -1,4 +1,5 @@
-from toolz.functoolz import thread_first, thread_last, memoize, curry, compose
+from toolz.functoolz import (thread_first, thread_last, memoize, curry,
+        compose, pipe)
 from operator import add, mul
 
 import itertools
@@ -86,3 +87,8 @@ def test_compose():
         return (a + b) * c
 
     assert compose(str, inc, f)(1, 2, c=3) == '10'
+
+def test_pipe():
+    assert pipe(1, inc) == 2
+    assert pipe(1, inc, inc) == 3
+    assert pipe(1, double, inc, iseven) == False
