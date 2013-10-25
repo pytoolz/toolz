@@ -53,6 +53,9 @@ def test_curry_simple():
     assert callable(double)
     assert double(10) == 20
 
+    cmap = curry(map)
+    assert list(cmap(inc)([1, 2, 3])) == [2, 3, 4]
+
 
 def test_curry_kwargs():
     def f(a, b, c=10):

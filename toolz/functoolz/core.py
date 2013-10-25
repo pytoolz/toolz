@@ -121,10 +121,29 @@ def memoize(f, cache=None):
     return memof
 
 
-def _numargs(func):
-    """ Number of args for func """
-    spec = inspect.getargspec(foo)
-    return len(spec.args) - len(spec.defaults)
+def _num_required_args(func):
+    """ Number of args for func
+
+    >>> def foo(a, b, c=None):
+    ...     return a + b + c
+
+    >>> _num_required_args(foo)
+    2
+
+    >>> def bar(*args):
+    ...     return sum(args)
+
+    >>> print(_num_required_args(bar))
+    None
+    """
+    try:
+        spec = inspect.getargspec(func)
+        if spec.varargs:
+            return None
+        num_defaults = len(spec.defaults) if spec.defaults else 0
+        return len(spec.args) - num_defaults
+    except TypeError:
+        return None
 
 
 class curry(object):
@@ -158,10 +177,6 @@ class curry(object):
     def __init__(self, func, *args, **kwargs):
         self.func = func
         self.args = args
-        try:
-            self.spec = inspect.getargspec(func)  # violates SPOT
-        except:
-            self.spec = False
         self.kwargs = kwargs
         self.__doc__ = self.func.__doc__
         try:
@@ -181,17 +196,17 @@ class curry(object):
         kwargs.update(self.kwargs)
         kwargs.update(_kwargs)
 
-        if (self.spec and not self.spec.varargs):
-            num_stored = len(args)
-            ndefaults = 0 if not self.spec.defaults else len(self.spec.defaults)
-            num_required = len(self.spec.args) - ndefaults
-            if num_stored >= num_required:
+
+        required_args = _num_required_args(self.func)
+        if (required_args is not None):
+            if len(args) >= required_args:
                 return self.func(*args, **kwargs)
         else:
             try:
                 return self.func(*args, **kwargs)
             except TypeError:
                 pass
+
         return curry(self.func, *args, **kwargs)
 
 
