@@ -2,13 +2,6 @@
 # fib(i) = |            1               if i is 1
 #          \ fib(i - 1) + fib(i - 2)    otherwise
 
-def fib(n):
-    """ Imperative definition of Fibonacci numbers """
-    a, b = 0, 1
-    for i in range(n):
-        a, b = b, a + b
-    return b
-
 
 # This is intuitive but VERY slow
 def fib(n):
@@ -17,6 +10,15 @@ def fib(n):
         return n
     else:
         return fib(n - 1) + fib(n - 2)
+
+
+def fib_imperative(n):
+    """ Imperative definition of Fibonacci numbers """
+    a, b = 0, 1
+    for i in range(n):
+        a, b = b, a + b
+    return b
+
 
 from toolz import memoize
 
