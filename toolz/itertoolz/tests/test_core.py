@@ -59,17 +59,17 @@ def test_intersection():
 
 
 def test_isiterable():
-    assert isiterable([1, 2, 3]) == True
-    assert isiterable('abc') == True
-    assert isiterable(5) == False
+    assert isiterable([1, 2, 3]) is True
+    assert isiterable('abc') is True
+    assert isiterable(5) is False
 
 
 def test_isdistinct():
-    assert isdistinct([1, 2, 3]) == True
-    assert isdistinct([1, 2, 1]) == False
+    assert isdistinct([1, 2, 3]) is True
+    assert isdistinct([1, 2, 1]) is False
 
-    assert isdistinct("Hello") == False
-    assert isdistinct("World") == True
+    assert isdistinct("Hello") is False
+    assert isdistinct("World") is True
 
 
 def test_nth():

@@ -1,5 +1,6 @@
 from functools import reduce
 import itertools
+import inspect
 
 
 def identity(x):
@@ -103,7 +104,7 @@ def memoize(f, cache=None):
     ... def add(x, y):
     ...     return x + y
     """
-    if cache == None:
+    if cache is None:
         cache = {}
 
     def memof(*args):
@@ -118,6 +119,31 @@ def memoize(f, cache=None):
     memof.__name__ = f.__name__
     memof.__doc__ = f.__doc__
     return memof
+
+
+def _num_required_args(func):
+    """ Number of args for func
+
+    >>> def foo(a, b, c=None):
+    ...     return a + b + c
+
+    >>> _num_required_args(foo)
+    2
+
+    >>> def bar(*args):
+    ...     return sum(args)
+
+    >>> print(_num_required_args(bar))
+    None
+    """
+    try:
+        spec = inspect.getargspec(func)
+        if spec.varargs:
+            return None
+        num_defaults = len(spec.defaults) if spec.defaults else 0
+        return len(spec.args) - num_defaults
+    except TypeError:
+        return None
 
 
 class curry(object):
@@ -169,10 +195,18 @@ class curry(object):
         kwargs = {}
         kwargs.update(self.kwargs)
         kwargs.update(_kwargs)
-        try:
-            return self.func(*args, **kwargs)
-        except TypeError:
-            return curry(self.func, *args, **kwargs)
+
+        required_args = _num_required_args(self.func)
+        if (required_args is not None):
+            if len(args) >= required_args:
+                return self.func(*args, **kwargs)
+        else:
+            try:
+                return self.func(*args, **kwargs)
+            except TypeError:
+                pass
+
+        return curry(self.func, *args, **kwargs)
 
 
 def compose(*funcs):
