@@ -19,6 +19,9 @@ sacrificing *performance*.  Toolz enables this approach, commonly associated
 with functional programming, within a natural Pythonic style suitable for
 most developers.
 
+BSD licensed source code is available at http://github.com/pytoolz/toolz/ .
+
+
 Contents
 ^^^^^^^^
 
