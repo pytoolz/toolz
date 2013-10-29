@@ -20,7 +20,7 @@ def thread_first(val, *forms):
 
     >>> def add(x, y): return x + y
     >>> def pow(x, y): return x**y
-    >>> thread_first(1, (add, 4), (pow, 2))  # pow(add(4, 1), 2)
+    >>> thread_first(1, (add, 4), (pow, 2))  # pow(add(1, 4), 2)
     25
 
     So in general
@@ -54,7 +54,7 @@ def thread_last(val, *forms):
 
     >>> def add(x, y): return x + y
     >>> def pow(x, y): return x**y
-    >>> thread_last(1, (add, 4), (pow, 2))  # pow(2, add(1, 4))
+    >>> thread_last(1, (add, 4), (pow, 2))  # pow(2, add(4, 1))
     32
 
     So in general
