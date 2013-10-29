@@ -102,7 +102,7 @@ Power of Predictability
 
 It is easier to build general transformations around pure functions.  General transformations like parallel programming systems often need to assume that simultaneously running processes don't affect each other during operation.  Because pure functions don't affect external state this condition is guaranteed.
 
-Another, more demonstrable function transformation is memoization, also called caching.  Memoization caches input-output pairs of a function so that, if the function is called twice with the same inputs then the output of the first execution is returned immediately.  Naively we would memoize a function as follows
+Another, more demonstrable function transformation is *memoization*, also called caching.  Memoization caches input-output pairs of a function so that, if the function is called twice with the same inputs then the output of the first execution is returned immediately.  Naively we would memoize a function as follows
 
 .. code::
 
@@ -119,7 +119,8 @@ Another, more demonstrable function transformation is memoization, also called c
 
 This trades memory usage (we store accumulated results) for computational speed
 (a dictionary lookup is probably faster than our function execution.)  This
-only works if a function predictably returns the same values given the same inputs; this of course is a trait of pure functions.
+only works if a function predictably returns the same values given the same
+inputs; this is guaranteed if the function is pure.
 
 Fortunately this transformation can be formed into the higher order function
 ``memoize``.
@@ -127,16 +128,16 @@ Fortunately this transformation can be formed into the higher order function
 
 .. code::
 
-    from toolz import memoize
-
     def f(input):
         return ...
+
+    from toolz import memoize
 
     f = memoize(f)
 
 
-Example -- Fast and Recursive Fibonacci
----------------------------------------
+Example -- Memoizing Fibonacci
+------------------------------
 
 The Fibonacci numbers ``0, 1, 1, 2, 3, 5, 8, 13, 21, ...`` are often defined by
 one of the two following methods
@@ -194,14 +195,5 @@ Lets look at some timings
     10000 loops, best of 3: 160 µs per loop
 
 While the functional and memoized result ``160us`` is not nearly as fast as the
-imperative ``8us`` it's still _much_ faster than the naive functional solution
-of ``1.5s``.  Additionally, it's often *fast enough* for most applications.
-
-The Fibonacci example highlights the difference between *what* code that
-defines what the function does, and *how* code that provides a recipe for how
-to execute the operation.  The functional solution here looks like a
-mathematical definition and so is called declarative or *what* code.  The
-imperative solution is strictly a sequence of steps, providing a recipes for
-*how* to compute the result.  Generally speaking what code is more
-intuitive and thereore preferable but often suffers from performance problems.
-Memoization is a way to reclaim some of that lost performance.
+imperative ``8us`` it's still *much* faster than the naive functional solution
+of ``1.5s``.  Additionally, it is often *fast enough* for most applications.
