@@ -11,3 +11,6 @@ References
    Python standard library for iterator tools
 -  `functools <http://docs.python.org/2/library/functools.html>`__: The
    Python standard library for function tools
+-  `Functional Programming HOWTO <http://docs.python.org/dev/howto/functional.html>`__: 
+   The description of functional programming features from the official
+   Python docs.
