@@ -6,7 +6,7 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
                         partitionby)
 
 from .functoolz import (memoize, curry, compose, thread_first,
-                        thread_last, identity)
+                        thread_last, identity, pipe)
 
 from .dicttoolz import merge, keymap, valmap, assoc, update_in
 
