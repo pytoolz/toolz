@@ -17,7 +17,7 @@ def remove(predicate, coll):
     return filter(lambda x: not predicate(x), coll)
 
 
-def accumulate(f, seq):
+def accumulate(binop, seq):
     """ Repeatedly apply binary function f to a sequence, accumulating results
 
     >>> from operator import add, mul
@@ -39,7 +39,7 @@ def accumulate(f, seq):
     result = next(iter(seq))
     yield result
     for elem in itertools.islice(seq, 1, None):
-        result = f(result, elem)
+        result = binop(result, elem)
         yield result
 
 
