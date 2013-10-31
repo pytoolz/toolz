@@ -108,9 +108,12 @@ def memoize(f, cache=None):
         cache = {}
 
     def memof(*args):
-        if not hashable(args):
-            return f(*args)
-        elif args in cache:
+        try:
+            in_cache = args in cache
+        except TypeError:
+            raise TypeError("Arguments to memoized function must be hashable")
+
+        if in_cache:
             return cache[args]
         else:
             result = f(*args)
