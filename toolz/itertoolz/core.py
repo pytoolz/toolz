@@ -1,6 +1,7 @@
+import heapq
 import itertools
 from functools import partial
-from toolz.compatibility import Queue, map
+from toolz.compatibility import map
 
 
 identity = lambda x: x
@@ -75,26 +76,40 @@ def merge_sorted(*iters, **kwargs):
     >>> ''.join(merge_sorted('abc', 'abc', 'abc'))
     'aaabbbccc'
     """
-    key = kwargs.get('key', identity)
-    iters = map(iter, iters)
-    pq = Queue.PriorityQueue()
+    key = kwargs.get('key', None)
+    if key is None:
+        # heapq.merge does what we do below except by val instead of key(val)
+        it = heapq.merge(*iters)
+        while True:
+            yield next(it)
+    else:
+        # binary heap as a priority queue
+        pq = []
 
-    def inject_first_element(it, tiebreaker=None):
-        try:
-            item = next(it)
-            pq.put((key(item), item, tiebreaker, it))
-        except StopIteration:
-            pass
+        # Initial population
+        for itnum, it in enumerate(map(iter, iters)):
+            try:
+                item = next(it)
+                pq.append([key(item), itnum, item, it])
+            except StopIteration:
+                pass
+        heapq.heapify(pq)
 
-    # Initial population
-    for i, it in enumerate(iters):
-        inject_first_element(it, i)
-
-    # Repeatedly yield and then repopulate from the same iterator
-    while not pq.empty():
-        _, item, tb, it = pq.get()
-        yield item
-        inject_first_element(it, tb)
+        # Repeatedly yield and then repopulate from the same iterator
+        while True:
+            try:
+                while True:
+                    # raises IndexError when pq is empty
+                    _, itnum, item, it = s = pq[0]
+                    yield item
+                    item = next(it)  # raises StopIteration when exhausted
+                    s[0] = key(item)
+                    s[2] = item
+                    heapq.heapreplace(pq, s)  # restore heap condition
+            except StopIteration:
+                heapq.heappop(pq)  # remove empty iterator
+            except IndexError:
+                return
 
 
 def interleave(seqs, pass_exceptions=()):
