@@ -121,6 +121,7 @@ def memoize(f, cache=None):
     return memof
 
 
+@memoize
 def _num_required_args(func):
     """ Number of args for func
 
