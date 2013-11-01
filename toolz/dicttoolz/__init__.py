@@ -1,1 +1,1 @@
-from .core import merge, valmap, keymap, update_in, assoc
+from .core import merge, merge_with, valmap, keymap, update_in, assoc

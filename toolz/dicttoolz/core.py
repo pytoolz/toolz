@@ -8,11 +8,35 @@ def merge(*dicts):
 
     >>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
     {1: 2, 3: 3, 4: 4}
+
+    See Also:
+        merge_with
     """
     rv = dict()
     for d in dicts:
         rv.update(d)
     return rv
+
+
+def merge_with(fn, *dicts):
+    """ Merge dictionaries and apply function to combined values
+
+    A key may occur in more than one dict, and all values mapped from the key
+    will be passed to the function as a list, such as fn([val1, val2, ...]).
+
+    >>> merge_with(sum, {1: 1, 2: 2}, {1: 10, 2: 20})
+    {1: 11, 2: 22}
+
+    >>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
+    {1: 1, 2: 2, 3: 30}
+
+    See Also:
+        merge
+    """
+    keys = tuple(set((k for d in dicts for k in d)))
+    values = tuple(fn([d[k] for d in dicts if k in d])
+                            for k in keys)
+    return dict(zip(keys, values))
 
 
 def valmap(fn, d):
