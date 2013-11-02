@@ -210,10 +210,7 @@ def first(seq):
     >>> first('ABC')
     'A'
     """
-    try:
-        return seq[0]
-    except TypeError:
-        return next(iter(seq))
+    return next(iter(seq))
 
 
 def second(seq):
@@ -222,10 +219,7 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    try:
-        return seq[1]
-    except TypeError:
-        return nth(1, seq)
+    return next(itertools.islice(seq, 1, None))
 
 def nth(n, seq):
     """ The nth element in a sequence
@@ -247,7 +241,7 @@ def last(seq):
     """
     try:
         return seq[-1]
-    except TypeError:
+    except (TypeError, KeyError):
         old = None
         it = iter(seq)
         while True:
