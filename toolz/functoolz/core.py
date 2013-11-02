@@ -182,10 +182,6 @@ class curry(object):
         self.func = func
         self.args = args
         self.kwargs = kwargs
-        try:
-            self.spec = inspect.getargspec(func)  # state, violates SPOT
-        except TypeError:
-            self.spec = None
         self.__doc__ = self.func.__doc__
         try:
             self.func_name = self.func.func_name
