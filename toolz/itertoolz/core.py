@@ -293,6 +293,10 @@ def get(ind, seq, default=no_default):
     >>> get(['Alice', 'Dennis'], phonebook, None)
     ('555-1234', None)
     """
+    try:
+        return seq[ind]
+    except:
+        pass
     if isinstance(ind, list):
         return tuple(get(i, seq, default) for i in ind)
     if default is no_default:
