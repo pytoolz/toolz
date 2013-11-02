@@ -181,7 +181,7 @@ class curry(object):
     def __init__(self, func, *args, **kwargs):
         self.func = func
         self.args = args
-        self.kwargs = kwargs
+        self.keywords = kwargs if kwargs else None
         self.__doc__ = self.func.__doc__
         try:
             self.func_name = self.func.func_name
@@ -198,10 +198,13 @@ class curry(object):
         args = self.args + args
         if _kwargs:
             kwargs = {}
-            kwargs.update(self.kwargs)
+            if self.keywords:
+                kwargs.update(self.keywords)
             kwargs.update(_kwargs)
+        elif self.keywords:
+            kwargs = self.keywords
         else:
-            kwargs = self.kwargs
+            kwargs = {}
 
         try:
             return self.func(*args, **kwargs)
