@@ -80,7 +80,7 @@ def merge_sorted(*iters, **kwargs):
 
     The "key" function used to sort the input may be passed as a keyword.
 
-    >>> list(merge_sorted([2, 3], [1, 3], key=lambda x: x/3))
+    >>> list(merge_sorted([2, 3], [1, 3], key=lambda x: x // 3))
     [2, 1, 3, 3]
     """
     key = kwargs.get('key', None)
