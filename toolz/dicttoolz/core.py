@@ -37,7 +37,7 @@ def merge_with(fn, *dicts):
         merge
     """
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
-        dicts = list(dicts[0])
+        dicts = dicts[0]
 
     result = dict()
     for d in dicts:
