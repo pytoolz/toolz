@@ -40,6 +40,12 @@ def test_merge_sorted():
     assert list(merge_sorted([1, 2, 3], [1, 2, 3])) == [1, 1, 2, 2, 3, 3]
     assert list(merge_sorted([1, 3, 5], [2, 4, 6])) == [1, 2, 3, 4, 5, 6]
     assert list(merge_sorted([1], [2, 4], [3], [])) == [1, 2, 3, 4]
+    assert list(merge_sorted([5, 3, 1], [6, 4, 3], [], key=lambda x: -x)) == [6, 5, 4, 3, 3, 1]
+    assert list(merge_sorted([2, 1, 3], [1, 2, 3], key=lambda x: x // 3)) == [2, 1, 1, 2, 3, 3]
+    assert list(merge_sorted([2, 3], [1, 3], key=lambda x: x // 3)) == [2, 1, 3, 3]
+    assert ''.join(merge_sorted('abc', 'abc', 'abc')) == 'aaabbbccc'
+    assert ''.join(merge_sorted('abc', 'abc', 'abc', key=ord)) == 'aaabbbccc'
+    assert ''.join(merge_sorted('cba', 'cba', 'cba', key=lambda x: -ord(x))) == 'cccbbbaaa'
 
 
 def test_interleave():
