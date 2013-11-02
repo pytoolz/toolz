@@ -196,9 +196,12 @@ class curry(object):
 
     def __call__(self, *args, **_kwargs):
         args = self.args + args
-        kwargs = {}
-        kwargs.update(self.kwargs)
-        kwargs.update(_kwargs)
+        if _kwargs:
+            kwargs = {}
+            kwargs.update(self.kwargs)
+            kwargs.update(_kwargs)
+        else:
+            kwargs = self.kwargs
 
         required_args = _num_required_args(self.func)
         if (required_args is not None):
