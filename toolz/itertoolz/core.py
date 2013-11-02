@@ -70,19 +70,32 @@ def groupby(f, coll):
 def merge_sorted(*iters, **kwargs):
     """ Merge and sort a collection of sorted collections
 
+    This works lazily and only keeps one value from each iterable in memory.
+
     >>> list(merge_sorted([1, 3, 5], [2, 4, 6]))
     [1, 2, 3, 4, 5, 6]
 
     >>> ''.join(merge_sorted('abc', 'abc', 'abc'))
     'aaabbbccc'
+
+    The "key" function used to sort the input may be passed as a keyword.
+
+    >>> list(merge_sorted([2, 3], [1, 3], key=lambda x: x/3))
+    [2, 1, 3, 3]
     """
     key = kwargs.get('key', None)
     if key is None:
         # heapq.merge does what we do below except by val instead of key(val)
-        it = heapq.merge(*iters)
-        while True:
-            yield next(it)
+        for item in heapq.merge(*iters):
+            yield item
     else:
+        # The commented code below shows an alternative (slower) implementation
+        # to apply a key function for sorting.
+        #
+        # mapper = lambda i, item: (key(item), i, item)
+        # keyiters = [map(partial(mapper, i), itr) for i, itr in enumerate(iters)]
+        # return (item for (item_key, i, item) in heapq.merge(*keyiters))
+
         # binary heap as a priority queue
         pq = []
 
