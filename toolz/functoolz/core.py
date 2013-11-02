@@ -1,4 +1,4 @@
-from functools import reduce
+from functools import reduce, partial
 import itertools
 import inspect
 
@@ -182,6 +182,10 @@ class curry(object):
         self.func = func
         self.args = args
         self.kwargs = kwargs
+        try:
+            self.spec = inspect.getargspec(func)  # state, violates SPOT
+        except TypeError:
+            self.spec = None
         self.__doc__ = self.func.__doc__
         try:
             self.func_name = self.func.func_name
@@ -211,6 +215,13 @@ class curry(object):
             # If there was a genuine TypeError
             if required_args is not None and len(args) >= required_args:
                 raise e
+
+            # If we only need one more argument
+            if (self.spec and
+                required_args - len(args) == 1 and
+                (self.spec.defaults is None or
+                    len(kwargs) == len(self.spec.defaults))):
+                return partial(self.func, *args, **kwargs)
 
             return curry(self.func, *args, **kwargs)
 
