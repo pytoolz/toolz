@@ -12,6 +12,9 @@ def merge(*dicts):
     See Also:
         merge_with
     """
+    if len(dicts) == 1 and not isinstance(dicts[0], dict):
+        dicts = dicts[0]
+
     rv = dict()
     for d in dicts:
         rv.update(d)
@@ -33,6 +36,9 @@ def merge_with(fn, *dicts):
     See Also:
         merge
     """
+    if len(dicts) == 1 and not isinstance(dicts[0], dict):
+        dicts = dicts[0]
+
     keys = tuple(set((k for d in dicts for k in d)))
     values = tuple(fn([d[k] for d in dicts if k in d])
                             for k in keys)

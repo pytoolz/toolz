@@ -8,6 +8,9 @@ inc = lambda x: x + 1
 def test_merge():
     assert merge({1: 1, 2: 2}, {3: 4}) == {1: 1, 2: 2, 3: 4}
 
+def test_merge_iterable_arg():
+    assert merge([{1: 1, 2: 2}, {3: 4}]) == {1: 1, 2: 2, 3: 4}
+
 
 def test_merge_with():
     dicts = {1: 1, 2: 2}, {1: 10, 2: 20}
@@ -17,6 +20,12 @@ def test_merge_with():
     dicts = {1: 1, 2: 2, 3: 3}, {1: 10, 2: 20}
     assert merge_with(sum, *dicts) == {1: 11, 2: 22, 3: 3}
     assert merge_with(tuple, *dicts) == {1: (1, 10), 2: (2, 20), 3: (3,)}
+
+
+def test_merge_with_iterable_arg():
+    dicts = {1: 1, 2: 2}, {1: 10, 2: 20}
+    assert merge_with(sum, *dicts) == {1: 11, 2: 22}
+    assert merge_with(sum, dicts) == {1: 11, 2: 22}
 
 
 def test_valmap():
