@@ -3,7 +3,7 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
                         get, merge_sorted, concat, concatv, mapcat,
                         isdistinct, interleave, unique, intersection,
                         isiterable, remove, iterate, accumulate,
-                        partitionby)
+                        partitionby, rolling_partition)
 
 from .functoolz import (memoize, curry, compose, thread_first,
                         thread_last, identity, pipe)

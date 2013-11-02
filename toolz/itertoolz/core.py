@@ -2,6 +2,7 @@ import heapq
 import itertools
 from functools import partial
 from toolz.compatibility import map
+import collections
 
 
 identity = lambda x: x
@@ -488,7 +489,9 @@ def rolling_partition(n, seq):
     [1.5, 2.5, 3.5]
     """
     it = iter(seq)
-    buff = [None] + list(take(n - 1, it))
+    # An efficient FIFO data structure with maximum length
+    d = collections.deque(itertools.islice(it, n), n)
     for item in it:
-        buff = buff[1:] + [item]
-        yield tuple(buff)
+        yield tuple(d)
+        d.append(item)
+    yield tuple(d)
