@@ -26,6 +26,8 @@ def test_merge_with_iterable_arg():
     dicts = {1: 1, 2: 2}, {1: 10, 2: 20}
     assert merge_with(sum, *dicts) == {1: 11, 2: 22}
     assert merge_with(sum, dicts) == {1: 11, 2: 22}
+    assert merge_with(sum, iter(dicts)) == {1: 11, 2: 22}
+
 
 
 def test_valmap():
