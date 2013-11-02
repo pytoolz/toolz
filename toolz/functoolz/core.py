@@ -203,17 +203,20 @@ class curry(object):
         else:
             kwargs = self.kwargs
 
-        required_args = _num_required_args(self.func)
-        if (required_args is not None):
-            if len(args) >= required_args:
-                return self.func(*args, **kwargs)
-        else:
-            try:
-                return self.func(*args, **kwargs)
-            except TypeError:
-                pass
+        try:
+            return self.func(*args, **kwargs)
+        except TypeError:
+            required_args = _num_required_args(self.func)
+            if (required_args is not None):
+                if len(args) >= required_args:
+                    return self.func(*args, **kwargs)
+            else:
+                try:
+                    return self.func(*args, **kwargs)
+                except TypeError:
+                    pass
 
-        return curry(self.func, *args, **kwargs)
+            return curry(self.func, *args, **kwargs)
 
 
 def compose(*funcs):
