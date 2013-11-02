@@ -217,11 +217,11 @@ class curry(object):
                 raise e
 
             # If we only need one more argument
-            if (self.spec and
-                required_args - len(args) == 1 and
-                (self.spec.defaults is None or
-                    len(kwargs) == len(self.spec.defaults))):
-                return partial(self.func, *args, **kwargs)
+            if (required_args is not None and required_args - len(args) == 1):
+                if kwargs:
+                    return partial(self.func, *args, **kwargs)
+                else:
+                    return partial(self.func, *args)
 
             return curry(self.func, *args, **kwargs)
 
