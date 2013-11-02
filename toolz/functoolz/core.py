@@ -205,16 +205,12 @@ class curry(object):
 
         try:
             return self.func(*args, **kwargs)
-        except TypeError:
+        except TypeError as e:
             required_args = _num_required_args(self.func)
-            if (required_args is not None):
-                if len(args) >= required_args:
-                    return self.func(*args, **kwargs)
-            else:
-                try:
-                    return self.func(*args, **kwargs)
-                except TypeError:
-                    pass
+
+            # If there was a genuine TypeError
+            if required_args is not None and len(args) >= required_args:
+                raise e
 
             return curry(self.func, *args, **kwargs)
 
