@@ -210,8 +210,22 @@ def first(seq):
     >>> first('ABC')
     'A'
     """
-    return next(iter(seq))
+    try:
+        return seq[0]
+    except TypeError:
+        return next(iter(seq))
 
+
+def second(seq):
+    """ The second element in a sequence
+
+    >>> second('ABC')
+    'B'
+    """
+    try:
+        return seq[1]
+    except TypeError:
+        return nth(1, seq)
 
 def nth(n, seq):
     """ The nth element in a sequence
@@ -243,7 +257,6 @@ def last(seq):
                 return old
 
 
-second = partial(nth, 1)
 rest = partial(drop, 1)
 
 
