@@ -256,6 +256,12 @@ rest = partial(drop, 1)
 
 no_default = '__no__default__'
 
+def _get(ind, seq, default):
+    try:
+        return seq[ind]
+    except (KeyError, IndexError):
+        return default
+
 
 def get(ind, seq, default=no_default):
     """ Get element in a sequence or dict
@@ -289,16 +295,20 @@ def get(ind, seq, default=no_default):
     """
     try:
         return seq[ind]
-    except:
-        pass
-    if isinstance(ind, list):
-        return tuple(get(i, seq, default) for i in ind)
-    if default is no_default:
-        return seq[ind]
-    else:
-        try:
-            return seq[ind]
-        except (KeyError, IndexError):
+    except TypeError:  # `ind` may be a list
+        if isinstance(ind, list):
+            if default is no_default:
+                return tuple(seq[i] for i in ind)
+            else:
+                return tuple(_get(i, seq, default) for i in ind)
+        elif default is not no_default:
+            return default
+        else:
+            raise
+    except (KeyError, IndexError) as e:  # we know `ind` is not a list
+        if default is no_default:
+            raise e
+        else:
             return default
 
 
