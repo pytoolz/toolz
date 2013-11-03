@@ -86,16 +86,19 @@ def test_nth():
 def test_first():
     assert first('ABCDE') == 'A'
     assert first((3, 2, 1)) == 3
+    assert isinstance(first({0: 'zero', 1: 'one'}), int)
 
 
 def test_second():
     assert second('ABCDE') == 'B'
     assert second((3, 2, 1)) == 2
+    assert isinstance(second({0: 'zero', 1: 'one'}), int)
 
 
 def test_last():
     assert last('ABCDE') == 'E'
     assert last((3, 2, 1)) == 1
+    assert isinstance(last({0: 'zero', 1: 'one'}), int)
 
 
 def test_rest():

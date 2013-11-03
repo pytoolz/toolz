@@ -1,4 +1,4 @@
-from functools import reduce
+from functools import reduce, partial
 import itertools
 import inspect
 
@@ -108,9 +108,12 @@ def memoize(f, cache=None):
         cache = {}
 
     def memof(*args):
-        if not hashable(args):
-            return f(*args)
-        elif args in cache:
+        try:
+            in_cache = args in cache
+        except TypeError:
+            raise TypeError("Arguments to memoized function must be hashable")
+
+        if in_cache:
             return cache[args]
         else:
             result = f(*args)
@@ -177,7 +180,7 @@ class curry(object):
     def __init__(self, func, *args, **kwargs):
         self.func = func
         self.args = args
-        self.kwargs = kwargs
+        self.keywords = kwargs if kwargs else None
         self.__doc__ = self.func.__doc__
         try:
             self.func_name = self.func.func_name
@@ -192,21 +195,33 @@ class curry(object):
 
     def __call__(self, *args, **_kwargs):
         args = self.args + args
-        kwargs = {}
-        kwargs.update(self.kwargs)
-        kwargs.update(_kwargs)
-
-        required_args = _num_required_args(self.func)
-        if (required_args is not None):
-            if len(args) >= required_args:
-                return self.func(*args, **kwargs)
+        if _kwargs:
+            kwargs = {}
+            if self.keywords:
+                kwargs.update(self.keywords)
+            kwargs.update(_kwargs)
+        elif self.keywords:
+            kwargs = self.keywords
         else:
-            try:
-                return self.func(*args, **kwargs)
-            except TypeError:
-                pass
+            kwargs = {}
 
-        return curry(self.func, *args, **kwargs)
+        try:
+            return self.func(*args, **kwargs)
+        except TypeError as e:
+            required_args = _num_required_args(self.func)
+
+            # If there was a genuine TypeError
+            if required_args is not None and len(args) >= required_args:
+                raise e
+
+            # If we only need one more argument
+            if (required_args is not None and required_args - len(args) == 1):
+                if kwargs:
+                    return partial(self.func, *args, **kwargs)
+                else:
+                    return partial(self.func, *args)
+
+            return curry(self.func, *args, **kwargs)
 
 
 def compose(*funcs):
