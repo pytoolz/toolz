@@ -1,6 +1,8 @@
+import heapq
 import itertools
 from functools import partial
-from toolz.compatibility import Queue, map
+from toolz.compatibility import map
+import collections
 
 
 identity = lambda x: x
@@ -69,32 +71,59 @@ def groupby(f, coll):
 def merge_sorted(*iters, **kwargs):
     """ Merge and sort a collection of sorted collections
 
+    This works lazily and only keeps one value from each iterable in memory.
+
     >>> list(merge_sorted([1, 3, 5], [2, 4, 6]))
     [1, 2, 3, 4, 5, 6]
 
     >>> ''.join(merge_sorted('abc', 'abc', 'abc'))
     'aaabbbccc'
+
+    The "key" function used to sort the input may be passed as a keyword.
+
+    >>> list(merge_sorted([2, 3], [1, 3], key=lambda x: x // 3))
+    [2, 1, 3, 3]
     """
-    key = kwargs.get('key', identity)
-    iters = map(iter, iters)
-    pq = Queue.PriorityQueue()
+    key = kwargs.get('key', None)
+    if key is None:
+        # heapq.merge does what we do below except by val instead of key(val)
+        for item in heapq.merge(*iters):
+            yield item
+    else:
+        # The commented code below shows an alternative (slower) implementation
+        # to apply a key function for sorting.
+        #
+        # mapper = lambda i, item: (key(item), i, item)
+        # keyiters = [map(partial(mapper, i), itr) for i, itr in enumerate(iters)]
+        # return (item for (item_key, i, item) in heapq.merge(*keyiters))
 
-    def inject_first_element(it, tiebreaker=None):
-        try:
-            item = next(it)
-            pq.put((key(item), item, tiebreaker, it))
-        except StopIteration:
-            pass
+        # binary heap as a priority queue
+        pq = []
 
-    # Initial population
-    for i, it in enumerate(iters):
-        inject_first_element(it, i)
+        # Initial population
+        for itnum, it in enumerate(map(iter, iters)):
+            try:
+                item = next(it)
+                pq.append([key(item), itnum, item, it])
+            except StopIteration:
+                pass
+        heapq.heapify(pq)
 
-    # Repeatedly yield and then repopulate from the same iterator
-    while not pq.empty():
-        _, item, tb, it = pq.get()
-        yield item
-        inject_first_element(it, tb)
+        # Repeatedly yield and then repopulate from the same iterator
+        while True:
+            try:
+                while True:
+                    # raises IndexError when pq is empty
+                    _, itnum, item, it = s = pq[0]
+                    yield item
+                    item = next(it)  # raises StopIteration when exhausted
+                    s[0] = key(item)
+                    s[2] = item
+                    heapq.heapreplace(pq, s)  # restore heap condition
+            except StopIteration:
+                heapq.heappop(pq)  # remove empty iterator
+            except IndexError:
+                return
 
 
 def interleave(seqs, pass_exceptions=()):
@@ -465,3 +494,25 @@ def iterate(f, x):
     while True:
         yield x
         x = f(x)
+
+
+def sliding_window(n, seq):
+    """ A sequence of overlapping subsequences
+
+    >>> list(sliding_window(2, [1, 2, 3, 4]))
+    [(1, 2), (2, 3), (3, 4)]
+
+    This function creates a sliding window suitable for transformations like
+    sliding means / smoothing
+
+    >>> mean = lambda seq: float(sum(seq)) / len(seq)
+    >>> list(map(mean, sliding_window(2, [1, 2, 3, 4])))
+    [1.5, 2.5, 3.5]
+    """
+    it = iter(seq)
+    # An efficient FIFO data structure with maximum length
+    d = collections.deque(itertools.islice(it, n), n)
+    for item in it:
+        yield tuple(d)
+        d.append(item)
+    yield tuple(d)
