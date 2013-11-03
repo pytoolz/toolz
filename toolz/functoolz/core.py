@@ -99,18 +99,20 @@ def memoize(f, cache=None):
     if cache is None:
         cache = {}
 
-    def memof(*args):
+    def memof(*args, **kwargs):
         try:
-            in_cache = args in cache
+            key = (args, frozenset(kwargs))
+            in_cache = key in cache
         except TypeError:
             raise TypeError("Arguments to memoized function must be hashable")
 
         if in_cache:
-            return cache[args]
+            return cache[key]
         else:
-            result = f(*args)
-            cache[args] = result
+            result = f(*args, **kwargs)
+            cache[key] = result
             return result
+
     memof.__name__ = f.__name__
     memof.__doc__ = f.__doc__
     return memof
