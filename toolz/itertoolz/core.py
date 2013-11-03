@@ -2,6 +2,7 @@ import heapq
 import itertools
 from functools import partial
 from toolz.compatibility import map
+import collections
 
 
 identity = lambda x: x
@@ -472,3 +473,25 @@ def iterate(f, x):
     while True:
         yield x
         x = f(x)
+
+
+def sliding_window(n, seq):
+    """ A sequence of overlapping subsequences
+
+    >>> list(sliding_window(2, [1, 2, 3, 4]))
+    [(1, 2), (2, 3), (3, 4)]
+
+    This function creates a sliding window suitable for transformations like
+    sliding means / smoothing
+
+    >>> mean = lambda seq: float(sum(seq)) / len(seq)
+    >>> list(map(mean, sliding_window(2, [1, 2, 3, 4])))
+    [1.5, 2.5, 3.5]
+    """
+    it = iter(seq)
+    # An efficient FIFO data structure with maximum length
+    d = collections.deque(itertools.islice(it, n), n)
+    for item in it:
+        yield tuple(d)
+        d.append(item)
+    yield tuple(d)
