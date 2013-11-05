@@ -202,12 +202,12 @@ def test_sliding_window():
 
 def test_partition():
     assert list(partition(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
-    assert list(partition(3, xrange(7))) == [(0, 1, 2), (3, 4, 5)]
-    assert list(partition(3, xrange(4), pad=-1)) == [(0, 1, 2), (3, -1, -1)]
+    assert list(partition(3, range(7))) == [(0, 1, 2), (3, 4, 5)]
+    assert list(partition(3, range(4), pad=-1)) == [(0, 1, 2), (3, -1, -1)]
     assert list(partition(2, [])) == []
 
 
 def test_partition_all():
     assert list(partition_all(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
-    assert list(partition_all(3, xrange(5))) == [(0, 1, 2), (3, 4)]
+    assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
     assert list(partition_all(2, [])) == []

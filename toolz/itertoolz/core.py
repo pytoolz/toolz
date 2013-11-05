@@ -559,7 +559,7 @@ def partition_all(n, seq):
     """
     args = [iter(seq)] * n
     it = zip_longest(*args, fillvalue=no_pad)
-    prev = it.next()
+    prev = next(it)
     for item in it:
         yield prev
         prev = item
