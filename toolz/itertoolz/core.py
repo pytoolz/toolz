@@ -1,7 +1,7 @@
 import heapq
 import itertools
 from functools import partial
-from toolz.compatibility import map
+from toolz.compatibility import map, zip, zip_longest
 import collections
 
 
@@ -516,3 +516,55 @@ def sliding_window(n, seq):
         yield tuple(d)
         d.append(item)
     yield tuple(d)
+
+
+no_pad = '__no__pad__'
+
+def partition(n, seq, pad=no_pad):
+    """ Partition sequence into tuples of length n
+
+    >>> list(partition(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    If the length of ``seq`` is not evenly divisible by ``n``, the final tuple
+    is dropped if ``pad`` is not specified, or filled to length ``n`` by pad:
+
+    >>> list(partition(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4)]
+
+    >>> list(partition(2, [1, 2, 3, 4, 5], pad=None))
+    [(1, 2), (3, 4), (5, None)]
+
+    See Also:
+        partition_all
+    """
+    args = [iter(seq)] * n
+    if pad is no_pad:
+        return zip(*args)
+    else:
+        return zip_longest(*args, fillvalue=pad)
+
+
+def partition_all(n, seq):
+    """ Partition sequence into tuples of length n (final tuple may be shorter)
+
+    >>> list(partition_all(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    >>> list(partition_all(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4), (5,)]
+
+    See Also:
+        partition
+    """
+    args = [iter(seq)] * n
+    it = zip_longest(*args, fillvalue=no_pad)
+    prev = it.next()
+    for item in it:
+        yield prev
+        prev = item
+
+    if prev[-1] is no_pad:
+        yield prev[:prev.index(no_pad)]
+    else:
+        yield prev

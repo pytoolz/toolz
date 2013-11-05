@@ -15,7 +15,7 @@ def test_partitionby():
 
     vowels = "aeiou"
     assert (list(partitionby(vowels.__contains__, "abcdefghi")) ==
-            [["a"], ["b", "c", "d"], ["e"], ["f", "g", "h"], ["i"]])
+            [("a",), ("b", "c", "d"), ("e",), ("f", "g", "h"), ("i",)])
 
     assert (list(map(first,
                      partitionby(identity,
