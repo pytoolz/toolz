@@ -546,7 +546,9 @@ def partition(n, seq, pad=no_pad):
 
 
 def partition_all(n, seq):
-    """ Partition sequence into tuples of length n (final tuple may be shorter)
+    """ Partition all elements of sequence into tuples of length at most n
+
+    The final tuple may be shorter to accommodate extra elements.
 
     >>> list(partition_all(2, [1, 2, 3, 4]))
     [(1, 2), (3, 4)]
@@ -563,7 +565,6 @@ def partition_all(n, seq):
     for item in it:
         yield prev
         prev = item
-
     if prev[-1] is no_pad:
         yield prev[:prev.index(no_pad)]
     else:
