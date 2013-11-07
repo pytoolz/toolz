@@ -516,3 +516,14 @@ def sliding_window(n, seq):
         yield tuple(d)
         d.append(item)
     yield tuple(d)
+
+
+def count(seq):
+    """ Count the number of items in seq
+
+    Like the builtin ``len`` but works on lazy sequencies.
+
+    See also:
+        len
+    """
+    return sum(1 for i in seq)
