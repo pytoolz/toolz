@@ -36,6 +36,9 @@ def merge_with(fn, *dicts):
     See Also:
         merge
     """
+    if len(dicts) == 0:
+        raise TypeError("No arguments")
+
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
 
