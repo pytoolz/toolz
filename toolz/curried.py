@@ -47,3 +47,13 @@ d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
 
 
 locals().update(d)
+
+
+@curry
+def merge_with(func, *dicts):
+    if len(dicts) == 0:
+        raise TypeError("No input")
+    return toolz.merge_with(func, *dicts)
+
+
+merge_with.__doc__ = toolz.merge_with.__doc__
