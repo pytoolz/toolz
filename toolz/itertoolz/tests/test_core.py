@@ -8,7 +8,7 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies, reduceby,
                                   iterate, accumulate, sliding_window)
-from toolz.compatibility import range
+from toolz.compatibility import range, filter
 from operator import add, mul
 
 
