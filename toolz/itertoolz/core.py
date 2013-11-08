@@ -523,6 +523,8 @@ def count(seq):
 
     Like the builtin ``len`` but works on lazy sequencies.
 
+    Not to be confused with ``itertools.count``
+
     See also:
         len
     """
