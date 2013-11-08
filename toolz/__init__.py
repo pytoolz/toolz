@@ -3,7 +3,7 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
                         get, merge_sorted, concat, concatv, mapcat,
                         isdistinct, interleave, unique, intersection,
                         isiterable, remove, iterate, accumulate,
-                        partitionby, sliding_window)
+                        partitionby, sliding_window, count)
 
 from .functoolz import (memoize, curry, compose, thread_first,
                         thread_last, identity, pipe)
@@ -14,7 +14,9 @@ from .compatibility import map, filter
 
 from functools import partial, reduce
 
+sorted = sorted
+
 # Aliases
 comp = compose
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
