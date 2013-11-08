@@ -10,7 +10,8 @@ install: pip install coverage --use-mirrors
 # command to run tests
 # Require 100% coverage to pass tests
 script:
-- set -o pipefail
-- nosetests --with-doctest --with-coverage 2>&1 | tee /dev/stderr | grep '^TOTAL.*100%' > /dev/null
+- nosetests --with-doctest --with-coverage > tmp_coverage_output 2>&1
+- cat tmp_coverage_output
+- grep '^TOTAL.*100%' tmp_coverage_output
 notifications:
   email: false
