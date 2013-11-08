@@ -7,7 +7,8 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   mapcat, isdistinct, first, second,
                                   nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies, reduceby,
-                                  iterate, accumulate, sliding_window)
+                                  iterate, accumulate, sliding_window,
+                                  partition, partition_all)
 from toolz.compatibility import range
 from operator import add, mul
 
@@ -193,6 +194,20 @@ def test_accumulate():
     assert list(accumulate(add, [1, 2, 3, 4, 5])) == [1, 3, 6, 10, 15]
     assert list(accumulate(mul, [1, 2, 3, 4, 5])) == [1, 2, 6, 24, 120]
 
+
 def test_sliding_window():
     assert list(sliding_window(2, [1, 2, 3, 4])) == [(1, 2), (2, 3), (3, 4)]
     assert list(sliding_window(3, [1, 2, 3, 4])) == [(1, 2, 3), (2, 3, 4)]
+
+
+def test_partition():
+    assert list(partition(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
+    assert list(partition(3, range(7))) == [(0, 1, 2), (3, 4, 5)]
+    assert list(partition(3, range(4), pad=-1)) == [(0, 1, 2), (3, -1, -1)]
+    assert list(partition(2, [])) == []
+
+
+def test_partition_all():
+    assert list(partition_all(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
+    assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
+    assert list(partition_all(2, [])) == []
