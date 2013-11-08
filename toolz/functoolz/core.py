@@ -99,9 +99,21 @@ def memoize(f, cache=None):
     if cache is None:
         cache = {}
 
+    try:
+        spec = inspect.getargspec(f)
+        if spec and not spec.keywords and not spec.defaults:
+            may_have_kwargs = False
+        else:
+            may_have_kwargs = True
+    except TypeError:
+        may_have_kwargs = True
+
     def memof(*args, **kwargs):
         try:
-            key = (args, frozenset(kwargs))
+            if may_have_kwargs:
+                key = (args, frozenset(kwargs))
+            else:
+                key = args
             in_cache = key in cache
         except TypeError:
             raise TypeError("Arguments to memoized function must be hashable")
