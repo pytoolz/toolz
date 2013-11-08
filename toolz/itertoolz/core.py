@@ -1,7 +1,7 @@
 import heapq
 import itertools
 from functools import partial
-from toolz.compatibility import map, zip, zip_longest
+from toolz.compatibility import map, filter, zip, zip_longest
 import collections
 
 
@@ -520,6 +520,7 @@ def sliding_window(n, seq):
 
 no_pad = '__no__pad__'
 
+
 def partition(n, seq, pad=no_pad):
     """ Partition sequence into tuples of length n
 
@@ -569,3 +570,16 @@ def partition_all(n, seq):
         yield prev[:prev.index(no_pad)]
     else:
         yield prev
+
+
+def count(seq):
+    """ Count the number of items in seq
+
+    Like the builtin ``len`` but works on lazy sequencies.
+
+    Not to be confused with ``itertools.count``
+
+    See also:
+        len
+    """
+    return sum(1 for i in seq)

@@ -3,6 +3,6 @@ from .core import (groupby, remove, concat, concatv, mapcat,
                    drop, rest, get, last, merge_sorted, interleave,
                    unique, reduceby, intersection, isiterable,
                    isdistinct, cons, iterate, accumulate, sliding_window,
-                   partition, partition_all)
+                   count, partition, partition_all)
 
 from .recipes import countby, partitionby

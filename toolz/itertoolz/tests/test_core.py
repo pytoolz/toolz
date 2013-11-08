@@ -7,9 +7,9 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   mapcat, isdistinct, first, second,
                                   nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies, reduceby,
-                                  iterate, accumulate, sliding_window,
+                                  iterate, accumulate, sliding_window, count,
                                   partition, partition_all)
-from toolz.compatibility import range
+from toolz.compatibility import range, filter
 from operator import add, mul
 
 
@@ -30,7 +30,9 @@ def double(x):
 
 
 def test_remove():
-    assert list(remove(iseven, range(5))) == list(filter(isodd, range(5)))
+    r = remove(iseven, range(5))
+    assert type(r) is not list
+    assert list(r) == list(filter(isodd, range(5)))
 
 
 def test_groupby():
@@ -81,6 +83,7 @@ def test_isdistinct():
 
 def test_nth():
     assert nth(2, 'ABCDE') == 'C'
+    assert nth(2, iter('ABCDE')) == 'C'
     assert nth(1, (3, 2, 1)) == 2
 
 
@@ -124,9 +127,11 @@ def test_get():
     assert get(['a', 'b'], {'a': 1, 'b': 2, 'c': 3}) == (1, 2)
 
     assert get('foo', {}, default='bar') == 'bar'
+    assert get({}, [1, 2, 3], default='bar') == 'bar'
 
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
+    assert raises(TypeError, lambda: get({}, [1, 2, 3]))
 
 
 def test_mapcat():
@@ -211,3 +216,12 @@ def test_partition_all():
     assert list(partition_all(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
     assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
     assert list(partition_all(2, [])) == []
+
+
+def test_count():
+    assert count((1, 2, 3)) == 3
+    assert count([]) == 0
+    assert count(iter((1, 2, 3, 4))) == 4
+
+    assert count('hello') == 5
+    assert count(iter('hello')) == 5
