@@ -1,7 +1,7 @@
 import heapq
 import itertools
 from functools import partial
-from toolz.compatibility import map
+from toolz.compatibility import map, filter
 import collections
 
 
@@ -16,7 +16,7 @@ def remove(predicate, coll):
     >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
-    return (x for x in coll if not predicate(x))
+    return filter(lambda x: not predicate(x), coll)
 
 
 def accumulate(binop, seq):
