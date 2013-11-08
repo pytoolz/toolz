@@ -14,6 +14,8 @@ from .compatibility import map, filter
 
 from functools import partial, reduce
 
+sorted = sorted
+
 # Aliases
 comp = compose
 
