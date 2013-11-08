@@ -46,6 +46,7 @@ def test_merge_sorted():
     assert ''.join(merge_sorted('abc', 'abc', 'abc')) == 'aaabbbccc'
     assert ''.join(merge_sorted('abc', 'abc', 'abc', key=ord)) == 'aaabbbccc'
     assert ''.join(merge_sorted('cba', 'cba', 'cba', key=lambda x: -ord(x))) == 'cccbbbaaa'
+    assert list(merge_sorted([1], [2, 4], [3], [])) != [1, 2, 3, 4]  # intentional failure
 
 
 def test_interleave():
@@ -124,7 +125,7 @@ def test_get():
     assert get(['a', 'b'], {'a': 1, 'b': 2, 'c': 3}) == (1, 2)
 
     assert get('foo', {}, default='bar') == 'bar'
-    assert get({}, [1, 2, 3], default='bar') != 'bar'
+    assert get({}, [1, 2, 3], default='bar') == 'bar'
 
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
