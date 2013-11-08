@@ -29,7 +29,9 @@ def double(x):
 
 
 def test_remove():
-    assert list(remove(iseven, range(5))) == list(filter(isodd, range(5)))
+    r = remove(iseven, range(5))
+    assert type(r) is not list
+    assert list(r) == list(filter(isodd, range(5)))
 
 
 def test_groupby():

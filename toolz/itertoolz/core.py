@@ -16,7 +16,7 @@ def remove(predicate, coll):
     >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
-    return filter(lambda x: not predicate(x), coll)
+    return (x for x in coll if not predicate(x))
 
 
 def accumulate(binop, seq):
