@@ -46,7 +46,6 @@ def test_merge_sorted():
     assert ''.join(merge_sorted('abc', 'abc', 'abc')) == 'aaabbbccc'
     assert ''.join(merge_sorted('abc', 'abc', 'abc', key=ord)) == 'aaabbbccc'
     assert ''.join(merge_sorted('cba', 'cba', 'cba', key=lambda x: -ord(x))) == 'cccbbbaaa'
-    assert list(merge_sorted([1], [2, 4], [3], [])) != [1, 2, 3, 4]  # intentional failure
 
 
 def test_interleave():
