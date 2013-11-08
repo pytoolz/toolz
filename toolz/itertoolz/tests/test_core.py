@@ -5,10 +5,10 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   concat, concatv, interleave, unique,
                                   identity, intersection, isiterable,
                                   mapcat, isdistinct, first, second,
-                                  nth, take, drop, interpose, get, count,
+                                  nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies, reduceby,
                                   iterate, accumulate, sliding_window, count)
-from toolz.compatibility import range
+from toolz.compatibility import range, filter
 from operator import add, mul
 
 
@@ -29,7 +29,9 @@ def double(x):
 
 
 def test_remove():
-    assert list(remove(iseven, range(5))) == list(filter(isodd, range(5)))
+    r = remove(iseven, range(5))
+    assert type(r) is not list
+    assert list(r) == list(filter(isodd, range(5)))
 
 
 def test_groupby():

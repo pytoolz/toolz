@@ -1,7 +1,7 @@
 import heapq
 import itertools
 from functools import partial
-from toolz.compatibility import map
+from toolz.compatibility import map, filter
 import collections
 
 
