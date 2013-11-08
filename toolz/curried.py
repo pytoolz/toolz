@@ -37,7 +37,7 @@ def nargs(f):
 
 
 def should_curry(f):
-    do_curry = set((toolz.map, toolz.filter))
+    do_curry = set((toolz.map, toolz.filter, toolz.sorted))
     return (callable(f) and nargs(f) and nargs(f) > 1
             or f in do_curry)
 
