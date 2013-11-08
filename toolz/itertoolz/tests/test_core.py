@@ -124,7 +124,7 @@ def test_get():
     assert get(['a', 'b'], {'a': 1, 'b': 2, 'c': 3}) == (1, 2)
 
     assert get('foo', {}, default='bar') == 'bar'
-    assert get({}, [1, 2, 3], default='bar') == 'bar'
+    assert get({}, [1, 2, 3], default='bar') != 'bar'
 
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
