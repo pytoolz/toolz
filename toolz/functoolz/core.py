@@ -80,14 +80,6 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 
-def hashable(x):
-    try:
-        hash(x)
-        return True
-    except TypeError:
-        return False
-
-
 def memoize(f, cache=None):
     """ Cache a function's result for speedy future evaluation
 

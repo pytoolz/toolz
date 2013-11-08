@@ -80,6 +80,7 @@ def test_isdistinct():
 
 def test_nth():
     assert nth(2, 'ABCDE') == 'C'
+    assert nth(2, iter('ABCDE')) == 'C'
     assert nth(1, (3, 2, 1)) == 2
 
 
@@ -123,9 +124,11 @@ def test_get():
     assert get(['a', 'b'], {'a': 1, 'b': 2, 'c': 3}) == (1, 2)
 
     assert get('foo', {}, default='bar') == 'bar'
+    assert get({}, [1, 2, 3], default='bar') == 'bar'
 
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
+    assert raises(TypeError, lambda: get({}, [1, 2, 3]))
 
 
 def test_mapcat():

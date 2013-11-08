@@ -6,7 +6,9 @@ python:
 - "3.3"
 # command to install dependencies
 # install: "pip install foo bar --use-mirrors"
+install: pip install coverage --use-mirrors
 # command to run tests
-script: nosetests --with-doctest
+# Require 100% coverage to pass tests
+script: nosetests --with-doctest --with-coverage 2>&1 | tee /dev/stderr | grep '^TOTAL.*100%' > /dev/null
 notifications:
   email: false
