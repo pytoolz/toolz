@@ -1,19 +1,26 @@
 language: python
 python:
-- "2.6"
-- "2.7"
-- "3.2"
-- "3.3"
-- "pypy"
+    - "2.6"
+    - "2.7"
+    - "3.2"
+    - "3.3"
+    - "pypy"
+
 # command to install dependencies
-# install: "pip install foo bar --use-mirrors"
-install: pip install coverage --use-mirrors
+install:
+    - pip install coverage --use-mirrors
+    - pip install coveralls --use-mirrors
+
 # command to run tests
-# Require 100% coverage to pass tests
+# require 100% coverage (not including test files) to pass Travis CI test
+# To skip pypy: - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then DOSTUFF ; fi
 script:
-- nosetests --with-doctest --with-coverage > tmp_coverage_output 2>&1
-- cat tmp_coverage_output
-- if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then grep '^TOTAL.* 0 *100%' tmp_coverage_output ; fi
-- rm -f tmp_coverage_output
+    - coverage run --source=toolz $(which nosetests) --with-doctest
+    - coverage report --show-missing --fail-under=100
+
+# load coverage status to https://coveralls.io
+after_success:
+    - coveralls
+
 notifications:
   email: false
