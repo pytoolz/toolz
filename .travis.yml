@@ -16,11 +16,11 @@ install:
 # To skip pypy: - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then DOSTUFF ; fi
 script:
     - coverage run --source=toolz $(which nosetests) --with-doctest
-    - coverage report --show-missing --fail-under=100
+    - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then coverage report --show-missing --fail-under=100 ; fi
 
 # load coverage status to https://coveralls.io
 after_success:
-    - coveralls
+    - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then coveralls ; fi
 
 notifications:
   email: false
