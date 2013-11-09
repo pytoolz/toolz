@@ -1,5 +1,6 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe)
+from toolz.functoolz.core import _num_required_args
 from operator import add, mul
 from toolz.utils import raises
 from functools import partial
@@ -33,6 +34,8 @@ def test_thread_first():
 
 def test_thread_last():
     assert list(thread_last([1, 2, 3], (map, inc), (filter, iseven))) == [2, 4]
+    assert list(thread_last([1, 2, 3], (map, inc), (filter, isodd))) == [3]
+    assert thread_last(2, (add, 5), double) == 14
 
 
 def test_memoize():
@@ -59,6 +62,8 @@ def test_curry_simple():
 
     cmap = curry(map)
     assert list(cmap(inc)([1, 2, 3])) == [2, 3, 4]
+
+    assert raises(TypeError, lambda : curry({1: 2}))
 
 
 def test_curry_kwargs():
@@ -105,6 +110,7 @@ def test_curry_docstring():
     g = curry(f)
     assert g.__doc__ == f.__doc__
     assert str(g) == str(f)
+    assert f(1, 2) == g(1, 2)
 
 
 def test_curry_is_like_partial():
@@ -127,6 +133,14 @@ def test_curry_is_like_partial():
     assert p.args == c.args
     assert p(1, 2) == c(1, 2)
 
+
+def test__num_required_args():
+    assert _num_required_args(map) == None
+    assert _num_required_args(lambda x: x) == 1
+    assert _num_required_args(lambda x, y: x) == 2
+    def foo(x, y, z=2):
+        pass
+    assert _num_required_args(foo) == 2
 
 def test_compose():
     assert compose()(0) == 0

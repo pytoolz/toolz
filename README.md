@@ -1,9 +1,12 @@
 Toolz
 =====
 
-A set of utility functions for iterators, functions, and dictionaries.
-
 [![Build Status](https://travis-ci.org/pytoolz/toolz.png)](https://travis-ci.org/pytoolz/toolz)
+[![Coverage Status](https://coveralls.io/repos/pytoolz/toolz/badge.png)](https://coveralls.io/r/pytoolz/toolz)
+[![Version Status](https://pypip.in/v/toolz/badge.png)](https://crate.io/packages/toolz/)
+[![Downloads](https://pypip.in/d/toolz/badge.png)](https://crate.io/packages/toolz/)
+
+A set of utility functions for iterators, functions, and dictionaries.
 
 See the PyToolz documentation at http://toolz.readthedocs.org
 

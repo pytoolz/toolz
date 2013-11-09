@@ -170,6 +170,9 @@ class curry(object):
                         http://toolz.readthedocs.org/en/latest/curry.html
     """
     def __init__(self, func, *args, **kwargs):
+        if not callable(func):
+            raise TypeError("Input must be callable")
+
         self.func = func
         self.args = args
         self.keywords = kwargs if kwargs else None
