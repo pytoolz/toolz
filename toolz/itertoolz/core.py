@@ -1,9 +1,9 @@
-import heapq
 import itertools
+import heapq
+import collections
+import operator
 from functools import partial
 from toolz.compatibility import map, filter, zip, zip_longest
-import collections
-
 
 identity = lambda x: x
 
@@ -330,7 +330,7 @@ def get(ind, seq, default=no_default):
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
             if default is no_default:
-                return tuple(seq[i] for i in ind)
+                return operator.itemgetter(*ind)(seq)
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
