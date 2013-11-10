@@ -18,6 +18,13 @@ def jackknife(seq, replace=no_replace):
     >>> list(list(x) for x in jackknife(range(4), replace=None))
     [[None, 1, 2, 3], [0, None, 2, 3], [0, 1, None, 3], [0, 1, 2, None]]
 
+    Note that an iterator of iterators is returned so the data in ``seq`` is
+    only in memory once.  If an iterator of tuples is desired, you may do:
+
+    >>> jackknife = compose(curry(map, tuple), jackknife)  # doctest: +SKIP
+    >>> list(jackknife([1, 2, 3]))  # doctest: +SKIP
+    [(2, 3), (1, 3), (1, 2)]
+
     See Also:
         itertools.combinations
     """
