@@ -8,7 +8,7 @@ edges = [(a, b), (b, a), (a, c), (a, d), (d, a), (d, e), (e, f), (d, f),
 out_degrees = countby(first,  edges)
 # {'a': 3, 'b': 1, 'd': 4, 'e': 2, 'f': 1}
 
-in_degrees  = countby(second, edges)
+in_degrees = countby(second, edges)
 # {'a': 2, 'b': 1, 'c': 1, 'd': 2, 'e': 1, 'f': 2, 'g': 2}
 
 
@@ -20,8 +20,8 @@ out_neighbors = valmap(comp(tuple, map(second)),
 #  'e': ('f', 'g'),
 #  'f': ('d',)}
 
-in_neighbors  = valmap(comp(tuple, map(first)),
-                       groupby(second, edges))
+in_neighbors = valmap(comp(tuple, map(first)),
+                      groupby(second, edges))
 # {'a': ('b', 'd'),
 #  'b': ('a',),
 #  'c': ('a',),
