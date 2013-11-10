@@ -94,7 +94,8 @@ def merge_sorted(*iters, **kwargs):
         # to apply a key function for sorting.
         #
         # mapper = lambda i, item: (key(item), i, item)
-        # keyiters = [map(partial(mapper, i), itr) for i, itr in enumerate(iters)]
+        # keyiters = [map(partial(mapper, i), itr) for i, itr in
+        #             enumerate(iters)]
         # return (item for (item_key, i, item) in heapq.merge(*keyiters))
 
         # binary heap as a priority queue
@@ -179,7 +180,7 @@ def intersection(*seqs):
     [2, 3]
     """
     return (item for item in seqs[0]
-                 if all(item in seq for seq in seqs[1:]))
+            if all(item in seq for seq in seqs[1:]))
 
 
 def isiterable(x):
@@ -250,6 +251,7 @@ def second(seq):
     """
     return next(itertools.islice(seq, 1, None))
 
+
 def nth(n, seq):
     """ The nth element in a sequence
 
@@ -284,6 +286,7 @@ rest = partial(drop, 1)
 
 
 no_default = '__no__default__'
+
 
 def _get(ind, seq, default):
     try:

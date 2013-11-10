@@ -5,8 +5,6 @@ from operator import add, mul
 from toolz.utils import raises
 from functools import partial
 
-import itertools
-
 
 def iseven(x):
     return x % 2 == 0
@@ -63,7 +61,7 @@ def test_curry_simple():
     cmap = curry(map)
     assert list(cmap(inc)([1, 2, 3])) == [2, 3, 4]
 
-    assert raises(TypeError, lambda : curry({1: 2}))
+    assert raises(TypeError, lambda: curry({1: 2}))
 
 
 def test_curry_kwargs():
@@ -135,12 +133,14 @@ def test_curry_is_like_partial():
 
 
 def test__num_required_args():
-    assert _num_required_args(map) == None
+    assert _num_required_args(map) is None
     assert _num_required_args(lambda x: x) == 1
     assert _num_required_args(lambda x, y: x) == 2
+
     def foo(x, y, z=2):
         pass
     assert _num_required_args(foo) == 2
+
 
 def test_compose():
     assert compose()(0) == 0
