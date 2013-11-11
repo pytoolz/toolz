@@ -6,10 +6,14 @@ python:
     - "3.3"
     - "pypy"
 
+env:
+    - PEP8_IGNORE=""
+
 # command to install dependencies
 install:
     - pip install coverage --use-mirrors
     - pip install coveralls --use-mirrors
+    - pip install pep8 --use-mirrors
 
 # command to run tests
 # require 100% coverage (not including test files) to pass Travis CI test
@@ -17,6 +21,7 @@ install:
 script:
     - coverage run --source=toolz $(which nosetests) --with-doctest
     - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then coverage report --show-missing --fail-under=100 ; fi
+    - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py -r --show-source . ; fi
 
 # load coverage status to https://coveralls.io
 after_success:
