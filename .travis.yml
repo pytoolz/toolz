@@ -21,7 +21,7 @@ install:
 script:
     - coverage run --source=toolz $(which nosetests) --with-doctest
     - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then coverage report --show-missing --fail-under=100 ; fi
-    - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py --show-source . ; fi
+    - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py -r --show-source . ; fi
 
 # load coverage status to https://coveralls.io
 after_success:
