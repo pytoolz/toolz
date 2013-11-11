@@ -1,9 +1,9 @@
-import heapq
 import itertools
-from functools import partial
-from toolz.compatibility import map
+import heapq
 import collections
-
+import operator
+from functools import partial
+from toolz.compatibility import map, filter, zip, zip_longest
 
 identity = lambda x: x
 
@@ -95,7 +95,8 @@ def merge_sorted(*iters, **kwargs):
         # to apply a key function for sorting.
         #
         # mapper = lambda i, item: (key(item), i, item)
-        # keyiters = [map(partial(mapper, i), itr) for i, itr in enumerate(iters)]
+        # keyiters = [map(partial(mapper, i), itr) for i, itr in
+        #             enumerate(iters)]
         # return (item for (item_key, i, item) in heapq.merge(*keyiters))
 
         # binary heap as a priority queue
@@ -180,7 +181,7 @@ def intersection(*seqs):
     [2, 3]
     """
     return (item for item in seqs[0]
-                 if all(item in seq for seq in seqs[1:]))
+            if all(item in seq for seq in seqs[1:]))
 
 
 def isiterable(x):
@@ -251,6 +252,7 @@ def second(seq):
     """
     return next(itertools.islice(seq, 1, None))
 
+
 def nth(n, seq):
     """ The nth element in a sequence
 
@@ -272,19 +274,14 @@ def last(seq):
     try:
         return seq[-1]
     except (TypeError, KeyError):
-        old = None
-        it = iter(seq)
-        while True:
-            try:
-                old = next(it)
-            except StopIteration:
-                return old
+        return collections.deque(seq, 1)[0]
 
 
 rest = partial(drop, 1)
 
 
 no_default = '__no__default__'
+
 
 def _get(ind, seq, default):
     try:
@@ -328,7 +325,7 @@ def get(ind, seq, default=no_default):
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
             if default is no_default:
-                return tuple(seq[i] for i in ind)
+                return operator.itemgetter(*ind)(seq)
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
@@ -517,3 +514,70 @@ def sliding_window(n, seq):
         yield tuple(d)
         d.append(item)
     yield tuple(d)
+
+
+no_pad = '__no__pad__'
+
+
+def partition(n, seq, pad=no_pad):
+    """ Partition sequence into tuples of length n
+
+    >>> list(partition(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    If the length of ``seq`` is not evenly divisible by ``n``, the final tuple
+    is dropped if ``pad`` is not specified, or filled to length ``n`` by pad:
+
+    >>> list(partition(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4)]
+
+    >>> list(partition(2, [1, 2, 3, 4, 5], pad=None))
+    [(1, 2), (3, 4), (5, None)]
+
+    See Also:
+        partition_all
+    """
+    args = [iter(seq)] * n
+    if pad is no_pad:
+        return zip(*args)
+    else:
+        return zip_longest(*args, fillvalue=pad)
+
+
+def partition_all(n, seq):
+    """ Partition all elements of sequence into tuples of length at most n
+
+    The final tuple may be shorter to accommodate extra elements.
+
+    >>> list(partition_all(2, [1, 2, 3, 4]))
+    [(1, 2), (3, 4)]
+
+    >>> list(partition_all(2, [1, 2, 3, 4, 5]))
+    [(1, 2), (3, 4), (5,)]
+
+    See Also:
+        partition
+    """
+    args = [iter(seq)] * n
+    it = zip_longest(*args, fillvalue=no_pad)
+    prev = next(it)
+    for item in it:
+        yield prev
+        prev = item
+    if prev[-1] is no_pad:
+        yield prev[:prev.index(no_pad)]
+    else:
+        yield prev
+
+
+def count(seq):
+    """ Count the number of items in seq
+
+    Like the builtin ``len`` but works on lazy sequencies.
+
+    Not to be confused with ``itertools.count``
+
+    See also:
+        len
+    """
+    return sum(1 for i in seq)

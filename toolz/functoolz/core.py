@@ -80,14 +80,6 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 
-def hashable(x):
-    try:
-        hash(x)
-        return True
-    except TypeError:
-        return False
-
-
 def memoize(f, cache=None):
     """ Cache a function's result for speedy future evaluation
 
@@ -178,6 +170,9 @@ class curry(object):
                         http://toolz.readthedocs.org/en/latest/curry.html
     """
     def __init__(self, func, *args, **kwargs):
+        if not callable(func):
+            raise TypeError("Input must be callable")
+
         self.func = func
         self.args = args
         self.keywords = kwargs if kwargs else None

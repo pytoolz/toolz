@@ -16,6 +16,7 @@ setup(name='toolz',
       packages=['toolz',
                 'toolz.itertoolz',
                 'toolz.functoolz',
-                'toolz.dicttoolz'],
+                'toolz.dicttoolz',
+                'toolz.sandbox'],
       long_description=open('README.md').read() if exists("README.md") else "",
       zip_safe=False)

@@ -1,10 +1,9 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-        compose, pipe)
+                             compose, pipe)
+from toolz.functoolz.core import _num_required_args
 from operator import add, mul
 from toolz.utils import raises
 from functools import partial
-
-import itertools
 
 
 def iseven(x):
@@ -33,6 +32,8 @@ def test_thread_first():
 
 def test_thread_last():
     assert list(thread_last([1, 2, 3], (map, inc), (filter, iseven))) == [2, 4]
+    assert list(thread_last([1, 2, 3], (map, inc), (filter, isodd))) == [3]
+    assert thread_last(2, (add, 5), double) == 14
 
 
 def test_memoize():
@@ -47,6 +48,7 @@ def test_memoize():
     assert mf(2, 3) == mf(2, 3)
     assert fn_calls == [1]  # function was only called once
     assert mf.__doc__ == f.__doc__
+    assert raises(TypeError, lambda: mf(1, {}))
 
 
 def test_curry_simple():
@@ -54,9 +56,12 @@ def test_curry_simple():
     double = cmul(2)
     assert callable(double)
     assert double(10) == 20
+    assert repr(cmul) == repr(mul)
 
     cmap = curry(map)
     assert list(cmap(inc)([1, 2, 3])) == [2, 3, 4]
+
+    assert raises(TypeError, lambda: curry({1: 2}))
 
 
 def test_curry_kwargs():
@@ -69,6 +74,17 @@ def test_curry_kwargs():
     assert f(1, 2) == 30
     assert f(1, c=3)(2) == 9
     assert f(c=3)(1, 2) == 9
+
+    def g(a=1, b=10, c=0):
+        return a + b + c
+
+    cg = curry(g, b=2)
+    assert cg() == 3
+    assert cg(b=3) == 4
+    assert cg(a=0) == 2
+    assert cg(a=0, b=1) == 1
+    assert cg(0) == 2  # pass "a" as arg, not kwarg
+    assert raises(TypeError, lambda: cg(1, 2))  # pass "b" as arg AND kwarg
 
 
 def test_curry_passes_errors():
@@ -92,6 +108,7 @@ def test_curry_docstring():
     g = curry(f)
     assert g.__doc__ == f.__doc__
     assert str(g) == str(f)
+    assert f(1, 2) == g(1, 2)
 
 
 def test_curry_is_like_partial():
@@ -115,6 +132,16 @@ def test_curry_is_like_partial():
     assert p(1, 2) == c(1, 2)
 
 
+def test__num_required_args():
+    assert _num_required_args(map) is None
+    assert _num_required_args(lambda x: x) == 1
+    assert _num_required_args(lambda x, y: x) == 2
+
+    def foo(x, y, z=2):
+        pass
+    assert _num_required_args(foo) == 2
+
+
 def test_compose():
     assert compose()(0) == 0
     assert compose(inc)(0) == 1
@@ -127,7 +154,8 @@ def test_compose():
 
     assert compose(str, inc, f)(1, 2, c=3) == '10'
 
+
 def test_pipe():
     assert pipe(1, inc) == 2
     assert pipe(1, inc, inc) == 3
-    assert pipe(1, double, inc, iseven) == False
+    assert pipe(1, double, inc, iseven) is False
