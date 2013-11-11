@@ -1,9 +1,9 @@
-import heapq
 import itertools
+import heapq
+import collections
+import operator
 from functools import partial
 from toolz.compatibility import map, filter, zip, zip_longest
-import collections
-
 
 identity = lambda x: x
 
@@ -38,9 +38,10 @@ def accumulate(binop, seq):
     See Also:
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
-    result = next(iter(seq))
+    coll = iter(seq)
+    result = next(coll)
     yield result
-    for elem in itertools.islice(seq, 1, None):
+    for elem in coll:
         result = binop(result, elem)
         yield result
 
@@ -94,7 +95,8 @@ def merge_sorted(*iters, **kwargs):
         # to apply a key function for sorting.
         #
         # mapper = lambda i, item: (key(item), i, item)
-        # keyiters = [map(partial(mapper, i), itr) for i, itr in enumerate(iters)]
+        # keyiters = [map(partial(mapper, i), itr) for i, itr in
+        #             enumerate(iters)]
         # return (item for (item_key, i, item) in heapq.merge(*keyiters))
 
         # binary heap as a priority queue
@@ -179,7 +181,7 @@ def intersection(*seqs):
     [2, 3]
     """
     return (item for item in seqs[0]
-                 if all(item in seq for seq in seqs[1:]))
+            if all(item in seq for seq in seqs[1:]))
 
 
 def isiterable(x):
@@ -250,6 +252,7 @@ def second(seq):
     """
     return next(itertools.islice(seq, 1, None))
 
+
 def nth(n, seq):
     """ The nth element in a sequence
 
@@ -271,19 +274,14 @@ def last(seq):
     try:
         return seq[-1]
     except (TypeError, KeyError):
-        old = None
-        it = iter(seq)
-        while True:
-            try:
-                old = next(it)
-            except StopIteration:
-                return old
+        return collections.deque(seq, 1)[0]
 
 
 rest = partial(drop, 1)
 
 
 no_default = '__no__default__'
+
 
 def _get(ind, seq, default):
     try:
@@ -327,7 +325,7 @@ def get(ind, seq, default=no_default):
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
             if default is no_default:
-                return tuple(seq[i] for i in ind)
+                return operator.itemgetter(*ind)(seq)
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
