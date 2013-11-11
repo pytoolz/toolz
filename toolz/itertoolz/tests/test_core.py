@@ -192,6 +192,8 @@ def test_iterate():
 def test_accumulate():
     assert list(accumulate(add, [1, 2, 3, 4, 5])) == [1, 3, 6, 10, 15]
     assert list(accumulate(mul, [1, 2, 3, 4, 5])) == [1, 2, 6, 24, 120]
+
+def test_accumulate_works_on_consumable_iterables():
     assert list(accumulate(add, iter((1, 2, 3)))) == [1, 3, 6]
 
 def test_sliding_window():
