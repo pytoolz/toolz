@@ -38,9 +38,10 @@ def accumulate(binop, seq):
     See Also:
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
-    result = next(iter(seq))
+    coll = iter(seq)
+    result = next(coll)
     yield result
-    for elem in itertools.islice(seq, 1, None):
+    for elem in coll:
         result = binop(result, elem)
         yield result
 
