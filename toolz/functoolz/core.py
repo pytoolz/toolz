@@ -125,7 +125,10 @@ def memoize(f, cache=None):
             cache[key] = result
             return result
 
-    memof.__name__ = f.__name__
+    try:
+        memof.__name__ = f.__name__
+    except AttributeError:
+        pass
     memof.__doc__ = f.__doc__
     return memof
 
