@@ -62,6 +62,7 @@ def test_memoize_kwargs():
     assert mf(1) == f(1)
     assert mf(1, 2) == f(1, 2)
     assert mf(1, y=2) == f(1, y=2)
+    assert mf(1, y=3) == f(1, y=3)
 
 
 def test_curry_simple():

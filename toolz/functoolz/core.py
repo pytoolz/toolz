@@ -111,7 +111,7 @@ def memoize(f, cache=None):
     def memof(*args, **kwargs):
         try:
             if may_have_kwargs:
-                key = (args, frozenset(kwargs))
+                key = (args, frozenset(kwargs.items()))
             else:
                 key = args
             in_cache = key in cache
