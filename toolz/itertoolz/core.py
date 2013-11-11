@@ -273,13 +273,7 @@ def last(seq):
     try:
         return seq[-1]
     except (TypeError, KeyError):
-        old = None
-        it = iter(seq)
-        while True:
-            try:
-                old = next(it)
-            except StopIteration:
-                return old
+        return collections.deque(seq, 1)[0]
 
 
 rest = partial(drop, 1)
