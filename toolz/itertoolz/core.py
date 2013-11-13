@@ -174,16 +174,6 @@ def unique(seq, key=identity):
             yield item
 
 
-def intersection(*seqs):
-    """ Lazily evaluated intersection of sequences
-
-    >>> list(intersection([1, 2, 3], [2, 3, 4]))
-    [2, 3]
-    """
-    return (item for item in seqs[0]
-            if all(item in seq for seq in seqs[1:]))
-
-
 def isiterable(x):
     """ Is x iterable?
 

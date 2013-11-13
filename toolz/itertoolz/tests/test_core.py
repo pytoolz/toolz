@@ -3,7 +3,7 @@ from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   concat, concatv, interleave, unique,
-                                  identity, intersection, isiterable,
+                                  identity, isiterable,
                                   mapcat, isdistinct, first, second,
                                   nth, take, drop, interpose, get,
                                   rest, last, cons, frequencies,
@@ -65,11 +65,6 @@ def test_unique():
     assert tuple(unique((1, 2, 3))) == (1, 2, 3)
     assert tuple(unique((1, 2, 1, 3))) == (1, 2, 3)
     assert tuple(unique((1, 2, 3), key=iseven)) == (1, 2)
-
-
-def test_intersection():
-    assert list(intersection([1, 2, 3], [2, 3, 4])) == [2, 3]
-    assert list(intersection([3, 4], itertools.count(0))) == [3, 4]
 
 
 def test_isiterable():
