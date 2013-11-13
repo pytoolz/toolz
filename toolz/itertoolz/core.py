@@ -214,7 +214,15 @@ def isdistinct(seq):
     >>> isdistinct("World")
     True
     """
-    return len(seq) == len(set(seq))
+    if iter(seq) is seq:
+        seen = set()
+        for item in seq:
+            if item in seen:
+                return False
+            seen.add(item)
+        return True
+    else:
+        return len(seq) == len(set(seq))
 
 
 def take(n, seq):
