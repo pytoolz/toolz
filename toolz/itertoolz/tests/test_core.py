@@ -88,6 +88,7 @@ def test_isdistinct():
     assert isdistinct(iter([1, 2, 3])) is True
     assert isdistinct(iter([1, 2, 1])) is False
 
+
 def test_nth():
     assert nth(2, 'ABCDE') == 'C'
     assert nth(2, iter('ABCDE')) == 'C'
