@@ -5,12 +5,31 @@ from toolz.parallel.reducers import Reducible  # TODO: this dependency is wrong
 chunksize = 4
 
 
-def fold(binop, coll, default, map=map):
+def fold(binop, coll, default, map=map, chunksize=chunksize):
     """ Reduce without guarantee of ordered reduction
 
-    ``binop`` is assumed to be an associative operator
+    ``binop`` is assumed to be an associative operator.  This allows us to
+    leverage a parallel map to perform reductions in parallel.
 
-    This allows us to leverage a parallel map to perform reductions in parallel
+    inputs:
+        # The first inputs are almost the same as reduce
+        binop: associative binary operator like add or mul
+        coll: a collection or sequence
+        default: an identity element like 0 for add or 1 for mul
+        # The optional map input is new
+        map: an implementation of ``map``.  This may be parallel.
+
+    Fold chunks up the collection into blocks of size ``chunksize`` and then
+    feeds each of these to calls to `builtin.reduce`.  This work is distributed
+    with a call to ``map``, gathered back and then refolded to finish the
+    computation.  In this way ``fold`` specifies only how to chunk up data but
+    leaves the distribution of this work to an externally provided ``map``
+    function.  This function can be sequential or rely on multithreading,
+    multiprocessing, or even distributed solutions.
+
+    If ``map`` intends to serialize functions it should be prepared to accept
+    and serialize lambdas.  Note that the standard ``pickle`` module fails
+    here.
 
     See Also:
         toolz.parallel.reducers
