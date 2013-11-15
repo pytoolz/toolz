@@ -236,21 +236,10 @@ class curry(object):
             return curry(self.func, *args, **kwargs)
 
 class Compose(object):
-    """ Compose functions to operate in series.
-
-    Returns a function that applies other functions in sequence.
-
-    Functions are applied from right to left so that
-    ``compose(f, g, h)(x, y)`` is the same as ``f(g(h(x, y)))``.
-
-    If no arguments are provided, the identity function (f(x) = x) is returned.
-
-    >>> inc = lambda i: i + 1
-    >>> compose(str, inc)(3)
-    '4'
+    """ A composition of functions
 
     See Also:
-        pipe
+        compose
     """
     __slots__ = 'funcs'
     def __init__(self, *funcs):
