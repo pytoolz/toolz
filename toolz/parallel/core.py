@@ -1,42 +1,28 @@
-from toolz import partition_all, partial
-from toolz import reduce as core_reduce
+from toolz import partition_all, reduce, count
+from toolz.parallel.reducers import Reducible
 
-# map is presumed parallel
 
 chunksize = 4
 
-def mpmap(p, func, seq):
-    if hasattr(func, 'args') and hasattr(func, 'keywords'):
-        seq = [func.args + (item,) for item in seq]
-        keywords = func.keywords
-        func = func.func
+
+def fold(binop, coll, default, map=map):
+    if isinstance(coll, Reducible):
+        combine = binop
+        binop = coll.fn(binop)
+        coll = coll.coll
     else:
-        seq = ((item,) for item in seq)
-        keywords = {}
-
-    if keywords:
-        results = [p.apply_async(func, args, keywords) for args in seq]
+        combine = binop
+    print "Entering Fold with coll: ", coll
+    coll = list(coll)  # TODO: Support laziness
+    if len(coll) < chunksize:
+        return reduce(binop, coll, default)
     else:
-        results = [p.apply_async(func, args) for args in seq]
+        chunks = partition_all(chunksize, coll)
+        results = list(map(lambda chunk: reduce(binop, chunk, default),
+            chunks))
+        return fold(combine, results, default, map=map)
 
 
-    return map(lambda x: x.get(), results)
-
-
-def reduce(binop, initial, coll):
-    return core_reduce(binop, coll, initial)
-
-
-def fold(binop, seq, default, map=map):
-    seq = list(seq)
-    if len(seq) < chunksize:
-        return core_reduce(binop, seq, default)
-    else:
-        chunks = partition_all(chunksize, seq)
-        results = map(partial(reduce, binop, default), chunks)
-        return fold(binop, results, default)
-
-
-def filter(pred, seq, map=map):
-    results = map(lambda x: (pred(x), x), seq)
+def filter(pred, coll, map=map):
+    results = map(lambda x: (pred(x), x), coll)
     return [x for p, x in results if p]
