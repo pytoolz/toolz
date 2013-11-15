@@ -1,3 +1,16 @@
+"""
+Reducers
+========
+
+Applying functions onto binops rather than functions onto sequences
+
+Inspired by clojure.core.reducers
+
+See the following explanatory blogpost
+http://clojure.com/blog/2012/05/08/reducers-a-library-and-model-for-collection-processing.html
+
+"""
+
 from toolz import reduce as core_reduce
 from toolz import compose
 
