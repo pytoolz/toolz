@@ -12,7 +12,7 @@ http://clojure.com/blog/2012/05/08/reducers-a-library-and-model-for-collection-p
 """
 
 from toolz import reduce as core_reduce
-from toolz import compose
+from toolz import compose, curry
 
 class Reducible(object):
     __slots__ = ['fn', 'coll']
@@ -31,6 +31,7 @@ def reducer(xf, coll):
         return Reducible(xf, coll)
 
 
+@curry
 def map(fn, coll):
     def refold(binop):
         def new_binop(acc, x):
@@ -39,6 +40,7 @@ def map(fn, coll):
     return reducer(refold, coll)
 
 
+@curry
 def filter(pred, coll):
     def refold(binop):
         def newfn(acc, x):
