@@ -1,7 +1,7 @@
 from .itertoolz import (groupby, countby, frequencies, reduceby,
                         first, second, nth, take, drop, rest, last,
                         get, merge_sorted, concat, concatv, mapcat,
-                        isdistinct, interleave, unique, intersection,
+                        isdistinct, interleave, unique,
                         isiterable, remove, iterate, accumulate,
                         partitionby, partition, partition_all,
                         sliding_window, count)
