@@ -1,6 +1,7 @@
 import toolz.parallel.reducers as r
 from toolz.parallel.core import fold
 from toolz import curry, compose
+from toolz.curried import merge_with
 
 import dill
 import pathos
@@ -27,3 +28,10 @@ def test_dill_compose():
     assert dill.loads(dill.dumps(compose(inc, inc)))(1) == 3
     assert list(p.map(compose(inc, inc), (1, 2, 3))) == [3, 4, 5]
 
+
+def test_dill_merge_with():
+    assert dill.loads(dill.dumps(merge_with(sum)))
+
+
+def test_dill_reducer():
+    assert dill.loads(dill.dumps(r.map(lambda x: x + 1, range(3)).fn))
