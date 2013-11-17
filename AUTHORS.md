@@ -3,3 +3,5 @@
 [John Jacobsen](http://eigenhombre.com)         [@eigenhombre](http://github.com/eigenhombre/)
 
 Erik Welch                                      [@eriknw](https://github.com/eriknw/)
+
+John Crichton                                   [@jcrichton](https://github.com/jcrichton/)
