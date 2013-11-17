@@ -394,7 +394,8 @@ def interpose(el, seq):
     >>> list(interpose("a", [1, 2, 3]))
     [1, 'a', 2, 'a', 3]
     """
-    return rest(mapcat(lambda x: [el, x], seq))
+    combined = zip(itertools.repeat(el), seq)
+    return drop(1, concat(combined))
 
 
 def frequencies(seq):
