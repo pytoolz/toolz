@@ -1,6 +1,6 @@
 from toolz.utils import raises
-from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in, assoc,
-                             fnone)
+from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
+                             assoc, fnone)
 
 
 inc = lambda x: x + 1
