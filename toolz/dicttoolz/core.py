@@ -102,7 +102,7 @@ def fnone(f, default):
     >>> fnone(inc, default=-1)(None)
     0
     >>> assert fnone(inc, default=-1)(1) == inc(1)
-    
+
     >>> fnone(sorted, default=[])(None)
     []
     >>> assert fnone(sorted, default=[])([5, 1, 2]) == sorted([5, 1, 2])
@@ -116,9 +116,12 @@ def fnone(f, default):
         else:
             return f(x)
     # temporary hack for Python 2/3 compatibilty
-    None_safe.__qualname__ = 'None_safe_' + f.__qualname__
-    None_safe.__name__ = 'None_safe_' + f.__name__
-    return None_safe
+    try:
+        None_safe.__qualname__ = 'None_safe_' + f.__qualname__
+        return None_safe
+    except AttributeError:
+        None_safe.__name__ = 'None_safe_' + f.__name__
+        return None_safe
 
 
 def update_in(d, keys, f):
@@ -130,7 +133,7 @@ def update_in(d, keys, f):
     f - function to operate on that value
 
     Returns a copy of the original rather than mutating it.
-    
+
     >>> inc = lambda x: x + 1
     >>> update_in({'a': 0}, ['a'], inc)
     {'a': 1}
@@ -146,17 +149,17 @@ def update_in(d, keys, f):
 
     If any of the keys are not present in d, update_in recursively creates
     nested empty dictionaries to the depth specified by the keys with the
-    innermost value set to f(None). For this reason care must be taken to 
+    innermost value set to f(None). For this reason care must be taken to
     ensure that f(None) returns a meaningful value.
 
-    >>> update_in({}, [0, 1, 2, 3], lambda x:x)
+    >>> update_in({}, [0, 1, 2, 3], lambda x: x)
     {0: {1: {2: {3: None}}}}
 
     >>> update_in({}, [0, 1, 2, 3], inc)
     Traceback (most recent call last):
-    ...  
+    ...
     TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
-    
+
     >>> update_in({}, [0, 1, 2, 3], fnone(inc, default=-1))
     {0: {1: {2: {3: 0}}}}
 
