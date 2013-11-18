@@ -118,10 +118,9 @@ def fnone(f, default):
     # temporary hack for Python 2/3 compatibilty
     try:
         None_safe.__qualname__ = 'None_safe_' + f.__qualname__
-        return None_safe
     except AttributeError:
         None_safe.__name__ = 'None_safe_' + f.__name__
-        return None_safe
+    return None_safe
 
 
 def update_in(d, keys, f):
