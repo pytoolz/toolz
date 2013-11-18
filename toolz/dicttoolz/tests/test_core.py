@@ -52,18 +52,33 @@ def test_assoc():
     assert d is oldd
 
 
+def test_fnone():
+    inc = lambda x:x+1
+    assert fnone(str, '')(None) == ''
+    assert raises(TypeError, fnone(str, None)(None))
+    assert update_in({}, [0, 1], fnone(inc, -1)) == {0: {1: 0}}
+    assert raises(TypeError,
+                  lambda:update_in({}, [0, 1], inc, -1))
+
+
 def test_update_in():
     assert update_in({"a": 0}, ["a"], inc) == {"a": 1}
     assert update_in({"a": 0, "b": 1}, ["b"], str) == {"a": 0, "b": "1"}
     assert (update_in({"t": 1,
                        "v": {"a": 0}}, ["v", "a"], inc) ==
             {"t": 1, "v": {"a": 1}})
-    # Handle missing element one deep:
+    # Handle one missing key.
     assert update_in({}, ["z"], str) == {"z": "None"}
-    # Same semantics as Clojure, raises an error if going deeper than
-    # one level into a dict which doesn't have the initial key:
-    assert raises(AttributeError,
-                  lambda: update_in({}, ["z", "q"], str))
+    # Same semantics as Clojure for multiple missing keys, ie. recursively 
+    # create nested empty dictionaries to the depth specified by the 
+    # keys with the innermost value set to f(None).
+    assert update_in({}, [0, 1], lambda x: 0 if (x is None) else inc(x)) == \
+           {0: {1: 0}}
+    assert update_in({}, [0, 1], fnone(inc, -1)) == {0: {1: 0}}
+    assert update_in({}, [0, 1], fnone(str, "foo")) == {0: {1: "foo"}}
+    # check for TypeError when no default value is provided.
+    assert raises(TypeError,
+                  lambda: update_in({}, [0, 2], inc))
 
     # Verify immutability:
     d = {'x': 1}
