@@ -62,7 +62,7 @@ Example
 
 This builds a standard wordcount function from pieces within ``toolz``:
 
-::
+.. code:: python
 
     >>> def stem(word):
     ...     """ Stem word to primitive form """
