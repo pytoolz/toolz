@@ -32,17 +32,23 @@ Structure and Heritage
 
 ``toolz`` is implemented in three parts:
 
-```itertoolz`` <https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py>`__,
-for operations on iterables. Examples: ``groupby``, ``unique``,
-``interpose``,
+|literal itertoolz|_, for operations on iterables. Examples: ``groupby``,
+``unique``, ``interpose``,
 
-```functoolz`` <https://github.com/pytoolz/toolz/blob/master/toolz/functoolz/core.py>`__,
-for higher-order functions. Examples: ``memoize``, ``curry``,
-``compose``
+|literal functoolz|_, for higher-order functions. Examples: ``memoize``,
+``curry``, ``compose``
 
-```dicttoolz`` <https://github.com/pytoolz/toolz/blob/master/toolz/dicttoolz/core.py>`__,
-for operations on dictionaries. Examples: ``assoc``, ``update-in``,
-``merge``.
+|literal dicttoolz|_, for operations on dictionaries. Examples: ``assoc``,
+``update-in``, ``merge``.
+
+.. |literal itertoolz| replace:: ``itertoolz``
+.. _literal itertoolz: https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py
+
+.. |literal functoolz| replace:: ``functoolz``
+.. _literal functoolz: https://github.com/pytoolz/toolz/blob/master/toolz/functoolz/core.py
+
+.. |literal dicttoolz| replace:: ``dicttoolz``
+.. _literal dicttoolz: https://github.com/pytoolz/toolz/blob/master/toolz/dicttoolz/core.py
 
 These functions come from the legacy of functional languages for list
 processing. They interoperate well to accomplish common complex tasks.
