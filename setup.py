@@ -18,5 +18,5 @@ setup(name='toolz',
                 'toolz.functoolz',
                 'toolz.dicttoolz',
                 'toolz.sandbox'],
-      long_description=open('README.md').read() if exists("README.md") else "",
+      long_description=open('README.rst').read() if exists("README.rst") else "",
       zip_safe=False)
