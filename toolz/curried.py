@@ -31,15 +31,17 @@ import inspect
 
 def nargs(f):
     try:
-        return len(inspect.getargspec(f).args)
+        spec = inspect.getargspec(f)
+        if spec.varargs:
+            return None
+        else:
+            return len(spec.args)
     except TypeError:
         return None
 
 
 def should_curry(f):
-    do_curry = set((toolz.map, toolz.filter, toolz.sorted))
-    return (callable(f) and nargs(f) and nargs(f) > 1
-            or f in do_curry)
+    return callable(f) and (nargs(f) is None or nargs(f) > 1)
 
 
 d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)

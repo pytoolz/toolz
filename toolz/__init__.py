@@ -13,6 +13,8 @@ from .dicttoolz import merge, merge_with, keymap, valmap, assoc, update_in
 
 from .compatibility import map, filter
 
+from .recipes import tmap, lmap
+
 from . import sandbox
 
 from functools import partial, reduce
