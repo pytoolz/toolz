@@ -235,6 +235,23 @@ class curry(object):
 
             return curry(self.func, *args, **kwargs)
 
+class Compose(object):
+    """ A composition of functions
+
+    See Also:
+        compose
+    """
+    __slots__ = 'funcs'
+    def __init__(self, *funcs):
+        self.funcs = funcs
+
+    def __call__(self, *args, **kwargs):
+        fns = list(reversed(self.funcs))
+        ret = fns[0](*args, **kwargs)
+        for f in fns[1:]:
+            ret = f(ret)
+        return ret
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.
@@ -258,15 +275,7 @@ def compose(*funcs):
     if len(funcs) == 1:
         return funcs[0]
     else:
-        fns = list(reversed(funcs))
-
-        def composed(*args, **kwargs):
-            ret = fns[0](*args, **kwargs)
-            for f in fns[1:]:
-                ret = f(ret)
-            return ret
-
-        return composed
+        return Compose(*funcs)
 
 
 def pipe(data, *functions):

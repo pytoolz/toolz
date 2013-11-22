@@ -579,4 +579,6 @@ def count(seq):
     See also:
         len
     """
+    if hasattr(seq, '__len__'):
+        return len(seq)
     return sum(1 for i in seq)
