@@ -1,5 +1,6 @@
 import toolz
-from toolz.curried import take, first, second, sorted, merge_with
+from toolz.curried import (take, first, second, sorted, merge_with, lmap,
+                           should_curry)
 
 
 def test_take():
@@ -16,3 +17,15 @@ def test_merge_with():
 
 def test_sorted():
     assert sorted(key=second)([(1, 2), (2, 1)]) == [(2, 1), (1, 2)]
+
+
+def test_should_curry():
+    assert should_curry(toolz.map)
+    assert should_curry(toolz.lmap)
+    assert should_curry(toolz.groupby)
+    assert should_curry(toolz.take)
+    assert not should_curry(toolz.first)
+
+
+def test_lmap():
+    assert lmap(lambda x: x + 1)([1]) == [2]
