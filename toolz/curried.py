@@ -41,7 +41,7 @@ def nargs(f):
 
 
 def should_curry(f):
-    return callable(f) and (nargs(f) is None or nargs(f) > 1)
+    return callable(f) and nargs(f) not in [0, 1]
 
 
 d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
