@@ -1,6 +1,7 @@
 from functools import reduce, partial
-import itertools
 import inspect
+import itertools
+import operator
 
 
 def identity(x):
@@ -306,6 +307,4 @@ def complement(f):
     >>> isodd(2)
     False
     """
-    def inner(*args, **kwargs):
-        return not f(*args, **kwargs)
-    return inner
+    return compose(operator.not_, f)
