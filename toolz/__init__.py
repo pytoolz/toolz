@@ -7,7 +7,7 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
                         sliding_window, count)
 
 from .functoolz import (memoize, curry, compose, thread_first,
-                        thread_last, identity, pipe)
+                        thread_last, identity, pipe, complement)
 
 from .dicttoolz import merge, merge_with, keymap, valmap, assoc, update_in
 
