@@ -1,6 +1,5 @@
 from functools import reduce, partial
 import inspect
-import itertools
 import operator
 
 
