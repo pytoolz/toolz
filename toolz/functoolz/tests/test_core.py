@@ -1,5 +1,5 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe)
+                             compose, pipe, complement)
 from toolz.functoolz.core import _num_required_args
 from operator import add, mul
 from toolz.utils import raises
@@ -185,3 +185,30 @@ def test_pipe():
     assert pipe(1, inc) == 2
     assert pipe(1, inc, inc) == 3
     assert pipe(1, double, inc, iseven) is False
+
+
+def test_complement():
+    # No args:
+    assert complement(lambda: False)()
+    assert not complement(lambda: True)()
+
+    # Single arity:
+    assert complement(iseven)(1)
+    assert not complement(iseven)(2)
+    assert complement(complement(iseven))(2)
+    assert not complement(complement(isodd))(2)
+
+    # Multiple arities:
+    both_even = lambda a, b: iseven(a) and iseven(b)
+    assert complement(both_even)(1, 2)
+    assert not complement(both_even)(2, 2)
+
+    # Generic truthiness:
+    assert complement(lambda: "")()
+    assert complement(lambda: 0)()
+    assert complement(lambda: None)()
+    assert complement(lambda: [])()
+
+    assert not complement(lambda: "x")()
+    assert not complement(lambda: 1)()
+    assert not complement(lambda: [1])()
