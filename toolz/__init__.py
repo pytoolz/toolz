@@ -19,6 +19,8 @@ from functools import partial, reduce
 
 sorted = sorted
 
+apply = apply
+
 # Aliases
 comp = compose
 
