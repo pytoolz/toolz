@@ -9,5 +9,5 @@ def test_map_filter_are_lazy():
 
 
 def test_apply():
-    assert apply(set.union, (set([1]), set([2]))) == \
-            set.union(set([1]), set([2]))
+    a, b = set([1]), set([2])
+    assert apply(set.union, (a, b)) == set.union(a, b)
