@@ -20,7 +20,7 @@ def remove(predicate, coll):
 
 
 def accumulate(binop, seq):
-    """ Repeatedly apply binary function f to a sequence, accumulating results
+    """ Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
     >>> list(accumulate(add, [1, 2, 3, 4, 5]))
@@ -46,7 +46,7 @@ def accumulate(binop, seq):
         yield result
 
 
-def groupby(f, coll):
+def groupby(func, coll):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
@@ -62,14 +62,14 @@ def groupby(f, coll):
     """
     d = dict()
     for item in coll:
-        key = f(item)
+        key = func(item)
         if key not in d:
             d[key] = []
         d[key].append(item)
     return d
 
 
-def merge_sorted(*iters, **kwargs):
+def merge_sorted(*seqs, **kwargs):
     """ Merge and sort a collection of sorted collections
 
     This works lazily and only keeps one value from each iterable in memory.
@@ -88,7 +88,7 @@ def merge_sorted(*iters, **kwargs):
     key = kwargs.get('key', None)
     if key is None:
         # heapq.merge does what we do below except by val instead of key(val)
-        for item in heapq.merge(*iters):
+        for item in heapq.merge(*seqs):
             yield item
     else:
         # The commented code below shows an alternative (slower) implementation
@@ -96,14 +96,14 @@ def merge_sorted(*iters, **kwargs):
         #
         # mapper = lambda i, item: (key(item), i, item)
         # keyiters = [map(partial(mapper, i), itr) for i, itr in
-        #             enumerate(iters)]
+        #             enumerate(seqs)]
         # return (item for (item_key, i, item) in heapq.merge(*keyiters))
 
         # binary heap as a priority queue
         pq = []
 
         # Initial population
-        for itnum, it in enumerate(map(iter, iters)):
+        for itnum, it in enumerate(map(iter, seqs)):
             try:
                 item = next(it)
                 pq.append([key(item), itnum, item, it])
@@ -367,14 +367,14 @@ def concatv(*seqs):
     return concat(seqs)
 
 
-def mapcat(f, seqs):
-    """ Apply f to each sequence in seqs, concatenating results
+def mapcat(func, seqs):
+    """ Apply func to each sequence in seqs, concatenating results
 
     >>> list(mapcat(lambda s: [c.upper() for c in s],
     ...             [["a", "b"], ["c", "d", "e"]]))
     ['A', 'B', 'C', 'D', 'E']
     """
-    return concat(map(f, seqs))
+    return concat(map(func, seqs))
 
 
 def cons(el, seq):
@@ -417,19 +417,19 @@ def frequencies(seq):
     return d
 
 
-def reduceby(keyfn, binop, seq, init):
+def reduceby(key, binop, seq, init):
     """ Perform a simultaneous groupby and reduction
 
     The computation:
 
-    >>> result = reduceby(keyfn, binop, seq, init)      # doctest: +SKIP
+    >>> result = reduceby(key, binop, seq, init)      # doctest: +SKIP
 
     is equivalent to the following:
 
     >>> def reduction(group):                           # doctest: +SKIP
     ...     return reduce(binop, group, init)           # doctest: +SKIP
 
-    >>> groups = groupby(keyfn, seq)                    # doctest: +SKIP
+    >>> groups = groupby(key, seq)                    # doctest: +SKIP
     >>> result = valmap(reduction, groups)              # doctest: +SKIP
 
     But the former does not build the intermediate groups, allowing it to
@@ -455,17 +455,17 @@ def reduceby(keyfn, binop, seq, init):
     """
     d = {}
     for item in seq:
-        key = keyfn(item)
-        if key not in d:
-            d[key] = init
-        d[key] = binop(d[key], item)
+        k = key(item)
+        if k not in d:
+            d[k] = init
+        d[k] = binop(d[k], item)
     return d
 
 
-def iterate(f, x):
-    """ Repeatedly apply a function f onto an original input
+def iterate(func, x):
+    """ Repeatedly apply a function func onto an original input
 
-    Yields x, then f(x), then f(f(x)), then f(f(f(x))), etc..
+    Yields x, then func(x), then func(func(x)), then func(func(func(x))), etc..
 
     >>> def inc(x):  return x + 1
     >>> counter = iterate(inc, 0)
@@ -490,7 +490,7 @@ def iterate(f, x):
     """
     while True:
         yield x
-        x = f(x)
+        x = func(x)
 
 
 def sliding_window(n, seq):

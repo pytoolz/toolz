@@ -19,11 +19,11 @@ def countby(func, seq):
     return frequencies(map(func, seq))
 
 
-def partitionby(f, seq):
+def partitionby(func, seq):
     """ Partition a sequence according to a function
 
     Partition `s` into a sequence of lists such that, when traversing
-    `s`, every time the output of `f` changes a new list is started
+    `s`, every time the output of `func` changes a new list is started
     and that and subsequent items are collected into that list.
 
     >>> is_space = lambda c: c == " "
@@ -41,4 +41,4 @@ def partitionby(f, seq):
     """
     # Note: applying `list` seems to be required both Python 2 and 3
     # compatible (Python 3 works without it).
-    return (tuple(v) for k, v in itertools.groupby(seq, key=f))
+    return (tuple(v) for k, v in itertools.groupby(seq, key=func))
