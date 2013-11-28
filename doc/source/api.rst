@@ -38,20 +38,11 @@ Itertoolz
    take
    unique
 
-.. automodule:: toolz.itertoolz.core
-   :members:
-
-Recipes
-^^^^^^^
-
-.. currentmodule:: toolz.itertoolz.core
+.. currentmodule:: toolz.itertoolz.recipes
 
 .. autosummary::
    countby
    partitionby
-
-.. automodule:: toolz.itertoolz.recipes
-   :members:
 
 Functoolz
 ---------
@@ -65,10 +56,6 @@ Functoolz
    thread_first
    thread_last
 
-.. automodule:: toolz.functoolz.core
-   :members:
-
-
 Dicttoolz
 ---------
 
@@ -81,6 +68,18 @@ Dicttoolz
    merge_with
    update_in
    valmap
+
+Definitions
+-----------
+
+.. automodule:: toolz.itertoolz.core
+   :members:
+
+.. automodule:: toolz.itertoolz.recipes
+   :members:
+
+.. automodule:: toolz.functoolz.core
+   :members:
 
 .. automodule:: toolz.dicttoolz.core
    :members:
