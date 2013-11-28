@@ -50,6 +50,7 @@ Functoolz
 .. currentmodule:: toolz.functoolz.core
 
 .. autosummary::
+   complement
    compose
    memoize
    pipe
