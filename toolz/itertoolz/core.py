@@ -8,7 +8,7 @@ from toolz.compatibility import map, filter, zip, zip_longest
 identity = lambda x: x
 
 
-def remove(predicate, coll):
+def remove(predicate, seq):
     """ Return those items of collection for which predicate(item) is true.
 
     >>> def iseven(x):
@@ -16,7 +16,7 @@ def remove(predicate, coll):
     >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
-    return filter(lambda x: not predicate(x), coll)
+    return filter(lambda x: not predicate(x), seq)
 
 
 def accumulate(binop, seq):
@@ -38,15 +38,15 @@ def accumulate(binop, seq):
     See Also:
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
-    coll = iter(seq)
-    result = next(coll)
+    seq = iter(seq)
+    result = next(seq)
     yield result
-    for elem in coll:
+    for elem in seq:
         result = binop(result, elem)
         yield result
 
 
-def groupby(func, coll):
+def groupby(func, seq):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
@@ -61,7 +61,7 @@ def groupby(func, coll):
         ``countby``
     """
     d = dict()
-    for item in coll:
+    for item in seq:
         key = func(item)
         if key not in d:
             d[key] = []
