@@ -216,6 +216,10 @@ def test_sliding_window():
     assert list(sliding_window(3, [1, 2, 3, 4])) == [(1, 2, 3), (2, 3, 4)]
 
 
+def test_sliding_window_of_short_iterator():
+    assert list(sliding_window(3, [1, 2])) == []
+
+
 def test_partition():
     assert list(partition(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
     assert list(partition(3, range(7))) == [(0, 1, 2), (3, 4, 5)]
