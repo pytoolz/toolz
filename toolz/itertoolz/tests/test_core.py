@@ -167,7 +167,7 @@ def test_concatv():
 
 
 def test_interpose():
-    assert "a" == first(rest(interpose("a", range(10000000000))))
+    assert "a" == first(rest(interpose("a", range(1000000000))))
     assert "tXaXrXzXaXn" == "".join(interpose("X", "tarzan"))
     assert list(interpose(0, itertools.repeat(1, 4))) == [1, 0, 1, 0, 1, 0, 1]
     assert list(interpose('.', ['a', 'b', 'c'])) == ['a', '.', 'b', '.', 'c']
@@ -214,6 +214,10 @@ def test_accumulate_works_on_consumable_iterables():
 def test_sliding_window():
     assert list(sliding_window(2, [1, 2, 3, 4])) == [(1, 2), (2, 3), (3, 4)]
     assert list(sliding_window(3, [1, 2, 3, 4])) == [(1, 2, 3), (2, 3, 4)]
+
+
+def test_sliding_window_of_short_iterator():
+    assert list(sliding_window(3, [1, 2])) == []
 
 
 def test_partition():

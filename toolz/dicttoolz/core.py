@@ -91,15 +91,20 @@ def assoc(d, key, value):
     return d
 
 
-def update_in(d, keys, f):
+def update_in(d, keys, f, default=None):
     """ Update value in a (potentially) nested dictionary
 
     inputs:
-    d - nested dictionary on which to operate
+    d - dictionary on which to operate
     keys - list or tuple giving the location of the value to be changed in d
     f - function to operate on that value
 
-    Returns a copy of the original rather than mutating it.
+    If keys == [k0,..,kX] and d[k0]..[kX] == v, update_in returns a copy of the
+    original dictionary with v replaced by f(v), but does not mutate the
+    original dictionary.
+
+    If k0 is not a key in d, update_in creates nested dictionaries to the depth
+    specified by the keys, with the innermost value set to f(default).
 
     >>> inc = lambda x: x + 1
     >>> update_in({'a': 0}, ['a'], inc)
@@ -113,10 +118,17 @@ def update_in(d, keys, f):
     {'credit card': '5555-1234-1234-1234',
      'name': 'Alice',
      'purchase': {'costs': 1.75, 'items': ['Apple', 'Orange']}}
+
+    >>> # updating a value when k0 is not in d
+    >>> update_in({}, [1, 2, 3], str, default="bar")
+    {1: {2: {3: 'bar'}}}
+    >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
+    {1: 'foo', 2: {3: {4: 1}}}
     """
     assert len(keys) > 0
-    if len(keys) == 1:
-        return assoc(d, keys[0], f(d.get(keys[0], None)))
+    k, ks = keys[0], keys[1:]
+    if ks:
+        return assoc(d, k, update_in(d.get(k, {}), ks, f, default))
     else:
-        return assoc(d, keys[0], update_in(d.get(keys[0], None),
-                                           keys[1:], f))
+        innermost = f(d.get(k)) if (k in d) else f(default)
+        return assoc(d, k, innermost)

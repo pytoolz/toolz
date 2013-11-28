@@ -55,16 +55,19 @@ def test_assoc():
 def test_update_in():
     assert update_in({"a": 0}, ["a"], inc) == {"a": 1}
     assert update_in({"a": 0, "b": 1}, ["b"], str) == {"a": 0, "b": "1"}
-    assert (update_in({"t": 1,
-                       "v": {"a": 0}}, ["v", "a"], inc) ==
+    assert (update_in({"t": 1, "v": {"a": 0}}, ["v", "a"], inc) ==
             {"t": 1, "v": {"a": 1}})
-    # Handle missing element one deep:
-    assert update_in({}, ["z"], str) == {"z": "None"}
-    # Same semantics as Clojure, raises an error if going deeper than
-    # one level into a dict which doesn't have the initial key:
-    assert raises(AttributeError,
-                  lambda: update_in({}, ["z", "q"], str))
-
+    # Handle one missing key.
+    assert update_in({}, ["z"], str, None) == {"z": "None"}
+    assert update_in({}, ["z"], inc, 0) == {"z": 1}
+    assert update_in({}, ["z"], lambda x: x+"ar", default="b") == {"z": "bar"}
+    # Same semantics as Clojure for multiple missing keys, ie. recursively
+    # create nested empty dictionaries to the depth specified by the
+    # keys with the innermost value set to f(default).
+    assert update_in({}, [0, 1], inc, default=-1) == {0: {1: 0}}
+    assert update_in({}, [0, 1], str, default=100) == {0: {1: "100"}}
+    assert (update_in({"foo": "bar", 1: 50}, ["d", 1, 0], str, 20) ==
+            {"foo": "bar", 1: 50, "d": {1: {0: "20"}}})
     # Verify immutability:
     d = {'x': 1}
     oldd = d

@@ -509,6 +509,8 @@ def sliding_window(n, seq):
     it = iter(seq)
     # An efficient FIFO data structure with maximum length
     d = collections.deque(itertools.islice(it, n), n)
+    if len(d) != n:
+        raise StopIteration()
     for item in it:
         yield tuple(d)
         d.append(item)
