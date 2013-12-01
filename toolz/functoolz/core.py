@@ -35,9 +35,9 @@ def thread_first(val, *forms):
         if callable(form):
             return form(val)
         if isinstance(form, tuple):
-            fn, args = form[0], form[1:]
+            func, args = form[0], form[1:]
             args = (val,) + args
-            return fn(*args)
+            return func(*args)
     return reduce(evalform_front, forms, val)
 
 
@@ -74,13 +74,13 @@ def thread_last(val, *forms):
         if callable(form):
             return form(val)
         if isinstance(form, tuple):
-            fn, args = form[0], form[1:]
+            func, args = form[0], form[1:]
             args = args + (val,)
-            return fn(*args)
+            return func(*args)
     return reduce(evalform_back, forms, val)
 
 
-def memoize(f, cache=None):
+def memoize(func, cache=None):
     """ Cache a function's result for speedy future evaluation
 
     Considerations:
@@ -100,7 +100,7 @@ def memoize(f, cache=None):
         cache = {}
 
     try:
-        spec = inspect.getargspec(f)
+        spec = inspect.getargspec(func)
         if spec and not spec.keywords and not spec.defaults:
             may_have_kwargs = False
         else:
@@ -121,15 +121,15 @@ def memoize(f, cache=None):
         if in_cache:
             return cache[key]
         else:
-            result = f(*args, **kwargs)
+            result = func(*args, **kwargs)
             cache[key] = result
             return result
 
     try:
-        memof.__name__ = f.__name__
+        memof.__name__ = func.__name__
     except AttributeError:
         pass
-    memof.__doc__ = f.__doc__
+    memof.__doc__ = func.__doc__
     return memof
 
 
@@ -258,18 +258,18 @@ def compose(*funcs):
     if len(funcs) == 1:
         return funcs[0]
     else:
-        fns = list(reversed(funcs))
+        funcs = list(reversed(funcs))
 
         def composed(*args, **kwargs):
-            ret = fns[0](*args, **kwargs)
-            for f in fns[1:]:
-                ret = f(ret)
+            ret = funcs[0](*args, **kwargs)
+            for func in funcs[1:]:
+                ret = func(ret)
             return ret
 
         return composed
 
 
-def pipe(data, *functions):
+def pipe(data, *funcs):
     """ Pipe a value through a sequence of functions
 
     I.e. ``pipe(data, f, g, h)`` is equivalent to ``h(g(f(data)))``
@@ -288,12 +288,12 @@ def pipe(data, *functions):
         thread_first
         thread_last
     """
-    for func in functions:
+    for func in funcs:
         data = func(data)
     return data
 
 
-def complement(f):
+def complement(func):
     """ Convert a predicate function to its logical complement.
 
     In other words, return a function that, for inputs that normally
@@ -306,4 +306,4 @@ def complement(f):
     >>> isodd(2)
     False
     """
-    return compose(operator.not_, f)
+    return compose(operator.not_, func)

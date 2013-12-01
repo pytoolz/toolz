@@ -21,11 +21,11 @@ def merge(*dicts):
     return rv
 
 
-def merge_with(fn, *dicts):
+def merge_with(func, *dicts):
     """ Merge dictionaries and apply function to combined values
 
     A key may occur in more than one dict, and all values mapped from the key
-    will be passed to the function as a list, such as fn([val1, val2, ...]).
+    will be passed to the function as a list, such as func([val1, val2, ...]).
 
     >>> merge_with(sum, {1: 1, 2: 2}, {1: 10, 2: 20})
     {1: 11, 2: 22}
@@ -46,10 +46,10 @@ def merge_with(fn, *dicts):
                 result[k].append(v)
             except:
                 result[k] = [v]
-    return dict((k, fn(v)) for k, v in result.items())
+    return dict((k, func(v)) for k, v in result.items())
 
 
-def valmap(fn, d):
+def valmap(func, d):
     """ Apply function to values of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
@@ -59,10 +59,10 @@ def valmap(fn, d):
     See Also:
         keymap
     """
-    return dict(zip(d.keys(), map(fn, d.values())))
+    return dict(zip(d.keys(), map(func, d.values())))
 
 
-def keymap(fn, d):
+def keymap(func, d):
     """ Apply function to keys of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
@@ -72,7 +72,7 @@ def keymap(fn, d):
     See Also:
         valmap
     """
-    return dict(zip(map(fn, d.keys()), d.values()))
+    return dict(zip(map(func, d.keys()), d.values()))
 
 
 def assoc(d, key, value):
@@ -91,20 +91,20 @@ def assoc(d, key, value):
     return d
 
 
-def update_in(d, keys, f, default=None):
+def update_in(d, keys, func, default=None):
     """ Update value in a (potentially) nested dictionary
 
     inputs:
     d - dictionary on which to operate
     keys - list or tuple giving the location of the value to be changed in d
-    f - function to operate on that value
+    func - function to operate on that value
 
     If keys == [k0,..,kX] and d[k0]..[kX] == v, update_in returns a copy of the
-    original dictionary with v replaced by f(v), but does not mutate the
+    original dictionary with v replaced by func(v), but does not mutate the
     original dictionary.
 
     If k0 is not a key in d, update_in creates nested dictionaries to the depth
-    specified by the keys, with the innermost value set to f(default).
+    specified by the keys, with the innermost value set to func(default).
 
     >>> inc = lambda x: x + 1
     >>> update_in({'a': 0}, ['a'], inc)
@@ -128,7 +128,7 @@ def update_in(d, keys, f, default=None):
     assert len(keys) > 0
     k, ks = keys[0], keys[1:]
     if ks:
-        return assoc(d, k, update_in(d.get(k, {}), ks, f, default))
+        return assoc(d, k, update_in(d.get(k, {}), ks, func, default))
     else:
-        innermost = f(d.get(k)) if (k in d) else f(default)
+        innermost = func(d.get(k)) if (k in d) else func(default)
         return assoc(d, k, innermost)
