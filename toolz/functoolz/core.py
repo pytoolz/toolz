@@ -252,6 +252,12 @@ class Compose(object):
             ret = f(ret)
         return ret
 
+    def __getstate__(self):
+        return self.funcs
+
+    def __setstate__(self, state):
+        self.funcs = tuple(state)
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.
