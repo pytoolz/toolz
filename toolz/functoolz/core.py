@@ -235,6 +235,7 @@ class curry(object):
 
             return curry(self.func, *args, **kwargs)
 
+
 class Compose(object):
     """ A composition of functions
 
@@ -242,6 +243,7 @@ class Compose(object):
         compose
     """
     __slots__ = 'funcs'
+
     def __init__(self, *funcs):
         self.funcs = funcs
 
