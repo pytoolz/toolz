@@ -307,3 +307,43 @@ def complement(func):
     False
     """
     return compose(operator.not_, func)
+
+
+def fold(binop, coll, default, map=map, chunksize=128):
+    """ Reduce without guarantee of ordered reduction
+
+    inputs:
+
+    ``binop``     - associative operator. The associative property allows us to
+                    leverage a parallel map to perform reductions in parallel.
+    ``coll``      - a collection or sequence to be aggregated
+    ``default``   - an identity element like 0 for ``add`` or 1 for mul
+
+    ``map``       - an implementation of ``map``. This may be parallel and
+                    determines how work is distributed.
+    ``chunksize`` - Number of elements of ``coll`` that should be handled
+                    within a single function call
+
+    Fold chunks up the collection into blocks of size ``chunksize`` and then
+    feeds each of these to calls to `builtin.reduce`. This work is distributed
+    with a call to ``map``, gathered back and then refolded to finish the
+    computation. In this way ``fold`` specifies only how to chunk up data but
+    leaves the distribution of this work to an externally provided ``map``
+    function. This function can be sequential or rely on multithreading,
+    multiprocessing, or even distributed solutions.
+
+    If ``map`` intends to serialize functions it should be prepared to accept
+    and serialize lambdas. Note that the standard ``pickle`` module fails
+    here.
+    """
+    from toolz import partition_all
+
+    combine = binop    # For future generality
+    coll = list(coll)  # TODO: Support laziness
+    if len(coll) < chunksize:
+        return reduce(binop, coll, default)
+    else:
+        chunks = partition_all(chunksize, coll)
+        results = list(map(lambda chunk: reduce(binop, chunk, default),
+                           chunks))
+        return fold(combine, results, default, map=map)

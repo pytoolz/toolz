@@ -1,5 +1,5 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement)
+                             compose, pipe, complement, fold)
 from toolz.functoolz.core import _num_required_args
 from operator import add, mul
 from toolz.utils import raises
@@ -212,3 +212,8 @@ def test_complement():
     assert not complement(lambda: "x")()
     assert not complement(lambda: 1)()
     assert not complement(lambda: [1])()
+
+
+def test_fold():
+    assert fold(add, range(10), 0) == reduce(add, range(10), 0)
+    assert fold(add, range(10), 0, chunksize=2) == reduce(add, range(10), 0)
