@@ -4,6 +4,7 @@ from toolz.functoolz.core import _num_required_args
 from operator import add, mul
 from toolz.utils import raises
 from functools import partial
+from toolz.compatibility import reduce
 
 
 def iseven(x):
