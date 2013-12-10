@@ -325,7 +325,7 @@ def fold(binop, coll, default, map=map, chunksize=128):
                     within a single function call
 
     Fold chunks up the collection into blocks of size ``chunksize`` and then
-    feeds each of these to calls to `builtin.reduce`. This work is distributed
+    feeds each of these to calls to ``reduce``. This work is distributed
     with a call to ``map``, gathered back and then refolded to finish the
     computation. In this way ``fold`` specifies only how to chunk up data but
     leaves the distribution of this work to an externally provided ``map``
@@ -346,4 +346,4 @@ def fold(binop, coll, default, map=map, chunksize=128):
         chunks = partition_all(chunksize, coll)
         results = list(map(lambda chunk: reduce(binop, chunk, default),
                            chunks))
-        return fold(combine, results, default, map=map)
+        return fold(combine, results, default, map=map, chunksize=chunksize)
