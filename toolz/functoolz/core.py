@@ -310,7 +310,7 @@ def complement(func):
     return compose(operator.not_, func)
 
 
-def fold(binop, seq, default=no_default, map=map, chunksize=128):
+def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     """ Reduce without guarantee of ordered reduction
 
     inputs:
@@ -324,6 +324,10 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128):
                     determines how work is distributed.
     ``chunksize`` - Number of elements of ``seq`` that should be handled
                     within a single function call
+    ``combine``   - Binary operator to combine two intermediate results.
+                    If ``binop`` is of type (total, item) -> total
+                    then ``combine`` is of type (total, total) -> total
+                    Defaults to ``binop`` for common case of operators like add
 
     Fold chunks up the collection into blocks of size ``chunksize`` and then
     feeds each of these to calls to ``reduce``. This work is distributed
@@ -337,6 +341,9 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128):
     and serialize lambdas. Note that the standard ``pickle`` module fails
     here.
     """
+    if combine is None:
+        combine = binop
+
     from toolz import partition_all
     chunks = partition_all(chunksize, seq)
 
@@ -346,9 +353,9 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128):
     else:
         results = map(lambda chunk: reduce(binop, chunk, default), chunks)
 
-    results = list(results) # TODO: Support complete laziness
+    results = list(results)  # TODO: Support complete laziness
 
-    if len(results) == 1:   # Return completed result
+    if len(results) == 1:    # Return completed result
         return results[0]
-    else:                   # Recurse to reaggregate intermediate results
-        return fold(binop, results, default, map=map, chunksize=chunksize)
+    else:                    # Recurse to reaggregate intermediate results
+        return fold(combine, results, map=map, chunksize=chunksize)
