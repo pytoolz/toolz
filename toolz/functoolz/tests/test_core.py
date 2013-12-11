@@ -218,3 +218,4 @@ def test_complement():
 def test_fold():
     assert fold(add, range(10), 0) == reduce(add, range(10), 0)
     assert fold(add, range(10), 0, chunksize=2) == reduce(add, range(10), 0)
+    assert fold(add, range(10)) == fold(add, range(10), 0)

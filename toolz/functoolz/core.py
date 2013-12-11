@@ -1,6 +1,7 @@
 from functools import reduce, partial
 import inspect
 import operator
+from toolz.utils import no_default
 
 
 def identity(x):
@@ -309,7 +310,7 @@ def complement(func):
     return compose(operator.not_, func)
 
 
-def fold(binop, coll, default, map=map, chunksize=128):
+def fold(binop, coll, default=no_default, map=map, chunksize=128):
     """ Reduce without guarantee of ordered reduction
 
     inputs:
@@ -337,13 +338,17 @@ def fold(binop, coll, default, map=map, chunksize=128):
     here.
     """
     from toolz import partition_all
+    chunks = partition_all(chunksize, coll)
 
-    combine = binop    # For future generality
-    coll = list(coll)  # TODO: Support laziness
-    if len(coll) < chunksize:
-        return reduce(binop, coll, default)
+    # Evaluate sequence in chunks via map
+    if default is no_default:
+        results = map(lambda chunk: reduce(binop, chunk), chunks)
     else:
-        chunks = partition_all(chunksize, coll)
-        results = list(map(lambda chunk: reduce(binop, chunk, default),
-                           chunks))
-        return fold(combine, results, default, map=map, chunksize=chunksize)
+        results = map(lambda chunk: reduce(binop, chunk, default), chunks)
+
+    results = list(results) # TODO: Support complete laziness
+
+    if len(results) == 1:   # Return completed result
+        return results[0]
+    else:                   # Recurse to reaggregate intermediate results
+        return fold(binop, results, default, map=map, chunksize=chunksize)
