@@ -259,7 +259,7 @@ def nth(n, seq):
     """
     try:
         return seq[n]
-    except TypeError:
+    except (TypeError, KeyError):
         return next(itertools.islice(seq, n, None))
 
 
