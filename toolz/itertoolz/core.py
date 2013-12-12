@@ -257,7 +257,7 @@ def nth(n, seq):
     >>> nth(1, 'ABC')
     'B'
     """
-    if isinstance(seq, (tuple, list)):
+    if hasattr(seq, '__getslice__'):
         return seq[n]
     else:
         return next(itertools.islice(seq, n, None))
