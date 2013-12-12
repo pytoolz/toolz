@@ -257,9 +257,9 @@ def nth(n, seq):
     >>> nth(1, 'ABC')
     'B'
     """
-    try:
+    if isinstance(seq, (tuple, list)):
         return seq[n]
-    except (TypeError, KeyError):
+    else:
         return next(itertools.islice(seq, n, None))
 
 
