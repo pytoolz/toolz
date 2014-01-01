@@ -88,6 +88,8 @@ def test_nth():
     assert nth(2, 'ABCDE') == 'C'
     assert nth(2, iter('ABCDE')) == 'C'
     assert nth(1, (3, 2, 1)) == 2
+    assert nth(0, {'foo': 'bar'}) == 'foo'
+    assert raises(StopIteration, lambda: nth(10, {10: 'foo'}))
 
 
 def test_first():
