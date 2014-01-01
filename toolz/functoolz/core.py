@@ -242,7 +242,7 @@ class Compose(object):
     See Also:
         compose
     """
-    __slots__ = 'funcs'
+    __slots__ = ['funcs']
 
     def __init__(self, *funcs):
         self.funcs = funcs

@@ -21,6 +21,9 @@ def test_compose_multiprocessing():
     f = compose(double, inc)
 
     import multiprocessing as mp
-    p = mp.Pool(4)
+    try:
+        p = mp.Pool(4)
+    except OSError:  # Travis doesn't support multiprocessing trivially
+        return
 
     assert p.map(f, [1, 2, 3, 4], chunksize=1) == [4, 6, 8, 10]
