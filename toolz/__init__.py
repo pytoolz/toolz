@@ -11,7 +11,7 @@ from .functoolz import (memoize, curry, compose, thread_first,
 
 from .dicttoolz import merge, merge_with, keymap, valmap, assoc, update_in
 
-from .compatibility import map, filter
+from .compatibility import map, filter, apply
 
 from . import sandbox
 

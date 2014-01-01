@@ -1,5 +1,5 @@
 import toolz
-from toolz.curried import take, first, second, sorted, merge_with
+from toolz.curried import take, first, second, sorted, merge_with, apply
 
 
 def test_take():
@@ -16,3 +16,7 @@ def test_merge_with():
 
 def test_sorted():
     assert sorted(key=second)([(1, 2), (2, 1)]) == [(2, 1), (1, 2)]
+
+
+def test_apply():
+    assert apply(set.union)([set([1]), set([2])])
