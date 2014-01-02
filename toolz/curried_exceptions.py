@@ -8,3 +8,6 @@ def merge_with(fn, *dicts):
         raise TypeError()
     else:
         return toolz.merge_with(fn, *dicts)
+
+
+merge_with.__doc__ = toolz.merge_with.__doc__
