@@ -9,7 +9,7 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   rest, last, cons, frequencies,
                                   reduceby, iterate, accumulate,
                                   sliding_window, count, partition,
-                                  partition_all)
+                                  partition_all, take_nth)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -123,6 +123,10 @@ def test_take():
 def test_drop():
     assert list(drop(3, 'ABCDE')) == list('DE')
     assert list(drop(1, (3, 2, 1))) == list((2, 1))
+
+
+def test_take_nth():
+    assert list(take_nth(2, 'ABCDE')) == list('ACE')
 
 
 def test_get():
