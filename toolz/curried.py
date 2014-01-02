@@ -25,6 +25,7 @@ See Also:
 """
 
 import toolz
+import toolz.curried_exceptions
 from .functoolz import curry
 import inspect
 
@@ -45,15 +46,7 @@ def should_curry(f):
 d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
          for name, f in toolz.__dict__.items())
 
+exceptions = dict((name, curry(f) if '__' not in name and callable(f) else f)
+                  for name, f in toolz.curried_exceptions.__dict__.items())
 
-locals().update(d)
-
-
-@curry
-def merge_with(func, *dicts):
-    if len(dicts) == 0:
-        raise TypeError("No input")
-    return toolz.merge_with(func, *dicts)
-
-
-merge_with.__doc__ = toolz.merge_with.__doc__
+locals().update(toolz.merge(d, exceptions))
