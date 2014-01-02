@@ -1,6 +1,7 @@
 from functools import reduce, partial
 import inspect
 import operator
+from toolz.utils import no_default
 
 
 def identity(x):

@@ -6,9 +6,11 @@ if PY3:
     filter = filter
     range = range
     zip = zip
+    from functools import reduce
     from itertools import zip_longest
 else:
     range = xrange
+    reduce = reduce
     from itertools import imap as map
     from itertools import ifilter as filter
     from itertools import izip as zip

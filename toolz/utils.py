@@ -4,3 +4,6 @@ def raises(err, lamda):
         return False
     except err:
         return True
+
+
+no_default = '__no__default__'
