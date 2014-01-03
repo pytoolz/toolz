@@ -35,5 +35,6 @@ Contents
    laziness.rst
    control.rst
    curry.rst
+   parallelism.rst
    api.rst
    references.rst
