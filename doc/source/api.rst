@@ -36,6 +36,7 @@ Itertoolz
    second
    sliding_window
    take
+   take_nth
    unique
 
 .. currentmodule:: toolz.itertoolz.recipes
@@ -70,6 +71,16 @@ Dicttoolz
    update_in
    valmap
 
+Sandbox
+-------
+
+.. currentmodule:: toolz.sandbox
+
+.. autosummary::
+   parallel.fold
+   core.jackknife
+
+
 Definitions
 -----------
 
@@ -83,4 +94,10 @@ Definitions
    :members:
 
 .. automodule:: toolz.dicttoolz.core
+   :members:
+
+.. automodule:: toolz.sandbox.core
+   :members:
+
+.. automodule:: toolz.sandbox.parallel
    :members:
