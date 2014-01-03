@@ -3,7 +3,8 @@ from toolz.utils import no_default
 
 
 def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
-    """ Reduce without guarantee of ordered reduction
+    """
+    Reduce without guarantee of ordered reduction.
 
     inputs:
 
