@@ -19,7 +19,7 @@ Contemporary Projects
 ---------------------
 
 These projects also provide iterator and functional utilities within
-Python. They have substantial functionality overlap with PyToolz.
+Python. Their functionality overlaps substantially with that of PyToolz.
 
 -  `funcy <https://github.com/suor/funcy/>`__
 -  `fn.py <https://github.com/kachayev/fn.py>`__
