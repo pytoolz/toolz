@@ -1,4 +1,5 @@
-from toolz import partition_all, reduce, map
+from toolz.itertoolz import partition_all
+from toolz.compatibility import reduce, map
 from toolz.utils import no_default
 
 
