@@ -21,6 +21,6 @@ Contemporary Projects
 These projects also provide iterator and functional utilities within
 Python. They have substantial functionality overlap with PyToolz.
 
--  `funcy <https://github.com/sour/funcy/>`__
+-  `funcy <https://github.com/suor/funcy/>`__
 -  `fn.py <https://github.com/kachayev/fn.py>`__
 -  `more\_itertools <https://github.com/erikrose/more-itertools>`__
