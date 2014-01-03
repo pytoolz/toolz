@@ -33,6 +33,14 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     If ``map`` intends to serialize functions it should be prepared to accept
     and serialize lambdas. Note that the standard ``pickle`` module fails
     here.
+
+    Example
+    -------
+
+    >>> # Provide a parallel map to accomplish a parallel sum
+    >>> from operator import add
+    >>> fold(add, [1, 2, 3, 4], chunksize=2, map=map)
+    10
     """
     if combine is None:
         combine = binop
