@@ -9,7 +9,7 @@ from toolz.itertoolz.core import (remove, groupby, merge_sorted,
                                   rest, last, cons, frequencies,
                                   reduceby, iterate, accumulate,
                                   sliding_window, count, partition,
-                                  partition_all, take_nth)
+                                  partition_all, take_nth, side_effects)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -247,3 +247,12 @@ def test_count():
 
     assert count('hello') == 5
     assert count(iter('hello')) == 5
+
+
+def test_side_effects():
+    results = []
+    seq = iter((1, 2, 3))
+    seq2 = side_effects(results.append, seq)
+    for i in seq2:
+        pass
+    assert results == [1, 2, 3]
