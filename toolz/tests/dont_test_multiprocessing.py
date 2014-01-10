@@ -1,7 +1,7 @@
 from toolz import partial, compose
 
 
-def test_compose_multiprocessing():
+def dont_test_compose_multiprocessing():
     from operator import add, mul
     inc = partial(add, 1)
     double = partial(mul, 2)
