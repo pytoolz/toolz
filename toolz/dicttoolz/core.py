@@ -1,3 +1,5 @@
+import operator
+
 def merge(*dicts):
     """ Merge a collection of dictionaries
 
@@ -132,3 +134,30 @@ def update_in(d, keys, func, default=None):
     else:
         innermost = func(d.get(k)) if (k in d) else func(default)
         return assoc(d, k, innermost)
+
+def get_in(d, keys, default=None):
+    """
+    Gets a value in a nested dictionary.
+
+    inputs:
+    d - dictionary on which to operate
+    keys - list or tuple giving the location of the value to get
+    default - the value to return if the dict does not contain keys
+
+    >>> transaction = {'name': 'Alice',
+    ...                'purchase': {'items': ['Apple', 'Orange'],
+    ...                             'costs': [0.50, 1.25]},
+    ...                'credit card': '5555-1234-1234-1234'}
+    >>> get_in(transaction, ['purchase', 'items', 0])
+    'Apple'
+    >>> get_in(transaction, ['name'])
+    'Alice'
+    >>> get_in(transaction, ['purchase', 'total'])
+    >>> get_in(transaction, ['purchase', 'items', 'apple'])
+    >>> get_in(transaction, ['purchase', 'total'], 0)
+    0
+    """
+    try:
+        return reduce(operator.getitem, keys, d)
+    except (KeyError, IndexError, TypeError) as e:
+        return default
