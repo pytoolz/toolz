@@ -78,5 +78,5 @@ def test_update_in():
 def test_merge_with_on_variadic_functions():
     def add(x, y):
         return x + y
-    assert merge_with(add, {'a': 1}, {'a': 2}) == {'a': 3}
 
+    assert merge_with(add, {'a': 1}, {'a': 2}) == {'a': 3}

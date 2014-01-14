@@ -1,6 +1,7 @@
 import inspect
 from functools import partial
 
+
 def merge(*dicts):
     """ Merge a collection of dictionaries
 
