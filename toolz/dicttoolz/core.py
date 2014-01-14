@@ -1,3 +1,6 @@
+import inspect
+from functools import partial
+
 def merge(*dicts):
     """ Merge a collection of dictionaries
 
@@ -38,6 +41,12 @@ def merge_with(func, *dicts):
     """
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
+
+    try:
+        if len(inspect.getargspec(func).args) != 1:
+            func = partial(apply, func)
+    except TypeError:
+        pass
 
     result = dict()
     for d in dicts:
