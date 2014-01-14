@@ -1,5 +1,6 @@
 import toolz
-from toolz.curried import take, first, second, sorted, merge_with
+from toolz.curried import take, first, second, sorted, merge_with, reduce
+from operator import add
 
 
 def test_take():
@@ -16,3 +17,7 @@ def test_merge_with():
 
 def test_sorted():
     assert sorted(key=second)([(1, 2), (2, 1)]) == [(2, 1), (1, 2)]
+
+
+def test_reduce():
+    assert reduce(add)((1, 2, 3)) == 6
