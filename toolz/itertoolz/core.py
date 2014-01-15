@@ -593,23 +593,3 @@ def count(seq):
     if hasattr(seq, '__len__'):
         return len(seq)
     return sum(1 for i in seq)
-
-
-def side_effects(func, seq):
-    """ Apply func to each item in seq as a side effect.  Yield original item
-
-    >>> def say_hello(x):
-    ...     print("Hello, " + str(x) + "!")
-
-    >>> seq = (1, 2, 3)
-    >>> seq2 = side_effects(say_hello, seq)
-    >>> total = sum(seq2)
-    Hello, 1!
-    Hello, 2!
-    Hello, 3!
-    >>> total
-    6
-    """
-    for item in seq:
-        func(item)
-        yield item
