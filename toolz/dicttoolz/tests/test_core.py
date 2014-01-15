@@ -80,3 +80,4 @@ def test_merge_with_on_variadic_functions():
         return x + y
 
     assert merge_with(add, {'a': 1}, {'a': 2}) == {'a': 3}
+    assert merge_with(add, {'a': 1, 'b': 2}, {'a': 2}) == {'a': 3, 'b': 2}

@@ -37,6 +37,13 @@ def merge_with(func, *dicts):
     >>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
     {1: 1, 2: 2, 3: 30}
 
+    You can also use ``merge_with`` with a binary operator instead of a
+    reduction.  The reduction will occur automatically
+
+    >>> add = lambda a, b: a + b
+    >>> merge_with(add, {'a': 1, 'b': 2}, {'a': 3})
+    {'a': 4, 'b': 2}
+
     See Also:
         merge
     """
@@ -44,8 +51,8 @@ def merge_with(func, *dicts):
         dicts = dicts[0]
 
     try:
-        if len(inspect.getargspec(func).args) != 1:
-            func = partial(apply, func)
+        if len(inspect.getargspec(func).args) == 2:
+            return merge_with(partial(reduce, func), dicts)
     except TypeError:
         pass
 
