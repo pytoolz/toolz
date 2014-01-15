@@ -4,8 +4,7 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
                         isdistinct, interleave, interpose, unique,
                         isiterable, remove, iterate, accumulate,
                         partitionby, partition, partition_all,
-                        sliding_window, count, cons, take_nth,
-                        side_effects)
+                        sliding_window, count, cons, take_nth)
 
 from .functoolz import (memoize, curry, compose, thread_first,
                         thread_last, identity, pipe, complement)
