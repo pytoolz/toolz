@@ -1,5 +1,5 @@
 import inspect
-from functools import partial
+from functools import partial, reduce
 
 
 def merge(*dicts):
