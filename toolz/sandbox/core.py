@@ -48,6 +48,35 @@ def jackknife(seq, replace=no_replace):
                               itertools.islice(it, 1, None))
 
 
+def do(func, x):
+    """ Runs ``func`` on ``x``, returns ``x``
+
+    Because the results of ``func`` are not returned, only the side
+    effects of ``func`` are relevant.
+
+    >>> from __future__ import print_function
+    >>> from toolz import compose, curry
+    >>> from toolz.sandbox.core import do
+    >>> do = curry(do)
+
+    Logging functions can be made by composing ``do`` with a storage function
+    like ``list.append`` or ``file.write``
+
+    >>> log = []
+    >>> inc = lambda x: x + 1
+    >>> inc = compose(inc, do(log.append))
+    >>> inc(1)
+    2
+    >>> inc(11)
+    12
+    >>> log
+    [1, 11]
+
+    """
+    func(x)
+    return x
+
+
 def side_effects(func, seq):
     """ Apply func to each item in seq as a side effect.  Yield original item
 
