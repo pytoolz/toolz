@@ -10,7 +10,7 @@ See the PyToolz documentation at http://toolz.readthedocs.org
 LICENSE
 -------
 
-New BSD. See `License File <LICENSE.TXT>`__.
+New BSD. See `License File <https://github.com/pytoolz/toolz/blob/master/LICENSE.txt>`__.
 
 Install
 -------
@@ -116,6 +116,6 @@ ideas.
 .. |Coverage Status| image:: https://coveralls.io/repos/pytoolz/toolz/badge.png
    :target: https://coveralls.io/r/pytoolz/toolz
 .. |Version Status| image:: https://pypip.in/v/toolz/badge.png
-   :target: https://crate.io/packages/toolz/
+   :target: https://pypi.python.org/pypi/toolz/
 .. |Downloads| image:: https://pypip.in/d/toolz/badge.png
-   :target: https://crate.io/packages/toolz/
+   :target: https://pypi.python.org/pypi/toolz/
