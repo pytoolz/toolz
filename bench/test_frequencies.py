@@ -1,6 +1,12 @@
 from toolz import frequencies, identity
 
-data = range(1000)*1000
+big_data = range(1000)*1000
+small_data = range(100)
+
 
 def test_frequencies():
-    frequencies(data)
+    frequencies(big_data)
+
+def test_frequencies_small():
+    for i in range(1000):
+        frequencies(small_data)
