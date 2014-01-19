@@ -60,13 +60,10 @@ def groupby(func, seq):
     See Also:
         ``countby``
     """
-    d = dict()
+    d = collections.defaultdict(list)
     for item in seq:
-        key = func(item)
-        if key not in d:
-            d[key] = []
-        d[key].append(item)
-    return d
+        d[func(item)].append(item)
+    return dict(d)
 
 
 def merge_sorted(*seqs, **kwargs):
@@ -417,13 +414,10 @@ def frequencies(seq):
         countby
         groupby
     """
-    d = dict()
+    d = collections.defaultdict(int)
     for item in seq:
-        try:
-            d[item] += 1
-        except KeyError:
-            d[item] = 1
-    return d
+        d[item] += 1
+    return dict(d)
 
 
 def reduceby(key, binop, seq, init):
