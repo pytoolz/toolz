@@ -60,12 +60,9 @@ def groupby(func, seq):
     See Also:
         ``countby``
     """
-    d = dict()
+    d = collections.defaultdict(list)
     for item in seq:
-        key = func(item)
-        if key not in d:
-            d[key] = []
-        d[key].append(item)
+        d[func(item)].append(item)
     return d
 
 
