@@ -63,7 +63,7 @@ def groupby(func, seq):
     d = collections.defaultdict(list)
     for item in seq:
         d[func(item)].append(item)
-    return d
+    return dict(d)
 
 
 def merge_sorted(*seqs, **kwargs):
@@ -417,7 +417,7 @@ def frequencies(seq):
     d = collections.defaultdict(int)
     for item in seq:
         d[item] += 1
-    return d
+    return dict(d)
 
 
 def reduceby(key, binop, seq, init):
