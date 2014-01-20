@@ -73,3 +73,11 @@ def test_update_in():
     oldd = d
     update_in(d, ['x'], inc)
     assert d is oldd
+
+
+def test_merge_with_on_variadic_functions():
+    def add(x, y):
+        return x + y
+
+    assert merge_with(add, {'a': 1}, {'a': 2}) == {'a': 3}
+    assert merge_with(add, {'a': 1, 'b': 2}, {'a': 2}) == {'a': 3, 'b': 2}

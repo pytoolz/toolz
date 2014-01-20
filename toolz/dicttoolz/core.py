@@ -1,3 +1,7 @@
+import inspect
+from functools import partial, reduce
+
+
 def merge(*dicts):
     """ Merge a collection of dictionaries
 
@@ -33,11 +37,24 @@ def merge_with(func, *dicts):
     >>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
     {1: 1, 2: 2, 3: 30}
 
+    You can also use ``merge_with`` with a binary operator instead of a
+    reduction.  The reduction will occur automatically
+
+    >>> add = lambda a, b: a + b
+    >>> merge_with(add, {'a': 1, 'b': 2}, {'a': 3})
+    {'a': 4, 'b': 2}
+
     See Also:
         merge
     """
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
+
+    try:
+        if len(inspect.getargspec(func).args) == 2:
+            return merge_with(partial(reduce, func), dicts)
+    except TypeError:
+        pass
 
     result = dict()
     for d in dicts:
