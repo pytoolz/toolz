@@ -9,7 +9,8 @@ from .itertoolz import (groupby, countby, frequencies, reduceby,
 from .functoolz import (memoize, curry, compose, thread_first,
                         thread_last, identity, pipe, complement)
 
-from .dicttoolz import merge, merge_with, keymap, valmap, assoc, update_in
+from .dicttoolz import (merge, merge_with, keymap, valmap, assoc, update_in,
+                        get_in)
 
 from .compatibility import map, filter
 

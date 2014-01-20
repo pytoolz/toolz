@@ -1,4 +1,6 @@
 import operator
+from functools import reduce
+
 
 def merge(*dicts):
     """ Merge a collection of dictionaries
@@ -135,29 +137,42 @@ def update_in(d, keys, func, default=None):
         innermost = func(d.get(k)) if (k in d) else func(default)
         return assoc(d, k, innermost)
 
-def get_in(d, keys, default=None):
-    """
-    Gets a value in a nested dictionary.
 
-    inputs:
-    d - dictionary on which to operate
-    keys - list or tuple giving the location of the value to get
-    default - the value to return if the dict does not contain keys
+def get_in(keys, coll, default=None, no_default=False):
+    """
+    Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
+
+    If coll[i0][i1]...[iX] cannot be found, returns ``default``, unless
+    ``no_default`` is specified, then it raises KeyError or IndexError.
+
+    ``get_in`` is a generalization of ``operator.getitem`` for nested data
+    structures such as dictionaries and lists.
 
     >>> transaction = {'name': 'Alice',
     ...                'purchase': {'items': ['Apple', 'Orange'],
     ...                             'costs': [0.50, 1.25]},
     ...                'credit card': '5555-1234-1234-1234'}
-    >>> get_in(transaction, ['purchase', 'items', 0])
+    >>> get_in(['purchase', 'items', 0], transaction)
     'Apple'
-    >>> get_in(transaction, ['name'])
+    >>> get_in(['name'], transaction)
     'Alice'
-    >>> get_in(transaction, ['purchase', 'total'])
-    >>> get_in(transaction, ['purchase', 'items', 'apple'])
-    >>> get_in(transaction, ['purchase', 'total'], 0)
+    >>> get_in(['purchase', 'total'], transaction)
+    >>> get_in(['purchase', 'items', 'apple'], transaction)
+    >>> get_in(['purchase', 'items', 10], transaction)
+    >>> get_in(['purchase', 'total'], transaction, 0)
     0
+    >>> get_in(['y'], {}, no_default=True)
+    Traceback (most recent call last):
+        ...
+    KeyError: 'y'
+
+    See Also:
+        itertoolz.get
+        operator.getitem
     """
     try:
-        return reduce(operator.getitem, keys, d)
+        return reduce(operator.getitem, keys, coll)
     except (KeyError, IndexError, TypeError) as e:
+        if no_default:
+            raise
         return default
