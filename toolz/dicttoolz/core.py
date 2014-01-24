@@ -1,3 +1,6 @@
+from toolz.compatibility import map, zip, iteritems, iterkeys, itervalues
+
+
 def merge(*dicts):
     """ Merge a collection of dictionaries
 
@@ -41,12 +44,12 @@ def merge_with(func, *dicts):
 
     result = dict()
     for d in dicts:
-        for k, v in d.items():
+        for k, v in iteritems(d):
             try:
                 result[k].append(v)
             except:
                 result[k] = [v]
-    return dict((k, func(v)) for k, v in result.items())
+    return dict((k, func(v)) for k, v in iteritems(result))
 
 
 def valmap(func, d):
@@ -59,7 +62,7 @@ def valmap(func, d):
     See Also:
         keymap
     """
-    return dict(zip(d.keys(), map(func, d.values())))
+    return dict(zip(iterkeys(d), map(func, itervalues(d))))
 
 
 def keymap(func, d):
@@ -72,7 +75,7 @@ def keymap(func, d):
     See Also:
         valmap
     """
-    return dict(zip(map(func, d.keys()), d.values()))
+    return dict(zip(map(func, iterkeys(d)), itervalues(d)))
 
 
 def assoc(d, key, value):
