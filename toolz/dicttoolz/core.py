@@ -89,9 +89,7 @@ def assoc(d, key, value):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    d = d.copy()
-    d[key] = value
-    return d
+    return merge(d, {key: value})
 
 
 def update_in(d, keys, func, default=None):
