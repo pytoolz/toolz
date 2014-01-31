@@ -5,3 +5,5 @@
 Erik Welch                                      [@eriknw](https://github.com/eriknw/)
 
 John Crichton                                   [@jcrichton](https://github.com/jcrichton/)
+
+Han Semaj                                       [@microamp](https://github.com/microamp/)
