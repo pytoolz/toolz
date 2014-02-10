@@ -8,4 +8,4 @@ John Crichton                                   [@jcrichton](https://github.com/
 
 Han Semaj                                       [@microamp](https://github.com/microamp/)
 
-[Graeme](https://twitter.com/obmarg)            [@obmarg](https://github.com/obmarg/)
+[Graeme Coupar](https://twitter.com/obmarg)     [@obmarg](https://github.com/obmarg/)
