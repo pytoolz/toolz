@@ -328,10 +328,13 @@ def complement(func):
 
 
 def juxt(*funcs):
-    '''
-    Takes a series of functions and returns a fn that is the juxtaposition
-    of those fns.  The returned fn takes some arguments, and returns a list
-    containing the result of applying each fn to the args
+    ''' Creates a function that calls several functions with the same arguments.
+
+    Takes several functions and returns a function that applies its arguments
+    to each of those functions then returns a sequence of the results.
+
+    Name comes from juxtaposition: the fact of two things being seen or placed
+    close together with contrasting effect.
 
     >>> inc = lambda x: x + 1
     >>> double = lambda x: x * 2
