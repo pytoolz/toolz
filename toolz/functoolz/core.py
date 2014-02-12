@@ -337,7 +337,12 @@ def juxt(*funcs):
     >>> double = lambda x: x * 2
     >>> juxt(inc, double)(10)
     [11, 20]
+    >>> juxt([inc, double])(10)
+    [11, 20]
     '''
+    if len(funcs) == 1 and not callable(funcs[0]):
+        funcs = funcs[0]
+
     def juxt_inner(*args, **kwargs):
-        return [func(*args, **kwargs) for func in funcs]
+        return (func(*args, **kwargs) for func in funcs)
     return juxt_inner
