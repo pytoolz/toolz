@@ -333,11 +333,10 @@ def juxt(*funcs):
     of those fns.  The returned fn takes some arguments, and returns a list
     containing the result of applying each fn to the args
 
-    >>> from toolz import remove, filter
-    >>> split_with = juxt(filter, remove)
-    >>> is_string = lambda x: isinstance(x, basestring)
-    >>> map(list, split_with(is_string, ["Hello", 1, "Hi", 2]))
-    [['Hello', 'Hi'], [1, 2]]
+    >>> inc = lambda x: x + 1
+    >>> double = lambda x: x * 2
+    >>> juxt(inc, double)(10)
+    [11, 20]
     '''
     def juxt_inner(*args, **kwargs):
         return [func(*args, **kwargs) for func in funcs]
