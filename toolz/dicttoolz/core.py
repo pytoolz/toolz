@@ -20,7 +20,7 @@ def merge(*dicts):
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
 
-    rv = dict()
+    rv = {}
     for d in dicts:
         rv.update(d)
     return rv
@@ -44,13 +44,13 @@ def merge_with(func, *dicts):
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
 
-    result = dict()
+    result = {}
     for d in dicts:
         for k, v in iteritems(d):
-            try:
-                result[k].append(v)
-            except:
+            if k not in result:
                 result[k] = [v]
+            else:
+                result[k].append(v)
     return dict((k, func(v)) for k, v in iteritems(result))
 
 
