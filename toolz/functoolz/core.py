@@ -338,9 +338,9 @@ def juxt(*funcs):
 
     >>> inc = lambda x: x + 1
     >>> double = lambda x: x * 2
-    >>> juxt(inc, double)(10)
+    >>> list(juxt(inc, double)(10))
     [11, 20]
-    >>> juxt([inc, double])(10)
+    >>> list(juxt([inc, double])(10))
     [11, 20]
     '''
     if len(funcs) == 1 and not callable(funcs[0]):
