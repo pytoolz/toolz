@@ -54,13 +54,12 @@ def do(func, x):
     Because the results of ``func`` are not returned, only the side
     effects of ``func`` are relevant.
 
-    >>> from __future__ import print_function
+    Logging functions can be made by composing ``do`` with a storage function
+    like ``list.append`` or ``file.write``
+
     >>> from toolz import compose, curry
     >>> from toolz.sandbox.core import do
     >>> do = curry(do)
-
-    Logging functions can be made by composing ``do`` with a storage function
-    like ``list.append`` or ``file.write``
 
     >>> log = []
     >>> inc = lambda x: x + 1
@@ -75,23 +74,3 @@ def do(func, x):
     """
     func(x)
     return x
-
-
-def side_effects(func, seq):
-    """ Apply func to each item in seq as a side effect.  Yield original item
-
-    >>> def say_hello(x):
-    ...     print("Hello, " + str(x) + "!")
-
-    >>> seq = (1, 2, 3)
-    >>> seq2 = side_effects(say_hello, seq)
-    >>> total = sum(seq2)
-    Hello, 1!
-    Hello, 2!
-    Hello, 3!
-    >>> total
-    6
-    """
-    for item in seq:
-        func(item)
-        yield item

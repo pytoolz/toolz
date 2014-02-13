@@ -1,4 +1,4 @@
-from toolz.sandbox.core import jackknife, side_effects
+from toolz.sandbox.core import jackknife, do
 
 
 def test_jacknife():
@@ -12,10 +12,10 @@ def test_jacknife():
     assert tuple(tuple(x) for x in jackknife([1], replace=0)) == ((0,),)
 
 
-def test_side_effects():
-    results = []
-    seq = iter((1, 2, 3))
-    seq2 = side_effects(results.append, seq)
-    for i in seq2:
-        pass
-    assert results == [1, 2, 3]
+def test_do():
+    inc = lambda x: x + 1
+    assert do(inc, 1) == 1
+
+    log = []
+    assert do(log.append, 1) == 1
+    assert log == [1]
