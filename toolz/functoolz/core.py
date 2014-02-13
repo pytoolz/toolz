@@ -328,7 +328,7 @@ def complement(func):
 
 
 def juxt(*funcs):
-    '''
+    """
     Creates a function that calls several functions with the same arguments.
 
     Takes several functions and returns a function that applies its arguments
@@ -343,7 +343,7 @@ def juxt(*funcs):
     [11, 20]
     >>> list(juxt([inc, double])(10))
     [11, 20]
-    '''
+    """
     if len(funcs) == 1 and not callable(funcs[0]):
         funcs = funcs[0]
 
