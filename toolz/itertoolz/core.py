@@ -336,9 +336,9 @@ def get(ind, seq, default=no_default):
             return default
         else:
             raise
-    except (KeyError, IndexError) as e:  # we know `ind` is not a list
+    except (KeyError, IndexError):  # we know `ind` is not a list
         if default is no_default:
-            raise e
+            raise
         else:
             return default
 

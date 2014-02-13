@@ -220,12 +220,12 @@ class curry(object):
 
         try:
             return self.func(*args, **kwargs)
-        except TypeError as e:
+        except TypeError:
             required_args = _num_required_args(self.func)
 
             # If there was a genuine TypeError
             if required_args is not None and len(args) >= required_args:
-                raise e
+                raise
 
             # If we only need one more argument
             if (required_args is not None and required_args - len(args) == 1):
