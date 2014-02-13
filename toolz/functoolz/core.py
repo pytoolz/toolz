@@ -328,7 +328,8 @@ def complement(func):
 
 
 def juxt(*funcs):
-    ''' Creates a function that calls several functions with the same arguments.
+    '''
+    Creates a function that calls several functions with the same arguments.
 
     Takes several functions and returns a function that applies its arguments
     to each of those functions then returns a sequence of the results.
