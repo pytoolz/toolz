@@ -1,2 +1,2 @@
-from .core import jackknife, side_effects
+from .core import jackknife, do
 from .parallel import fold
