@@ -6,7 +6,7 @@ from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
 inc = lambda x: x + 1
 
 
-even = lambda i: i % 2 == 0
+iseven = lambda i: i % 2 == 0
 
 
 def test_merge():
@@ -45,11 +45,11 @@ def test_keymap():
 
 
 def test_valfilter():
-    assert valfilter(even, {1: 2, 2: 3}) == {1: 2}
+    assert valfilter(iseven, {1: 2, 2: 3}) == {1: 2}
 
 
 def test_keyfilter():
-    assert keyfilter(even, {1: 2, 2: 3}) == {2: 3}
+    assert keyfilter(iseven, {1: 2, 2: 3}) == {2: 3}
 
 
 def test_assoc():
