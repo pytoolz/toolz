@@ -80,6 +80,36 @@ def keymap(func, d):
     return dict(zip(map(func, iterkeys(d)), itervalues(d)))
 
 
+def valfilter(predicate, d):
+    """ Filter items in dictionary by value
+
+    >>> iseven = lambda x: x % 2 == 0
+    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
+    >>> valfilter(iseven, d)
+    {1: 2, 3: 4}
+
+    See Also:
+        keyfilter
+        valmap
+    """
+    return dict((k, v) for k, v in d.items() if predicate(v))
+
+
+def keyfilter(predicate, d):
+    """ Filter items in dictionary by key
+
+    >>> iseven = lambda x: x % 2 == 0
+    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
+    >>> keyfilter(iseven, d)
+    {2: 3, 4: 5}
+
+    See Also:
+        valfilter
+        keymap
+    """
+    return dict((k, v) for k, v in d.items() if predicate(k))
+
+
 def assoc(d, key, value):
     """
     Return a new dict with new key value pair

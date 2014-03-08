@@ -1,8 +1,12 @@
 from toolz.utils import raises
-from toolz.dicttoolz import merge, merge_with, valmap, keymap, update_in, assoc
+from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
+        assoc, keyfilter, valfilter)
 
 
 inc = lambda x: x + 1
+
+
+even = lambda i: i % 2 == 0
 
 
 def test_merge():
@@ -38,6 +42,14 @@ def test_valmap():
 
 def test_keymap():
     assert keymap(inc, {1: 1, 2: 2}) == {2: 1, 3: 2}
+
+
+def test_valfilter():
+    assert valfilter(even, {1: 2, 2: 3}) == {1: 2}
+
+
+def test_keyfilter():
+    assert keyfilter(even, {1: 2, 2: 3}) == {2: 3}
 
 
 def test_assoc():
