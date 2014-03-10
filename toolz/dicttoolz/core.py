@@ -92,7 +92,11 @@ def valfilter(predicate, d):
         keyfilter
         valmap
     """
-    return dict((k, v) for k, v in d.items() if predicate(v))
+    rv = {}
+    for k, v in iteritems(d):
+        if predicate(v):
+            rv[k] = v
+    return rv
 
 
 def keyfilter(predicate, d):
@@ -107,7 +111,11 @@ def keyfilter(predicate, d):
         valfilter
         keymap
     """
-    return dict((k, v) for k, v in d.items() if predicate(k))
+    rv = {}
+    for k, v in iteritems(d):
+        if predicate(k):
+            rv[k] = v
+    return rv
 
 
 def assoc(d, key, value):
