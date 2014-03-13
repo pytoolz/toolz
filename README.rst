@@ -15,7 +15,7 @@ New BSD. See `License File <https://github.com/pytoolz/toolz/blob/master/LICENSE
 Install
 -------
 
-``toolz`` is on the Python Package Index (PyPi):
+``toolz`` is on the Python Package Index (PyPI):
 
 ::
 
