@@ -1,2 +1,2 @@
-from .core import jackknife, do
+from .core import jackknife
 from .parallel import fold
