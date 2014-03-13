@@ -1,5 +1,5 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement)
+                             compose, pipe, complement, do)
 from toolz.functoolz.core import _num_required_args
 from operator import add, mul
 from toolz.utils import raises
@@ -213,3 +213,12 @@ def test_complement():
     assert not complement(lambda: "x")()
     assert not complement(lambda: 1)()
     assert not complement(lambda: [1])()
+
+
+def test_do():
+    inc = lambda x: x + 1
+    assert do(inc, 1) == 1
+
+    log = []
+    assert do(log.append, 1) == 1
+    assert log == [1]
