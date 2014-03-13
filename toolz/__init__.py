@@ -10,7 +10,7 @@ from .functoolz import (memoize, curry, compose, thread_first,
                         thread_last, identity, pipe, complement, juxt)
 
 from .dicttoolz import (merge, merge_with, keymap, valmap, assoc, update_in,
-                        get_in)
+                        get_in, keyfilter, valfilter)
 
 from .compatibility import map, filter
 
