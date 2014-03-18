@@ -40,7 +40,7 @@ def nargs(f):
 def should_curry(f):
     do_curry = set((toolz.map, toolz.filter, toolz.sorted, toolz.reduce))
     return (callable(f) and nargs(f) and nargs(f) > 1
-            or f in do_curry)
+            and not isinstance(f, curry) or f in do_curry)
 
 
 d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
