@@ -102,16 +102,19 @@ def memoize(func, cache=None):
 
     try:
         spec = inspect.getargspec(func)
-        if spec and not spec.keywords and not spec.defaults:
-            may_have_kwargs = False
-        else:
-            may_have_kwargs = True
+        may_have_kwargs = bool(not spec or spec.keywords or spec.defaults)
+        # Is unary function (single arg, no variadic argument or keywords)?
+        is_unary = (spec and spec.varargs is None and not may_have_kwargs
+                    and len(spec.args) == 1)
     except TypeError:
         may_have_kwargs = True
+        is_unary = False
 
     def memof(*args, **kwargs):
         try:
-            if may_have_kwargs:
+            if is_unary:
+                key = args[0]
+            elif may_have_kwargs:
                 key = (args, frozenset(kwargs.items()))
             else:
                 key = args

@@ -8,7 +8,7 @@ def fib(n):
     a, b = 0, 1
     for i in range(n):
         a, b = b, a + b
-    return b
+    return a
 
 
 # This is intuitive but VERY slow
@@ -23,3 +23,19 @@ from toolz import memoize
 
 # Oh wait, it's fast again
 fib = memoize(fib)
+
+
+# Provide a cache with initial values to `memoize`
+from toolz import curry
+
+
+@curry(memoize, cache={0: 0, 1: 1})
+def fib(n):
+    """ Functional definition of Fibonacci numbers with initial terms cached.
+
+    fib(0) == 0
+    fib(1) == 1
+    ...
+    fib(n) == fib(n - 1) + fib(n - 2)
+    """
+    return fib(n - 1) + fib(n - 2)
