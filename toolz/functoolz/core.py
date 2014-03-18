@@ -102,15 +102,10 @@ def memoize(func, cache=None):
 
     try:
         spec = inspect.getargspec(func)
-        if spec and not spec.keywords and not spec.defaults:
-            may_have_kwargs = False
-        else:
-            may_have_kwargs = True
+        may_have_kwargs = bool(not spec or spec.keywords or spec.defaults)
         # Is unary function (single arg, no variadic argument or keywords)?
-        if spec and spec.varargs is None and not may_have_kwargs:
-            is_unary = len(spec.args) == 1
-        else:
-            is_unary = False
+        is_unary = (spec and spec.varargs is None and not may_have_kwargs
+                    and len(spec.args) == 1)
     except TypeError:
         may_have_kwargs = True
         is_unary = False
