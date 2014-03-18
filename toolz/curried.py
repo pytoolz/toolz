@@ -43,10 +43,12 @@ def should_curry(f):
             or f in do_curry)
 
 
-d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
-         for name, f in toolz.__dict__.items())
+d = dict((name, curry(f) if should_curry(f) else f)
+         for name, f in toolz.__dict__.items()
+         if '__' not in name)
 
-exceptions = dict((name, curry(f) if '__' not in name and callable(f) else f)
-                  for name, f in toolz.curried_exceptions.__dict__.items())
+exceptions = dict((name, curry(f) if callable(f) else f)
+                  for name, f in toolz.curried_exceptions.__dict__.items()
+                  if '__' not in name)
 
 locals().update(toolz.merge(d, exceptions))
