@@ -25,8 +25,7 @@ from toolz import memoize
 fib = memoize(fib)
 
 
-# Provide a cache with initial values to `memoize`.  This works as a decorator
-# because `memoize` is curried (see `toolz.curry`) by default.
+# Provide a cache with initial values to `memoize`
 @memoize(cache={0: 0, 1: 1})
 def fib(n):
     """ Functional definition of Fibonacci numbers with initial terms cached.
