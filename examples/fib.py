@@ -26,10 +26,7 @@ fib = memoize(fib)
 
 
 # Provide a cache with initial values to `memoize`
-from toolz import curry
-
-
-@curry(memoize, cache={0: 0, 1: 1})
+@memoize(cache={0: 0, 1: 1})
 def fib(n):
     """ Functional definition of Fibonacci numbers with initial terms cached.
 

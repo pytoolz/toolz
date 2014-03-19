@@ -80,62 +80,6 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 
-def memoize(func, cache=None):
-    """ Cache a function's result for speedy future evaluation
-
-    Considerations:
-        Trades memory for speed.
-        Only use on pure functions.
-
-    >>> def add(x, y):  return x + y
-    >>> add = memoize(add)
-
-    Or use as a decorator
-
-    >>> @memoize
-    ... def add(x, y):
-    ...     return x + y
-    """
-    if cache is None:
-        cache = {}
-
-    try:
-        spec = inspect.getargspec(func)
-        may_have_kwargs = bool(not spec or spec.keywords or spec.defaults)
-        # Is unary function (single arg, no variadic argument or keywords)?
-        is_unary = (spec and spec.varargs is None and not may_have_kwargs
-                    and len(spec.args) == 1)
-    except TypeError:
-        may_have_kwargs = True
-        is_unary = False
-
-    def memof(*args, **kwargs):
-        try:
-            if is_unary:
-                key = args[0]
-            elif may_have_kwargs:
-                key = (args, frozenset(kwargs.items()))
-            else:
-                key = args
-            in_cache = key in cache
-        except TypeError:
-            raise TypeError("Arguments to memoized function must be hashable")
-
-        if in_cache:
-            return cache[key]
-        else:
-            result = func(*args, **kwargs)
-            cache[key] = result
-            return result
-
-    try:
-        memof.__name__ = func.__name__
-    except AttributeError:
-        pass
-    memof.__doc__ = func.__doc__
-    return memof
-
-
 def _num_required_args(func):
     """ Number of args for func
 
@@ -237,6 +181,71 @@ class curry(object):
                     return partial(self.func, *args)
 
             return curry(self.func, *args, **kwargs)
+
+
+@curry
+def memoize(func, cache=None):
+    """ Cache a function's result for speedy future evaluation
+
+    Considerations:
+        Trades memory for speed.
+        Only use on pure functions.
+
+    >>> def add(x, y):  return x + y
+    >>> add = memoize(add)
+
+    Or use as a decorator
+
+    >>> @memoize
+    ... def add(x, y):
+    ...     return x + y
+
+    Use the ``cache`` keyword to provide a dict-like object as an initial cache
+
+    >>> @memoize(cache={(1, 2): 3})
+    ... def add(x, y):
+    ...     return x + y
+
+    Note that the above works as a decorator because ``memoize`` is curried.
+    """
+    if cache is None:
+        cache = {}
+
+    try:
+        spec = inspect.getargspec(func)
+        may_have_kwargs = bool(not spec or spec.keywords or spec.defaults)
+        # Is unary function (single arg, no variadic argument or keywords)?
+        is_unary = (spec and spec.varargs is None and not may_have_kwargs
+                    and len(spec.args) == 1)
+    except TypeError:
+        may_have_kwargs = True
+        is_unary = False
+
+    def memof(*args, **kwargs):
+        try:
+            if is_unary:
+                key = args[0]
+            elif may_have_kwargs:
+                key = (args, frozenset(kwargs.items()))
+            else:
+                key = args
+            in_cache = key in cache
+        except TypeError:
+            raise TypeError("Arguments to memoized function must be hashable")
+
+        if in_cache:
+            return cache[key]
+        else:
+            result = func(*args, **kwargs)
+            cache[key] = result
+            return result
+
+    try:
+        memof.__name__ = func.__name__
+    except AttributeError:
+        pass
+    memof.__doc__ = func.__doc__
+    return memof
 
 
 class Compose(object):

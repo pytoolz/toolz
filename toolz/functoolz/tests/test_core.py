@@ -122,6 +122,15 @@ def test_memoize_key_signature():
     assert mf(1) == 2
 
 
+def test_memoize_curry_cache():
+    @memoize(cache={1: True})
+    def f(x):
+        return False
+
+    assert f(1) is True
+    assert f(2) is False
+
+
 def test_curry_simple():
     cmul = curry(mul)
     double = cmul(2)
