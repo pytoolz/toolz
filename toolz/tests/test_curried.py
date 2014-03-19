@@ -1,4 +1,5 @@
 import toolz
+import toolz.curried
 from toolz.curried import take, first, second, sorted, merge_with, reduce
 from operator import add
 
@@ -21,3 +22,7 @@ def test_sorted():
 
 def test_reduce():
     assert reduce(add)((1, 2, 3)) == 6
+
+
+def test_module_name():
+    assert toolz.curried.__name__ == 'toolz.curried'

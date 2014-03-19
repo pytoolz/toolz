@@ -12,12 +12,12 @@ Example:
 
     When we use it in higher order functions we often want to pass a partially
     evaluated form
-    >>> data = [(1, 2), (11, 22), (111, 222)])
-    >>> map(lambda seq: get(0, seq), data)
+    >>> data = [(1, 2), (11, 22), (111, 222)]
+    >>> list(map(lambda seq: get(0, seq), data))
     [1, 11, 111]
 
     The curried version allows simple expression of partial evaluation
-    >>> map(get(0), data)
+    >>> list(map(get(0), data))
     [1, 11, 111]
 
 See Also:
@@ -30,23 +30,25 @@ from .functoolz import curry
 import inspect
 
 
-def nargs(f):
+def _nargs(f):
     try:
         return len(inspect.getargspec(f).args)
     except TypeError:
         return None
 
 
-def should_curry(f):
+def _should_curry(f):
     do_curry = set((toolz.map, toolz.filter, toolz.sorted, toolz.reduce))
-    return (callable(f) and nargs(f) and nargs(f) > 1
+    return (callable(f) and _nargs(f) and _nargs(f) > 1
             or f in do_curry)
 
 
-d = dict((name, curry(f) if '__' not in name and should_curry(f) else f)
-         for name, f in toolz.__dict__.items())
+_d = dict((name, curry(f) if _should_curry(f) else f)
+          for name, f in toolz.__dict__.items()
+          if '__' not in name)
 
-exceptions = dict((name, curry(f) if '__' not in name and callable(f) else f)
-                  for name, f in toolz.curried_exceptions.__dict__.items())
+_exceptions = dict((name, curry(f) if callable(f) else f)
+                   for name, f in toolz.curried_exceptions.__dict__.items()
+                   if '__' not in name)
 
-locals().update(toolz.merge(d, exceptions))
+locals().update(toolz.merge(_d, _exceptions))
