@@ -212,6 +212,22 @@ def test_curry_is_like_partial():
     assert p(1, 2) == c(1, 2)
 
 
+def test_curry_is_idempotent():
+    def foo(a, b, c=1):
+        return a + b + c
+
+    f = curry(foo, 1, c=2)
+    g = curry(f)
+    assert isinstance(f, curry)
+    assert isinstance(g, curry)
+    assert f is not g
+    assert not hasattr(g.func, 'func')
+    assert f.args is not g.args
+    assert f.args == g.args
+    assert f.keywords is not g.keywords
+    assert f.keywords == g.keywords
+
+
 def test__num_required_args():
     assert _num_required_args(map) is None
     assert _num_required_args(lambda x: x) == 1

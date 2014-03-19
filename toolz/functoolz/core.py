@@ -105,10 +105,48 @@ def _num_required_args(func):
         return None
 
 
-class Curry(object):
+class curry(object):
+    """ Curry a callable function
+
+    Enables partial application of arguments through calling a function with an
+    incomplete set of arguments.
+
+    >>> def mul(x, y):
+    ...     return x * y
+    >>> mul = curry(mul)
+
+    >>> double = mul(2)
+    >>> double(10)
+    20
+
+    Also supports keyword arguments
+
+    >>> @curry                  # Can use curry as a decorator
+    ... def f(x, y, a=10):
+    ...     return a * (x + y)
+
+    >>> add = f(a=1)
+    >>> add(2, 3)
+    5
+
+    See Also:
+        toolz.curried - namespace of curried functions
+                        http://toolz.readthedocs.org/en/latest/curry.html
+    """
     def __init__(self, func, *args, **kwargs):
         if not callable(func):
             raise TypeError("Input must be callable")
+
+        # curry- or functools.partial-like object?  Unpack and merge arguments
+        if (hasattr(func, 'func') and hasattr(func, 'args')
+                and hasattr(func, 'keywords')):
+            _kwargs = {}
+            if func.keywords:
+                _kwargs.update(func.keywords)
+            _kwargs.update(kwargs)
+            kwargs = _kwargs
+            args = func.args + args
+            func = func.func
 
         if kwargs:
             self.partial = partial(func, *args, **kwargs)
@@ -142,50 +180,31 @@ class Curry(object):
 
             return curry(self.partial, *args, **kwargs)
 
+    def __getstate__(self):
+        return self.func, self.args, self.keywords
 
-def curry(func, *args, **kwargs):
-    """ Curry a callable function
+    def __setstate__(self, state):
+        func, args, kwargs = state
+        self.__init__(func, *args, **(kwargs or {}))
 
-    Enables partial application of arguments through calling a function with an
-    incomplete set of arguments.
 
-    >>> def mul(x, y):
-    ...     return x * y
-    >>> mul = curry(mul)
-
-    >>> double = mul(2)
-    >>> double(10)
-    20
-
-    Also supports keyword arguments
-
-    >>> @curry                  # Can use curry as a decorator
-    ... def f(x, y, a=10):
-    ...     return a * (x + y)
-
-    >>> add = f(a=1)
-    >>> add(2, 3)
-    5
-
-    See Also:
-        toolz.curried - namespace of curried functions
-                        http://toolz.readthedocs.org/en/latest/curry.html
-    """
-    if not callable(func):
-        raise TypeError("Input must be callable")
-
-    # Curry- or functools.partial-like object?  Unpack and merge arguments
-    if (hasattr(func, 'func') and hasattr(func, 'args')
-            and hasattr(func, 'keywords')):
-        _kwargs = {}
-        if func.keywords:
-            _kwargs.update(func.keywords)
-        _kwargs.update(kwargs)
-        kwargs = _kwargs
-        args = func.args + args
-        func = func.func
-
-    return Curry(func, *args, **kwargs)
+# XXX: curry still behaves well as a class and only a class
+#def curry(func, *args, **kwargs):
+#    if not callable(func):
+#        raise TypeError("Input must be callable")
+#
+#    # Curry- or functools.partial-like object?  Unpack and merge arguments
+#    if (hasattr(func, 'func') and hasattr(func, 'args')
+#            and hasattr(func, 'keywords')):
+#        _kwargs = {}
+#        if func.keywords:
+#            _kwargs.update(func.keywords)
+#        _kwargs.update(kwargs)
+#        kwargs = _kwargs
+#        args = func.args + args
+#        func = func.func
+#
+#    return Curry(func, *args, **kwargs)
 
 
 @curry
