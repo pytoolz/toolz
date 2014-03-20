@@ -149,12 +149,12 @@ class curry(object):
             func = func.func
 
         if kwargs:
-            self.partial = partial(func, *args, **kwargs)
+            self.call = partial(func, *args, **kwargs)
         else:
-            self.partial = partial(func, *args)
-        self.func = self.partial.func
-        self.args = self.partial.args
-        self.keywords = self.partial.keywords
+            self.call = partial(func, *args)
+        self.func = self.call.func
+        self.args = self.call.args
+        self.keywords = self.call.keywords
         self.__doc__ = self.func.__doc__
         try:
             self.func_name = self.func.func_name
@@ -169,7 +169,7 @@ class curry(object):
 
     def __call__(self, *args, **kwargs):
         try:
-            return self.partial(*args, **kwargs)
+            return self.call(*args, **kwargs)
         except TypeError:
             required_args = _num_required_args(self.func)
 
@@ -178,33 +178,15 @@ class curry(object):
                     len(args) + len(self.args) >= required_args):
                 raise
 
-            return curry(self.partial, *args, **kwargs)
+            return curry(self.call, *args, **kwargs)
 
+    # pickle protocall because functools.partial objects can't be pickled
     def __getstate__(self):
         return self.func, self.args, self.keywords
 
     def __setstate__(self, state):
         func, args, kwargs = state
         self.__init__(func, *args, **(kwargs or {}))
-
-
-# XXX: curry still behaves well as a class and only a class
-#def curry(func, *args, **kwargs):
-#    if not callable(func):
-#        raise TypeError("Input must be callable")
-#
-#    # Curry- or functools.partial-like object?  Unpack and merge arguments
-#    if (hasattr(func, 'func') and hasattr(func, 'args')
-#            and hasattr(func, 'keywords')):
-#        _kwargs = {}
-#        if func.keywords:
-#            _kwargs.update(func.keywords)
-#        _kwargs.update(kwargs)
-#        kwargs = _kwargs
-#        args = func.args + args
-#        func = func.func
-#
-#    return Curry(func, *args, **kwargs)
 
 
 @curry

@@ -220,8 +220,10 @@ def test_curry_is_idempotent():
     g = curry(f)
     assert isinstance(f, curry)
     assert isinstance(g, curry)
-    assert f is not g
+    assert not isinstance(f.func, curry)
     assert not hasattr(g.func, 'func')
+    # curry makes a new curry object, so everything is distinct but equal
+    assert f is not g
     assert f.args is not g.args
     assert f.args == g.args
     assert f.keywords is not g.keywords
