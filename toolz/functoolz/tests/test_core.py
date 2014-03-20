@@ -1,6 +1,6 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do)
-from toolz.functoolz.core import _num_required_args
+from toolz.functoolz.core import _num_required_args, Curry
 from operator import add, mul
 from toolz.utils import raises
 from functools import partial
@@ -218,9 +218,9 @@ def test_curry_is_idempotent():
 
     f = curry(foo, 1, c=2)
     g = curry(f)
-    assert isinstance(f, curry)
-    assert isinstance(g, curry)
-    assert not isinstance(f.func, curry)
+    assert isinstance(f, Curry)
+    assert isinstance(g, Curry)
+    assert not isinstance(g.func, Curry)
     assert not hasattr(g.func, 'func')
     # curry makes a new curry object, so everything is distinct but equal
     assert f is not g
