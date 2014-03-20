@@ -152,14 +152,23 @@ class curry(object):
             self.call = partial(func, *args, **kwargs)
         else:
             self.call = partial(func, *args)
-        self.func = self.call.func
-        self.args = self.call.args
-        self.keywords = self.call.keywords
-        self.__doc__ = self.func.__doc__
+        self.__doc__ = func.__doc__
         try:
             self.func_name = self.func.func_name
         except AttributeError:
             pass
+
+    @property
+    def func(self):
+        return self.call.func
+
+    @property
+    def args(self):
+        return self.call.args
+
+    @property
+    def keywords(self):
+        return self.call.keywords
 
     def __str__(self):
         return str(self.func)
