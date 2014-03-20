@@ -189,7 +189,7 @@ class curry(object):
 
             return curry(self.call, *args, **kwargs)
 
-    # pickle protocall because functools.partial objects can't be pickled
+    # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):
         return self.func, self.args, self.keywords
 
