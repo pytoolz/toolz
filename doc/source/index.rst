@@ -5,7 +5,8 @@ PyToolz API Documentation
 Toolz provides a set of utility functions for iterators, functions,
 and dictionaries.  These functions interoperate well and form
 the building blocks of common data analytic operations.  They extend the
-standard libraries `itertools` and `functools` and borrow heavily from the standard libraries of contemporary functional languages.
+standard libraries `itertools` and `functools` and borrow heavily from the
+standard libraries of contemporary functional languages.
 
 Toolz provides a suite of functions which have the following functional virtues:
 
@@ -21,10 +22,10 @@ have deadlines.
 -   **Serializable:** They support common solutions for parallel computing
 
 This gives developers the power to write *powerful* programs to solve *complex
-problems* with relatively *simple code* which is *easy to understand* without
-sacrificing *performance*.  Toolz enables this approach, commonly associated
-with functional programming, within a natural Pythonic style suitable for
-most developers.
+problems* with relatively *simple code*.  This code can be *easy to understand*
+without sacrificing *performance*.  Toolz enables this approach, commonly
+associated with functional programming, within a natural Pythonic style
+suitable for most developers.
 
 BSD licensed source code is available at http://github.com/pytoolz/toolz/ .
 
