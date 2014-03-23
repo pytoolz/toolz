@@ -209,8 +209,9 @@ def memoize(func, cache=None, key=None):
     Note that the above works as a decorator because ``memoize`` is curried.
 
     It is also possible to provide a ``key(args, kwargs)`` function that
-    calculates keys used for the cache.  However, the default key function
-    should be sufficient most of the time.
+    calculates keys used for the cache, which receives an ``args`` tuple and
+    ``kwargs`` dict as input, and must return a hashable value.  However,
+    the default key function should be sufficient most of the time.
 
     >>> # Use key function that ignores extraneous keyword arguments
     >>> @memoize(key=lambda args, kwargs: args)
@@ -232,18 +233,18 @@ def memoize(func, cache=None, key=None):
         may_have_kwargs = True
         is_unary = False
 
-    if key is None:
-        if is_unary:
-            key = lambda args, kwargs: args[0]
-        elif may_have_kwargs:
-            key = lambda args, kwargs: (args or None,
-                                        frozenset(kwargs.items()) or None)
-        else:
-            key = lambda args, kwargs: args
-
     def memof(*args, **kwargs):
         try:
-            k = key(args, kwargs)
+            if key is not None:
+                k = key(args, kwargs)
+            elif is_unary:
+                k = args[0]
+            elif may_have_kwargs:
+                k = (args or None,
+                     frozenset(kwargs.items()) if kwargs else None)
+            else:
+                k = args
+
             in_cache = k in cache
         except TypeError:
             raise TypeError("Arguments to memoized function must be hashable")
