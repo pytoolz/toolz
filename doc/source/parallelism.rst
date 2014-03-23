@@ -2,8 +2,8 @@ Parallelism
 ===========
 
 PyToolz tries to support other parallel processing libraries.  It does this
-by ensuring easy serialization of ``toolz`` functions and providing architecture
-agnostic parallel algorithms.
+by ensuring easy serialization of ``toolz`` functions and providing
+architecture-agnostic parallel algorithms.
 
 In practice ``toolz`` is developed against ``multiprocessing`` and
 ``IPython.parallel``.
@@ -26,9 +26,12 @@ serialization library ``dill``.
 Example with parallel map
 -------------------------
 
-Most parallel processing tasks may be significantly accelerated using only a parallel map operation.  A number of high quality parallel map operations exist in other libraries, notably ``multiprocessing``, ``IPython.parallel``, and ``threading`` (if your operation is not processor bound).
+Most parallel processing tasks may be significantly accelerated using only a
+parallel map operation.  A number of high quality parallel map operations exist
+in other libraries, notably ``multiprocessing``, ``IPython.parallel``, and
+``threading`` (if your operation is not processor bound).
 
-In the below example we extend our wordcounting solution with a parallel map.
+In the example below we extend our wordcounting solution with a parallel map.
 We show how one can progress in development from sequential, to
 multiprocessing, to distributed computation all with the same domain code.
 
@@ -51,7 +54,7 @@ multiprocessing, to distributed computation all with the same domain code.
     wordcount = compose(frequencies, map(stem), concat, map(str.split), open)
 
     if __name__ == '__main__':
-
+        # Filenames for thousands of books from which we'd like to count words
         filenames = ['Book_%d.txt'%i for i in range(10000)]
 
         # Start with sequential map for development
@@ -71,13 +74,12 @@ multiprocessing, to distributed computation all with the same domain code.
 
 This smooth transition is possible because
 
-1.  The ``map`` abstraction is minimal and thus powerful.  This transformation
-    would not be so easy if we had written our code with a for loop or list
-    comprehension
-2.  Our operation ``wordcount`` was built separately from the parallel
-    solution.
-3.  Our task is embarrassingly parallel, needing only a very simple parallel
-    strategy.  Fortunately this situation is quite common.
+1.  The ``map`` abstraction is a simple function call and so can be replaced.
+    This transformation would be difficult if we had written our code with a
+    for loop or list comprehension
+2.  The operation ``wordcount`` is weparate from the parallel solution.
+3.  The task is embarrassingly parallel, needing only a very simple parallel
+    strategy.  Fortunately this is the common case.
 
 
 Parallel Algorithms
