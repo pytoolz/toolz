@@ -36,7 +36,8 @@ imperative-by-design languages that contain the necessary elements to support a
 functional standard library.  Underscore.js_ in JavaScript has attained
 notable popularity in the web community.  ``LINQ`` in C# follows a similar
 philosophy but mimics declarative database languages rather than functional
-ones.  Enumerable_ is is the closest project in Ruby.
+ones.  Enumerable_ is is the closest project in Ruby.  Other excellent projects
+also exist within the Python ecosystem, most notably Fn.py_ and Funcy_.
 
 .. [itertools] http://docs.python.org/2/library/itertools.html
 .. [functools] http://docs.python.org/2/library/functools.html
@@ -46,3 +47,5 @@ ones.  Enumerable_ is is the closest project in Ruby.
 .. [cheatsheet] http://clojure.org/cheatsheet
 .. [Guido] http://python-history.blogspot.com/2009/04/origins-of-pythons-functional-features.html
 .. [Enumerable] http://ruby-doc.org/core-2.0.0/Enumerable.html
+.. [funcy] https://github.com/suor/funcy/
+.. [fn.py] https://github.com/kachayev/fn.py
