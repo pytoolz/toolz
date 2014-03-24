@@ -106,7 +106,7 @@ def test_memoize_key_signature():
     # keyword arguments may be passed as unnamed args.
     mf = memoize(lambda x, y=0: False,
                  cache={((1,), frozenset((('y', 2),))): 2,
-                        ((1, 2), frozenset()): 3})
+                        ((1, 2), None): 3})
     assert mf(1, y=2) == 2
     assert mf(1, 2) == 3
     assert mf(2, y=2) is False
@@ -115,8 +115,8 @@ def test_memoize_key_signature():
     assert mf((1, 2)) is False
 
     # Keyword-only signatures must still have an "args" tuple.
-    mf = memoize(lambda x=0: False, cache={((), frozenset((('x', 1),))): 1,
-                                           ((1,), frozenset()): 2})
+    mf = memoize(lambda x=0: False, cache={(None, frozenset((('x', 1),))): 1,
+                                           ((1,), None): 2})
     assert mf() is False
     assert mf(x=1) == 1
     assert mf(1) == 2
@@ -129,6 +129,15 @@ def test_memoize_curry_cache():
 
     assert f(1) is True
     assert f(2) is False
+
+
+def test_memoize_key():
+    @memoize(key=lambda args, kwargs: args[0])
+    def f(x, y, *args, **kwargs):
+        return x + y
+
+    assert f(1, 2) == 3
+    assert f(1, 3) == 3
 
 
 def test_curry_simple():

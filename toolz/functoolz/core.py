@@ -184,7 +184,7 @@ class curry(object):
 
 
 @curry
-def memoize(func, cache=None):
+def memoize(func, cache=None, key=None):
     """ Cache a function's result for speedy future evaluation
 
     Considerations:
@@ -207,6 +207,18 @@ def memoize(func, cache=None):
     ...     return x + y
 
     Note that the above works as a decorator because ``memoize`` is curried.
+
+    It is also possible to provide a ``key(args, kwargs)`` function that
+    calculates keys used for the cache, which receives an ``args`` tuple and
+    ``kwargs`` dict as input, and must return a hashable value.  However,
+    the default key function should be sufficient most of the time.
+
+    >>> # Use key function that ignores extraneous keyword arguments
+    >>> @memoize(key=lambda args, kwargs: args)
+    ... def add(x, y, verbose=False):
+    ...     if verbose:
+    ...         print('Calculating %s + %s' % (x, y))
+    ...     return x + y
     """
     if cache is None:
         cache = {}
@@ -223,21 +235,25 @@ def memoize(func, cache=None):
 
     def memof(*args, **kwargs):
         try:
-            if is_unary:
-                key = args[0]
+            if key is not None:
+                k = key(args, kwargs)
+            elif is_unary:
+                k = args[0]
             elif may_have_kwargs:
-                key = (args, frozenset(kwargs.items()))
+                k = (args or None,
+                     frozenset(kwargs.items()) if kwargs else None)
             else:
-                key = args
-            in_cache = key in cache
+                k = args
+
+            in_cache = k in cache
         except TypeError:
             raise TypeError("Arguments to memoized function must be hashable")
 
         if in_cache:
-            return cache[key]
+            return cache[k]
         else:
             result = func(*args, **kwargs)
-            cache[key] = result
+            cache[k] = result
             return result
 
     try:
