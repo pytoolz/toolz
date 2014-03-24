@@ -1,6 +1,6 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do)
-from toolz.functoolz.core import _num_required_args
+from toolz.functoolz.core import _num_required_args, Curry
 from operator import add, mul
 from toolz.utils import raises
 from functools import partial
@@ -219,6 +219,24 @@ def test_curry_is_like_partial():
     assert p.keywords == c.keywords
     assert p.args == c.args
     assert p(1, 2) == c(1, 2)
+
+
+def test_curry_is_idempotent():
+    def foo(a, b, c=1):
+        return a + b + c
+
+    f = curry(foo, 1, c=2)
+    g = curry(f)
+    assert isinstance(f, Curry)
+    assert isinstance(g, Curry)
+    assert not isinstance(g.func, Curry)
+    assert not hasattr(g.func, 'func')
+    # curry makes a new curry object, so everything is distinct but equal
+    assert f is not g
+    assert f.args is not g.args
+    assert f.args == g.args
+    assert f.keywords is not g.keywords
+    assert f.keywords == g.keywords
 
 
 def test__num_required_args():

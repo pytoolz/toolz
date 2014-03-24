@@ -105,7 +105,86 @@ def _num_required_args(func):
         return None
 
 
-class curry(object):
+def _may_have_kwargs(func):
+    """ Whether a function may have keyword arguments."""
+    try:
+        spec = inspect.getargspec(func)
+        return bool(not spec or spec.keywords or spec.defaults)
+    except TypeError:
+        return True
+
+
+def _is_unary(func, spec=None):
+    """ Whether func is a unary functions (single argument input only)"""
+    try:
+        spec = inspect.getargspec(func)
+        return (spec and spec.varargs is None and spec.keywords is None
+                and spec.defaults is None and len(spec.args) == 1)
+    except TypeError:
+        return False
+
+
+class Curry(object):
+    """ A curried function
+
+    See Also:
+        curry
+    """
+    def __init__(self, func, *args, **kwargs):
+        if not callable(func):
+            raise TypeError("Input must be callable")
+
+        if kwargs:
+            self._call = partial(func, *args, **kwargs)
+        else:
+            self._call = partial(func, *args)
+        self.__doc__ = func.__doc__
+        try:
+            self.func_name = self.func.func_name
+        except AttributeError:
+            pass
+
+    @property
+    def func(self):
+        return self._call.func
+
+    @property
+    def args(self):
+        return self._call.args
+
+    @property
+    def keywords(self):
+        return self._call.keywords
+
+    def __str__(self):
+        return str(self.func)
+
+    def __repr__(self):
+        return repr(self.func)
+
+    def __call__(self, *args, **kwargs):
+        try:
+            return self._call(*args, **kwargs)
+        except TypeError:
+            required_args = _num_required_args(self.func)
+
+            # If there was a genuine TypeError
+            if (required_args is not None and
+                    len(args) + len(self.args) >= required_args):
+                raise
+
+            return curry(self._call, *args, **kwargs)
+
+    # pickle protocol because functools.partial objects can't be pickled
+    def __getstate__(self):
+        return self.func, self.args, self.keywords
+
+    def __setstate__(self, state):
+        func, args, kwargs = state
+        self.__init__(func, *args, **(kwargs or {}))
+
+
+def curry(func, *args, **kwargs):
     """ Curry a callable function
 
     Enables partial application of arguments through calling a function with an
@@ -129,58 +208,30 @@ class curry(object):
     >>> add(2, 3)
     5
 
+    For performance reasons, ``curry`` or a curried function will return a
+    ``functools.partial`` instance if only one more argument is required
+    and the function has no keywords.
+
     See Also:
         toolz.curried - namespace of curried functions
                         http://toolz.readthedocs.org/en/latest/curry.html
     """
-    def __init__(self, func, *args, **kwargs):
-        if not callable(func):
-            raise TypeError("Input must be callable")
+    # curry- or functools.partial-like object?  Unpack and merge arguments
+    if (hasattr(func, 'func') and hasattr(func, 'args')
+            and hasattr(func, 'keywords')):
+        _kwargs = {}
+        if func.keywords:
+            _kwargs.update(func.keywords)
+        _kwargs.update(kwargs)
+        kwargs = _kwargs
+        args = func.args + args
+        func = func.func
 
-        self.func = func
-        self.args = args
-        self.keywords = kwargs if kwargs else None
-        self.__doc__ = self.func.__doc__
-        try:
-            self.func_name = self.func.func_name
-        except AttributeError:
-            pass
-
-    def __str__(self):
-        return str(self.func)
-
-    def __repr__(self):
-        return repr(self.func)
-
-    def __call__(self, *args, **_kwargs):
-        args = self.args + args
-        if _kwargs:
-            kwargs = {}
-            if self.keywords:
-                kwargs.update(self.keywords)
-            kwargs.update(_kwargs)
-        elif self.keywords:
-            kwargs = self.keywords
-        else:
-            kwargs = {}
-
-        try:
-            return self.func(*args, **kwargs)
-        except TypeError:
-            required_args = _num_required_args(self.func)
-
-            # If there was a genuine TypeError
-            if required_args is not None and len(args) >= required_args:
-                raise
-
-            # If we only need one more argument
-            if (required_args is not None and required_args - len(args) == 1):
-                if kwargs:
-                    return partial(self.func, *args, **kwargs)
-                else:
-                    return partial(self.func, *args)
-
-            return curry(self.func, *args, **kwargs)
+    required_args = _num_required_args(func)
+    if (required_args is not None and required_args - len(args) == 1
+            and not _may_have_kwargs(func)):
+        return partial(func, *args, **kwargs)
+    return Curry(func, *args, **kwargs)
 
 
 @curry
@@ -223,15 +274,8 @@ def memoize(func, cache=None, key=None):
     if cache is None:
         cache = {}
 
-    try:
-        spec = inspect.getargspec(func)
-        may_have_kwargs = bool(not spec or spec.keywords or spec.defaults)
-        # Is unary function (single arg, no variadic argument or keywords)?
-        is_unary = (spec and spec.varargs is None and not may_have_kwargs
-                    and len(spec.args) == 1)
-    except TypeError:
-        may_have_kwargs = True
-        is_unary = False
+    may_have_kwargs = _may_have_kwargs(func)
+    is_unary = not may_have_kwargs and _is_unary(func)
 
     def memof(*args, **kwargs):
         try:
