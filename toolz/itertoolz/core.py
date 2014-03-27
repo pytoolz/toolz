@@ -603,12 +603,10 @@ def pluck(ind, seq, default=no_default):
     pluck(['x', 'y', 'z'], seq)
 
     e.g.
-    > data = [{'id': 1, 'name': 'Cheese'},
-              {'id': 2, 'name': 'Pies'}]
-    > pluck('name', data)
+    >>> data = [{'id': 1, 'name': 'Cheese'}, {'id': 2, 'name': 'Pies'}]
+    >>> list(pluck('name', data))
     ['Cheese', 'Pies']
-    > pluck(['0', '1'], [[1, 2, 3], [4, 5, 7]])
-    [[1, 2],
-     [4, 5]]
+    >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
+    [(1, 2), (4, 5)]
     '''
     return (get(ind, item, default=default) for item in seq)
