@@ -587,3 +587,28 @@ def count(seq):
     if hasattr(seq, '__len__'):
         return len(seq)
     return sum(1 for i in seq)
+
+
+def pluck(ind, seq, default=no_default):
+    '''
+    plucks an element or several elements from each item in a sequence.
+
+    pluck maps itertools.get over a sequence and returns one or more elements
+    of each item in the sequence.
+
+    ind can be either a single string/index or a sequence of strings/indices.
+    seq should be sequence containing sequences or dicts.
+
+    map(get(['x', 'y', 'z']), seq)
+    pluck(['x', 'y', 'z'], seq)
+
+    e.g.
+    > data = [{'id': 1, 'name': 'Cheese'},
+              {'id': 2, 'name': 'Pies'}]
+    > pluck('name', data)
+    ['Cheese', 'Pies']
+    > pluck(['0', '1'], [[1, 2, 3], [4, 5, 7]])
+    [[1, 2],
+     [4, 5]]
+    '''
+    return (get(ind, item, default=default) for item in seq)
