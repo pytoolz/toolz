@@ -1,7 +1,7 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do)
+                             compose, pipe, complement, do, juxt)
 from toolz.functoolz.core import _num_required_args
-from operator import add, mul
+from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
 from toolz.compatibility import reduce
@@ -284,3 +284,9 @@ def test_do():
     log = []
     assert do(log.append, 1) == 1
     assert log == [1]
+
+def test_juxt_generator_input():
+    data = list(range(10))
+    juxtfunc = juxt(itemgetter(2*i) for i in range(5))
+    assert tuple(juxtfunc(data)) == (0, 2, 4, 6, 8)
+    assert tuple(juxtfunc(data)) == (0, 2, 4, 6, 8)
