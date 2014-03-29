@@ -285,6 +285,7 @@ def test_do():
     assert do(log.append, 1) == 1
     assert log == [1]
 
+
 def test_juxt_generator_input():
     data = list(range(10))
     juxtfunc = juxt(itemgetter(2*i) for i in range(5))
