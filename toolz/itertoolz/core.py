@@ -589,18 +589,17 @@ def count(seq):
     return sum(1 for i in seq)
 
 
-def pluck(ind, seq, default=no_default):
+def pluck(ind, seqs, default=no_default):
     '''
     plucks an element or several elements from each item in a sequence.
 
     pluck maps itertools.get over a sequence and returns one or more elements
     of each item in the sequence.
 
-    ind can be either a single string/index or a sequence of strings/indices.
-    seq should be sequence containing sequences or dicts.
+    This is equivalent to running `map(curried.get(ind), seqs)`
 
-    map(get(['x', 'y', 'z']), seq)
-    pluck(['x', 'y', 'z'], seq)
+    ind can be either a single string/index or a sequence of strings/indices.
+    seqs should be sequence containing sequences or dicts.
 
     e.g.
     >>> data = [{'id': 1, 'name': 'Cheese'}, {'id': 2, 'name': 'Pies'}]
@@ -608,5 +607,16 @@ def pluck(ind, seq, default=no_default):
     ['Cheese', 'Pies']
     >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
     [(1, 2), (4, 5)]
+
+    See Also:
+        get
+        map
     '''
-    return (get(ind, item, default=default) for item in seq)
+    if default is no_default:
+        if isinstance(ind, list):
+            return map(operator.itemgetter(*ind), seqs)
+        return map(operator.itemgetter(ind), seqs)
+    elif isinstance(ind, list):
+        return (tuple(_get(item, seq, default) for item in ind)
+                for seq in seqs)
+    return (_get(ind, seq, default) for seq in seqs)
