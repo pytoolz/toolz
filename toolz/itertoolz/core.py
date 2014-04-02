@@ -590,8 +590,7 @@ def count(seq):
 
 
 def pluck(ind, seqs, default=no_default):
-    '''
-    plucks an element or several elements from each item in a sequence.
+    """ plucks an element or several elements from each item in a sequence.
 
     pluck maps itertools.get over a sequence and returns one or more elements
     of each item in the sequence.
@@ -611,7 +610,7 @@ def pluck(ind, seqs, default=no_default):
     See Also:
         get
         map
-    '''
+    """
     if default is no_default:
         if isinstance(ind, list):
             return map(operator.itemgetter(*ind), seqs)
