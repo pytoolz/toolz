@@ -323,6 +323,9 @@ def get(ind, seq, default=no_default):
 
     >>> get(['Alice', 'Dennis'], phonebook, None)
     ('555-1234', None)
+
+    See Also:
+        pluck
     """
     try:
         return seq[ind]
@@ -592,13 +595,14 @@ def count(seq):
 def pluck(ind, seqs, default=no_default):
     """ plucks an element or several elements from each item in a sequence.
 
-    pluck maps itertools.get over a sequence and returns one or more elements
-    of each item in the sequence.
+    ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
+    elements of each item in the sequence.
 
     This is equivalent to running `map(curried.get(ind), seqs)`
 
-    ind can be either a single string/index or a sequence of strings/indices.
-    seqs should be sequence containing sequences or dicts.
+    ``ind`` can be either a single string/index or a sequence of
+    strings/indices.
+    ``seqs`` should be sequence containing sequences or dicts.
 
     e.g.
     >>> data = [{'id': 1, 'name': 'Cheese'}, {'id': 2, 'name': 'Pies'}]
