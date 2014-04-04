@@ -1,6 +1,6 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do, juxt)
-from toolz.functoolz.core import _num_required_args
+from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial

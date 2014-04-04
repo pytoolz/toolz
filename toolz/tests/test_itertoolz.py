@@ -1,15 +1,15 @@
 import itertools
 from toolz.utils import raises
 from functools import partial
-from toolz.itertoolz.core import (remove, groupby, merge_sorted,
-                                  concat, concatv, interleave, unique,
-                                  identity, isiterable,
-                                  mapcat, isdistinct, first, second,
-                                  nth, take, drop, interpose, get,
-                                  rest, last, cons, frequencies,
-                                  reduceby, iterate, accumulate,
-                                  sliding_window, count, partition,
-                                  partition_all, take_nth)
+from toolz.itertoolz import (remove, groupby, merge_sorted,
+                             concat, concatv, interleave, unique,
+                             identity, isiterable,
+                             mapcat, isdistinct, first, second,
+                             nth, take, drop, interpose, get,
+                             rest, last, cons, frequencies,
+                             reduceby, iterate, accumulate,
+                             sliding_window, count, partition,
+                             partition_all, take_nth)
 from toolz.compatibility import range, filter
 from operator import add, mul
 

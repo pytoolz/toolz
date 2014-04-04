@@ -1,6 +1,6 @@
 import itertools
-from .core import frequencies
-from ..compatibility import map
+from .itertoolz import frequencies
+from .compatibility import map
 
 
 def countby(func, seq):

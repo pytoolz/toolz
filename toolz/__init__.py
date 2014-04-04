@@ -1,9 +1,9 @@
-from .itertoolz import (groupby, countby, frequencies, reduceby,
+from .itertoolz import (groupby, frequencies, reduceby,
                         first, second, nth, take, drop, rest, last,
                         get, merge_sorted, concat, concatv, mapcat,
                         isdistinct, interleave, interpose, unique,
                         isiterable, remove, iterate, accumulate,
-                        partitionby, partition, partition_all,
+                        partition, partition_all,
                         sliding_window, count, cons, take_nth)
 
 from .functoolz import (memoize, curry, compose, thread_first,
@@ -11,6 +11,8 @@ from .functoolz import (memoize, curry, compose, thread_first,
 
 from .dicttoolz import (merge, merge_with, keymap, valmap, assoc, update_in,
                         get_in, keyfilter, valfilter)
+
+from .recipes import countby, partitionby
 
 from .compatibility import map, filter
 
