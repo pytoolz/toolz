@@ -1,18 +1,10 @@
-from .itertoolz import (groupby, frequencies, reduceby,
-                        first, second, nth, take, drop, rest, last,
-                        get, merge_sorted, concat, concatv, mapcat,
-                        isdistinct, interleave, interpose, unique,
-                        isiterable, remove, iterate, accumulate,
-                        partition, partition_all,
-                        sliding_window, count, cons, take_nth)
+from .itertoolz import *
 
-from .functoolz import (memoize, curry, compose, thread_first,
-                        thread_last, identity, pipe, complement, juxt, do)
+from .functoolz import *
 
-from .dicttoolz import (merge, merge_with, keymap, valmap, assoc, update_in,
-                        get_in, keyfilter, valfilter)
+from .dicttoolz import *
 
-from .recipes import countby, partitionby
+from .recipes import *
 
 from .compatibility import map, filter
 
