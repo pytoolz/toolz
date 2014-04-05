@@ -4,7 +4,7 @@ import operator
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do')
+           'pipe', 'complement', 'juxt', 'do', 'curry', 'memoize')
 
 
 def identity(x):
