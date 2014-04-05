@@ -5,6 +5,7 @@ from .compatibility import map
 
 __all__ = ('countby', 'partitionby')
 
+
 def countby(func, seq):
     """ Count elements of a collection by a key function
 
