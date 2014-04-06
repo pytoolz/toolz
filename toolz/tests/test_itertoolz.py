@@ -1,7 +1,6 @@
 import itertools
 from toolz.utils import raises
 from functools import partial
-<<<<<<< HEAD:toolz/tests/test_itertoolz.py
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              identity, isiterable,
@@ -10,18 +9,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
-                             partition_all, take_nth)
-=======
-from toolz.itertoolz.core import (remove, groupby, merge_sorted,
-                                  concat, concatv, interleave, unique,
-                                  identity, isiterable,
-                                  mapcat, isdistinct, first, second,
-                                  nth, take, drop, interpose, get,
-                                  rest, last, cons, frequencies,
-                                  reduceby, iterate, accumulate,
-                                  sliding_window, count, partition,
-                                  partition_all, take_nth, pluck)
->>>>>>> master:toolz/itertoolz/tests/test_core.py
+                             partition_all, take_nth, pluck)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
