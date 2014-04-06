@@ -10,7 +10,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count')
+           'sliding_window', 'partition', 'partition_all', 'count', 'pluck')
 
 
 identity = lambda x: x
@@ -331,6 +331,9 @@ def get(ind, seq, default=no_default):
 
     >>> get(['Alice', 'Dennis'], phonebook, None)
     ('555-1234', None)
+
+    See Also:
+        pluck
     """
     try:
         return seq[ind]
@@ -595,3 +598,36 @@ def count(seq):
     if hasattr(seq, '__len__'):
         return len(seq)
     return sum(1 for i in seq)
+
+
+def pluck(ind, seqs, default=no_default):
+    """ plucks an element or several elements from each item in a sequence.
+
+    ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
+    elements of each item in the sequence.
+
+    This is equivalent to running `map(curried.get(ind), seqs)`
+
+    ``ind`` can be either a single string/index or a sequence of
+    strings/indices.
+    ``seqs`` should be sequence containing sequences or dicts.
+
+    e.g.
+    >>> data = [{'id': 1, 'name': 'Cheese'}, {'id': 2, 'name': 'Pies'}]
+    >>> list(pluck('name', data))
+    ['Cheese', 'Pies']
+    >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
+    [(1, 2), (4, 5)]
+
+    See Also:
+        get
+        map
+    """
+    if default is no_default:
+        if isinstance(ind, list):
+            return map(operator.itemgetter(*ind), seqs)
+        return map(operator.itemgetter(ind), seqs)
+    elif isinstance(ind, list):
+        return (tuple(_get(item, seq, default) for item in ind)
+                for seq in seqs)
+    return (_get(ind, seq, default) for seq in seqs)

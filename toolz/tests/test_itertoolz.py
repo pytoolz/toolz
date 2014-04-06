@@ -1,6 +1,7 @@
 import itertools
 from toolz.utils import raises
 from functools import partial
+<<<<<<< HEAD:toolz/tests/test_itertoolz.py
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              identity, isiterable,
@@ -10,6 +11,17 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth)
+=======
+from toolz.itertoolz.core import (remove, groupby, merge_sorted,
+                                  concat, concatv, interleave, unique,
+                                  identity, isiterable,
+                                  mapcat, isdistinct, first, second,
+                                  nth, take, drop, interpose, get,
+                                  rest, last, cons, frequencies,
+                                  reduceby, iterate, accumulate,
+                                  sliding_window, count, partition,
+                                  partition_all, take_nth, pluck)
+>>>>>>> master:toolz/itertoolz/tests/test_core.py
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -247,3 +259,19 @@ def test_count():
 
     assert count('hello') == 5
     assert count(iter('hello')) == 5
+
+
+def test_pluck():
+    assert list(pluck(0, [[0, 1], [2, 3], [4, 5]])) == [0, 2, 4]
+    assert list(pluck([0, 1], [[0, 1, 2], [3, 4, 5]])) == [(0, 1), (3, 4)]
+    assert list(pluck(1, [[0], [0, 1]], None)) == [None, 1]
+
+    data = [{'id': 1, 'name': 'cheese'}, {'id': 2, 'name': 'pies', 'price': 1}]
+    assert list(pluck('id', data)) == [1, 2]
+    assert list(pluck('price', data, None)) == [None, 1]
+    assert list(pluck(['id', 'name'], data)) == [(1, 'cheese'), (2, 'pies')]
+    assert list(pluck(['price', 'other'], data, None)) == [(None, None),
+                                                           (1, None)]
+
+    assert raises(IndexError, lambda: list(pluck(1, [[0]])))
+    assert raises(KeyError, lambda: list(pluck('name', [{'id': 1}])))
