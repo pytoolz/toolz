@@ -7,7 +7,7 @@ Docstrings should provide sufficient understanding for any individual function.
 Itertoolz
 ---------
 
-.. currentmodule:: toolz.itertoolz.core
+.. currentmodule:: toolz.itertoolz
 
 .. autosummary::
    accumulate
@@ -39,7 +39,7 @@ Itertoolz
    take_nth
    unique
 
-.. currentmodule:: toolz.itertoolz.recipes
+.. currentmodule:: toolz.recipes
 
 .. autosummary::
    countby
@@ -48,7 +48,7 @@ Itertoolz
 Functoolz
 ---------
 
-.. currentmodule:: toolz.functoolz.core
+.. currentmodule:: toolz.functoolz
 
 .. autosummary::
    complement
@@ -61,7 +61,7 @@ Functoolz
 Dicttoolz
 ---------
 
-.. currentmodule:: toolz.dicttoolz.core
+.. currentmodule:: toolz.dicttoolz
 
 .. autosummary::
    assoc
@@ -85,16 +85,16 @@ Sandbox
 Definitions
 -----------
 
-.. automodule:: toolz.itertoolz.core
+.. automodule:: toolz.itertoolz
    :members:
 
 .. automodule:: toolz.itertoolz.recipes
    :members:
 
-.. automodule:: toolz.functoolz.core
+.. automodule:: toolz.functoolz
    :members:
 
-.. automodule:: toolz.dicttoolz.core
+.. automodule:: toolz.dicttoolz
    :members:
 
 .. automodule:: toolz.sandbox.core

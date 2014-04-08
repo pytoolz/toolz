@@ -2,6 +2,9 @@ import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
+__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'valfilter', 'keyfilter',
+           'assoc', 'update_in', 'get_in')
+
 
 def merge(*dicts):
     """ Merge a collection of dictionaries

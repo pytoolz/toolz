@@ -1,6 +1,9 @@
 import itertools
-from .core import frequencies
-from ..compatibility import map
+from .itertoolz import frequencies
+from .compatibility import map
+
+
+__all__ = ('countby', 'partitionby')
 
 
 def countby(func, seq):

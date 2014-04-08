@@ -5,6 +5,14 @@ import operator
 from functools import partial
 from toolz.compatibility import map, filter, zip, zip_longest
 
+
+__all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
+           'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
+           'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
+           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
+           'sliding_window', 'partition', 'partition_all', 'count', 'pluck')
+
+
 identity = lambda x: x
 
 

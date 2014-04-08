@@ -9,7 +9,7 @@ def test_take():
 
 
 def test_first():
-    assert first is toolz.itertoolz.core.first
+    assert first is toolz.itertoolz.first
 
 
 def test_merge_with():

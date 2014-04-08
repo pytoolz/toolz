@@ -2,6 +2,9 @@ import operator
 import sys
 PY3 = sys.version_info[0] > 2
 
+__all__ = ('PY3', 'map', 'filter', 'range', 'zip', 'reduce', 'zip_longest',
+           'iteritems', 'iterkeys', 'itervalues')
+
 if PY3:
     map = map
     filter = filter
