@@ -78,7 +78,6 @@ Sandbox
 
 .. autosummary::
    parallel.fold
-   core.jackknife
    core.side_effects
 
 
