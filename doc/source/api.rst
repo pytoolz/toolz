@@ -31,6 +31,7 @@ Itertoolz
    nth
    partition
    partition_all
+   pluck
    reduceby
    remove
    second
@@ -53,6 +54,10 @@ Functoolz
 .. autosummary::
    complement
    compose
+   curry
+   do
+   identity
+   juxt
    memoize
    pipe
    thread_first
@@ -65,10 +70,13 @@ Dicttoolz
 
 .. autosummary::
    assoc
+   get_in
+   keyfilter
    keymap
    merge
    merge_with
    update_in
+   valfilter
    valmap
 
 Sandbox
@@ -78,8 +86,6 @@ Sandbox
 
 .. autosummary::
    parallel.fold
-   core.jackknife
-   core.side_effects
 
 
 Definitions
@@ -88,7 +94,7 @@ Definitions
 .. automodule:: toolz.itertoolz
    :members:
 
-.. automodule:: toolz.itertoolz.recipes
+.. automodule:: toolz.recipes
    :members:
 
 .. automodule:: toolz.functoolz
