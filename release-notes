@@ -1,0 +1,30 @@
+New in 0.4.2
+
+Removed intersection
+
+
+New in 0.5.3
+
+*   get_in function
+*   add itervalues, iterkeys, iteritems to compatibility
+*   Add do function, remove side_effects from sandbox
+*   Add juxt, partner to map
+*   Performance improvements to merge_with
+*   Errors from curried functions propagate upwards
+*   keyfilter, valfilter
+*   do
+
+New Authors
+
+Graeme Coupar, @obmarg
+
+
+New in 0.5.4
+
+*   memoize is curried by default
+*   memoize support `key` keyword argument
+*   Cleaned up issues in curried namespace 
+*   Unary functions memoize with just the single argument, not a tuple
+*   Flattened directory structure
+*   Add `pluck` function from underscore.js
+*   Remove `sandbox.jackknife`
