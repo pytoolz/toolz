@@ -14,12 +14,12 @@ New in 0.5.3
 *   keyfilter, valfilter
 *   do
 
-New Authors
+New Authors:
 
 Graeme Coupar, @obmarg
 
 
-New in 0.5.4
+New in 0.6.0
 
 *   memoize is curried by default
 *   memoize support `key` keyword argument
