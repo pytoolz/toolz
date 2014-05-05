@@ -1,5 +1,5 @@
 import itertools
-from .itertoolz import frequencies
+from .itertoolz import frequencies, pluck
 from .compatibility import map
 
 
@@ -42,6 +42,4 @@ def partitionby(func, seq):
         groupby
         itertools.groupby
     """
-    # Note: applying `list` seems to be required both Python 2 and 3
-    # compatible (Python 3 works without it).
-    return (tuple(v) for k, v in itertools.groupby(seq, key=func))
+    return map(tuple, pluck(1, itertools.groupby(seq, key=func)))
