@@ -93,44 +93,47 @@ def merge_sorted(*seqs, **kwargs):
     key = kwargs.get('key', None)
     if key is None:
         # heapq.merge does what we do below except by val instead of key(val)
-        for item in heapq.merge(*seqs):
-            yield item
+        return heapq.merge(*seqs)
     else:
-        # The commented code below shows an alternative (slower) implementation
-        # to apply a key function for sorting.
-        #
-        # mapper = lambda i, item: (key(item), i, item)
-        # keyiters = [map(partial(mapper, i), itr) for i, itr in
-        #             enumerate(seqs)]
-        # return (item for (item_key, i, item) in heapq.merge(*keyiters))
+        return _merge_sorted_key(seqs, key)
 
-        # binary heap as a priority queue
-        pq = []
 
-        # Initial population
-        for itnum, it in enumerate(map(iter, seqs)):
-            try:
-                item = next(it)
-                pq.append([key(item), itnum, item, it])
-            except StopIteration:
-                pass
-        heapq.heapify(pq)
+def _merge_sorted_key(seqs, key):
+    # The commented code below shows an alternative (slower) implementation
+    # to apply a key function for sorting.
+    #
+    # mapper = lambda i, item: (key(item), i, item)
+    # keyiters = [map(partial(mapper, i), itr) for i, itr in
+    #             enumerate(seqs)]
+    # return (item for (item_key, i, item) in heapq.merge(*keyiters))
 
-        # Repeatedly yield and then repopulate from the same iterator
-        while True:
-            try:
-                while True:
-                    # raises IndexError when pq is empty
-                    _, itnum, item, it = s = pq[0]
-                    yield item
-                    item = next(it)  # raises StopIteration when exhausted
-                    s[0] = key(item)
-                    s[2] = item
-                    heapq.heapreplace(pq, s)  # restore heap condition
-            except StopIteration:
-                heapq.heappop(pq)  # remove empty iterator
-            except IndexError:
-                return
+    # binary heap as a priority queue
+    pq = []
+
+    # Initial population
+    for itnum, it in enumerate(map(iter, seqs)):
+        try:
+            item = next(it)
+            pq.append([key(item), itnum, item, it])
+        except StopIteration:
+            pass
+    heapq.heapify(pq)
+
+    # Repeatedly yield and then repopulate from the same iterator
+    while True:
+        try:
+            while True:
+                # raises IndexError when pq is empty
+                _, itnum, item, it = s = pq[0]
+                yield item
+                item = next(it)  # raises StopIteration when exhausted
+                s[0] = key(item)
+                s[2] = item
+                heapq.heapreplace(pq, s)  # restore heap condition
+        except StopIteration:
+            heapq.heappop(pq)  # remove empty iterator
+        except IndexError:
+            return
 
 
 def interleave(seqs, pass_exceptions=()):
