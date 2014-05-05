@@ -13,3 +13,5 @@ Han Semaj                                       [@microamp](https://github.com/m
 [Leonid Shvechikov](http://brainstorage.me/shvechikov)  [@shvechikov](https://github.com/shvechikov)
 
 Lars Buitinck                                   [@larsmans](http://github.com/larsmans)
+
+José Ricardo                                    [@josericardo](https://github.com/josericardo)
