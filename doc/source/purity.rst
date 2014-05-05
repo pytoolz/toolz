@@ -58,7 +58,7 @@ Another problem occurs when we run this code in a different context:
 .. code::
 
     >>> data = [1, 2, 3]
-    >>> result = powers(L)
+    >>> result = powers(data)
     >>> print result
     [1, 8, 27]
 
