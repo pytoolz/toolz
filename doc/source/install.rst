@@ -2,11 +2,7 @@ Installation and Dependencies
 =============================
 
 Toolz is pure Python and so is easily installable by the standard
-dependency managers ``pip`` and ``easy_install``::
-
-    easy_install toolz
-
-or::
+dependency manager ``pip``::
 
     pip install toolz
 
