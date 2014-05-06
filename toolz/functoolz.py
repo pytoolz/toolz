@@ -141,14 +141,40 @@ class curry(object):
         if not callable(func):
             raise TypeError("Input must be callable")
 
-        self.func = func
-        self.args = args
-        self.keywords = kwargs if kwargs else None
-        self.__doc__ = self.func.__doc__
-        try:
-            self.func_name = self.func.func_name
-        except AttributeError:
-            pass
+        # curry- or functools.partial-like object?  Unpack and merge arguments
+        if (hasattr(func, 'func') and hasattr(func, 'args')
+                and hasattr(func, 'keywords')):
+            _kwargs = {}
+            if func.keywords:
+                _kwargs.update(func.keywords)
+            _kwargs.update(kwargs)
+            kwargs = _kwargs
+            args = func.args + args
+            func = func.func
+
+        if kwargs:
+            self._partial = partial(func, *args, **kwargs)
+        else:
+            self._partial = partial(func, *args)
+
+        self.__doc__ = getattr(func, '__doc__', None)
+        self.__name__ = getattr(func, '__name__', '<curry>')
+
+    @property
+    def func(self):
+        return self._partial.func
+
+    @property
+    def args(self):
+        return self._partial.args
+
+    @property
+    def keywords(self):
+        return self._partial.keywords
+
+    @property
+    def func_name(self):
+        return self.__name__
 
     def __str__(self):
         return str(self.func)
@@ -156,35 +182,41 @@ class curry(object):
     def __repr__(self):
         return repr(self.func)
 
-    def __call__(self, *args, **_kwargs):
-        args = self.args + args
-        if _kwargs:
-            kwargs = {}
-            if self.keywords:
-                kwargs.update(self.keywords)
-            kwargs.update(_kwargs)
-        elif self.keywords:
-            kwargs = self.keywords
-        else:
-            kwargs = {}
+    def __hash__(self):
+        return hash((self.func, self.args,
+                     frozenset(self.keywords.items()) if self.keywords
+                     else None))
 
+    def __eq__(self, other):
+        return (isinstance(other, curry) and self.func == other.func and
+                self.args == other.args and self.keywords == other.keywords)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __call__(self, *args, **kwargs):
         try:
-            return self.func(*args, **kwargs)
+            return self._partial(*args, **kwargs)
         except TypeError:
-            required_args = _num_required_args(self.func)
-
             # If there was a genuine TypeError
-            if required_args is not None and len(args) >= required_args:
+            required_args = _num_required_args(self.func)
+            if (required_args is not None and
+                    len(args) + len(self.args) >= required_args):
                 raise
 
-            # If we only need one more argument
-            if (required_args is not None and required_args - len(args) == 1):
-                if kwargs:
-                    return partial(self.func, *args, **kwargs)
-                else:
-                    return partial(self.func, *args)
+        return curry(self._partial, *args, **kwargs)
 
-            return curry(self.func, *args, **kwargs)
+    # pickle protocol because functools.partial objects can't be pickled
+    def __getstate__(self):
+        # dictoolz.keyfilter, I miss you!
+        userdict = tuple((k, v) for k, v in self.__dict__.items()
+                         if k != '_partial')
+        return self.func, self.args, self.keywords, userdict
+
+    def __setstate__(self, state):
+        func, args, kwargs, userdict = state
+        self.__init__(func, *args, **(kwargs or {}))
+        self.__dict__.update(userdict)
 
 
 @curry
