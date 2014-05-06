@@ -84,6 +84,13 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 
+# This is a kludge for Python 3.4.0 support
+# currently len(inspect.getargspec(map).args) == 0, a wrong result.
+# As this is fixed in future versions then hopefully this kludge can be
+# removed.
+known_numargs = {map: 2, filter: 2, reduce: 2}
+
+
 def _num_required_args(func):
     """ Number of args for func
 
@@ -99,6 +106,8 @@ def _num_required_args(func):
     >>> print(_num_required_args(bar))
     None
     """
+    if func in known_numargs:
+        return known_numargs[func]
     try:
         spec = inspect.getargspec(func)
         if spec.varargs:

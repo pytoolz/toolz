@@ -314,7 +314,7 @@ def test_curry_doesnot_transmogrify():
 
 
 def test__num_required_args():
-    assert _num_required_args(map) is None
+    assert _num_required_args(map) != 0
     assert _num_required_args(lambda x: x) == 1
     assert _num_required_args(lambda x, y: x) == 2
 
