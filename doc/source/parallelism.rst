@@ -77,7 +77,7 @@ This smooth transition is possible because
 1.  The ``map`` abstraction is a simple function call and so can be replaced.
     This transformation would be difficult if we had written our code with a
     for loop or list comprehension
-2.  The operation ``wordcount`` is weparate from the parallel solution.
+2.  The operation ``wordcount`` is separate from the parallel solution.
 3.  The task is embarrassingly parallel, needing only a very simple parallel
     strategy.  Fortunately this is the common case.
 
