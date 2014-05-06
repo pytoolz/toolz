@@ -208,11 +208,15 @@ class curry(object):
 
     # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):
-        return self.func, self.args, self.keywords
+        # dictoolz.keyfilter, I miss you!
+        userdict = tuple((k, v) for k, v in self.__dict__.items()
+                         if k != '_partial')
+        return self.func, self.args, self.keywords, userdict
 
     def __setstate__(self, state):
-        func, args, kwargs = state
+        func, args, kwargs, userdict = state
         self.__init__(func, *args, **(kwargs or {}))
+        self.__dict__.update(userdict)
 
 
 @curry
