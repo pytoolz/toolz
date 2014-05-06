@@ -11,3 +11,9 @@ Han Semaj                                       [@microamp](https://github.com/m
 [Graeme Coupar](https://twitter.com/obmarg)     [@obmarg](https://github.com/obmarg/)
 
 [Leonid Shvechikov](http://brainstorage.me/shvechikov)  [@shvechikov](https://github.com/shvechikov)
+
+Lars Buitinck                                   [@larsmans](http://github.com/larsmans)
+
+José Ricardo                                    [@josericardo](https://github.com/josericardo)
+
+Tom Prince                                      [@tomprince](https://github.com/tomprince)
