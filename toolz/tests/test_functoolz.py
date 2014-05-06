@@ -242,11 +242,8 @@ def test_curry_is_idempotent():
     assert isinstance(g, curry)
     assert not isinstance(g.func, curry)
     assert not hasattr(g.func, 'func')
-    # curry makes a new curry object, so everything is distinct but equal
-    assert f is not g
-    assert f.args is not g.args
+    assert f.func == g.func
     assert f.args == g.args
-    assert f.keywords is not g.keywords
     assert f.keywords == g.keywords
 
 
@@ -269,7 +266,6 @@ def test_curry_attributes_writable():
     f.__doc__ = 'newdoc'
     assert f.__name__ == 'newname'
     assert f.__doc__ == 'newdoc'
-    # do we want to keep 'func_name'?
     if hasattr(f, 'func_name'):
         assert f.__name__ == f.func_name
 
