@@ -202,14 +202,11 @@ class curry(object):
         try:
             return self._partial(*args, **kwargs)
         except TypeError:
-            pass
-
-        required_args = _num_required_args(self.func)
-
-        # If there was a genuine TypeError
-        if (required_args is not None and
-                len(args) + len(self.args) >= required_args):
-            raise
+            # If there was a genuine TypeError
+            required_args = _num_required_args(self.func)
+            if (required_args is not None and
+                    len(args) + len(self.args) >= required_args):
+                raise
 
         if args or kwargs:
             return curry(self._partial, *args, **kwargs)
