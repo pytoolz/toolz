@@ -78,6 +78,17 @@ def test_memoize_curried():
     assert fm2(3) == f2(3)
 
 
+def test_memoize_partial():
+    def f(x, y=0):
+        return x + y
+
+    f2 = partial(f, y=1)
+    fm2 = memoize(f2)
+
+    assert fm2(3) == f2(3)
+    assert fm2(3) == f2(3)
+
+
 def test_memoize_key_signature():
     # Single argument should not be tupled as a key.  No keywords.
     mf = memoize(lambda x: False, cache={1: True})
@@ -258,6 +269,9 @@ def test_curry_attributes_writable():
     f.__doc__ = 'newdoc'
     assert f.__name__ == 'newname'
     assert f.__doc__ == 'newdoc'
+    # do we want to keep 'func_name'?
+    if hasattr(f, 'func_name'):
+        assert f.__name__ == f.func_name
 
 
 def test_curry_comparable():
