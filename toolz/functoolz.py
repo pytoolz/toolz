@@ -157,12 +157,6 @@ class curry(object):
         else:
             self._partial = partial(func, *args)
 
-        try:
-            self._hashvalue = hash((self.func, self.args,
-                                    frozenset(self.keywords.items())
-                                    if self.keywords else None))
-        except TypeError:
-            self._hashvalue = None
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
 
@@ -189,7 +183,9 @@ class curry(object):
         return repr(self.func)
 
     def __hash__(self):
-        return self._hashvalue
+        return hash((self.func, self.args,
+                     frozenset(self.keywords.items()) if self.keywords
+                     else None))
 
     def __eq__(self, other):
         return (isinstance(other, curry) and self.func == other.func and
@@ -208,9 +204,7 @@ class curry(object):
                     len(args) + len(self.args) >= required_args):
                 raise
 
-        if args or kwargs:
-            return curry(self._partial, *args, **kwargs)
-        return self
+        return curry(self._partial, *args, **kwargs)
 
     # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):
