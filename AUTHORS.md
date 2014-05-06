@@ -15,3 +15,5 @@ Han Semaj                                       [@microamp](https://github.com/m
 Lars Buitinck                                   [@larsmans](http://github.com/larsmans)
 
 José Ricardo                                    [@josericardo](https://github.com/josericardo)
+
+Tom Prince                                      [@tomprince](https://github.com/tomprince)
