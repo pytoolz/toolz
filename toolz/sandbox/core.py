@@ -44,7 +44,7 @@ class EqualityHashKey(object):
     set([=[1]=, =[2]=])
 
     >>> L1[0] = 2  # Don't do this!  ``s`` now has duplicate items!
-    >>> print(s)
+    >>> print(s)  # doctest: +SKIP
     set([=[2]=, =[2]=])
 
     Although this may appear problematic, immutable data types is a common
