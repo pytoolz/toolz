@@ -29,7 +29,7 @@ class EqualityHashKey(object):
     >>> list(unique(vals, key=EqualityHashKey))
     [[], [1], [2], {}]
 
-    The above example may be refined if many duplicates items are expected.
+    The above example may be refined if many duplicate items are expected.
     This recipe efficiently filters out duplicate items based on id:
 
     >>> list(unique(unique(vals, key=id), key=EqualityHashKey))
