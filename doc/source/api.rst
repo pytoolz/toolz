@@ -86,6 +86,7 @@ Sandbox
 
 .. autosummary::
    parallel.fold
+   core.EqualityHashKey
 
 
 Definitions
