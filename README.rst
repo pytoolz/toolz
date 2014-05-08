@@ -42,13 +42,13 @@ Structure and Heritage
 ``update-in``, ``merge``.
 
 .. |literal itertoolz| replace:: ``itertoolz``
-.. _literal itertoolz: https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz/core.py
+.. _literal itertoolz: https://github.com/pytoolz/toolz/blob/master/toolz/itertoolz.py
 
 .. |literal functoolz| replace:: ``functoolz``
-.. _literal functoolz: https://github.com/pytoolz/toolz/blob/master/toolz/functoolz/core.py
+.. _literal functoolz: https://github.com/pytoolz/toolz/blob/master/toolz/functoolz.py
 
 .. |literal dicttoolz| replace:: ``dicttoolz``
-.. _literal dicttoolz: https://github.com/pytoolz/toolz/blob/master/toolz/dicttoolz/core.py
+.. _literal dicttoolz: https://github.com/pytoolz/toolz/blob/master/toolz/dicttoolz.py
 
 These functions come from the legacy of functional languages for list
 processing. They interoperate well to accomplish common complex tasks.
