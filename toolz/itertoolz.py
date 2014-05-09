@@ -3,7 +3,7 @@ import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import map, filter, zip, zip_longest
+from toolz.compatibility import map, filter, filterfalse, zip, zip_longest
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -17,14 +17,14 @@ identity = lambda x: x
 
 
 def remove(predicate, seq):
-    """ Return those items of collection for which predicate(item) is true.
+    """ Return those items of sequence for which predicate(item) is False
 
     >>> def iseven(x):
     ...     return x % 2 == 0
     >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
-    return filter(lambda x: not predicate(x), seq)
+    return filterfalse(predicate, seq)
 
 
 def accumulate(binop, seq):
