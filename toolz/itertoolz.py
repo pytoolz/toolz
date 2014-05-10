@@ -69,16 +69,25 @@ def groupby(func, seq):
     See Also:
         countby
     """
+    # The commented code below shows what is probably the fastest
+    # "pythonic" implementation of `groupby`:
+    #
+    # d = collections.defaultdict(list)
+    # for item in seq:
+    #     d[func(item)].append(item)
+    # return dict(d)
+
     d = {}
     for item in seq:
         key = func(item)
         if key not in d:
-            d[key] = [item].append
+            d[key] = [item].append  # avoid method resolution overhead
         else:
-            d[key](item)
-    # This is okay to do, because we are not adding or removing keys
-    for k, v in iteritems(d):
-        d[k] = v.__self__
+            d[key](item)  # append item to list
+
+    for key, appendval in iteritems(d):
+        # `mylist.append.__self__` references original list instance `mylist`
+        d[key] = appendval.__self__
     return d
 
 
