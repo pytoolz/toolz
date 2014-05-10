@@ -88,9 +88,11 @@ It is, in short, a light weight dependency.
 CyToolz
 -------
 
-The ``toolz`` project has been reimplemented in Cython.  The ``cytoolz``
-project is a drop-in replacement for the Pure Python implementation.  See
-`CyToolz Github Page <https://github.com/pytoolz/cytoolz/>`__ for more details.
+The ``toolz`` project has been reimplemented in `Cython <http://cython.org>`__.
+The ``cytoolz`` project is a drop-in replacement for the Pure Python
+implementation.
+See `CyToolz Github Page <https://github.com/pytoolz/cytoolz/>`__ for more
+details.
 
 See Also
 --------
