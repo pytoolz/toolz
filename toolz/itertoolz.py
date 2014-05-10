@@ -80,10 +80,10 @@ def groupby(func, seq):
     d = {}
     for item in seq:
         key = func(item)
-        if key not in d:
-            d[key] = [item].append  # avoid method resolution overhead
-        else:
+        if key in d:
             d[key](item)  # append item to list
+        else:
+            d[key] = [item].append  # avoid method resolution overhead
 
     for key, appendval in iteritems(d):
         # `mylist.append.__self__` references original list instance `mylist`
