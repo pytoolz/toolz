@@ -84,6 +84,14 @@ library.
 
 It is, in short, a light weight dependency.
 
+
+CyToolz
+-------
+
+The ``toolz`` project has been reimplemented in Cython.  The ``cytoolz``
+project is a drop-in replacement for the Pure Python implementation.  See
+`CyToolz Github Page <https://github.com/pytoolz/cytoolz/>`__ for more details.
+
 See Also
 --------
 
@@ -109,7 +117,8 @@ broadly useful.
 
 Please take a look at our `issue
 page <https://github.com/pytoolz/toolz/issues>`__ for contribution
-ideas.
+ideas.  Feel free to raise an issue of your own or e-mail our `development
+mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
 
 .. |Build Status| image:: https://travis-ci.org/pytoolz/toolz.png
    :target: https://travis-ci.org/pytoolz/toolz
