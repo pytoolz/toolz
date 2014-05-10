@@ -117,8 +117,13 @@ broadly useful.
 
 Please take a look at our `issue
 page <https://github.com/pytoolz/toolz/issues>`__ for contribution
-ideas.  Feel free to raise an issue of your own or e-mail our `development
-mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
+ideas.
+
+Community
+---------
+
+See our `mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
+We're friendly.
 
 .. |Build Status| image:: https://travis-ci.org/pytoolz/toolz.png
    :target: https://travis-ci.org/pytoolz/toolz
