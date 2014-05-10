@@ -3,7 +3,8 @@ import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import map, filter, filterfalse, zip, zip_longest
+from toolz.compatibility import (map, filter, filterfalse, zip, zip_longest,
+                                 iteritems)
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -66,12 +67,19 @@ def groupby(func, seq):
     {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
 
     See Also:
-        ``countby``
+        countby
     """
-    d = collections.defaultdict(list)
+    d = {}
     for item in seq:
-        d[func(item)].append(item)
-    return dict(d)
+        key = func(item)
+        if key not in d:
+            d[key] = [item].append
+        else:
+            d[key](item)
+    # This is okay to do, because we are not adding or removing keys
+    for k, v in iteritems(d):
+        d[k] = v.__self__
+    return d
 
 
 def merge_sorted(*seqs, **kwargs):
