@@ -77,18 +77,22 @@ def groupby(func, seq):
     #     d[func(item)].append(item)
     # return dict(d)
 
-    d = {}
+    rv = {}
+    fastdict = {}
     for item in seq:
         key = func(item)
-        if key in d:
-            d[key](item)  # append item to list
+        if key in fastdict:
+            # Optimal asymptotic performance
+            fastdict[key](item)  # append item to list
+        elif key not in rv:
+            # Fast initialization of groups
+            rv[key] = [item]
         else:
-            d[key] = [item].append  # avoid method resolution overhead
-
-    for key, appendval in iteritems(d):
-        # `mylist.append.__self__` references original list instance `mylist`
-        d[key] = appendval.__self__
-    return d
+            # Add `list.append` to `fastdict` to avoid attribute resolution
+            # overhead.  This improves asymptotic speed as groups get larger.
+            val = fastdict[key] = rv[key].append
+            val(item)
+    return rv
 
 
 def merge_sorted(*seqs, **kwargs):
