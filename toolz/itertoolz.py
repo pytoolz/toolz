@@ -3,7 +3,8 @@ import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import map, filter, filterfalse, zip, zip_longest
+from toolz.compatibility import (map, filter, filterfalse, zip, zip_longest,
+                                 iteritems)
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -68,29 +69,12 @@ def groupby(func, seq):
     See Also:
         countby
     """
-    # The commented code below shows what is probably the fastest
-    # "pythonic" implementation of `groupby`:
-    #
-    # d = collections.defaultdict(list)
-    # for item in seq:
-    #     d[func(item)].append(item)
-    # return dict(d)
-
-    rv = {}
-    fastdict = {}
+    d = collections.defaultdict(lambda: [].append)
     for item in seq:
-        key = func(item)
-        if key in fastdict:
-            # Optimal asymptotic performance
-            fastdict[key](item)  # append item to list
-        elif key not in rv:
-            # Fast initialization of groups
-            rv[key] = [item]
-        else:
-            # Add `list.append` to `fastdict` to avoid attribute resolution
-            # overhead.  This improves asymptotic speed as groups get larger.
-            val = fastdict[key] = rv[key].append
-            val(item)
+        d[func(item)](item)
+    rv = {}
+    for k, v in iteritems(d):
+        rv[k] = v.__self__
     return rv
 
 
