@@ -3,7 +3,7 @@ from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
-                             identity, isiterable,
+                             isiterable,
                              mapcat, isdistinct, first, second,
                              nth, take, drop, interpose, get,
                              rest, last, cons, frequencies,
@@ -12,6 +12,10 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              partition_all, take_nth, pluck)
 from toolz.compatibility import range, filter
 from operator import add, mul
+
+
+def identity(x):
+    return x
 
 
 def iseven(x):
@@ -54,6 +58,7 @@ def test_merge_sorted():
     assert ''.join(merge_sorted('abc', 'abc', 'abc', key=ord)) == 'aaabbbccc'
     assert ''.join(merge_sorted('cba', 'cba', 'cba',
                                 key=lambda x: -ord(x))) == 'cccbbbaaa'
+    assert list(merge_sorted([1], [2, 3, 4], key=identity)) == [1, 2, 3, 4]
 
 
 def test_interleave():
