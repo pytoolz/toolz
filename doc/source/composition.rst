@@ -16,7 +16,7 @@ composition.
 Standard Interface
 ------------------
 
-This is best explained by a two examples; the automobile industry and LEGOs.
+This is best explained by two examples; the automobile industry and LEGOs.
 
 Autos
 ^^^^^
