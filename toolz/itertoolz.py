@@ -10,7 +10,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck')
+           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
+           'intersect_sorted')
 
 
 identity = lambda x: x
@@ -72,6 +73,25 @@ def groupby(func, seq):
     for item in seq:
         d[func(item)].append(item)
     return dict(d)
+
+
+def intersect_sorted(*seqs):
+    """ Intersection of a collection of sorted iterables.
+
+    Generates (once) each item that occurs in each of the iterables *seqs.
+
+    >>> list(intersect_sorted([1, 1, 3, 5, 5], [1, 2, 3, 4, 5], [3, 4, 5]))
+    [3, 5]
+    """
+    from itertools import groupby as itgroupby
+
+    # Remove repeated elements from each iterable to make length check work.
+    n = len(seqs)
+    seqs = ((x for (x, _) in itgroupby(it)) for it in seqs)
+
+    for x, group in itgroupby(merge_sorted(*seqs)):
+        if sum(1 for _ in group) == n:
+            yield x
 
 
 def merge_sorted(*seqs, **kwargs):

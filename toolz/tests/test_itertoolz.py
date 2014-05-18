@@ -3,7 +3,7 @@ from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
-                             identity, isiterable,
+                             identity, isiterable, intersect_sorted,
                              mapcat, isdistinct, first, second,
                              nth, take, drop, interpose, get,
                              rest, last, cons, frequencies,
@@ -54,6 +54,14 @@ def test_merge_sorted():
     assert ''.join(merge_sorted('abc', 'abc', 'abc', key=ord)) == 'aaabbbccc'
     assert ''.join(merge_sorted('cba', 'cba', 'cba',
                                 key=lambda x: -ord(x))) == 'cccbbbaaa'
+
+
+def test_intersect_sorted():
+    assert list(intersect_sorted([1, 2, 3], [1, 2, 3])) == [1, 2, 3]
+    assert list(intersect_sorted([1, 3, 5], [2, 4, 6])) == []
+    assert list(intersect_sorted('aaab', 'bbbc', 'bc')) == ['b']
+
+    assert list(intersect_sorted([1, 1, 2, 2, 3, 4, 4, 4])) == [1, 2, 3, 4]
 
 
 def test_interleave():
