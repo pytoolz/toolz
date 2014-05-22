@@ -307,3 +307,14 @@ def test_join_double_repeats():
     print(result)
     print(expected)
     assert result == expected
+
+
+def test_join_missing_element():
+    names = [(1, 'one'), (2, 'two'), (3, 'three')]
+    fruit = [('apple', 5), ('orange', 1)]
+
+    result = set(join(first, second, names, fruit, apply=add))
+
+    expected = set([((1, 'one', 'orange', 1))])
+
+    assert result == expected
