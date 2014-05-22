@@ -655,11 +655,13 @@ def pluck(ind, seqs, default=no_default):
 
 
 def join(leftkey, rightkey, leftseq, rightseq):
-    d = dict((leftkey(item), item) for item in leftseq)
+    d = groupby(leftkey, leftseq)
 
     for item in rightseq:
         key = rightkey(item)
         try:
-            yield d[key], item
+            left_matches = d[key]
+            for match in left_matches:
+                yield match, item
         except KeyError:
             pass
