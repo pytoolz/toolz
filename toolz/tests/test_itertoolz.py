@@ -291,7 +291,7 @@ def test_join_double_repeats():
     names = [(1, 'one'), (2, 'two'), (3, 'three'), (1, 'uno'), (2, 'dos')]
     fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
 
-    result = set(map(lambda (x, y): x + y, join(first, second, names, fruit)))
+    result = set(join(first, second, names, fruit, apply=add))
 
 
     expected = set([((1, 'one', 'apple', 1)),

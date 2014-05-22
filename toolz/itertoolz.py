@@ -654,7 +654,7 @@ def pluck(ind, seqs, default=no_default):
     return (_get(ind, seq, default) for seq in seqs)
 
 
-def join(leftkey, rightkey, leftseq, rightseq):
+def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y)):
     d = groupby(leftkey, leftseq)
 
     for item in rightseq:
@@ -662,6 +662,6 @@ def join(leftkey, rightkey, leftseq, rightseq):
         try:
             left_matches = d[key]
             for match in left_matches:
-                yield match, item
+                yield apply(match, item)
         except KeyError:
             pass
