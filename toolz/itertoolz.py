@@ -655,6 +655,23 @@ def pluck(ind, seqs, default=no_default):
 
 
 def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y)):
+    """ Join two sequences on common attributes
+
+    This is a semi-streaming operation.  The LEFT sequence is fully
+    evaluated and placed into memory.  The RIGHT side is evaluated lazily and
+    so can be arbitrarily large.
+
+    >>> names = [(1, 'one'), (2, 'two'), (3, 'three')]
+    >>> fruit = [('apple', 1), ('banana', 2), ('coconut', 2), ('orange', 1)]
+
+    >>> result = join(first, second, names, fruit, apply=lambda x, y: x + y)
+    >>> for row in result:
+    ...     print(row)
+    (1, 'one', 'apple', 1)
+    (2, 'two', 'banana', 2)
+    (2, 'two', 'coconut', 2)
+    (1, 'one', 'orange', 1)
+    """
     d = groupby(leftkey, leftseq)
 
     for item in rightseq:
