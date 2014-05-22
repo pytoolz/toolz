@@ -11,7 +11,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck')
+           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
+           'join')
 
 
 def remove(predicate, seq):
@@ -651,3 +652,14 @@ def pluck(ind, seqs, default=no_default):
         return (tuple(_get(item, seq, default) for item in ind)
                 for seq in seqs)
     return (_get(ind, seq, default) for seq in seqs)
+
+
+def join(leftkey, rightkey, leftseq, rightseq):
+    d = dict((leftkey(item), item) for item in leftseq)
+
+    for item in rightseq:
+        key = rightkey(item)
+        try:
+            yield d[key], item
+        except KeyError:
+            pass

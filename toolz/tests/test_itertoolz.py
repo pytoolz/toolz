@@ -9,7 +9,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
-                             partition_all, take_nth, pluck)
+                             partition_all, take_nth, pluck, join)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -268,3 +268,20 @@ def test_pluck():
 
     assert raises(IndexError, lambda: list(pluck(1, [[0]])))
     assert raises(KeyError, lambda: list(pluck('name', [{'id': 1}])))
+
+
+def test_join():
+    names = [(1, 'one'), (2, 'two'), (3, 'three')]
+    fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
+
+    result = set(map(lambda (x, y): x + y, join(first, second, names, fruit)))
+
+
+    expected = set([((1, 'one', 'apple', 1)),
+                    ((1, 'one', 'orange', 1)),
+                    ((2, 'two', 'banana', 2)),
+                    ((2, 'two', 'coconut', 2))])
+
+    print result
+    print expected
+    assert result == expected
