@@ -654,7 +654,8 @@ def pluck(ind, seqs, default=no_default):
     return (_get(ind, seq, default) for seq in seqs)
 
 
-def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y)):
+def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y),
+         left_default=no_default, right_default=no_default):
     """ Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully
@@ -673,12 +674,21 @@ def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y)):
     (1, 'one', 'orange', 1)
     """
     d = groupby(leftkey, leftseq)
+    seen_keys = set()
 
     for item in rightseq:
         key = rightkey(item)
+        seen_keys.add(key)
         try:
             left_matches = d[key]
             for match in left_matches:
                 yield apply(match, item)
         except KeyError:
-            pass
+            if left_default is not no_default:
+                yield apply(left_default, item)
+
+    if right_default is not no_default:
+        for key, matches in d.items():
+            if key not in seen_keys:
+                for match in matches:
+                    yield apply(match, right_default)

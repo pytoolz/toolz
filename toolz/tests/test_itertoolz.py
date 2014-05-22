@@ -318,3 +318,25 @@ def test_join_missing_element():
     expected = set([((1, 'one', 'orange', 1))])
 
     assert result == expected
+
+
+def test_left_outer_join():
+    result = set(join(identity, identity, [1, 2], [2, 3], left_default=None))
+    expected = set([(2, 2), (None, 3)])
+
+    assert result == expected
+
+
+def test_right_outer_join():
+    result = set(join(identity, identity, [1, 2], [2, 3], right_default=None))
+    expected = set([(2, 2), (1, None)])
+
+    assert result == expected
+
+
+def test_outer_join():
+    result = set(join(identity, identity, [1, 2], [2, 3],
+                      left_default=None, right_default=None))
+    expected = set([(2, 2), (1, None), (None, 3)])
+
+    assert result == expected
