@@ -1,4 +1,5 @@
 import itertools
+from itertools import starmap
 from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz import (remove, groupby, merge_sorted,
@@ -277,7 +278,7 @@ def test_join():
     def addpair(pair):
         return pair[0] + pair[1]
 
-    result = set(map(addpair, join(first, second, names, fruit)))
+    result = set(starmap(add, join(first, second, names, fruit)))
 
     expected = set([((1, 'one', 'apple', 1)),
                     ((1, 'one', 'orange', 1)),
@@ -293,7 +294,7 @@ def test_join_double_repeats():
     names = [(1, 'one'), (2, 'two'), (3, 'three'), (1, 'uno'), (2, 'dos')]
     fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
 
-    result = set(join(first, second, names, fruit, apply=add))
+    result = set(starmap(add, join(first, second, names, fruit)))
 
     expected = set([((1, 'one', 'apple', 1)),
                     ((1, 'one', 'orange', 1)),
@@ -313,7 +314,7 @@ def test_join_missing_element():
     names = [(1, 'one'), (2, 'two'), (3, 'three')]
     fruit = [('apple', 5), ('orange', 1)]
 
-    result = set(join(first, second, names, fruit, apply=add))
+    result = set(starmap(add, join(first, second, names, fruit)))
 
     expected = set([((1, 'one', 'orange', 1))])
 

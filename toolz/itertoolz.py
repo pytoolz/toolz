@@ -654,7 +654,7 @@ def pluck(ind, seqs, default=no_default):
     return (_get(ind, seq, default) for seq in seqs)
 
 
-def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y),
+def join(leftkey, rightkey, leftseq, rightseq,
          left_default=no_default, right_default=no_default):
     """ Join two sequences on common attributes
 
@@ -665,13 +665,13 @@ def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y),
     >>> names = [(1, 'one'), (2, 'two'), (3, 'three')]
     >>> fruit = [('apple', 1), ('banana', 2), ('coconut', 2), ('orange', 1)]
 
-    >>> result = join(first, second, names, fruit, apply=lambda x, y: x + y)
+    >>> result = join(first, second, names, fruit)
     >>> for row in result:
     ...     print(row)
-    (1, 'one', 'apple', 1)
-    (2, 'two', 'banana', 2)
-    (2, 'two', 'coconut', 2)
-    (1, 'one', 'orange', 1)
+    ((1, 'one'), ('apple', 1))
+    ((2, 'two'), ('banana', 2))
+    ((2, 'two'), ('coconut', 2))
+    ((1, 'one'), ('orange', 1))
     """
     d = groupby(leftkey, leftseq)
     seen_keys = set()
@@ -682,13 +682,13 @@ def join(leftkey, rightkey, leftseq, rightseq, apply=lambda x, y: (x, y),
         try:
             left_matches = d[key]
             for match in left_matches:
-                yield apply(match, item)
+                yield (match, item)
         except KeyError:
             if left_default is not no_default:
-                yield apply(left_default, item)
+                yield (left_default, item)
 
     if right_default is not no_default:
         for key, matches in d.items():
             if key not in seen_keys:
                 for match in matches:
-                    yield apply(match, right_default)
+                    yield (match, right_default)
