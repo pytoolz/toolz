@@ -670,6 +670,7 @@ def join(leftkey, rightkey, leftseq, rightseq,
 
     >>> cities = [('Alice', 'NYC'),
     ...           ('Alice', 'Chicago'),
+    ...           ('Dan', 'Syndey'),
     ...           ('Edith', 'Paris'),
     ...           ('Edith', 'Berlin'),
     ...           ('Zhao', 'Shanghai')]
@@ -688,6 +689,15 @@ def join(leftkey, rightkey, leftseq, rightseq,
     ('Zhao', 'NYC')
     ('Zhao', 'Berlin')
     ('Zhao', 'Paris')
+
+    Specify outer joins with keyword arguments ``left_default`` and/or
+    ``right_default``.  Here is a full outer join in which unmatched elements
+    are paired with None.
+
+    >>> identity = lambda x: x
+    >>> list(join(identity, identity, [1, 2, 3], [2, 3, 4],
+    ...           left_default=None, right_default=None))
+    [(2, 2), (3, 3), (None, 4), (1, None)]
     """
     d = groupby(leftkey, leftseq)
     seen_keys = set()
