@@ -679,7 +679,7 @@ def join(leftkey, rightkey, leftseq, rightseq,
     >>> # In what cities do people have friends?
     >>> result = join(second, first, friends, cities)
     >>> for ((a, b), (c, d)) in sorted(unique(result)):
-    ...     print(a, d)
+    ...     print((a, d))
     ('Alice', 'Berlin')
     ('Alice', 'Paris')
     ('Alice', 'Shanghai')
