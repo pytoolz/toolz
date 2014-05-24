@@ -43,6 +43,7 @@ Contents
    laziness.rst
    control.rst
    curry.rst
+   streaming-analytics.rst
    parallelism.rst
    api.rst
    references.rst
