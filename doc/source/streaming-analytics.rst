@@ -50,7 +50,7 @@ Grouping with ``groupby`` and ``reduceby``
 We separate split-apply-combine operations into the following two concepts
 
 1.  Split the dataset into groups by some property
-2.  Reduce each of the groups with some synopsis
+2.  Reduce each of the groups with some synopsis function
 
 Toolz supports this common workflow with a simple in-memory solution and with a
 more sophisticated streaming solution.
@@ -64,9 +64,9 @@ The in-memory solution depends on the functions `groupby`_ to split, and
 
 .. code::
 
-   SELECT gender, sum(balance)
+   SELECT gender, SUM(balance)
    FROM accounts
-   GROUPBY gender
+   GROUP BY gender
 
 We first show these two functions piece by piece to show the intermediate
 groups.
@@ -84,6 +84,7 @@ groups.
 Then we chain them together into a single computation
 
 .. code::
+
    >>> pipe(accounts, groupby(get(3)),
    ...                valmap(compose(sum, map(get(2)))))
    {'F': 400, 'M': 400}
@@ -94,13 +95,14 @@ Streaming
 
 The ``groupby`` function collects the entire dataset in memory into a
 dictionary.  While convenient, the ``groupby`` operation is *not streaming* and
-so this approach is limited to what can comfortably fit into memory.
+so this approach is limited to datasets that can fit comfortably into memory.
 
-Toolz acheives streaming split-apply-combine with `reduceby`_ which performs a
-simultaneous reduction on each group as elements stream in.  To understand this
-section you should first be familiar with the builtin funciton ``reduce``.
+Toolz acheives streaming split-apply-combine with `reduceby`_, a function that
+performs a simultaneous reduction on each group as the elements stream in.  To
+understand this section you should first be familiar with the builtin funciton
+``reduce``.
 
-The ``reduceby`` operation takes a key function, like ``groupby`` and a binary
+The ``reduceby`` operation takes a key function, like ``groupby``, and a binary
 operator like ``add`` or ``lesser = lambda acc, x: acc if acc < x else x``.  It
 is unable to accept full reduction operations like ``sum`` or ``min`` as these
 would require access to the entire group at once.  Here is a simple example:
@@ -118,20 +120,21 @@ would require access to the entire group at once.  Here is a simple example:
 
 
 The challenge to using ``reduceby`` often lies in the construction of a
-suitable binary operator.  Here is the solution for our accounts example:
+suitable binary operator.  Here is the solution for our accounts example that
+adds up the balances for each group:
 
 .. code::
 
-   >>> binop = lambda acc, (id, name, bal, gend): acc + bal
+   >>> binop = lambda total, (id, name, bal, gend): total + bal
    >>> initial_value = 0
 
    >>> reduceby(get(3), binop, accounts, initial_value)
    {'F': 400, 'M': 400}
 
 
-This construction supports ``accounts`` datasets that could be much larger than
-available memory.  Only the reduced result must be able to fit comfortably in
-memory and this is rarely an issue, even for very large computations.
+This construction supports datasets that are much larger than available memory.
+Only the output must be able to fit comfortably in memory and this is rarely an
+issue, even for very large split-apply-combine computations.
 
 
 Semi-Streaming ``join``
@@ -146,6 +149,12 @@ dataset storing addresses by ID
    ...              (2, '5 Adams Way'),
    ...              (5, '34 Rue St Michel')]
 
+.. code::
+
+   SELECT accounts.name, addresses.address
+   FROM accounts, addresses
+   WHERE accounts.id = addresses.id
+
 We can join this dataset against our accounts dataset by specifying attributes
 which register different elements with each other; in this case they share a
 common first column, id.
@@ -153,31 +162,27 @@ common first column, id.
 
 .. code::
 
-   SELECT accounts.name, addresses.address
-   FROM accounts, addresses
-   WHERE accounts.id = addresses.id
-
-.. code::
-
    >>> result = join(first, first, accounts, addresses)
 
-   >>> for ((_, name, _, _), (_, addr)) in result:
-   ...     print((name, addr))
+   >>> for ((_, name, _, _), (_, address)) in result:
+   ...     print((name, address))
    ('Alice', '123 Main Street')
    ('Bob', '5 Adams Way')
    ('Edith', '34 Rue St Michel')
 
 Join takes four main arguments, a left and right key function and a left and
 right sequence.  It returns a sequence of pairs of matching items.  In the
-example above we unpack this tuple to get the fields that we want (``name`` and
-``address``) from the result.
+example above we unpack this pair of tuples to get the fields that we want
+(``name`` and ``address``) from the result.
 
 Join on arbitrary functions / data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Those familiar with SQL are accustomed to this sort of join on columns.  We
-note that a functional join need not operate on tuples and that key functions
-need not get particular columns.  In the example below we match numbers from two collections so that exactly one is even and one is odd.
+Those familiar with SQL are accustomed to this sort of join on columns.
+However a functional join is more general than this.  Join need not operate on
+tuples and key functions need not get particular columns.  In the example
+below we match numbers from two collections so that exactly one is even and one
+is odd.
 
 .. code::
 
@@ -191,18 +196,22 @@ need not get particular columns.  In the example below we match numbers from two
 Semi-Streaming Join
 ^^^^^^^^^^^^^^^^^^^
 
-The Toolz Join operation fully evaluates the LEFT sequence and streams the
-RIGHT sequence through memory.  Thus, if streaming support is desired the
+The Toolz Join operation fully evaluates the *left* sequence and streams the
+*right* sequence through memory.  Thus, if streaming support is desired the
 larger of the two sequences should always occupy the right side of the join.
 
 
-Algorithmic Complexity
-^^^^^^^^^^^^^^^^^^^^^^
+Algorithmic Details
+^^^^^^^^^^^^^^^^^^^
 
 The semi-streaming join operation in ``toolz`` is asymptotically optimal.
 Computationally it is linear in the size of the input + output.  In terms of
 storage the left sequence must fit in memory but the right sequence is free to
 stream.
+
+The results are not normalized as in SQL, that is they permit repeats.  If
+normalization is desired consider composing with the function ``unique``, note
+that ``unique`` is not fully streaming.
 
 
 More complex Example
@@ -211,7 +220,10 @@ More complex Example
 The accounts example above composes two one-to-one relationships; there was
 exactly one name per ID and one address per ID.  This need not be the case.
 The join abstraction is sufficiently flexible to join one-to-many or even
-many-to-many relationships.  The following example finds a city/person pairs where that person has a friend who has a residence in that city.  This is an example of joining two many-to-many relationships because a person may have many friends and because a friend may have many residences.
+many-to-many relationships.  The following example finds city/person pairs
+where that person has a friend who has a residence in that city.  This is an
+example of joining two many-to-many relationships because a person may have
+many friends and because a friend may have many residences.
 
 
 .. code::
