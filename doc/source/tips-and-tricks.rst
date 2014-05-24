@@ -1,7 +1,7 @@
 Tips and Tricks
 ===============
 
-Toolz functions can be combined to yield other functions that, while commonly used, aren't
+Toolz functions can be combined to make functions that, while common, aren't
 a part of toolz's standard library. This section presents
 a few of these recipes.
 
@@ -19,6 +19,12 @@ a few of these recipes.
         return keyfilter(lambda k: k in whitelist, d)
 
 
+  Example:
+
+    >>> alphabet = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+    >>> pick(['a', 'b'], alphabet)
+    {'a': 1, 'b': 2}
+
 
 * .. function:: omit(blacklist, dictionary)
 
@@ -27,10 +33,17 @@ a few of these recipes.
 
   ::
 
-    from toolz import keyfilter, complement
+    from toolz import keyfilter
 
-    def pick(blacklist, d):
+    def omit(blacklist, d):
         return keyfilter(lambda k: k not in blacklist, d)
+
+
+  Example:
+
+    >>> alphabet = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+    >>> omit(['a', 'b'], alphabet)
+    {'c': 3, 'd': 4}
 
 
 * .. function:: compact(iterable)
@@ -41,5 +54,12 @@ a few of these recipes.
 
     from toolz import filter
 
-    def compact(iterable):
-      return filter(None, iterable)
+    def compact(iter):
+      return filter(None, iter)
+
+
+  Example:
+
+    >>> results = [0, 1, 2, None, 3, False]
+    >>> list(compact(results))
+    [1, 2, 3]
