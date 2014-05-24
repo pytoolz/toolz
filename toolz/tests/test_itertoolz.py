@@ -208,6 +208,10 @@ def test_reduceby():
                     projects, 0) == {'CA': 1200000, 'IL': 2100000}
 
 
+def test_reduce_by_init():
+    assert reduceby(iseven, add, [1, 2, 3, 4]) == {True: 2 + 4, False: 1 + 3}
+
+
 def test_iterate():
     assert list(itertools.islice(iterate(inc, 0), 0, 5)) == [0, 1, 2, 3, 4]
     assert list(take(4, iterate(double, 1))) == [1, 2, 4, 8]
