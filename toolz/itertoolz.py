@@ -654,7 +654,7 @@ def pluck(ind, seqs, default=no_default):
     return (_get(ind, seq, default) for seq in seqs)
 
 
-def join(leftkey, rightkey, leftseq, rightseq,
+def join(leftkey, leftseq, rightkey, rightseq,
          left_default=no_default, right_default=no_default):
     """ Join two sequences on common attributes
 
@@ -677,7 +677,8 @@ def join(leftkey, rightkey, leftseq, rightseq,
 
     >>> # Vacation opportunities
     >>> # In what cities do people have friends?
-    >>> result = join(second, first, friends, cities)
+    >>> result = join(second, friends,
+    ...               first, cities)
     >>> for ((a, b), (c, d)) in sorted(unique(result)):
     ...     print((a, d))
     ('Alice', 'Berlin')
@@ -695,7 +696,8 @@ def join(leftkey, rightkey, leftseq, rightseq,
     are paired with None.
 
     >>> identity = lambda x: x
-    >>> list(join(identity, identity, [1, 2, 3], [2, 3, 4],
+    >>> list(join(identity, [1, 2, 3],
+    ...           identity, [2, 3, 4],
     ...           left_default=None, right_default=None))
     [(2, 2), (3, 3), (None, 4), (1, None)]
     """

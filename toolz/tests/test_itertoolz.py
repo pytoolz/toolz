@@ -278,7 +278,7 @@ def test_join():
     def addpair(pair):
         return pair[0] + pair[1]
 
-    result = set(starmap(add, join(first, second, names, fruit)))
+    result = set(starmap(add, join(first, names, second, fruit)))
 
     expected = set([((1, 'one', 'apple', 1)),
                     ((1, 'one', 'orange', 1)),
@@ -294,7 +294,7 @@ def test_join_double_repeats():
     names = [(1, 'one'), (2, 'two'), (3, 'three'), (1, 'uno'), (2, 'dos')]
     fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
 
-    result = set(starmap(add, join(first, second, names, fruit)))
+    result = set(starmap(add, join(first, names, second, fruit)))
 
     expected = set([((1, 'one', 'apple', 1)),
                     ((1, 'one', 'orange', 1)),
@@ -314,7 +314,7 @@ def test_join_missing_element():
     names = [(1, 'one'), (2, 'two'), (3, 'three')]
     fruit = [('apple', 5), ('orange', 1)]
 
-    result = set(starmap(add, join(first, second, names, fruit)))
+    result = set(starmap(add, join(first, names, second, fruit)))
 
     expected = set([((1, 'one', 'orange', 1))])
 
@@ -322,21 +322,21 @@ def test_join_missing_element():
 
 
 def test_left_outer_join():
-    result = set(join(identity, identity, [1, 2], [2, 3], left_default=None))
+    result = set(join(identity, [1, 2], identity, [2, 3], left_default=None))
     expected = set([(2, 2), (None, 3)])
 
     assert result == expected
 
 
 def test_right_outer_join():
-    result = set(join(identity, identity, [1, 2], [2, 3], right_default=None))
+    result = set(join(identity, [1, 2], identity, [2, 3], right_default=None))
     expected = set([(2, 2), (1, None)])
 
     assert result == expected
 
 
 def test_outer_join():
-    result = set(join(identity, identity, [1, 2], [2, 3],
+    result = set(join(identity, [1, 2], identity, [2, 3],
                       left_default=None, right_default=None))
     expected = set([(2, 2), (1, None), (None, 3)])
 
