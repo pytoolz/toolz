@@ -700,7 +700,19 @@ def join(leftkey, leftseq, rightkey, rightseq,
     ...           identity, [2, 3, 4],
     ...           left_default=None, right_default=None))
     [(2, 2), (3, 3), (None, 4), (1, None)]
+
+    Usually the key arguments are callables to be applied to the sequences.  If
+    the keys are not obviously callable then it is assumed that indexing was
+    intended, e.g. the following is a legal change
+
+    >>> # result = join(second, friends, first, cities)
+    >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
     """
+    if not callable(leftkey):
+        leftkey = partial(get, leftkey)
+    if not callable(rightkey):
+        rightkey = partial(get, rightkey)
+
     d = groupby(leftkey, leftseq)
     seen_keys = set()
 

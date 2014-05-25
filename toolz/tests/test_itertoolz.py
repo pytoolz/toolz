@@ -290,6 +290,18 @@ def test_join():
     assert result == expected
 
 
+def test_key_as_getter():
+    squares = [(i, i**2) for i in range(5)]
+    pows =    [(i, i**2, i**3) for i in range(5)]
+
+    assert list(join(0, squares, 0, pows)) ==\
+           list(join(lambda x: x[0], squares, lambda x: x[0], pows))
+
+    assert list(join([0, 1], squares, [0, 1], pows)) ==\
+           list(join(lambda x: (x[0], x[1]), squares,
+                     lambda x: (x[0], x[1]), pows))
+
+
 def test_join_double_repeats():
     names = [(1, 'one'), (2, 'two'), (3, 'three'), (1, 'uno'), (2, 'dos')]
     fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
