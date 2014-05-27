@@ -654,7 +654,7 @@ def pluck(ind, seqs, default=no_default):
     return (_get(ind, seq, default) for seq in seqs)
 
 
-def _simple_get(index):
+def getter(index):
     if isinstance(index, list):
         if len(index) == 1:
             index = index[0]
@@ -720,9 +720,9 @@ def join(leftkey, leftseq, rightkey, rightseq,
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
     """
     if not callable(leftkey):
-        leftkey = _simple_get(leftkey)
+        leftkey = getter(leftkey)
     if not callable(rightkey):
-        rightkey = _simple_get(rightkey)
+        rightkey = getter(rightkey)
 
     d = groupby(leftkey, leftseq)
     seen_keys = set()
