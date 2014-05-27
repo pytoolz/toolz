@@ -669,9 +669,9 @@ def join(leftkey, leftseq, rightkey, rightseq,
          left_default=no_default, right_default=no_default):
     """ Join two sequences on common attributes
 
-    This is a semi-streaming operation.  The LEFT sequence is fully
-    evaluated and placed into memory.  The RIGHT side is evaluated lazily and
-    so can be arbitrarily large.
+    This is a semi-streaming operation.  The LEFT sequence is fully evaluated
+    and placed into memory.  The RIGHT sequence is evaluated lazily and so can
+    be arbitrarily large.
 
     >>> friends = [('Alice', 'Edith'),
     ...            ('Alice', 'Zhao'),
