@@ -301,6 +301,10 @@ def test_key_as_getter():
     assert set(join([0, 1], squares, [0, 1], pows)) == set(join(get, squares,
                                                                 get, pows))
 
+    get = lambda x: (x[0],)
+    assert set(join([0], squares, [0], pows)) == set(join(get, squares,
+                                                          get, pows))
+
 
 def test_join_double_repeats():
     names = [(1, 'one'), (2, 'two'), (3, 'three'), (1, 'uno'), (2, 'dos')]

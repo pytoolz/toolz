@@ -654,6 +654,17 @@ def pluck(ind, seqs, default=no_default):
     return (_get(ind, seq, default) for seq in seqs)
 
 
+def _simple_get(index):
+    if isinstance(index, list):
+        if len(index) == 1:
+            index = index[0]
+            return lambda x: (x[index],)
+        else:
+            return operator.itemgetter(*index)
+    else:
+        return operator.itemgetter(index)
+
+
 def join(leftkey, leftseq, rightkey, rightseq,
          left_default=no_default, right_default=no_default):
     """ Join two sequences on common attributes
@@ -709,9 +720,9 @@ def join(leftkey, leftseq, rightkey, rightseq,
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
     """
     if not callable(leftkey):
-        leftkey = partial(get, leftkey)
+        leftkey = _simple_get(leftkey)
     if not callable(rightkey):
-        rightkey = partial(get, rightkey)
+        rightkey = _simple_get(rightkey)
 
     d = groupby(leftkey, leftseq)
     seen_keys = set()
