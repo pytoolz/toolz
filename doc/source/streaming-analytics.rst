@@ -35,8 +35,8 @@ These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
    ...                list)
 
 Of course, these operations are also well supported with standard
-list/generator expressions syntax.  This syntax is more often used and
-generally considered to be more readable.
+list/generator comprenhions syntax.  This syntax is more often used and
+generally considered to be more Pythonic.
 
 .. code::
 
@@ -104,8 +104,11 @@ understand this section you should first be familiar with the builtin funciton
 
 The ``reduceby`` operation takes a key function, like ``groupby``, and a binary
 operator like ``add`` or ``lesser = lambda acc, x: acc if acc < x else x``.  It
-is unable to accept full reduction operations like ``sum`` or ``min`` as these
-would require access to the entire group at once.  Here is a simple example:
+successively applies the key function to each item in succession, accumulating
+running totals for each key by combining each new value with the previous using
+the binary operator.  It can't accept full reduction operations like ``sum`` or
+``min`` as these require access to the entire group at once.  Here is a simple
+example:
 
 .. code::
 
@@ -179,10 +182,10 @@ Join on arbitrary functions / data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Those familiar with SQL are accustomed to this sort of join on columns.
-However a functional join is more general than this.  Join need not operate on
-tuples and key functions need not get particular columns.  In the example
-below we match numbers from two collections so that exactly one is even and one
-is odd.
+However a functional join is more general than this.  However, a funcitonal
+join is more general than this; it doesn't need to operate on tuples, and key
+functions do not need to get particular columns.  In the example below we match
+numbers from two collections so that exactly one is even and one is odd.
 
 .. code::
 
@@ -209,12 +212,12 @@ Computationally it is linear in the size of the input + output.  In terms of
 storage the left sequence must fit in memory but the right sequence is free to
 stream.
 
-The results are not normalized as in SQL, that is they permit repeats.  If
-normalization is desired consider composing with the function ``unique``, note
-that ``unique`` is not fully streaming.
+The results are not normalized as in SQL, in that they permit repeated values.  If
+normalization is desired, consider composing with the function ``unique`` (note
+that ``unique`` is not fully streaming.)
 
 
-More complex Example
+More Complex Example
 ^^^^^^^^^^^^^^^^^^^^
 
 The accounts example above composes two one-to-one relationships; there was
@@ -256,7 +259,7 @@ many friends and because a friend may have many residences.
    ('Zhao', 'Berlin')
    ('Zhao', 'Paris')
 
-Join is computationally powerful
+Join is computationally powerful:
 
 *   It is expressive enough to cover a wide set of analytics operations
 *   It runs in linear time relative to the size of the input and output
@@ -267,7 +270,7 @@ Disclaimer
 ----------
 
 Toolz is a general purpose functional standard library, not a library for data
-analytics.  While there are some obvious benefits (streaming, composition, ...)
+analytics.  While there are obvious benefits (streaming, composition, ...)
 users interested in data analytics might be better served by using projects
 specific to data analytics like Pandas or SQLAlchemy.
 
