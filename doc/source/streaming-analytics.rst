@@ -18,7 +18,7 @@ standard functions ``map`` and ``filter``.
 
    SELECT name, balance
    FROM accounts
-   WHERE balance > 150
+   WHERE balance > 150;
 
 These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
 
@@ -66,7 +66,7 @@ The in-memory solution depends on the functions `groupby`_ to split, and
 
    SELECT gender, SUM(balance)
    FROM accounts
-   GROUP BY gender
+   GROUP BY gender;
 
 We first show these two functions piece by piece to show the intermediate
 groups.
@@ -156,7 +156,7 @@ dataset storing addresses by ID
 
    SELECT accounts.name, addresses.address
    FROM accounts, addresses
-   WHERE accounts.id = addresses.id
+   WHERE accounts.id = addresses.id;
 
 We can join this dataset against our accounts dataset by specifying attributes
 which register different elements with each other; in this case they share a
