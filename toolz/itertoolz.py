@@ -11,7 +11,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck')
+           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
+           'join')
 
 
 def remove(predicate, seq):
@@ -651,3 +652,94 @@ def pluck(ind, seqs, default=no_default):
         return (tuple(_get(item, seq, default) for item in ind)
                 for seq in seqs)
     return (_get(ind, seq, default) for seq in seqs)
+
+
+def getter(index):
+    if isinstance(index, list):
+        if len(index) == 1:
+            index = index[0]
+            return lambda x: (x[index],)
+        else:
+            return operator.itemgetter(*index)
+    else:
+        return operator.itemgetter(index)
+
+
+def join(leftkey, leftseq, rightkey, rightseq,
+         left_default=no_default, right_default=no_default):
+    """ Join two sequences on common attributes
+
+    This is a semi-streaming operation.  The LEFT sequence is fully evaluated
+    and placed into memory.  The RIGHT sequence is evaluated lazily and so can
+    be arbitrarily large.
+
+    >>> friends = [('Alice', 'Edith'),
+    ...            ('Alice', 'Zhao'),
+    ...            ('Edith', 'Alice'),
+    ...            ('Zhao', 'Alice'),
+    ...            ('Zhao', 'Edith')]
+
+    >>> cities = [('Alice', 'NYC'),
+    ...           ('Alice', 'Chicago'),
+    ...           ('Dan', 'Syndey'),
+    ...           ('Edith', 'Paris'),
+    ...           ('Edith', 'Berlin'),
+    ...           ('Zhao', 'Shanghai')]
+
+    >>> # Vacation opportunities
+    >>> # In what cities do people have friends?
+    >>> result = join(second, friends,
+    ...               first, cities)
+    >>> for ((a, b), (c, d)) in sorted(unique(result)):
+    ...     print((a, d))
+    ('Alice', 'Berlin')
+    ('Alice', 'Paris')
+    ('Alice', 'Shanghai')
+    ('Edith', 'Chicago')
+    ('Edith', 'NYC')
+    ('Zhao', 'Chicago')
+    ('Zhao', 'NYC')
+    ('Zhao', 'Berlin')
+    ('Zhao', 'Paris')
+
+    Specify outer joins with keyword arguments ``left_default`` and/or
+    ``right_default``.  Here is a full outer join in which unmatched elements
+    are paired with None.
+
+    >>> identity = lambda x: x
+    >>> list(join(identity, [1, 2, 3],
+    ...           identity, [2, 3, 4],
+    ...           left_default=None, right_default=None))
+    [(2, 2), (3, 3), (None, 4), (1, None)]
+
+    Usually the key arguments are callables to be applied to the sequences.  If
+    the keys are not obviously callable then it is assumed that indexing was
+    intended, e.g. the following is a legal change
+
+    >>> # result = join(second, friends, first, cities)
+    >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
+    """
+    if not callable(leftkey):
+        leftkey = getter(leftkey)
+    if not callable(rightkey):
+        rightkey = getter(rightkey)
+
+    d = groupby(leftkey, leftseq)
+    seen_keys = set()
+
+    for item in rightseq:
+        key = rightkey(item)
+        seen_keys.add(key)
+        try:
+            left_matches = d[key]
+            for match in left_matches:
+                yield (match, item)
+        except KeyError:
+            if left_default is not no_default:
+                yield (left_default, item)
+
+    if right_default is not no_default:
+        for key, matches in d.items():
+            if key not in seen_keys:
+                for match in matches:
+                    yield (match, right_default)
