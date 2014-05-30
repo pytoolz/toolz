@@ -1,4 +1,5 @@
 import itertools
+from itertools import starmap
 from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz import (remove, groupby, merge_sorted,
@@ -9,7 +10,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
-                             partition_all, take_nth, pluck)
+                             partition_all, take_nth, pluck, join)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -268,3 +269,91 @@ def test_pluck():
 
     assert raises(IndexError, lambda: list(pluck(1, [[0]])))
     assert raises(KeyError, lambda: list(pluck('name', [{'id': 1}])))
+
+
+def test_join():
+    names = [(1, 'one'), (2, 'two'), (3, 'three')]
+    fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
+
+    def addpair(pair):
+        return pair[0] + pair[1]
+
+    result = set(starmap(add, join(first, names, second, fruit)))
+
+    expected = set([((1, 'one', 'apple', 1)),
+                    ((1, 'one', 'orange', 1)),
+                    ((2, 'two', 'banana', 2)),
+                    ((2, 'two', 'coconut', 2))])
+
+    print(result)
+    print(expected)
+    assert result == expected
+
+
+def test_key_as_getter():
+    squares = [(i, i**2) for i in range(5)]
+    pows = [(i, i**2, i**3) for i in range(5)]
+
+    assert set(join(0, squares, 0, pows)) == set(join(lambda x: x[0], squares,
+                                                      lambda x: x[0], pows))
+
+    get = lambda x: (x[0], x[1])
+    assert set(join([0, 1], squares, [0, 1], pows)) == set(join(get, squares,
+                                                                get, pows))
+
+    get = lambda x: (x[0],)
+    assert set(join([0], squares, [0], pows)) == set(join(get, squares,
+                                                          get, pows))
+
+
+def test_join_double_repeats():
+    names = [(1, 'one'), (2, 'two'), (3, 'three'), (1, 'uno'), (2, 'dos')]
+    fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
+
+    result = set(starmap(add, join(first, names, second, fruit)))
+
+    expected = set([((1, 'one', 'apple', 1)),
+                    ((1, 'one', 'orange', 1)),
+                    ((2, 'two', 'banana', 2)),
+                    ((2, 'two', 'coconut', 2)),
+                    ((1, 'uno', 'apple', 1)),
+                    ((1, 'uno', 'orange', 1)),
+                    ((2, 'dos', 'banana', 2)),
+                    ((2, 'dos', 'coconut', 2))])
+
+    print(result)
+    print(expected)
+    assert result == expected
+
+
+def test_join_missing_element():
+    names = [(1, 'one'), (2, 'two'), (3, 'three')]
+    fruit = [('apple', 5), ('orange', 1)]
+
+    result = set(starmap(add, join(first, names, second, fruit)))
+
+    expected = set([((1, 'one', 'orange', 1))])
+
+    assert result == expected
+
+
+def test_left_outer_join():
+    result = set(join(identity, [1, 2], identity, [2, 3], left_default=None))
+    expected = set([(2, 2), (None, 3)])
+
+    assert result == expected
+
+
+def test_right_outer_join():
+    result = set(join(identity, [1, 2], identity, [2, 3], right_default=None))
+    expected = set([(2, 2), (1, None)])
+
+    assert result == expected
+
+
+def test_outer_join():
+    result = set(join(identity, [1, 2], identity, [2, 3],
+                      left_default=None, right_default=None))
+    expected = set([(2, 2), (1, None), (None, 3)])
+
+    assert result == expected
