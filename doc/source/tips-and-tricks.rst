@@ -55,7 +55,7 @@ a few of these recipes.
     from toolz import filter
 
     def compact(iter):
-      return filter(None, iter)
+        return filter(None, iter)
 
 
   Example:
