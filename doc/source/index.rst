@@ -45,4 +45,5 @@ Contents
    curry.rst
    parallelism.rst
    api.rst
+   tips-and-tricks.rst
    references.rst
