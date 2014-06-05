@@ -266,6 +266,7 @@ def test_pluck():
     assert list(pluck('id', data)) == [1, 2]
     assert list(pluck('price', data, None)) == [None, 1]
     assert list(pluck(['id', 'name'], data)) == [(1, 'cheese'), (2, 'pies')]
+    assert list(pluck(['name'], data)) == [('cheese',), ('pies',)]
     assert list(pluck(['price', 'other'], data, None)) == [(None, None),
                                                            (1, None)]
 
