@@ -67,6 +67,8 @@ def groupby(func, seq):
     See Also:
         countby
     """
+    if not callable(func):
+        func = getter(func)
     d = collections.defaultdict(lambda: [].append)
     for item in seq:
         d[func(item)](item)

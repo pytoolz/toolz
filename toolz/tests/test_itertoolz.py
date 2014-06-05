@@ -45,6 +45,12 @@ def test_groupby():
     assert groupby(iseven, [1, 2, 3, 4]) == {True: [2, 4], False: [1, 3]}
 
 
+def test_groupby_non_callable():
+    assert groupby(0, [(1, 2), (1, 3), (2, 2), (2, 4)]) == \
+        {1: [(1, 2), (1, 3)],
+         2: [(2, 2), (2, 4)]}
+
+
 def test_merge_sorted():
     assert list(merge_sorted([1, 2, 3], [1, 2, 3])) == [1, 1, 2, 2, 3, 3]
     assert list(merge_sorted([1, 3, 5], [2, 4, 6])) == [1, 2, 3, 4, 5, 6]
