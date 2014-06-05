@@ -488,6 +488,8 @@ def reduceby(key, binop, seq, init):
     ...          projects, 0)
     {'CA': 1200000, 'IL': 2100000}
     """
+    if not callable(key):
+        key = getter(key)
     d = {}
     for item in seq:
         k = key(item)

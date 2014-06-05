@@ -214,6 +214,10 @@ def test_reduceby():
                     lambda acc, x: acc + x['cost'],
                     projects, 0) == {'CA': 1200000, 'IL': 2100000}
 
+    assert reduceby('state',
+                    lambda acc, x: acc + x['cost'],
+                    projects, 0) == {'CA': 1200000, 'IL': 2100000}
+
 
 def test_iterate():
     assert list(itertools.islice(iterate(inc, 0), 0, 5)) == [0, 1, 2, 3, 4]
