@@ -53,7 +53,7 @@ def accumulate(binop, seq):
         yield result
 
 
-def groupby(func, seq):
+def groupby(key, seq):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
@@ -64,12 +64,23 @@ def groupby(func, seq):
     >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])
     {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
 
+    Non-callable keys imply grouping on a member.
+
+    >>> groupby('gender', [{'name': 'Alice', 'gender': 'F'},
+    ...                    {'name': 'Bob', 'gender': 'M'},
+    ...                    {'name': 'Charlie', 'gender': 'M'}]) # doctest:+SKIP
+    {'F': [{'gender': 'F', 'name': 'Alice'}],
+     'M': [{'gender': 'M', 'name': 'Bob'},
+           {'gender': 'M', 'name': 'Charlie'}]}
+
     See Also:
         countby
     """
+    if not callable(key):
+        key = getter(key)
     d = collections.defaultdict(lambda: [].append)
     for item in seq:
-        d[func(item)](item)
+        d[key(item)](item)
     rv = {}
     for k, v in iteritems(d):
         rv[k] = v.__self__
@@ -494,11 +505,13 @@ def reduceby(key, binop, seq, init=no_default):
     ...             {'name': 'help farmers', 'state': 'IL', 'cost': 2000000},
     ...             {'name': 'help farmers', 'state': 'CA', 'cost': 200000}]
 
-    >>> reduceby(lambda x: x['state'],              # doctest: +SKIP
+    >>> reduceby('state',                        # doctest: +SKIP
     ...          lambda acc, x: acc + x['cost'],
     ...          projects, 0)
     {'CA': 1200000, 'IL': 2100000}
     """
+    if not callable(key):
+        key = getter(key)
     d = {}
     for item in seq:
         k = key(item)

@@ -45,6 +45,12 @@ def test_groupby():
     assert groupby(iseven, [1, 2, 3, 4]) == {True: [2, 4], False: [1, 3]}
 
 
+def test_groupby_non_callable():
+    assert groupby(0, [(1, 2), (1, 3), (2, 2), (2, 4)]) == \
+        {1: [(1, 2), (1, 3)],
+         2: [(2, 2), (2, 4)]}
+
+
 def test_merge_sorted():
     assert list(merge_sorted([1, 2, 3], [1, 2, 3])) == [1, 1, 2, 2, 3, 3]
     assert list(merge_sorted([1, 3, 5], [2, 4, 6])) == [1, 2, 3, 4, 5, 6]
@@ -207,6 +213,10 @@ def test_reduceby():
                 {'name': 'help farmers', 'state': 'IL', 'cost': 2000000},
                 {'name': 'help farmers', 'state': 'CA', 'cost': 200000}]
     assert reduceby(lambda x: x['state'],
+                    lambda acc, x: acc + x['cost'],
+                    projects, 0) == {'CA': 1200000, 'IL': 2100000}
+
+    assert reduceby('state',
                     lambda acc, x: acc + x['cost'],
                     projects, 0) == {'CA': 1200000, 'IL': 2100000}
 
