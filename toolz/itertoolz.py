@@ -505,7 +505,7 @@ def reduceby(key, binop, seq, init=no_default):
     ...             {'name': 'help farmers', 'state': 'IL', 'cost': 2000000},
     ...             {'name': 'help farmers', 'state': 'CA', 'cost': 200000}]
 
-    >>> reduceby(lambda x: x['state'],              # doctest: +SKIP
+    >>> reduceby('state',                        # doctest: +SKIP
     ...          lambda acc, x: acc + x['cost'],
     ...          projects, 0)
     {'CA': 1200000, 'IL': 2100000}
