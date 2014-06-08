@@ -370,7 +370,10 @@ def get(ind, seq, default=no_default):
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
             if default is no_default:
-                return operator.itemgetter(*ind)(seq)
+                if len(ind) > 1:
+                    return operator.itemgetter(*ind)(seq)
+                else:
+                    return (seq[ind[0]],)
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
@@ -461,7 +464,7 @@ def frequencies(seq):
     return dict(d)
 
 
-def reduceby(key, binop, seq, init):
+def reduceby(key, binop, seq, init=no_default):
     """ Perform a simultaneous groupby and reduction
 
     The computation:
@@ -480,18 +483,28 @@ def reduceby(key, binop, seq, init):
     operate in much less space.  This makes it suitable for larger datasets
     that do not fit comfortably in memory
 
+    Simple Examples
+    ---------------
+
     >>> from operator import add, mul
-    >>> data = [1, 2, 3, 4, 5]
     >>> iseven = lambda x: x % 2 == 0
-    >>> reduceby(iseven, add, data, 0)
+
+    >>> data = [1, 2, 3, 4, 5]
+
+    >>> reduceby(iseven, add, data)
     {False: 9, True: 6}
-    >>> reduceby(iseven, mul, data, 1)
+
+    >>> reduceby(iseven, mul, data)
     {False: 15, True: 8}
+
+    Complex Example
+    ---------------
 
     >>> projects = [{'name': 'build roads', 'state': 'CA', 'cost': 1000000},
     ...             {'name': 'fight crime', 'state': 'IL', 'cost': 100000},
     ...             {'name': 'help farmers', 'state': 'IL', 'cost': 2000000},
     ...             {'name': 'help farmers', 'state': 'CA', 'cost': 200000}]
+
     >>> reduceby(lambda x: x['state'],              # doctest: +SKIP
     ...          lambda acc, x: acc + x['cost'],
     ...          projects, 0)
@@ -503,7 +516,11 @@ def reduceby(key, binop, seq, init):
     for item in seq:
         k = key(item)
         if k not in d:
-            d[k] = init
+            if init is no_default:
+                d[k] = item
+                continue
+            else:
+                d[k] = init
         d[k] = binop(d[k], item)
     return d
 
@@ -658,9 +675,8 @@ def pluck(ind, seqs, default=no_default):
         map
     """
     if default is no_default:
-        if isinstance(ind, list):
-            return map(operator.itemgetter(*ind), seqs)
-        return map(operator.itemgetter(ind), seqs)
+        get = getter(ind)
+        return map(get, seqs)
     elif isinstance(ind, list):
         return (tuple(_get(item, seq, default) for item in ind)
                 for seq in seqs)
