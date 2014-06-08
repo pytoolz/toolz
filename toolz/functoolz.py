@@ -395,7 +395,7 @@ def juxt(*funcs):
     Creates a function that calls several functions with the same arguments.
 
     Takes several functions and returns a function that applies its arguments
-    to each of those functions then returns a sequence of the results.
+    to each of those functions then returns a tuple of the results.
 
     Name comes from juxtaposition: the fact of two things being seen or placed
     close together with contrasting effect.
