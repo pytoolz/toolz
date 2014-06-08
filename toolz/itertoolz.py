@@ -359,7 +359,10 @@ def get(ind, seq, default=no_default):
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
             if default is no_default:
-                return operator.itemgetter(*ind)(seq)
+                if len(ind) > 1:
+                    return operator.itemgetter(*ind)(seq)
+                else:
+                    return (seq[ind[0]],)
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
@@ -659,9 +662,8 @@ def pluck(ind, seqs, default=no_default):
         map
     """
     if default is no_default:
-        if isinstance(ind, list):
-            return map(operator.itemgetter(*ind), seqs)
-        return map(operator.itemgetter(ind), seqs)
+        get = getter(ind)
+        return map(get, seqs)
     elif isinstance(ind, list):
         return (tuple(_get(item, seq, default) for item in ind)
                 for seq in seqs)

@@ -145,6 +145,8 @@ def test_get():
     assert get({}, [1, 2, 3], default='bar') == 'bar'
     assert get([0, 2], 'AB', 'C') == ('A', 'C')
 
+    assert get([0], 'AB') == ('A',)
+
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
@@ -268,6 +270,7 @@ def test_pluck():
     assert list(pluck('id', data)) == [1, 2]
     assert list(pluck('price', data, None)) == [None, 1]
     assert list(pluck(['id', 'name'], data)) == [(1, 'cheese'), (2, 'pies')]
+    assert list(pluck(['name'], data)) == [('cheese',), ('pies',)]
     assert list(pluck(['price', 'other'], data, None)) == [(None, None),
                                                            (1, None)]
 
