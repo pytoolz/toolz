@@ -53,7 +53,7 @@ def accumulate(binop, seq):
         yield result
 
 
-def groupby(func, seq):
+def groupby(key, seq):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
@@ -76,11 +76,11 @@ def groupby(func, seq):
     See Also:
         countby
     """
-    if not callable(func):
-        func = getter(func)
+    if not callable(key):
+        key = getter(key)
     d = collections.defaultdict(lambda: [].append)
     for item in seq:
-        d[func(item)](item)
+        d[key(item)](item)
     rv = {}
     for k, v in iteritems(d):
         rv[k] = v.__self__
