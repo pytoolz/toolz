@@ -1,12 +1,12 @@
 import itertools
-from .itertoolz import frequencies, pluck
+from .itertoolz import frequencies, pluck, getter
 from .compatibility import map
 
 
 __all__ = ('countby', 'partitionby')
 
 
-def countby(func, seq):
+def countby(key, seq):
     """ Count elements of a collection by a key function
 
     >>> countby(len, ['cat', 'mouse', 'dog'])
@@ -19,7 +19,9 @@ def countby(func, seq):
     See Also:
         groupby
     """
-    return frequencies(map(func, seq))
+    if not callable(key):
+        key = getter(key)
+    return frequencies(map(key, seq))
 
 
 def partitionby(func, seq):
