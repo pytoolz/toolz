@@ -165,7 +165,8 @@ common first column, id.
 
 .. code::
 
-   >>> result = join(first, first, accounts, addresses)
+   >>> result = join(first, accounts,
+   ...               first, addresses)
 
    >>> for ((_, name, _, _), (_, address)) in result:
    ...     print((name, address))
@@ -192,7 +193,8 @@ numbers from two collections so that exactly one is even and one is odd.
    >>> iseven = lambda x: x % 2 == 0
    >>> isodd  = lambda x: x % 2 == 1
 
-   >>> list(join(iseven, isodd, [1, 2, 3, 4], [7, 8, 9]))
+   >>> list(join(iseven, [1, 2, 3, 4],
+   ...           isodd, [7, 8, 9]))
    [(2, 7), (4, 7), (1, 8), (3, 8), (2, 9), (4, 9)]
 
 
@@ -246,7 +248,8 @@ many friends and because a friend may have many residences.
 
    >>> # Vacation opportunities
    >>> # In what cities do people have friends?
-   >>> result = join(second, first, friends, cities)
+   >>> result = join(second, friends,
+   ...               first, cities)
    >>> for ((a, b), (c, d)) in sorted(unique(result)):
    ...     print((a, d))
    ('Alice', 'Berlin')
