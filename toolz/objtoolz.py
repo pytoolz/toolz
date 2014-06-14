@@ -70,7 +70,7 @@ def update_in_obj(o, attrs, func, default=None):
         return assoc_obj(o, attr, innermost)
 
 
-def get_in_obj(attrs, obj, default=None, no_default=False):
+def get_in_obj(attrs, o, default=None, no_default=False):
     """
     Returns thread_first(o, (getattr, a0), ..., (getattr, aX))
     where [a0, ..., aX] == attrs.
@@ -103,8 +103,8 @@ def get_in_obj(attrs, obj, default=None, no_default=False):
         getattr
     """
     try:
-        return reduce(getattr, attrs, obj)
     except (KeyError, IndexError, TypeError):
+        return reduce(getattr, attrs, o)
         if no_default:
             raise
         return default
