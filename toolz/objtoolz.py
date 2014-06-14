@@ -1,6 +1,6 @@
 import copy
 from toolz.compatibility import reduce
-from functoolz import identity
+
 
 __all__ = ('assoc_obj', 'update_in_obj', 'get_in_obj')
 
@@ -55,7 +55,7 @@ def update_in_obj(o, attrs, func, default=None):
     {'days': 101, 'years': 30}
     >>> update_in_obj(alice, ['age', 'hours'], int, default=6.5).age.__dict__
     {'hours': 6, 'days': 100, 'years': 30}
-    >>> update_in_obj(alice, ['education', 'college'], identity, default='CMU')
+    >>> update_in_obj(alice, ['education', 'college'], str, default='CMU')
     Traceback (most recent call last):
         ...
     AttributeError: Person instance has no attribute 'education'
