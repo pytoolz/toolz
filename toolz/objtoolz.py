@@ -33,9 +33,9 @@ def update_in_obj(o, attrs, func, default=None):
     attrs - list or tuple giving the location of the value to be changed in o
     func - function to operate on that value
 
-    If attrs == [a0,..,aX] and thread_first(o, (getattr, a0),..,
-    (getattr, aX)) == v, update_in returns a copy of the original object with
-    v replaced by func(v), but does not mutate the original object.
+    If attrs == [a0, ..., aX] and thread_first(o, (getattr, a0), ...,
+    (getattr, aX)) == v, update_in_obj returns a copy of the original object
+    with v replaced by func(v), but does not mutate the original object.
 
     If the current attr is not already in o, and there are no further attrs,
     update_in_obj will set the value of attr to func(default). If there are
