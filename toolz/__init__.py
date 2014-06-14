@@ -4,6 +4,8 @@ from .functoolz import *
 
 from .dicttoolz import *
 
+from .objtoolz import *
+
 from .recipes import *
 
 from .compatibility import map, filter
