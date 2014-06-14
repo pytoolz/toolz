@@ -52,9 +52,9 @@ def update_in_obj(o, attrs, func, default=None):
     ...         self.days = days
     >>> alice = Person(Age(30, 100))
     >>> update_in_obj(alice, ['age', 'days'], inc).age.__dict__
-    {'years': 30, 'days': 101}
+    {'days': 101, 'years': 30}
     >>> update_in_obj(alice, ['age', 'hours'], int, default=6.5).age.__dict__
-    {'years': 30, 'days': 100, 'hours': 6}
+    {'hours': 6, 'days': 100, 'years': 30}
     >>> update_in_obj(alice, ['education', 'college'], identity, default='CMU')
     Traceback (most recent call last):
         ...
