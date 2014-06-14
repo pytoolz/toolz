@@ -47,7 +47,8 @@ def test_update_in_obj():
 
     # Allow AttributeError to be thrown if more than one missing key,
     # because we don't know what type of object to create for nesting.
-    assert raises(AttributeError, update_in_obj(c, ["y", "z"], inc, default=0))
+    assert raises(AttributeError,
+                  lambda: update_in_obj(c, ["y", "z"], inc, default=0))
 
     # Verify immutability:
     o = C()
@@ -63,4 +64,5 @@ def test_get_in_obj():
     o.a = a
     assert get_in_obj(['a', 'b'], o) == 1
     assert get_in_obj(['a', 'b', 'c'], o, 2) == 2
-    assert raises(KeyError, get_in_obj(['a', 'b', 'c'], o, no_default=True))
+    assert raises(AttributeError,
+                  lambda: get_in_obj(['a', 'b', 'c'], o, no_default=True))
