@@ -17,7 +17,7 @@ def assoc_obj(o, attr, value):
     >>> c = C()
     >>> assoc_obj(c, 'x', 2).__dict__
     {'x': 2}
-    >>> assoc_obj(c, 'y', 3).__dict__   # doctest: +SKIP
+    >>> assoc_obj(c, 'y', 3).__dict__ # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
     new_o = copy.deepcopy(o)
@@ -51,14 +51,17 @@ def update_in_obj(o, attrs, func, default=None):
     ...         self.years = years
     ...         self.days = days
     >>> alice = Person(Age(30, 100))
-    >>> update_in_obj(alice, ['age', 'days'], inc).age.__dict__
-    {'days': 101, 'years': 30}
-    >>> update_in_obj(alice, ['age', 'hours'], int, default=6.5).age.__dict__
-    {'hours': 6, 'days': 100, 'years': 30}
+    >>> new_alice = update_in_obj(alice, ['age', 'days'], inc)
+    >>> new_alice.age.__dict__ == {'days': 101, 'years': 30}
+    True
+    >>> new_alice = update_in_obj(alice, ['age', 'hours'], int, default=6.5)
+    >>> new_alice.age.__dict__ == {'hours': 6, 'days': 100, 'years': 30}
+    True
     >>> update_in_obj(alice, ['education', 'college'], str, default='CMU')
+    ... # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    AttributeError: Person instance has no attribute 'education'
+    AttributeError: ... has no attribute 'education'
     """
     assert len(attrs) > 0
     attr, rest = attrs[0], attrs[1:]
@@ -95,9 +98,10 @@ def get_in_obj(attrs, o, default=None, no_default=False):
     >>> get_in_obj(['age', 'hours'], alice, 4)
     4
     >>> get_in_obj(['occupation'], alice, no_default=True)
+    ... # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    AttributeError: Person instance has no attribute 'occupation'
+    AttributeError: ... has no attribute 'occupation'
 
     See Also:
         getattr
