@@ -1,217 +1,109 @@
-import operator
-from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
-                                 reduce)
+import copy
+from toolz.compatibility import reduce
+from functoolz import identity
 
-__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'valfilter', 'keyfilter',
-           'assoc', 'update_in', 'get_in')
+__all__ = ('assoc_obj', 'update_in_obj', 'get_in_obj')
 
 
-def merge(*dicts):
-    """ Merge a collection of dictionaries
-
-    >>> merge({1: 'one'}, {2: 'two'})
-    {1: 'one', 2: 'two'}
-
-    Later dictionaries have precedence
-
-    >>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
-    {1: 2, 3: 3, 4: 4}
-
-    See Also:
-        merge_with
+def assoc_obj(o, attr, value):
     """
-    if len(dicts) == 1 and not isinstance(dicts[0], dict):
-        dicts = dicts[0]
+    Return a new obj with attr set to value
 
-    rv = {}
-    for d in dicts:
-        rv.update(d)
-    return rv
+    Does not modify the initial object.
 
-
-def merge_with(func, *dicts):
-    """ Merge dictionaries and apply function to combined values
-
-    A key may occur in more than one dict, and all values mapped from the key
-    will be passed to the function as a list, such as func([val1, val2, ...]).
-
-    >>> merge_with(sum, {1: 1, 2: 2}, {1: 10, 2: 20})
-    {1: 11, 2: 22}
-
-    >>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
-    {1: 1, 2: 2, 3: 30}
-
-    See Also:
-        merge
-    """
-    if len(dicts) == 1 and not isinstance(dicts[0], dict):
-        dicts = dicts[0]
-
-    result = {}
-    for d in dicts:
-        for k, v in iteritems(d):
-            if k not in result:
-                result[k] = [v]
-            else:
-                result[k].append(v)
-    return dict((k, func(v)) for k, v in iteritems(result))
-
-
-def valmap(func, d):
-    """ Apply function to values of dictionary
-
-    >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
-    >>> valmap(sum, bills)  # doctest: +SKIP
-    {'Alice': 65, 'Bob': 45}
-
-    See Also:
-        keymap
-    """
-    return dict(zip(iterkeys(d), map(func, itervalues(d))))
-
-
-def keymap(func, d):
-    """ Apply function to keys of dictionary
-
-    >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
-    >>> keymap(str.lower, bills)  # doctest: +SKIP
-    {'alice': [20, 15, 30], 'bob': [10, 35]}
-
-    See Also:
-        valmap
-    """
-    return dict(zip(map(func, iterkeys(d)), itervalues(d)))
-
-
-def valfilter(predicate, d):
-    """ Filter items in dictionary by value
-
-    >>> iseven = lambda x: x % 2 == 0
-    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
-    >>> valfilter(iseven, d)
-    {1: 2, 3: 4}
-
-    See Also:
-        keyfilter
-        valmap
-    """
-    rv = {}
-    for k, v in iteritems(d):
-        if predicate(v):
-            rv[k] = v
-    return rv
-
-
-def keyfilter(predicate, d):
-    """ Filter items in dictionary by key
-
-    >>> iseven = lambda x: x % 2 == 0
-    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
-    >>> keyfilter(iseven, d)
-    {2: 3, 4: 5}
-
-    See Also:
-        valfilter
-        keymap
-    """
-    rv = {}
-    for k, v in iteritems(d):
-        if predicate(k):
-            rv[k] = v
-    return rv
-
-
-def assoc(d, key, value):
-    """
-    Return a new dict with new key value pair
-
-    New dict has d[key] set to value. Does not modify the initial dictionary.
-
-    >>> assoc({'x': 1}, 'x', 2)
+    >>> class C():
+    ...     def __init__(self):
+    ...         self.x = 1
+    >>> c = C()
+    >>> assoc_obj(c, 'x', 2).__dict__
     {'x': 2}
-    >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
+    >>> assoc_obj(c, 'y', 3).__dict__   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    return merge(d, {key: value})
+    new_o = copy.deepcopy(o)
+    setattr(new_o, attr, value)
+    return new_o
 
 
-def update_in(d, keys, func, default=None):
-    """ Update value in a (potentially) nested dictionary
+def update_in_obj(o, attrs, func, default=None):
+    """ Update value in a (potentially) nested object
 
     inputs:
-    d - dictionary on which to operate
-    keys - list or tuple giving the location of the value to be changed in d
+    o - object on which to operate
+    attrs - list or tuple giving the location of the value to be changed in o
     func - function to operate on that value
 
-    If keys == [k0,..,kX] and d[k0]..[kX] == v, update_in returns a copy of the
-    original dictionary with v replaced by func(v), but does not mutate the
-    original dictionary.
+    If attrs == [a0,..,aX] and thread_first(o, (getattr, a0),..,
+    (getattr, aX)) == v, update_in returns a copy of the original object with
+    v replaced by func(v), but does not mutate the original object.
 
-    If k0 is not a key in d, update_in creates nested dictionaries to the depth
-    specified by the keys, with the innermost value set to func(default).
+    If the current attr is not already in o, and there are no further attrs,
+    update_in_obj will set the value of attr to func(default). If there are
+    further attrs, however, update_in_obj will raise an AttributeError, rather
+    than create nested objects.
 
     >>> inc = lambda x: x + 1
-    >>> update_in({'a': 0}, ['a'], inc)
-    {'a': 1}
-
-    >>> transaction = {'name': 'Alice',
-    ...                'purchase': {'items': ['Apple', 'Orange'],
-    ...                             'costs': [0.50, 1.25]},
-    ...                'credit card': '5555-1234-1234-1234'}
-    >>> update_in(transaction, ['purchase', 'costs'], sum) # doctest: +SKIP
-    {'credit card': '5555-1234-1234-1234',
-     'name': 'Alice',
-     'purchase': {'costs': 1.75, 'items': ['Apple', 'Orange']}}
-
-    >>> # updating a value when k0 is not in d
-    >>> update_in({}, [1, 2, 3], str, default="bar")
-    {1: {2: {3: 'bar'}}}
-    >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
-    {1: 'foo', 2: {3: {4: 1}}}
-    """
-    assert len(keys) > 0
-    k, ks = keys[0], keys[1:]
-    if ks:
-        return assoc(d, k, update_in(d.get(k, {}), ks, func, default))
-    else:
-        innermost = func(d.get(k)) if (k in d) else func(default)
-        return assoc(d, k, innermost)
-
-
-def get_in(keys, coll, default=None, no_default=False):
-    """
-    Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
-
-    If coll[i0][i1]...[iX] cannot be found, returns ``default``, unless
-    ``no_default`` is specified, then it raises KeyError or IndexError.
-
-    ``get_in`` is a generalization of ``operator.getitem`` for nested data
-    structures such as dictionaries and lists.
-
-    >>> transaction = {'name': 'Alice',
-    ...                'purchase': {'items': ['Apple', 'Orange'],
-    ...                             'costs': [0.50, 1.25]},
-    ...                'credit card': '5555-1234-1234-1234'}
-    >>> get_in(['purchase', 'items', 0], transaction)
-    'Apple'
-    >>> get_in(['name'], transaction)
-    'Alice'
-    >>> get_in(['purchase', 'total'], transaction)
-    >>> get_in(['purchase', 'items', 'apple'], transaction)
-    >>> get_in(['purchase', 'items', 10], transaction)
-    >>> get_in(['purchase', 'total'], transaction, 0)
-    0
-    >>> get_in(['y'], {}, no_default=True)
+    >>> class Person():
+    ...     def __init__(self, age):
+    ...         self.age = age
+    >>> class Age():
+    ...     def __init__(self, years, days):
+    ...         self.years = years
+    ...         self.days = days
+    >>> alice = Person(Age(30, 100))
+    >>> update_in_obj(alice, ['age', 'days'], inc).age.__dict__
+    {'years': 30, 'days': 101}
+    >>> update_in_obj(alice, ['age', 'hours'], int, default=6.5).age.__dict__
+    {'years': 30, 'days': 100, 'hours': 6}
+    >>> update_in_obj(alice, ['education', 'college'], identity, default='CMU')
     Traceback (most recent call last):
         ...
-    KeyError: 'y'
+    AttributeError: Person instance has no attribute 'education'
+    """
+    assert len(attrs) > 0
+    attr, rest = attrs[0], attrs[1:]
+    if rest:
+        return assoc_obj(o, attr,
+                         update_in_obj(getattr(o, attr), rest, func, default))
+    else:
+        innermost = func(getattr(o, attr, default))
+        return assoc_obj(o, attr, innermost)
+
+
+def get_in_obj(attrs, coll, default=None, no_default=False):
+    """
+    Returns thread_first(o, (getattr, a0), ..., (getattr, aX))
+    where [a0, ..., aX] == attrs.
+
+    If thread_first(o, (getattr, a0), ..., (getattr, aX)) cannot be found,
+    returns ``default``, unless ``no_default`` is specified, then it
+    raises KeyError or IndexError.
+
+    ``get_in_obj`` is a generalization of ``getattr`` for nested objects.
+
+    >>> class Person():
+    ...     def __init__(self, age):
+    ...         self.age = age
+    >>> class Age():
+    ...     def __init__(self, years, days):
+    ...         self.years = years
+    ...         self.days = days
+    >>> alice = Person(Age(30, 100))
+    >>> get_in_obj(alice, ['age', 'days'])
+    100
+    >>> get_in_obj(alice, ['age', 'hours'])
+    >>> get_in_obj(alice, ['age', 'hours'], 4)
+    4
+    >>> get_in_obj(alice, ['occupation'], no_default=True)
+    Traceback (most recent call last):
+        ...
+    KeyError: 'occupation'
 
     See Also:
-        itertoolz.get
-        operator.getitem
+        getattr
     """
     try:
-        return reduce(operator.getitem, keys, coll)
+        return reduce(getattr, attrs, coll)
     except (KeyError, IndexError, TypeError):
         if no_default:
             raise
