@@ -89,12 +89,12 @@ def get_in_obj(attrs, o, default=None, no_default=False):
     ...         self.years = years
     ...         self.days = days
     >>> alice = Person(Age(30, 100))
-    >>> get_in_obj(alice, ['age', 'days'])
+    >>> get_in_obj(['age', 'days'], alice)
     100
-    >>> get_in_obj(alice, ['age', 'hours'])
-    >>> get_in_obj(alice, ['age', 'hours'], 4)
+    >>> get_in_obj(['age', 'hours'], alice)
+    >>> get_in_obj(['age', 'hours'], alice, 4)
     4
-    >>> get_in_obj(alice, ['occupation'], no_default=True)
+    >>> get_in_obj(['occupation'], alice, no_default=True)
     Traceback (most recent call last):
         ...
     AttributeError: Person instance has no attribute 'occupation'
