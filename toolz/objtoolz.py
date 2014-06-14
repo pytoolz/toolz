@@ -77,7 +77,7 @@ def get_in_obj(attrs, o, default=None, no_default=False):
 
     If thread_first(o, (getattr, a0), ..., (getattr, aX)) cannot be found,
     returns ``default``, unless ``no_default`` is specified, then it
-    raises KeyError or IndexError.
+    raises AttributeError.
 
     ``get_in_obj`` is a generalization of ``getattr`` for nested objects.
 
@@ -97,14 +97,14 @@ def get_in_obj(attrs, o, default=None, no_default=False):
     >>> get_in_obj(alice, ['occupation'], no_default=True)
     Traceback (most recent call last):
         ...
-    KeyError: 'occupation'
+    AttributeError: Person instance has no attribute 'occupation'
 
     See Also:
         getattr
     """
     try:
-    except (KeyError, IndexError, TypeError):
         return reduce(getattr, attrs, o)
+    except AttributeError:
         if no_default:
             raise
         return default
