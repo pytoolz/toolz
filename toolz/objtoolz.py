@@ -25,7 +25,7 @@ def assoc_obj(o, attr, value):
     return new_o
 
 
-def update_in_obj(o, attrs, func, default=None):
+def update_in_obj(o, attrs, func, default=None, internal=False):
     """ Update value in a (potentially) nested object
 
     inputs:
@@ -64,13 +64,16 @@ def update_in_obj(o, attrs, func, default=None):
     AttributeError: ... has no attribute 'education'
     """
     assert len(attrs) > 0
+    if not internal:
+        o = copy.deepcopy(o)
     attr, rest = attrs[0], attrs[1:]
     if rest:
-        return assoc_obj(o, attr,
-                         update_in_obj(getattr(o, attr), rest, func, default))
+        val = update_in_obj(getattr(o, attr), rest,
+                            func, default, internal=True)
     else:
-        innermost = func(getattr(o, attr, default))
-        return assoc_obj(o, attr, innermost)
+        val = func(getattr(o, attr, default))
+    setattr(o, attr, val)
+    return o
 
 
 def get_in_obj(attrs, o, default=None, no_default=False):
