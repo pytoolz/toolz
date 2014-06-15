@@ -20,12 +20,12 @@ def assoc_obj(o, attr, value):
     >>> assoc_obj(c, 'y', 3).__dict__ # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    new_o = copy.deepcopy(o)
-    setattr(new_o, attr, value)
-    return new_o
+    o = copy.deepcopy(o)
+    setattr(o, attr, value)
+    return o
 
 
-def update_in_obj(o, attrs, func, default=None, internal=False):
+def update_in_obj(o, attrs, func, default=None):
     """ Update value in a (potentially) nested object
 
     inputs:
@@ -63,16 +63,16 @@ def update_in_obj(o, attrs, func, default=None, internal=False):
         ...
     AttributeError: ... has no attribute 'education'
     """
-    assert len(attrs) > 0
-    if not internal:
-        o = copy.deepcopy(o)
-    attr, rest = attrs[0], attrs[1:]
-    if rest:
-        val = update_in_obj(getattr(o, attr), rest,
-                            func, default, internal=True)
-    else:
-        val = func(getattr(o, attr, default))
-    setattr(o, attr, val)
+    def update(o, attrs, func, default):
+        assert len(attrs) > 0
+        attr, rest = attrs[0], attrs[1:]
+        if rest:
+            update(getattr(o, attr), rest, func, default)
+        else:
+            setattr(o, attr, func(getattr(o, attr, default)))
+
+    o = copy.deepcopy(o)
+    update(o, attrs, func, default)
     return o
 
 
