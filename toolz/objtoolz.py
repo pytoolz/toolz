@@ -20,7 +20,7 @@ def assoc_obj(o, attr, value):
     >>> assoc_obj(c, 'y', 3).__dict__ # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    o = copy.deepcopy(o)
+    o = copy.copy(o)
     setattr(o, attr, value)
     return o
 
@@ -63,17 +63,12 @@ def update_in_obj(o, attrs, func, default=None):
         ...
     AttributeError: ... has no attribute 'education'
     """
-    def update(o, attrs, func, default):
-        assert len(attrs) > 0
-        attr, rest = attrs[0], attrs[1:]
-        if rest:
-            update(getattr(o, attr), rest, func, default)
-        else:
-            setattr(o, attr, func(getattr(o, attr, default)))
-
-    o = copy.deepcopy(o)
-    update(o, attrs, func, default)
-    return o
+    attr, rest = attrs[0], attrs[1:]
+    if rest:
+        return assoc_obj(o, attr,
+                         update_in_obj(getattr(o, attr), rest, func, default))
+    else:
+        return assoc_obj(o, attr, func(getattr(o, attr, default)))
 
 
 def get_in_obj(attrs, o, default=None, no_default=False):
