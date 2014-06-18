@@ -1,4 +1,6 @@
 import operator
+import copy
+from utils import no_default
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
@@ -132,7 +134,12 @@ def assoc(d, key, value):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    return merge(d, {key: value})
+    if type(d) == dict:
+        return merge(d, {key: value})
+    else:
+        d = copy.copy(d)
+        setattr(d, key, value)
+        return d
 
 
 def update_in(d, keys, func, default=None):
@@ -169,13 +176,23 @@ def update_in(d, keys, func, default=None):
     >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
     {1: 'foo', 2: {3: {4: 1}}}
     """
+    def get(k, d, default):
+        if type(d) == dict:
+            return d.get(k, default)
+        else:
+            if default is no_default:
+                return getattr(d, k)
+            else:
+                return getattr(d, k, default)
+
     assert len(keys) > 0
     k, ks = keys[0], keys[1:]
     if ks:
-        return assoc(d, k, update_in(d.get(k, {}), ks, func, default))
+        nested = {} if (type(d) == dict) else no_default
+        val = update_in(get(k, d, nested), ks, func, default)
     else:
-        innermost = func(d.get(k)) if (k in d) else func(default)
-        return assoc(d, k, innermost)
+        val = func(get(k, d, default))
+    return assoc(d, k, val)
 
 
 def get_in(keys, coll, default=None, no_default=False):
@@ -204,15 +221,21 @@ def get_in(keys, coll, default=None, no_default=False):
     >>> get_in(['y'], {}, no_default=True)
     Traceback (most recent call last):
         ...
-    KeyError: 'y'
+    AttributeError: 'dict' object has no attribute 'y'
 
     See Also:
         itertoolz.get
         operator.getitem
     """
+    def get(d, key):
+        try:
+            return operator.getitem(d, key)
+        except (KeyError, IndexError, TypeError):
+            return getattr(d, key)
+
     try:
-        return reduce(operator.getitem, keys, coll)
-    except (KeyError, IndexError, TypeError):
+        return reduce(get, keys, coll)
+    except (AttributeError, TypeError):
         if no_default:
             raise
         return default
