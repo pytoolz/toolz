@@ -1,5 +1,5 @@
 from toolz.utils import raises
-from toolz.objtoolz import assoc_obj, update_in_obj, get_in_obj
+from toolz.sandbox.objtoolz import assoc_obj, update_in_obj, get_in_obj
 
 
 inc = lambda x: x + 1
