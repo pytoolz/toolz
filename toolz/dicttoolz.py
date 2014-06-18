@@ -228,14 +228,12 @@ def get_in(keys, coll, default=None, no_default=False):
         operator.getitem
     """
     def get(d, key):
-        try:
-            return operator.getitem(d, key)
-        except (KeyError, IndexError, TypeError):
-            return getattr(d, key)
+        func = operator.getitem if (type(d) == dict) else getattr
+        return func(d, key)
 
     try:
         return reduce(get, keys, coll)
-    except (AttributeError, TypeError):
+    except (KeyError, IndexError, AttributeError, TypeError):
         if no_default:
             raise
         return default
