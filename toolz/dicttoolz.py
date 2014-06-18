@@ -1,11 +1,13 @@
 import operator
 import copy
-from utils import no_default
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'valfilter', 'keyfilter',
            'assoc', 'update_in', 'get_in')
+
+
+no_default = '__no__default__'
 
 
 def merge(*dicts):
@@ -228,6 +230,7 @@ def get_in(keys, coll, default=None, no_default=False):
         operator.getitem
     """
     ts = [dict, list, tuple, str]
+
     def get(d, key):
         func = operator.getitem if (type(d) in ts) else getattr
         return func(d, key)
