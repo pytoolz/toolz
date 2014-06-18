@@ -221,14 +221,15 @@ def get_in(keys, coll, default=None, no_default=False):
     >>> get_in(['y'], {}, no_default=True)
     Traceback (most recent call last):
         ...
-    AttributeError: 'dict' object has no attribute 'y'
+    KeyError: 'y'
 
     See Also:
         itertoolz.get
         operator.getitem
     """
+    ts = [dict, list, tuple, str]
     def get(d, key):
-        func = operator.getitem if (type(d) == dict) else getattr
+        func = operator.getitem if (type(d) in ts) else getattr
         return func(d, key)
 
     try:
