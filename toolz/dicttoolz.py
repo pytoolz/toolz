@@ -179,9 +179,9 @@ def update_in(d, keys, func, default=None):
     {1: 'foo', 2: {3: {4: 1}}}
     """
     def get(k, d, default):
-        try:
+        if isinstance(d, dict):
             return d.get(k, default)
-        except AttributeError:
+        else:
             if default is no_default:
                 return getattr(d, k)
             else:
