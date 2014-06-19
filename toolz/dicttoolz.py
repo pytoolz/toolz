@@ -136,7 +136,7 @@ def assoc(d, key, value):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    if type(d) == dict:
+    if isinstance(d, dict):
         return merge(d, {key: value})
     else:
         d = copy.copy(d)
@@ -179,9 +179,9 @@ def update_in(d, keys, func, default=None):
     {1: 'foo', 2: {3: {4: 1}}}
     """
     def get(k, d, default):
-        if type(d) == dict:
+        try:
             return d.get(k, default)
-        else:
+        except AttributeError:
             if default is no_default:
                 return getattr(d, k)
             else:
@@ -190,7 +190,7 @@ def update_in(d, keys, func, default=None):
     assert len(keys) > 0
     k, ks = keys[0], keys[1:]
     if ks:
-        nested = {} if (type(d) == dict) else no_default
+        nested = {} if isinstance(d, dict) else no_default
         val = update_in(get(k, d, nested), ks, func, default)
     else:
         val = func(get(k, d, default))
@@ -220,24 +220,24 @@ def get_in(keys, coll, default=None, no_default=False):
     >>> get_in(['purchase', 'items', 10], transaction)
     >>> get_in(['purchase', 'total'], transaction, 0)
     0
-    >>> get_in(['y'], {}, no_default=True)
+    >>> get_in(['y'], {}, no_default=True)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    KeyError: 'y'
+    AttributeError: ... has no attribute 'y'
 
     See Also:
         itertoolz.get
         operator.getitem
     """
-    ts = [dict, list, tuple, str]
-
     def get(d, key):
-        func = operator.getitem if (type(d) in ts) else getattr
-        return func(d, key)
+        try:
+            return d[key]
+        except (KeyError, IndexError, TypeError):
+            return getattr(d, key)
 
     try:
         return reduce(get, keys, coll)
-    except (KeyError, IndexError, AttributeError, TypeError):
+    except (AttributeError, TypeError):
         if no_default:
             raise
         return default
