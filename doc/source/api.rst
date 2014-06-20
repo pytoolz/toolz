@@ -54,6 +54,8 @@ Functoolz
 
 .. autosummary::
    complement
+   conjunction
+   disjunction
    compose
    curry
    do

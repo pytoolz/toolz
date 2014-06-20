@@ -4,7 +4,8 @@ import operator
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'conjunction', 'disjunction', 'juxt', 'do', 'curry')
+           'pipe', 'complement', 'conjunction', 'disjunction', 'juxt',
+           'do', 'curry')
 
 
 def identity(x):
@@ -407,6 +408,7 @@ def conjunction(*funcs):
     >>> div_6(15)
     False
     """
+
     def _inner(*args, **kwargs):
         return all(f(*args, **kwargs) for f in funcs)
     return _inner
@@ -431,6 +433,7 @@ def disjunction(*funcs):
     >>> div_3_2(12)
     True
     """
+
     def _inner(*args, **kwargs):
         return any(f(*args, **kwargs) for f in funcs)
     return _inner
