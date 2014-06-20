@@ -4,7 +4,7 @@ import operator
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry')
+           'pipe', 'complement', 'conjunct', 'disjunct', 'juxt', 'do', 'curry')
 
 
 def identity(x):
@@ -388,6 +388,52 @@ def complement(func):
     False
     """
     return compose(operator.not_, func)
+
+
+def conjunct(*funcs):
+    """ Return the logical conjunction of the passed predicates
+
+    In other words, return a function that returns True if and only if
+    each of the passed functions yields True for that input:
+
+
+    >>> def iseven(n): return n % 2 == 0
+    >>> def div_3(n): return n % 3 == 0
+    >>> div_6 = conjunct(div_3, iseven)
+    >>> div_6(10)
+    False
+    >>> div_6(12)
+    True
+    >>> div_6(15)
+    False
+    """
+    def _inner(*args, **kwargs):
+        return all(f(*args, **kwargs) for f in funcs)
+    return _inner
+
+
+def disjunct(*funcs):
+    """ Return the logical disjunction of the passed predicates
+
+    In other words, return a function that returns True if
+    any of the passed functions yields True for that input:
+
+
+    >>> def iseven(n): return n % 2 == 0
+    >>> def div_3(n): return n % 3 == 0
+    >>> div_3_2 = disjunct(div_3, iseven)
+    >>> div_3_2(9)
+    True
+    >>> div_3_2(10)
+    True
+    >>> div_3_2(11)
+    False
+    >>> div_3_2(12)
+    True
+    """
+    def _inner(*args, **kwargs):
+        return any(f(*args, **kwargs) for f in funcs)
+    return _inner
 
 
 def juxt(*funcs):

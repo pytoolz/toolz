@@ -1,5 +1,6 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt)
+                             compose, pipe, complement, conjunct, disjunct,
+                             do, juxt)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -356,6 +357,27 @@ def test_complement():
     assert not complement(lambda: "x")()
     assert not complement(lambda: 1)()
     assert not complement(lambda: [1])()
+
+
+def test_conjunct():
+    # No args
+    assert conjunct(lambda: True, lambda: True)()
+    assert not conjunct(lambda: True, lambda: False)()
+
+    # Single arity:
+    assert conjunct(lambda x: x % 3 == 0, iseven)(6)
+    assert not conjunct(lambda x: x % 3 == 0, iseven)(4)
+
+
+def test_disjunct():
+    # No args
+    assert disjunct(lambda: False, lambda: True)()
+    assert not disjunct(lambda: False, lambda: False)()
+
+    # Single arity:
+    assert disjunct(lambda x: x % 3 == 0, iseven)(6)
+    assert disjunct(lambda x: x % 3 == 0, iseven)(4)
+    assert not disjunct(lambda x: x % 3 == 0, iseven)(5)
 
 
 def test_do():
