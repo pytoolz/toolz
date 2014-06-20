@@ -230,10 +230,7 @@ def get_in(keys, coll, default=None, no_default=False):
         operator.getitem
     """
     def get(d, key):
-        if hasattr(d, '__getitem__'):
-            return d[key]
-        else:
-            return getattr(d, key)
+        return d[key] if hasattr(d, '__getitem__') else getattr(d, key)
 
     try:
         return reduce(get, keys, coll)
