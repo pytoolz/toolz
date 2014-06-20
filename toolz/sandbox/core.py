@@ -1,3 +1,4 @@
+from toolz.itertoolz import getter
 
 
 # See #166: https://github.com/pytoolz/toolz/issues/166
@@ -62,17 +63,18 @@ class EqualityHashKey(object):
     def __init__(self, key, item):
         if key is None:
             self.key = self._default_hashkey
-        # elif not callable(key):
-        #     self.key = getter(key)
+        elif not callable(key):
+            self.key = getter(key)
         else:
             self.key = key
         self.item = item
 
     def __hash__(self):
-        if callable(self.key):
+        if self.key == self._default_hashkey:
+            val = self.key
+        else:
             val = self.key(self.item)
-            return hash(val)
-        return hash(self.key)
+        return hash(val)
 
     def __eq__(self, other):
         try:
