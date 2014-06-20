@@ -230,14 +230,14 @@ def get_in(keys, coll, default=None, no_default=False):
         operator.getitem
     """
     def get(d, key):
-        try:
+        if hasattr(d, '__getitem__'):
             return d[key]
-        except (KeyError, IndexError, TypeError):
+        else:
             return getattr(d, key)
 
     try:
         return reduce(get, keys, coll)
-    except (AttributeError, TypeError):
+    except (KeyError, IndexError, AttributeError, TypeError):
         if no_default:
             raise
         return default
