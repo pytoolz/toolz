@@ -3,28 +3,27 @@ import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import map, filter, zip, zip_longest
+from toolz.compatibility import (map, filter, filterfalse, zip, zip_longest,
+                                 iteritems)
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck')
-
-
-identity = lambda x: x
+           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
+           'join')
 
 
 def remove(predicate, seq):
-    """ Return those items of collection for which predicate(item) is true.
+    """ Return those items of sequence for which predicate(item) is False
 
     >>> def iseven(x):
     ...     return x % 2 == 0
     >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
-    return filter(lambda x: not predicate(x), seq)
+    return filterfalse(predicate, seq)
 
 
 def accumulate(binop, seq):
@@ -54,7 +53,7 @@ def accumulate(binop, seq):
         yield result
 
 
-def groupby(func, seq):
+def groupby(key, seq):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
@@ -65,13 +64,27 @@ def groupby(func, seq):
     >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])
     {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
 
+    Non-callable keys imply grouping on a member.
+
+    >>> groupby('gender', [{'name': 'Alice', 'gender': 'F'},
+    ...                    {'name': 'Bob', 'gender': 'M'},
+    ...                    {'name': 'Charlie', 'gender': 'M'}]) # doctest:+SKIP
+    {'F': [{'gender': 'F', 'name': 'Alice'}],
+     'M': [{'gender': 'M', 'name': 'Bob'},
+           {'gender': 'M', 'name': 'Charlie'}]}
+
     See Also:
-        ``countby``
+        countby
     """
-    d = collections.defaultdict(list)
+    if not callable(key):
+        key = getter(key)
+    d = collections.defaultdict(lambda: [].append)
     for item in seq:
-        d[func(item)].append(item)
-    return dict(d)
+        d[key(item)](item)
+    rv = {}
+    for k, v in iteritems(d):
+        rv[k] = v.__self__
+    return rv
 
 
 def merge_sorted(*seqs, **kwargs):
@@ -120,7 +133,9 @@ def _merge_sorted_key(seqs, key):
     heapq.heapify(pq)
 
     # Repeatedly yield and then repopulate from the same iterator
-    while True:
+    heapreplace = heapq.heapreplace
+    heappop = heapq.heappop
+    while len(pq) > 1:
         try:
             while True:
                 # raises IndexError when pq is empty
@@ -129,11 +144,15 @@ def _merge_sorted_key(seqs, key):
                 item = next(it)  # raises StopIteration when exhausted
                 s[0] = key(item)
                 s[2] = item
-                heapq.heapreplace(pq, s)  # restore heap condition
+                heapreplace(pq, s)  # restore heap condition
         except StopIteration:
-            heapq.heappop(pq)  # remove empty iterator
-        except IndexError:
-            return
+            heappop(pq)  # remove empty iterator
+    if pq:
+        # Much faster when only a single iterable remains
+        _, itnum, item, it = pq[0]
+        yield item
+        for item in it:
+            yield item
 
 
 def interleave(seqs, pass_exceptions=()):
@@ -161,7 +180,7 @@ def interleave(seqs, pass_exceptions=()):
         iters = newiters
 
 
-def unique(seq, key=identity):
+def unique(seq, key=None):
     """ Return only unique elements of a sequence
 
     >>> tuple(unique((1, 2, 3)))
@@ -175,11 +194,18 @@ def unique(seq, key=identity):
     ('cat', 'mouse')
     """
     seen = set()
-    for item in seq:
-        tag = key(item)
-        if tag not in seen:
-            seen.add(tag)
-            yield item
+    seen_add = seen.add
+    if key is None:
+        for item in seq:
+            if item not in seen:
+                seen_add(item)
+                yield item
+    else:  # calculate key
+        for item in seq:
+            val = key(item)
+            if val not in seen:
+                seen_add(val)
+                yield item
 
 
 def isiterable(x):
@@ -214,10 +240,11 @@ def isdistinct(seq):
     """
     if iter(seq) is seq:
         seen = set()
+        seen_add = seen.add
         for item in seq:
             if item in seen:
                 return False
-            seen.add(item)
+            seen_add(item)
         return True
     else:
         return len(seq) == len(set(seq))
@@ -343,7 +370,10 @@ def get(ind, seq, default=no_default):
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
             if default is no_default:
-                return operator.itemgetter(*ind)(seq)
+                if len(ind) > 1:
+                    return operator.itemgetter(*ind)(seq)
+                else:
+                    return (seq[ind[0]],)
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
@@ -434,7 +464,7 @@ def frequencies(seq):
     return dict(d)
 
 
-def reduceby(key, binop, seq, init):
+def reduceby(key, binop, seq, init=no_default):
     """ Perform a simultaneous groupby and reduction
 
     The computation:
@@ -453,28 +483,44 @@ def reduceby(key, binop, seq, init):
     operate in much less space.  This makes it suitable for larger datasets
     that do not fit comfortably in memory
 
+    Simple Examples
+    ---------------
+
     >>> from operator import add, mul
-    >>> data = [1, 2, 3, 4, 5]
     >>> iseven = lambda x: x % 2 == 0
-    >>> reduceby(iseven, add, data, 0)
+
+    >>> data = [1, 2, 3, 4, 5]
+
+    >>> reduceby(iseven, add, data)
     {False: 9, True: 6}
-    >>> reduceby(iseven, mul, data, 1)
+
+    >>> reduceby(iseven, mul, data)
     {False: 15, True: 8}
+
+    Complex Example
+    ---------------
 
     >>> projects = [{'name': 'build roads', 'state': 'CA', 'cost': 1000000},
     ...             {'name': 'fight crime', 'state': 'IL', 'cost': 100000},
     ...             {'name': 'help farmers', 'state': 'IL', 'cost': 2000000},
     ...             {'name': 'help farmers', 'state': 'CA', 'cost': 200000}]
-    >>> reduceby(lambda x: x['state'],              # doctest: +SKIP
+
+    >>> reduceby('state',                        # doctest: +SKIP
     ...          lambda acc, x: acc + x['cost'],
     ...          projects, 0)
     {'CA': 1200000, 'IL': 2100000}
     """
+    if not callable(key):
+        key = getter(key)
     d = {}
     for item in seq:
         k = key(item)
         if k not in d:
-            d[k] = init
+            if init is no_default:
+                d[k] = item
+                continue
+            else:
+                d[k] = init
         d[k] = binop(d[k], item)
     return d
 
@@ -528,9 +574,10 @@ def sliding_window(n, seq):
     d = collections.deque(itertools.islice(it, n), n)
     if len(d) != n:
         raise StopIteration()
+    d_append = d.append
     for item in it:
         yield tuple(d)
-        d.append(item)
+        d_append(item)
     yield tuple(d)
 
 
@@ -628,10 +675,100 @@ def pluck(ind, seqs, default=no_default):
         map
     """
     if default is no_default:
-        if isinstance(ind, list):
-            return map(operator.itemgetter(*ind), seqs)
-        return map(operator.itemgetter(ind), seqs)
+        get = getter(ind)
+        return map(get, seqs)
     elif isinstance(ind, list):
         return (tuple(_get(item, seq, default) for item in ind)
                 for seq in seqs)
     return (_get(ind, seq, default) for seq in seqs)
+
+
+def getter(index):
+    if isinstance(index, list):
+        if len(index) == 1:
+            index = index[0]
+            return lambda x: (x[index],)
+        else:
+            return operator.itemgetter(*index)
+    else:
+        return operator.itemgetter(index)
+
+
+def join(leftkey, leftseq, rightkey, rightseq,
+         left_default=no_default, right_default=no_default):
+    """ Join two sequences on common attributes
+
+    This is a semi-streaming operation.  The LEFT sequence is fully evaluated
+    and placed into memory.  The RIGHT sequence is evaluated lazily and so can
+    be arbitrarily large.
+
+    >>> friends = [('Alice', 'Edith'),
+    ...            ('Alice', 'Zhao'),
+    ...            ('Edith', 'Alice'),
+    ...            ('Zhao', 'Alice'),
+    ...            ('Zhao', 'Edith')]
+
+    >>> cities = [('Alice', 'NYC'),
+    ...           ('Alice', 'Chicago'),
+    ...           ('Dan', 'Syndey'),
+    ...           ('Edith', 'Paris'),
+    ...           ('Edith', 'Berlin'),
+    ...           ('Zhao', 'Shanghai')]
+
+    >>> # Vacation opportunities
+    >>> # In what cities do people have friends?
+    >>> result = join(second, friends,
+    ...               first, cities)
+    >>> for ((a, b), (c, d)) in sorted(unique(result)):
+    ...     print((a, d))
+    ('Alice', 'Berlin')
+    ('Alice', 'Paris')
+    ('Alice', 'Shanghai')
+    ('Edith', 'Chicago')
+    ('Edith', 'NYC')
+    ('Zhao', 'Chicago')
+    ('Zhao', 'NYC')
+    ('Zhao', 'Berlin')
+    ('Zhao', 'Paris')
+
+    Specify outer joins with keyword arguments ``left_default`` and/or
+    ``right_default``.  Here is a full outer join in which unmatched elements
+    are paired with None.
+
+    >>> identity = lambda x: x
+    >>> list(join(identity, [1, 2, 3],
+    ...           identity, [2, 3, 4],
+    ...           left_default=None, right_default=None))
+    [(2, 2), (3, 3), (None, 4), (1, None)]
+
+    Usually the key arguments are callables to be applied to the sequences.  If
+    the keys are not obviously callable then it is assumed that indexing was
+    intended, e.g. the following is a legal change
+
+    >>> # result = join(second, friends, first, cities)
+    >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
+    """
+    if not callable(leftkey):
+        leftkey = getter(leftkey)
+    if not callable(rightkey):
+        rightkey = getter(rightkey)
+
+    d = groupby(leftkey, leftseq)
+    seen_keys = set()
+
+    for item in rightseq:
+        key = rightkey(item)
+        seen_keys.add(key)
+        try:
+            left_matches = d[key]
+            for match in left_matches:
+                yield (match, item)
+        except KeyError:
+            if left_default is not no_default:
+                yield (left_default, item)
+
+    if right_default is not no_default:
+        for key, matches in d.items():
+            if key not in seen_keys:
+                for match in matches:
+                    yield (match, right_default)

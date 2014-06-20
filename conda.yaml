@@ -1,0 +1,20 @@
+package:
+    name: toolz
+    version: 0.6.0
+
+build:
+    number: {{environ.get('BINSTAR_BUILD', 1)}}
+    script: python setup.py install
+      - cd $RECIPE_DIR
+      - $PYTHON setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+    build:
+      - python
+
+    run:
+      - python
+
+about:
+    home: http://toolz.readthedocs.org/
+    license: BSD

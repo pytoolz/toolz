@@ -395,23 +395,23 @@ def juxt(*funcs):
     Creates a function that calls several functions with the same arguments.
 
     Takes several functions and returns a function that applies its arguments
-    to each of those functions then returns a sequence of the results.
+    to each of those functions then returns a tuple of the results.
 
     Name comes from juxtaposition: the fact of two things being seen or placed
     close together with contrasting effect.
 
     >>> inc = lambda x: x + 1
     >>> double = lambda x: x * 2
-    >>> list(juxt(inc, double)(10))
-    [11, 20]
-    >>> list(juxt([inc, double])(10))
-    [11, 20]
+    >>> juxt(inc, double)(10)
+    (11, 20)
+    >>> juxt([inc, double])(10)
+    (11, 20)
     """
     if len(funcs) == 1 and not callable(funcs[0]):
         funcs = tuple(funcs[0])
 
     def juxt_inner(*args, **kwargs):
-        return (func(*args, **kwargs) for func in funcs)
+        return tuple(func(*args, **kwargs) for func in funcs)
     return juxt_inner
 
 

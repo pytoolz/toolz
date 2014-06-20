@@ -3,7 +3,7 @@ import sys
 PY3 = sys.version_info[0] > 2
 
 __all__ = ('PY3', 'map', 'filter', 'range', 'zip', 'reduce', 'zip_longest',
-           'iteritems', 'iterkeys', 'itervalues')
+           'iteritems', 'iterkeys', 'itervalues', 'filterfalse')
 
 if PY3:
     map = map
@@ -12,6 +12,7 @@ if PY3:
     zip = zip
     from functools import reduce
     from itertools import zip_longest
+    from itertools import filterfalse
     iteritems = operator.methodcaller('items')
     iterkeys = operator.methodcaller('keys')
     itervalues = operator.methodcaller('values')
@@ -20,6 +21,7 @@ else:
     reduce = reduce
     from itertools import imap as map
     from itertools import ifilter as filter
+    from itertools import ifilterfalse as filterfalse
     from itertools import izip as zip
     from itertools import izip_longest as zip_longest
     iteritems = operator.methodcaller('iteritems')
