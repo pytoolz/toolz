@@ -1,6 +1,6 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, conjunct, disjunct,
-                             do, juxt)
+                             compose, pipe, complement, conjunction,
+                             disjunction, do, juxt)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -359,25 +359,25 @@ def test_complement():
     assert not complement(lambda: [1])()
 
 
-def test_conjunct():
+def test_conjunction():
     # No args
-    assert conjunct(lambda: True, lambda: True)()
-    assert not conjunct(lambda: True, lambda: False)()
+    assert conjunction(lambda: True, lambda: True)()
+    assert not conjunction(lambda: True, lambda: False)()
 
     # Single arity:
-    assert conjunct(lambda x: x % 3 == 0, iseven)(6)
-    assert not conjunct(lambda x: x % 3 == 0, iseven)(4)
+    assert conjunction(lambda x: x % 3 == 0, iseven)(6)
+    assert not conjunction(lambda x: x % 3 == 0, iseven)(4)
 
 
-def test_disjunct():
+def test_disjunction():
     # No args
-    assert disjunct(lambda: False, lambda: True)()
-    assert not disjunct(lambda: False, lambda: False)()
+    assert disjunction(lambda: False, lambda: True)()
+    assert not disjunction(lambda: False, lambda: False)()
 
     # Single arity:
-    assert disjunct(lambda x: x % 3 == 0, iseven)(6)
-    assert disjunct(lambda x: x % 3 == 0, iseven)(4)
-    assert not disjunct(lambda x: x % 3 == 0, iseven)(5)
+    assert disjunction(lambda x: x % 3 == 0, iseven)(6)
+    assert disjunction(lambda x: x % 3 == 0, iseven)(4)
+    assert not disjunction(lambda x: x % 3 == 0, iseven)(5)
 
 
 def test_do():
