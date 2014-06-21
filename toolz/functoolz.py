@@ -390,7 +390,7 @@ def complement(func):
     return compose(operator.not_, func)
 
 
-def juxt(*funcs):
+class juxt(object):
     """
     Creates a function that calls several functions with the same arguments.
 
@@ -407,12 +407,21 @@ def juxt(*funcs):
     >>> juxt([inc, double])(10)
     (11, 20)
     """
-    if len(funcs) == 1 and not callable(funcs[0]):
-        funcs = tuple(funcs[0])
+    __slots__ = ['funcs']
 
-    def juxt_inner(*args, **kwargs):
-        return tuple(func(*args, **kwargs) for func in funcs)
-    return juxt_inner
+    def __init__(self, *funcs):
+        if len(funcs) == 1 and not callable(funcs[0]):
+            funcs = funcs[0]
+        self.funcs = tuple(funcs)
+
+    def __call__(self, *args, **kwargs):
+        return tuple(func(*args, **kwargs) for func in self.funcs)
+
+    def __getstate__(self):
+        return self.funcs
+
+    def __setstate__(self, state):
+        self.funcs = state
 
 
 def do(func, x):
