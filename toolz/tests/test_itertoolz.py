@@ -156,6 +156,7 @@ def test_get():
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
+    assert raises(TypeError, lambda: get([1, 2, 3], 1, None))
 
 
 def test_mapcat():
