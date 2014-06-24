@@ -19,3 +19,12 @@ def test_juxt():
     g = pickle.loads(pickle.dumps(f))
     assert f(1) == g(1)
     assert f.funcs == g.funcs
+
+
+def test_complement():
+    f = complement(bool)
+    assert f(True) is False
+    assert f(False) is True
+    g = pickle.loads(pickle.dumps(f))
+    assert f(True) == g(True)
+    assert f(False) == g(False)
