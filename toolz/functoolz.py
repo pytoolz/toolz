@@ -408,7 +408,6 @@ def conjunction(*funcs):
     >>> div_6(15)
     False
     """
-
     def _inner(*args, **kwargs):
         return all(f(*args, **kwargs) for f in funcs)
     return _inner
@@ -433,7 +432,6 @@ def disjunction(*funcs):
     >>> div_3_2(12)
     True
     """
-
     def _inner(*args, **kwargs):
         return any(f(*args, **kwargs) for f in funcs)
     return _inner

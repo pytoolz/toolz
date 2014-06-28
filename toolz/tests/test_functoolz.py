@@ -360,24 +360,62 @@ def test_complement():
 
 
 def test_conjunction():
+    div_3 = lambda x: x % 3 == 0
+
     # No args
     assert conjunction(lambda: True, lambda: True)()
     assert not conjunction(lambda: True, lambda: False)()
 
     # Single arity:
-    assert conjunction(lambda x: x % 3 == 0, iseven)(6)
-    assert not conjunction(lambda x: x % 3 == 0, iseven)(4)
+    assert conjunction(div_3, iseven)(6)
+    assert not conjunction(div_3, iseven)(4)
+    assert not conjunction(div_3, iseven)(3)
 
+    # Multiple arities:
+    both_even = lambda a, b: iseven(a) and iseven(b)
+    both_div_3 = lambda a, b: div_3(a) and div_3(b)
+    assert conjunction(both_div_3, both_even)(6, 12)
+    assert not conjunction(both_div_3, both_even)(6, 8)
+
+    # Generic truthiness:
+    assert not conjunction(lambda: "")()
+    assert not conjunction(lambda: 0)()
+    assert not conjunction(lambda: None)()
+    assert not conjunction(lambda: [])()
+
+    assert conjunction(lambda: "x")()
+    assert conjunction(lambda: 1)()
+    assert conjunction(lambda: [1])()
 
 def test_disjunction():
+    div_3 = lambda x: x % 3 == 0
+
     # No args
     assert disjunction(lambda: False, lambda: True)()
     assert not disjunction(lambda: False, lambda: False)()
 
     # Single arity:
-    assert disjunction(lambda x: x % 3 == 0, iseven)(6)
-    assert disjunction(lambda x: x % 3 == 0, iseven)(4)
-    assert not disjunction(lambda x: x % 3 == 0, iseven)(5)
+    assert disjunction(div_3, iseven)(6)
+    assert disjunction(div_3, iseven)(4)
+    assert not disjunction(div_3, iseven)(5)
+
+    # Multiple arities:
+    both_even = lambda a, b: iseven(a) and iseven(b)
+    both_div_3 = lambda a, b: div_3(a) and div_3(b)
+    assert disjunction(both_div_3, both_even)(6, 12)
+    assert disjunction(both_div_3, both_even)(2, 6)
+    assert disjunction(both_div_3, both_even)(3, 6)
+    assert not disjunction(both_div_3, both_even)(2, 3)
+
+    # Generic truthiness:
+    assert not disjunction(lambda: "")()
+    assert not disjunction(lambda: 0)()
+    assert not disjunction(lambda: None)()
+    assert not disjunction(lambda: [])()
+
+    assert disjunction(lambda: "x")()
+    assert disjunction(lambda: 1)()
+    assert disjunction(lambda: [1])()
 
 
 def test_do():
