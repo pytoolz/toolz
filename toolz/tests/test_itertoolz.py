@@ -303,8 +303,6 @@ def test_join():
                     ((2, 'two', 'banana', 2)),
                     ((2, 'two', 'coconut', 2))])
 
-    print(result)
-    print(expected)
     assert result == expected
 
 
@@ -339,8 +337,6 @@ def test_join_double_repeats():
                     ((2, 'dos', 'banana', 2)),
                     ((2, 'dos', 'coconut', 2))])
 
-    print(result)
-    print(expected)
     assert result == expected
 
 
