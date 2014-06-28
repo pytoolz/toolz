@@ -50,6 +50,14 @@ def test_groupby_non_callable():
         {1: [(1, 2), (1, 3)],
          2: [(2, 2), (2, 4)]}
 
+    assert groupby([0], [(1, 2), (1, 3), (2, 2), (2, 4)]) == \
+        {(1,): [(1, 2), (1, 3)],
+         (2,): [(2, 2), (2, 4)]}
+
+    assert groupby([0, 0], [(1, 2), (1, 3), (2, 2), (2, 4)]) == \
+        {(1, 1): [(1, 2), (1, 3)],
+         (2, 2): [(2, 2), (2, 4)]}
+
 
 def test_merge_sorted():
     assert list(merge_sorted([1, 2, 3], [1, 2, 3])) == [1, 1, 2, 2, 3, 3]
@@ -156,6 +164,7 @@ def test_get():
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
+    assert raises(TypeError, lambda: get([1, 2, 3], 1, None))
 
 
 def test_mapcat():
@@ -302,8 +311,6 @@ def test_join():
                     ((2, 'two', 'banana', 2)),
                     ((2, 'two', 'coconut', 2))])
 
-    print(result)
-    print(expected)
     assert result == expected
 
 
@@ -338,8 +345,6 @@ def test_join_double_repeats():
                     ((2, 'dos', 'banana', 2)),
                     ((2, 'dos', 'coconut', 2))])
 
-    print(result)
-    print(expected)
     assert result == expected
 
 
