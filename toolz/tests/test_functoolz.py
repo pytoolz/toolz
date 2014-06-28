@@ -387,6 +387,7 @@ def test_conjunction():
     assert conjunction(lambda: 1)()
     assert conjunction(lambda: [1])()
 
+
 def test_disjunction():
     div_3 = lambda x: x % 3 == 0
 
