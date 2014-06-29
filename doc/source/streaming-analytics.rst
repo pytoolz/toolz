@@ -165,8 +165,8 @@ common first column, id.
 
 .. code::
 
-   >>> result = join(first, accounts,
-   ...               first, addresses)
+   >>> result = join(lambda x: x[0], accounts,
+   ...               lambda x: x[0], addresses)
 
    >>> for ((_, name, _, _), (_, address)) in result:
    ...     print((name, address))
@@ -248,8 +248,8 @@ many friends and because a friend may have many residences.
 
    >>> # Vacation opportunities
    >>> # In what cities do people have friends?
-   >>> result = join(second, friends,
-   ...               first, cities)
+   >>> result = join(lambda x: x[1], friends,
+   ...               lambda x: x[0], cities)
    >>> for ((a, b), (c, d)) in sorted(unique(result)):
    ...     print((a, d))
    ('Alice', 'Berlin')
