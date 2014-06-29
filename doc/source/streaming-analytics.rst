@@ -11,7 +11,7 @@ platforms like SQL or Pandas.
 Selecting with ``map`` and ``filter``
 -------------------------------------
 
-Simple projection and linear selection from a sequence is acheived through the
+Simple projection and linear selection from a sequence is achieved through the
 standard functions ``map`` and ``filter``.
 
 .. code::
@@ -35,7 +35,7 @@ These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
    ...                list)
 
 Of course, these operations are also well supported with standard
-list/generator comprenhions syntax.  This syntax is more often used and
+list/generator comprehension syntax.  This syntax is more often used and
 generally considered to be more Pythonic.
 
 .. code::
@@ -52,7 +52,7 @@ We separate split-apply-combine operations into the following two concepts
 1.  Split the dataset into groups by some property
 2.  Reduce each of the groups with some synopsis function
 
-Toolz supports this common workflow with a simple in-memory solution and with a
+Toolz supports this common work-flow with a simple in-memory solution and with a
 more sophisticated streaming solution.
 
 
@@ -97,9 +97,9 @@ The ``groupby`` function collects the entire dataset in memory into a
 dictionary.  While convenient, the ``groupby`` operation is *not streaming* and
 so this approach is limited to datasets that can fit comfortably into memory.
 
-Toolz acheives streaming split-apply-combine with `reduceby`_, a function that
+Toolz achieves streaming split-apply-combine with `reduceby`_, a function that
 performs a simultaneous reduction on each group as the elements stream in.  To
-understand this section you should first be familiar with the builtin funciton
+understand this section you should first be familiar with the builtin function
 ``reduce``.
 
 The ``reduceby`` operation takes a key function, like ``groupby``, and a binary
