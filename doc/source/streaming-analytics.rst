@@ -183,10 +183,10 @@ Join on arbitrary functions / data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Those familiar with SQL are accustomed to this sort of join on columns.
-However a functional join is more general than this.  However, a funcitonal
-join is more general than this; it doesn't need to operate on tuples, and key
-functions do not need to get particular columns.  In the example below we match
-numbers from two collections so that exactly one is even and one is odd.
+However a functional join is more general than this; it doesn't need to operate
+on tuples, and key functions do not need to get particular columns.  In the
+example below we match numbers from two collections so that exactly one is even
+and one is odd.
 
 .. code::
 
