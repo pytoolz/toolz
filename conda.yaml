@@ -1,6 +1,6 @@
 package:
     name: toolz
-    version: 0.6.0
+    version: "0.6.0"
 
 build:
     number: {{environ.get('BINSTAR_BUILD', 1)}}
