@@ -391,7 +391,7 @@ def complement(func):
     return compose(operator.not_, func)
 
 
-def conjunction(*funcs):
+def conjunction(*predicates):
     """ Return the logical conjunction of the passed predicates
 
     In other words, return a function that returns True if and only if
@@ -409,11 +409,11 @@ def conjunction(*funcs):
     False
     """
     def _inner_conjunction(*args, **kwargs):
-        return all(f(*args, **kwargs) for f in funcs)
+        return all(p(*args, **kwargs) for p in predicates)
     return _inner_conjunction
 
 
-def disjunction(*funcs):
+def disjunction(*predicates):
     """ Return the logical disjunction of the passed predicates
 
     In other words, return a function that returns True if
@@ -433,7 +433,7 @@ def disjunction(*funcs):
     True
     """
     def _inner_disjunction(*args, **kwargs):
-        return any(f(*args, **kwargs) for f in funcs)
+        return any(p(*args, **kwargs) for p in predicates)
     return _inner_disjunction
 
 
