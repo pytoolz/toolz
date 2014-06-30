@@ -37,9 +37,7 @@ These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
    ...                map(get([1, 2])),
    ...                list)
 
-*note: this uses the
-[curried](http://toolz.readthedocs.org/en/latest/curry.html) versions of
-``map`` and ``reduce``.*
+*note: this uses the curried_ versions of ``map`` and ``reduce``.*
 
 Of course, these operations are also well supported with standard
 list/generator comprehension syntax.  This syntax is more often used and
@@ -59,8 +57,10 @@ We separate split-apply-combine operations into the following two concepts
 1.  Split the dataset into groups by some property
 2.  Reduce each of the groups with some synopsis function
 
-Toolz supports this common workflow with a simple in-memory solution and with a
-more sophisticated streaming solution.
+Toolz supports this common workflow with
+
+1.  a simple in-memory solution
+2.  a more sophisticated streaming solution.
 
 
 In Memory Split-Apply-Combine
@@ -304,3 +304,4 @@ using projects specific to data analytics like Pandas_ or SQLAlchemy.
 .. _reduceby: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.reduceby
 .. _valmap: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.valmap
 .. _Pandas: http://pandas.pydata.org/pandas-docs/stable/groupby.html
+.. _curried: http://toolz.readthedocs.org/en/latest/curry.html
