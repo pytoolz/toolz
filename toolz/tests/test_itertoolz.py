@@ -10,7 +10,8 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
-                             partition_all, take_nth, pluck, join)
+                             partition_all, take_nth, pluck, join,
+                             identical)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -379,3 +380,15 @@ def test_outer_join():
     expected = set([(2, 2), (1, None), (None, 3)])
 
     assert result == expected
+
+
+def test_identical():
+    assert identical([1, 2, 3], [1, 2, 3]) is True
+    assert identical([1, 2, 3], (1, 2, 3), iter([1, 2, 3])) is True
+    assert identical([1, 2, 3], [1, 2]) is False
+    assert identical([1, 2], [1, 2, 3]) is False
+    assert identical([1, 2], [1, 2], [1, 2]) is True
+    assert identical([[], {}], [[], {}]) is True
+    assert identical([1, 2]) is True
+    assert identical([1, None], [1]) is False
+    assert identical() is True  # vacuous truth

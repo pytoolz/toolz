@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join')
+           'join', 'identical')
 
 
 def remove(predicate, seq):
@@ -772,3 +772,24 @@ def join(leftkey, leftseq, rightkey, rightseq,
             if key not in seen_keys:
                 for match in matches:
                     yield (match, right_default)
+
+
+def identical(*seqs):
+    """ Are sequences identical element-wise?
+
+    >>> identical([1, 2, 3], (1, 2, 3))
+    True
+
+    >>> identical([1, 2, 3], [1, 2])
+    False
+
+    This lazily evaluates the sequences and stops as soon as the result
+    is determined.
+    """
+    N = len(seqs)
+    if N < 2:
+        return True
+    for items in zip_longest(*seqs, fillvalue=object()):
+        if items.count(items[0]) != N:
+            return False
+    return True
