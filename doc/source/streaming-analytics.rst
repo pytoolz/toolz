@@ -33,6 +33,7 @@ These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
 
 .. code::
 
+   >>> from toolz.curried import pipe, map, filter, get
    >>> pipe(accounts, filter(lambda (id, name, balance, gender): balance > 150),
    ...                map(get([1, 2])),
    ...                list)
@@ -80,6 +81,9 @@ groups.
 
 .. code::
 
+   >>> from toolz import groupby, valmap, compose
+   >>> from toolz.curried import get, pluck
+
    >>> groupby(get(3), accounts)
    {'F': [(1, 'Alice', 100, 'F'), (5, 'Edith', 300, 'F')],
     'M': [(2, 'Bob', 200, 'M'), (3, 'Charlie', 150, 'M'), (4, 'Dennis', 50, 'M')]}
@@ -94,7 +98,7 @@ Then we chain them together into a single computation
 .. code::
 
    >>> pipe(accounts, groupby(get(3)),
-   ...                valmap(compose(sum, map(get(2)))))
+   ...                valmap(compose(sum, pluck(2))))
    {'F': 400, 'M': 400}
 
 
@@ -119,6 +123,8 @@ reduction operations like ``sum`` or ``min`` as these require access to the
 entire group at once.  Here is a simple example:
 
 .. code::
+
+   >>> from toolz import reduceby
 
    >>> def iseven(n):
    ...     return n % 2 == 0
@@ -180,8 +186,10 @@ common first column, id.
 
 .. code::
 
-   >>> result = join(lambda x: x[0], accounts,
-   ...               lambda x: x[0], addresses)
+   >>> from toolz import join, first, second
+
+   >>> result = join(first, accounts,
+   ...               first, addresses)
 
    >>> for ((id, name, bal, gender), (id, address)) in result:
    ...     print((name, address))
@@ -269,8 +277,8 @@ residences.
 
    >>> # Vacation opportunities
    >>> # In what cities do people have friends?
-   >>> result = join(lambda x: x[1], friends,
-   ...               lambda x: x[0], cities)
+   >>> result = join(second, friends,
+   ...               first, cities)
    >>> for ((name, friend), (friend, city)) in sorted(unique(result)):
    ...     print((name, city))
    ('Alice', 'Berlin')
