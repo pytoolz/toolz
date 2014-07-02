@@ -266,7 +266,7 @@ def isunary(f):
         if sys.version_info[0] == 3:
             spec = inspect.getfullargspec(f)
         return (True and spec and spec.varargs is None and not has_kwargs(f)
-                     and len(spec.args) == 1)
+                and len(spec.args) == 1)
     except TypeError:
         return None
 
