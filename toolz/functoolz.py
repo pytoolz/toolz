@@ -242,11 +242,10 @@ def has_kwargs(f):
     """
     if sys.version_info[0] == 2:
         spec = inspect.getargspec(f)
-        result = spec and (spec.keywords or spec.defaults)
-        return not not result
+        return bool(spec and (spec.keywords or spec.defaults))
     if sys.version_info[0] == 3:
         spec = inspect.getfullargspec(f)
-        return not not spec.defaults
+        return bool(spec.defaults)
 
 
 def isunary(f):
@@ -265,8 +264,8 @@ def isunary(f):
             spec = inspect.getargspec(f)
         if sys.version_info[0] == 3:
             spec = inspect.getfullargspec(f)
-        return (True and spec and spec.varargs is None and not has_kwargs(f)
-                and len(spec.args) == 1)
+        return bool(spec and spec.varargs is None and not has_kwargs(f)
+                    and len(spec.args) == 1)
     except TypeError:
         return None
 
