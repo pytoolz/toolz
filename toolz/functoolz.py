@@ -240,10 +240,10 @@ def has_kwargs(f):
     >>> has_kwargs(f)
     True
     """
-    if sys.version_info[0] == 2:
+    if sys.version_info[0] == 2:  # pragma: no cover
         spec = inspect.getargspec(f)
         return bool(spec and (spec.keywords or spec.defaults))
-    if sys.version_info[0] == 3:
+    if sys.version_info[0] == 3:  # pragma: no cover
         spec = inspect.getfullargspec(f)
         return bool(spec.defaults)
 
@@ -260,9 +260,9 @@ def isunary(f):
     False
     """
     try:
-        if sys.version_info[0] == 2:
+        if sys.version_info[0] == 2:  # pragma: no cover
             spec = inspect.getargspec(f)
-        if sys.version_info[0] == 3:
+        if sys.version_info[0] == 3:  # pragma: no cover
             spec = inspect.getfullargspec(f)
         return bool(spec and spec.varargs is None and not has_kwargs(f)
                     and len(spec.args) == 1)
