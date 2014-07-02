@@ -33,21 +33,22 @@ New in 0.6.0
 New in 0.6.1
 
 
-*   Avoid generators, favor map.  Assists in debugging.
-*   Cleaner `curry` implementation
-*   `EqualityHashKey` added to sandbox
+*   Python 3.4 support
 *   New `join` operation
 *   `join`, `groupby`, ... accept non-callable key functions.
-*   Fix bug in `get` where `get([1], coll)` used to return element rather than
-    length-one tuple
-*   `juxt` returns a tuple, not a generator
-*   `reduceby` no longer requires `default` keyword argument
-*   Toolz builds on binstar build
-*   Fix serialization issues for `juxt`, `complement`
 *   Many speed improvements:
     *   Cache method lookup
     *   Faster `merge_sorted` without key
     *   An additional round of tuning on `groupby`
+*   Toolz builds on binstar build under mrocklin channel
+*   Avoid generators, favor map.  Assists in debugging.
+*   Cleaner `curry` implementation
+*   Fix serialization issues for `juxt`, `complement`
+*   `reduceby` no longer requires `default` keyword argument
+*   Fix bug in `get` where `get([1], coll)` used to return element rather than
+    length-one tuple
+*   `EqualityHashKey` added to sandbox
+*   `juxt` returns a tuple, not a generator
 
 
 New Authors:
