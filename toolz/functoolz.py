@@ -266,8 +266,8 @@ def isunary(f):
             spec = inspect.getfullargspec(f)
         return bool(spec and spec.varargs is None and not has_kwargs(f)
                     and len(spec.args) == 1)
-    except TypeError:
-        return None
+    except TypeError:  # pragma: no cover
+        return None    # in Python < 3.4 builtins fail, return None
 
 
 @curry
