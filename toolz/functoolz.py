@@ -314,7 +314,7 @@ def memoize(func, cache=None, key=None):
         may_have_kwargs = has_kwargs(func)
         # Is unary function (single arg, no variadic argument or keywords)?
         is_unary = isunary(func)
-    except TypeError:
+    except TypeError:  # pragma: no cover
         may_have_kwargs = True
         is_unary = False
 
