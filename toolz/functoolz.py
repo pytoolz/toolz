@@ -404,14 +404,9 @@ def min_predicates(predicates, num=None):
 
 
 def max_predicates(predicates, num=None):
-    def _inner_max_predicates(*args, **kwargs):
-        count = 0
-        for p in predicates:
-            count += int(bool(p(*args, **kwargs)))
-            if count > num:
-                return False
-        return True
-    return _inner_max_predicates
+    return min_predicates(
+        list(map(complement, predicates)),
+        num=len(predicates) - num)
 
 
 def conjunction(*predicates):

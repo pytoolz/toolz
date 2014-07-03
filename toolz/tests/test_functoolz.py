@@ -362,16 +362,26 @@ def test_complement():
 
 def test_min_predicates():
     div_3 = lambda x: x % 3 == 0
+    div_5 = lambda x: x % 5 == 0
 
-    assert not min_predicates([div_3, iseven], num=2)(4)
-    assert min_predicates([div_3, iseven], num=1)(4)
+    assert min_predicates([div_3, iseven], num=1)(2)
+    assert not min_predicates([div_3, iseven], num=2)(2)
+
+    assert not min_predicates([div_5, div_3, iseven], num=3)(2)
+    assert not min_predicates([div_5, div_3, iseven], num=3)(6)
+    assert min_predicates([div_5, div_3, iseven], num=3)(30)
 
 
 def test_max_predicates():
     div_3 = lambda x: x % 3 == 0
+    div_5 = lambda x: x % 5 == 0
 
-    assert max_predicates([div_3, iseven], num=2)(6)
     assert not max_predicates([div_3, iseven], num=1)(6)
+    assert max_predicates([div_3, iseven], num=2)(6)
+
+    assert max_predicates([div_5, div_3, iseven], num=2)(2)
+    assert max_predicates([div_5, div_3, iseven], num=2)(6)
+    assert not max_predicates([div_5, div_3, iseven], num=2)(30)
 
 
 def test_conjunction():
