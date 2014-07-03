@@ -1,6 +1,7 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, conjunction,
-                             disjunction, do, juxt)
+                             disjunction, min_predicates, max_predicates,
+                             do, juxt)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -357,6 +358,20 @@ def test_complement():
     assert not complement(lambda: "x")()
     assert not complement(lambda: 1)()
     assert not complement(lambda: [1])()
+
+
+def test_min_predicates():
+    div_3 = lambda x: x % 3 == 0
+
+    assert not min_predicates([div_3, iseven], num=2)(4)
+    assert min_predicates([div_3, iseven], num=1)(4)
+
+
+def test_max_predicates():
+    div_3 = lambda x: x % 3 == 0
+
+    assert max_predicates([div_3, iseven], num=2)(6)
+    assert not max_predicates([div_3, iseven], num=1)(6)
 
 
 def test_conjunction():
