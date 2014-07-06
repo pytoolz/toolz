@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join')
+           'join', 'diff')
 
 
 def remove(predicate, seq):
@@ -772,3 +772,51 @@ def join(leftkey, leftseq, rightkey, rightseq,
             if key not in seen_keys:
                 for match in matches:
                     yield (match, right_default)
+
+
+def diff(*seqs, **kwargs):
+    """ Return those items that differ between sequences
+
+    >>> list(diff([1, 2, 3], [1, 2, 10, 100]))
+    [(3, 10)]
+
+    Shorter sequences may be padded with a ``default`` value:
+
+    >>> list(diff([1, 2, 3], [1, 2, 10, 100], default=None))
+    [(3, 10), (None, 100)]
+
+    A ``key`` function may also be applied to each item to use during
+    comparisons:
+
+    >>> data1 = [{'cost': 1, 'currency': 'dollar'},
+    ...          {'cost': 2, 'currency': 'dollar'}]
+
+    >>> data2 = [{'cost': 100, 'currency': 'yen'},
+    ...          {'cost': 300, 'currency': 'yen'}]
+
+    >>> conversions = {'dollar': 1, 'yen': 0.01}
+    >>> def indollars(item):
+    ...     return conversions[item['currency']] * item['cost']
+
+    >>> list(diff(data1, data2, key=indollars))  # doctest:+SKIP
+    [({'cost': 2, 'currency': 'dollar'}, {'cost': 300, 'currency': 'yen'})]
+
+    """
+    N = len(seqs)
+    if N < 2:
+        raise StopIteration()
+    default = kwargs.get('default', no_default)
+    if default is no_default:
+        iters = zip(*seqs)
+    else:
+        iters = zip_longest(*seqs, fillvalue=default)
+    key = kwargs.get('key', None)
+    if key is None:
+        for items in iters:
+            if items.count(items[0]) != N:
+                yield items
+    else:
+        for items in iters:
+            vals = tuple(map(key, items))
+            if vals.count(vals[0]) != N:
+                yield items

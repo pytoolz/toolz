@@ -15,6 +15,7 @@ Itertoolz
    concatv
    cons
    count
+   diff
    drop
    first
    frequencies
