@@ -143,13 +143,31 @@ class curry(object):
     >>> add(2, 3)
     5
 
+    There is one special keyword argument, ``numargs``, that can specify
+    at creation the minimum number of required positional arguments.
+    This can be useful when currying extention types or functions with
+    variadic arguments:
+
+    >>> def combine_with(func, *seqs):
+    ...     return map(sum, zip(*seqs))
+    >>> combine_with = curry(combine_with, numargs=2)
+    >>> add_sequences = combine_with(sum)
+    >>> list(add_sequences([1, 2], [10, 20]))
+    [11, 22]
+
     See Also:
         toolz.curried - namespace of curried functions
                         http://toolz.readthedocs.org/en/latest/curry.html
     """
     def __init__(self, func, *args, **kwargs):
+        numargs = kwargs.pop('numargs', None)
+        self._init_base(func, args, kwargs, numargs=numargs)
+
+    def _init_base(self, func, args, kwargs, numargs=None):
         if not callable(func):
             raise TypeError("Input must be callable")
+
+        self._numargs = numargs
 
         # curry- or functools.partial-like object?  Unpack and merge arguments
         if (hasattr(func, 'func')
@@ -207,6 +225,16 @@ class curry(object):
         return not self.__eq__(other)
 
     def __call__(self, *args, **kwargs):
+        if self._numargs is not None:
+            if len(args) + len(self.args) >= self._numargs:
+                return self._partial(*args, **kwargs)
+            else:
+                # bypass `__init__` to properly handle "numargs"
+                newcurry = curry.__new__(curry)
+                newcurry._init_base(self._partial, args, kwargs,
+                                    numargs=self._numargs)
+                return newcurry
+
         try:
             return self._partial(*args, **kwargs)
         except TypeError:
@@ -216,7 +244,10 @@ class curry(object):
                     len(args) + len(self.args) >= required_args):
                 raise
 
-        return curry(self._partial, *args, **kwargs)
+        # bypass `__init__` to properly handle "numargs"
+        newcurry = curry.__new__(curry)
+        newcurry._init_base(self._partial, args, kwargs)
+        return newcurry
 
     # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):
@@ -227,7 +258,7 @@ class curry(object):
 
     def __setstate__(self, state):
         func, args, kwargs, userdict = state
-        self.__init__(func, *args, **(kwargs or {}))
+        self._init_base(func, args, kwargs or {})
         self.__dict__.update(userdict)
 
 

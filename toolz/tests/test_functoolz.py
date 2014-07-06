@@ -313,6 +313,24 @@ def test_curry_doesnot_transmogrify():
     assert cf(y=1)(y=2)(y=3)(1) == f(1, 3)
 
 
+def test_curry_numargs():
+    def f(x, *y):
+        return x + sum(y)
+
+    assert curry(f)(1) == 1
+    assert curry(f, numargs=2)(1) != 1
+    assert curry(f, numargs=2)(1, 2) == 3
+
+    def g(x, numargs=10):
+        return x + numargs
+
+    assert curry(g, 1)() == 11
+    assert curry(g)(1) == 11
+    assert curry(g, numargs=1)(1) == 11
+    assert curry(g, numargs=1)(numargs=2)(1) == 3
+    assert curry(g)(numargs=1)(1) == 2
+    assert curry(g)(1, numargs=1) == 2
+
 def test__num_required_args():
     assert _num_required_args(map) != 0
     assert _num_required_args(lambda x: x) == 1
