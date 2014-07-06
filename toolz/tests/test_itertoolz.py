@@ -383,6 +383,8 @@ def test_outer_join():
 
 
 def test_diff():
+    assert list(diff()) == []
+    assert list(diff([1, 2])) == []
     assert list(diff([1, 2], (1, 2), iter([1, 2]))) == []
     assert list(diff([1, 2, 3], (1, 10, 3), iter([1, 2, 10]))) == [
         (2, 10, 2), (3, 3, 10)]
