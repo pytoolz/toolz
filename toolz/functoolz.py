@@ -301,6 +301,7 @@ def isunary(f):
         return None    # in Python < 3.4 builtins fail, return None
 
 
+@curry
 def memoize(func, cache=None, key=None):
     """ Cache a function's result for speedy future evaluation
 
@@ -377,9 +378,6 @@ def memoize(func, cache=None, key=None):
         pass
     memof.__doc__ = func.__doc__
     return memof
-
-
-memoize = curry(memoize, numargs=1)
 
 
 class Compose(object):

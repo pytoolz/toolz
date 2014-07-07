@@ -40,14 +40,6 @@ _numargs = {
 }
 
 
-def _nargs(f):
-    """ Return the number of required positional arguments """
-    if f in _numargs:
-        return _numargs[f]
-    spec = inspect.getargspec(f)
-    return len(spec.args) - len(spec.defaults or ())
-
-
 def _should_curry(f):
     if f in _numargs:
         return True
@@ -65,7 +57,7 @@ def _should_curry(f):
         return False
 
 
-_d = dict((name, toolz.curry(f, numargs=_nargs(f)) if _should_curry(f) else f)
+_d = dict((name, toolz.curry(f, numargs=_numargs.get(f)) if _should_curry(f) else f)
           for name, f in toolz.__dict__.items()
           if '__' not in name)
 
