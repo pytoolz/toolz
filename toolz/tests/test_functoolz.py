@@ -331,6 +331,7 @@ def test_curry_numargs():
     assert curry(g)(numargs=1)(1) == 2
     assert curry(g)(1, numargs=1) == 2
 
+
 def test__num_required_args():
     assert _num_required_args(map) != 0
     assert _num_required_args(lambda x: x) == 1

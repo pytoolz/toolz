@@ -17,6 +17,7 @@ def test_curry():
 def curry_numargs_f(x, *y):
     return x + sum(y)
 
+
 def curry_numargs_g(x, numargs=10):
     return x + numargs
 
