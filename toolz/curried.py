@@ -25,30 +25,52 @@ See Also:
 """
 
 import toolz
-import toolz.curried_exceptions
 from .functoolz import curry
 import inspect
 
+_numargs = {
+    # built-ins
+    toolz.filter: 2,
+    toolz.map: 2,
+    toolz.reduce: 2,
+    toolz.sorted: 1,
+
+    # exceptions
+    toolz.merge_sorted: 1,
+    toolz.merge_with: 2,
+}
+
 
 def _nargs(f):
+    """ Return the number of required positional arguments """
+    if f in _numargs:
+        return _numargs[f]
     try:
-        return len(inspect.getargspec(f).args)
+        spec = inspect.getargspec(f)
+        return len(spec.args) - len(spec.defaults or ())
     except TypeError:
         return None
 
 
 def _should_curry(f):
-    do_curry = set((toolz.map, toolz.filter, toolz.sorted, toolz.reduce))
-    return (callable(f) and _nargs(f) and _nargs(f) > 1
-            or f in do_curry)
+    if f in _numargs:
+        return True
+    if isinstance(f, toolz.curry):
+        return False
+    try:
+        spec = inspect.getargspec(f)
+        has_kwargs = bool(spec.defaults) or bool(spec.keywords)
+        numargs = len(spec.args) - len(spec.defaults or ())
+        if has_kwargs:
+            return numargs > 0
+        else:
+            return numargs > 1
+    except TypeError:
+        return False
 
 
-_d = dict((name, curry(f) if _should_curry(f) else f)
+_d = dict((name, toolz.curry(f, numargs=_nargs(f)) if _should_curry(f) else f)
           for name, f in toolz.__dict__.items()
           if '__' not in name)
 
-_exceptions = dict((name, curry(f) if callable(f) else f)
-                   for name, f in toolz.curried_exceptions.__dict__.items()
-                   if '__' not in name)
-
-locals().update(toolz.merge(_d, _exceptions))
+locals().update(_d)
