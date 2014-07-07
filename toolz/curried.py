@@ -57,8 +57,9 @@ def _should_curry(f):
         return False
 
 
-_d = dict((name, toolz.curry(f, numargs=_numargs.get(f)) if _should_curry(f) else f)
-          for name, f in toolz.__dict__.items()
-          if '__' not in name)
+_d = dict(
+    (name, toolz.curry(f, numargs=_numargs.get(f)) if _should_curry(f) else f)
+    for name, f in toolz.__dict__.items()
+    if '__' not in name)
 
 locals().update(_d)
