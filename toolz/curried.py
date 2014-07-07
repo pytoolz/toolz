@@ -25,7 +25,6 @@ See Also:
 """
 
 import toolz
-from .functoolz import curry
 import inspect
 
 _numargs = {
@@ -45,17 +44,14 @@ def _nargs(f):
     """ Return the number of required positional arguments """
     if f in _numargs:
         return _numargs[f]
-    try:
-        spec = inspect.getargspec(f)
-        return len(spec.args) - len(spec.defaults or ())
-    except TypeError:
-        return None
+    spec = inspect.getargspec(f)
+    return len(spec.args) - len(spec.defaults or ())
 
 
 def _should_curry(f):
     if f in _numargs:
         return True
-    if isinstance(f, toolz.curry):
+    if isinstance(f, toolz.functoolz.Curry):
         return False
     try:
         spec = inspect.getargspec(f)

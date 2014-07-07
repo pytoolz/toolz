@@ -1,5 +1,5 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt)
+                             compose, pipe, complement, do, juxt, Curry)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -238,9 +238,9 @@ def test_curry_is_idempotent():
 
     f = curry(foo, 1, c=2)
     g = curry(f)
-    assert isinstance(f, curry)
-    assert isinstance(g, curry)
-    assert not isinstance(g.func, curry)
+    assert isinstance(f, Curry)
+    assert isinstance(g, Curry)
+    assert not isinstance(g.func, Curry)
     assert not hasattr(g.func, 'func')
     assert f.func == g.func
     assert f.args == g.args
