@@ -129,8 +129,6 @@ class Curry(object):
         if not callable(func):
             raise TypeError("Input must be callable")
 
-        self._numargs = numargs
-
         # curry- or functools.partial-like object?  Unpack and merge arguments
         if (hasattr(func, 'func')
                 and hasattr(func, 'args')
@@ -152,6 +150,12 @@ class Curry(object):
 
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
+
+        self._numargs = numargs
+        if numargs is None:
+            self._numargs_needed = None
+        else:
+            self._numargs_needed = numargs - len(args)
 
     @property
     def func(self):
@@ -189,7 +193,7 @@ class Curry(object):
 
     def __call__(self, *args, **kwargs):
         if self._numargs is not None:
-            if len(args) + len(self.args) >= self._numargs:
+            if len(args) >= self._numargs_needed:
                 return self._partial(*args, **kwargs)
             else:
                 return Curry(self._partial, args, kwargs,
