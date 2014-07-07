@@ -788,18 +788,8 @@ def diff(*seqs, **kwargs):
     A ``key`` function may also be applied to each item to use during
     comparisons:
 
-    >>> data1 = [{'cost': 1, 'currency': 'dollar'},
-    ...          {'cost': 2, 'currency': 'dollar'}]
-
-    >>> data2 = [{'cost': 100, 'currency': 'yen'},
-    ...          {'cost': 300, 'currency': 'yen'}]
-
-    >>> conversions = {'dollar': 1, 'yen': 0.01}
-    >>> def indollars(item):
-    ...     return conversions[item['currency']] * item['cost']
-
-    >>> list(diff(data1, data2, key=indollars))  # doctest:+SKIP
-    [({'cost': 2, 'currency': 'dollar'}, {'cost': 300, 'currency': 'yen'})]
+    >>> list(diff(['apples', 'bananas'], ['Apples', 'Oranges'], key=str.lower))
+    [('bananas', 'Oranges')]
 
     """
     N = len(seqs)
