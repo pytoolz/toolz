@@ -248,7 +248,7 @@ def curry(func, *args, **kwargs):
     variadic arguments:
 
     >>> def combine_with(func, *seqs):
-    ...     return map(sum, zip(*seqs))
+    ...     return map(func, zip(*seqs))
     >>> combine_with = curry(combine_with, numargs=2)
     >>> add_sequences = combine_with(sum)
     >>> list(add_sequences([1, 2], [10, 20]))
