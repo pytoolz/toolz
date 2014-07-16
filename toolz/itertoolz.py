@@ -372,7 +372,7 @@ def get(ind, seq, default=no_default):
             if default is no_default:
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
-                elif len(ind) == 1:
+                elif ind:
                     return (seq[ind[0]],)
                 else:
                     return ()
