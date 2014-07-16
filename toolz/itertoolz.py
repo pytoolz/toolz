@@ -690,8 +690,10 @@ def getter(index):
         if len(index) == 1:
             index = index[0]
             return lambda x: (x[index],)
-        else:
+        elif index:
             return operator.itemgetter(*index)
+        else:
+            return lambda x: ()
     else:
         return operator.itemgetter(index)
 
