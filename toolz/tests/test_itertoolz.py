@@ -4,7 +4,7 @@ from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
-                             isiterable,
+                             isiterable, getter,
                              mapcat, isdistinct, first, second,
                              nth, take, drop, interpose, get,
                              rest, last, cons, frequencies,
@@ -160,6 +160,7 @@ def test_get():
     assert get([0, 2], 'AB', 'C') == ('A', 'C')
 
     assert get([0], 'AB') == ('A',)
+    assert get([], 'AB') == ()
 
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
@@ -312,6 +313,12 @@ def test_join():
                     ((2, 'two', 'coconut', 2))])
 
     assert result == expected
+
+
+def test_getter():
+    assert getter(0)('Alice') == 'A'
+    assert getter([0])('Alice') == ('A',)
+    assert getter([])('Alice') == ()
 
 
 def test_key_as_getter():
