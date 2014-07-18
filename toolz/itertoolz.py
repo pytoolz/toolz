@@ -372,8 +372,10 @@ def get(ind, seq, default=no_default):
             if default is no_default:
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
-                else:
+                elif ind:
                     return (seq[ind[0]],)
+                else:
+                    return ()
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
@@ -688,8 +690,10 @@ def getter(index):
         if len(index) == 1:
             index = index[0]
             return lambda x: (x[index],)
-        else:
+        elif index:
             return operator.itemgetter(*index)
+        else:
+            return lambda x: ()
     else:
         return operator.itemgetter(index)
 

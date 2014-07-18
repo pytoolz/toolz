@@ -1,6 +1,7 @@
 from functools import reduce, partial
 import inspect
 import operator
+import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
@@ -85,6 +86,13 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 
+# This is a kludge for Python 3.4.0 support
+# currently len(inspect.getargspec(map).args) == 0, a wrong result.
+# As this is fixed in future versions then hopefully this kludge can be
+# removed.
+known_numargs = {map: 2, filter: 2, reduce: 2}
+
+
 def _num_required_args(func):
     """ Number of args for func
 
@@ -100,6 +108,8 @@ def _num_required_args(func):
     >>> print(_num_required_args(bar))
     None
     """
+    if func in known_numargs:
+        return known_numargs[func]
     try:
         spec = inspect.getargspec(func)
         if spec.varargs:
@@ -143,8 +153,10 @@ class curry(object):
             raise TypeError("Input must be callable")
 
         # curry- or functools.partial-like object?  Unpack and merge arguments
-        if (hasattr(func, 'func') and hasattr(func, 'args')
-                and hasattr(func, 'keywords')):
+        if (hasattr(func, 'func')
+                and hasattr(func, 'args')
+                and hasattr(func, 'keywords')
+                and isinstance(func.args, tuple)):
             _kwargs = {}
             if func.keywords:
                 _kwargs.update(func.keywords)
@@ -220,6 +232,45 @@ class curry(object):
         self.__dict__.update(userdict)
 
 
+def has_kwargs(f):
+    """ Does a function have keyword arguments?
+
+    >>> def f(x, y=0):
+    ...     return x + y
+
+    >>> has_kwargs(f)
+    True
+    """
+    if sys.version_info[0] == 2:  # pragma: no cover
+        spec = inspect.getargspec(f)
+        return bool(spec and (spec.keywords or spec.defaults))
+    if sys.version_info[0] == 3:  # pragma: no cover
+        spec = inspect.getfullargspec(f)
+        return bool(spec.defaults)
+
+
+def isunary(f):
+    """ Does a function have only a single argument?
+
+    >>> def f(x):
+    ...     return x
+
+    >>> isunary(f)
+    True
+    >>> isunary(lambda x, y: x + y)
+    False
+    """
+    try:
+        if sys.version_info[0] == 2:  # pragma: no cover
+            spec = inspect.getargspec(f)
+        if sys.version_info[0] == 3:  # pragma: no cover
+            spec = inspect.getfullargspec(f)
+        return bool(spec and spec.varargs is None and not has_kwargs(f)
+                    and len(spec.args) == 1)
+    except TypeError:  # pragma: no cover
+        return None    # in Python < 3.4 builtins fail, return None
+
+
 @curry
 def memoize(func, cache=None, key=None):
     """ Cache a function's result for speedy future evaluation
@@ -261,12 +312,10 @@ def memoize(func, cache=None, key=None):
         cache = {}
 
     try:
-        spec = inspect.getargspec(func)
-        may_have_kwargs = bool(not spec or spec.keywords or spec.defaults)
+        may_have_kwargs = has_kwargs(func)
         # Is unary function (single arg, no variadic argument or keywords)?
-        is_unary = (spec and spec.varargs is None and not may_have_kwargs
-                    and len(spec.args) == 1)
-    except TypeError:
+        is_unary = isunary(func)
+    except TypeError:  # pragma: no cover
         may_have_kwargs = True
         is_unary = False
 
@@ -437,7 +486,7 @@ def disjunction(*predicates):
     return _inner_disjunction
 
 
-def juxt(*funcs):
+class juxt(object):
     """
     Creates a function that calls several functions with the same arguments.
 
@@ -454,12 +503,21 @@ def juxt(*funcs):
     >>> juxt([inc, double])(10)
     (11, 20)
     """
-    if len(funcs) == 1 and not callable(funcs[0]):
-        funcs = tuple(funcs[0])
+    __slots__ = ['funcs']
 
-    def juxt_inner(*args, **kwargs):
-        return tuple(func(*args, **kwargs) for func in funcs)
-    return juxt_inner
+    def __init__(self, *funcs):
+        if len(funcs) == 1 and not callable(funcs[0]):
+            funcs = funcs[0]
+        self.funcs = tuple(funcs)
+
+    def __call__(self, *args, **kwargs):
+        return tuple(func(*args, **kwargs) for func in self.funcs)
+
+    def __getstate__(self):
+        return self.funcs
+
+    def __setstate__(self, state):
+        self.funcs = state
 
 
 def do(func, x):

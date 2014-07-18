@@ -4,7 +4,7 @@ from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
-                             isiterable,
+                             isiterable, getter,
                              mapcat, isdistinct, first, second,
                              nth, take, drop, interpose, get,
                              rest, last, cons, frequencies,
@@ -49,6 +49,14 @@ def test_groupby_non_callable():
     assert groupby(0, [(1, 2), (1, 3), (2, 2), (2, 4)]) == \
         {1: [(1, 2), (1, 3)],
          2: [(2, 2), (2, 4)]}
+
+    assert groupby([0], [(1, 2), (1, 3), (2, 2), (2, 4)]) == \
+        {(1,): [(1, 2), (1, 3)],
+         (2,): [(2, 2), (2, 4)]}
+
+    assert groupby([0, 0], [(1, 2), (1, 3), (2, 2), (2, 4)]) == \
+        {(1, 1): [(1, 2), (1, 3)],
+         (2, 2): [(2, 2), (2, 4)]}
 
 
 def test_merge_sorted():
@@ -152,10 +160,12 @@ def test_get():
     assert get([0, 2], 'AB', 'C') == ('A', 'C')
 
     assert get([0], 'AB') == ('A',)
+    assert get([], 'AB') == ()
 
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
+    assert raises(TypeError, lambda: get([1, 2, 3], 1, None))
 
 
 def test_mapcat():
@@ -302,9 +312,13 @@ def test_join():
                     ((2, 'two', 'banana', 2)),
                     ((2, 'two', 'coconut', 2))])
 
-    print(result)
-    print(expected)
     assert result == expected
+
+
+def test_getter():
+    assert getter(0)('Alice') == 'A'
+    assert getter([0])('Alice') == ('A',)
+    assert getter([])('Alice') == ()
 
 
 def test_key_as_getter():
@@ -338,8 +352,6 @@ def test_join_double_repeats():
                     ((2, 'dos', 'banana', 2)),
                     ((2, 'dos', 'coconut', 2))])
 
-    print(result)
-    print(expected)
     assert result == expected
 
 

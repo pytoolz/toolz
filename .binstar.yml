@@ -7,6 +7,7 @@ engine:
   - python=2
   - python=3
 script:
+  - touch build.sh
   - conda build .
 build_targets:
   files: conda

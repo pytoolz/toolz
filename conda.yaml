@@ -1,15 +1,16 @@
 package:
     name: toolz
-    version: 0.6.0
+    version: "0.7.0"
 
 build:
     number: {{environ.get('BINSTAR_BUILD', 1)}}
-    script: python setup.py install
+    script: 
       - cd $RECIPE_DIR
-      - $PYTHON setup.py install --single-version-externally-managed --record=record.txt
+      - $PYTHON setup.py install 
 
 requirements:
     build:
+      - setuptools
       - python
 
     run:
