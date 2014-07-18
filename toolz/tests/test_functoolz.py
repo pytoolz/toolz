@@ -16,6 +16,10 @@ def isodd(x):
     return x % 2 == 1
 
 
+def isdiv3(x):
+    return x % 3 == 0
+
+
 def inc(x):
     return x + 1
 
@@ -371,20 +375,18 @@ def test_complement():
 
 
 def test_conjunction():
-    div_3 = lambda x: x % 3 == 0
-
     # No args
     assert conjunction(lambda: True, lambda: True)()
     assert not conjunction(lambda: True, lambda: False)()
 
     # Single arity:
-    assert conjunction(div_3, iseven)(6)
-    assert not conjunction(div_3, iseven)(4)
-    assert not conjunction(div_3, iseven)(3)
+    assert conjunction(isdiv3, iseven)(6)
+    assert not conjunction(isdiv3, iseven)(4)
+    assert not conjunction(isdiv3, iseven)(3)
 
     # Multiple arities:
     both_even = lambda a, b: iseven(a) and iseven(b)
-    both_div_3 = lambda a, b: div_3(a) and div_3(b)
+    both_div_3 = lambda a, b: isdiv3(a) and isdiv3(b)
     assert conjunction(both_div_3, both_even)(6, 12)
     assert not conjunction(both_div_3, both_even)(6, 8)
 
@@ -400,20 +402,18 @@ def test_conjunction():
 
 
 def test_disjunction():
-    div_3 = lambda x: x % 3 == 0
-
     # No args
     assert disjunction(lambda: False, lambda: True)()
     assert not disjunction(lambda: False, lambda: False)()
 
     # Single arity:
-    assert disjunction(div_3, iseven)(6)
-    assert disjunction(div_3, iseven)(4)
-    assert not disjunction(div_3, iseven)(5)
+    assert disjunction(isdiv3, iseven)(6)
+    assert disjunction(isdiv3, iseven)(4)
+    assert not disjunction(isdiv3, iseven)(5)
 
     # Multiple arities:
     both_even = lambda a, b: iseven(a) and iseven(b)
-    both_div_3 = lambda a, b: div_3(a) and div_3(b)
+    both_div_3 = lambda a, b: isdiv3(a) and isdiv3(b)
     assert disjunction(both_div_3, both_even)(6, 12)
     assert disjunction(both_div_3, both_even)(2, 6)
     assert disjunction(both_div_3, both_even)(3, 6)

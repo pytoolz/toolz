@@ -440,7 +440,24 @@ def complement(func):
     return compose(operator.not_, func)
 
 
-def conjunction(*predicates):
+class BaseJuxt(object):
+    """ A base class for functions operating on sequences of functions.
+    """
+    __slots__ = ['funcs']
+
+    def __init__(self, *funcs):
+        if len(funcs) == 1 and not callable(funcs[0]):
+            funcs = funcs[0]
+        self.funcs = tuple(funcs)
+
+    def __getstate__(self):
+        return self.funcs
+
+    def __setstate__(self, state):
+        self.funcs = state
+
+
+class conjunction(BaseJuxt):
     """ Return the logical conjunction of the passed predicates
 
     In other words, return a function that returns True if and only if
@@ -457,12 +474,11 @@ def conjunction(*predicates):
     >>> div_6(15)
     False
     """
-    def _inner_conjunction(*args, **kwargs):
-        return all(p(*args, **kwargs) for p in predicates)
-    return _inner_conjunction
+    def __call__(self, *args, **kwargs):
+        return all(f(*args, **kwargs) for f in self.funcs)
 
 
-def disjunction(*predicates):
+class disjunction(BaseJuxt):
     """ Return the logical disjunction of the passed predicates
 
     In other words, return a function that returns True if
@@ -481,12 +497,11 @@ def disjunction(*predicates):
     >>> div_3_2(12)
     True
     """
-    def _inner_disjunction(*args, **kwargs):
-        return any(p(*args, **kwargs) for p in predicates)
-    return _inner_disjunction
+    def __call__(self, *args, **kwargs):
+        return any(f(*args, **kwargs) for f in self.funcs)
 
 
-class juxt(object):
+class juxt(BaseJuxt):
     """
     Creates a function that calls several functions with the same arguments.
 
@@ -503,21 +518,8 @@ class juxt(object):
     >>> juxt([inc, double])(10)
     (11, 20)
     """
-    __slots__ = ['funcs']
-
-    def __init__(self, *funcs):
-        if len(funcs) == 1 and not callable(funcs[0]):
-            funcs = funcs[0]
-        self.funcs = tuple(funcs)
-
     def __call__(self, *args, **kwargs):
         return tuple(func(*args, **kwargs) for func in self.funcs)
-
-    def __getstate__(self):
-        return self.funcs
-
-    def __setstate__(self, state):
-        self.funcs = state
 
 
 def do(func, x):
