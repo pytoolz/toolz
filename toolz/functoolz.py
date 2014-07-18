@@ -5,7 +5,7 @@ import operator
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'conjunction', 'disjunction', 'juxt',
-           'do', 'curry', 'min_predicates', 'max_predicates')
+           'do', 'curry')
 
 
 def identity(x):
@@ -389,24 +389,6 @@ def complement(func):
     False
     """
     return compose(operator.not_, func)
-
-
-def min_predicates(predicates, num=None):
-    def _inner_min_predicates(*args, **kwargs):
-        count = 0
-        for p in predicates:
-            count += int(bool(p(*args, **kwargs)))
-            if count >= num:
-                return True
-        return False
-
-    return _inner_min_predicates
-
-
-def max_predicates(predicates, num=None):
-    return min_predicates(
-        list(map(complement, predicates)),
-        num=len(predicates) - num)
 
 
 def conjunction(*predicates):
