@@ -253,12 +253,12 @@ def curry(func, *args, **kwargs):
     explicitly specify the required number of arguments with the optional
     ``numargs`` keyword argument.
 
-    >>> def combine_with(func, *seqs):
-    ...     return map(func, zip(*seqs))
-    >>> combine_with = curry(combine_with, numargs=2)
-    >>> add_sequences = combine_with(sum)
-    >>> list(add_sequences([1, 2], [10, 20]))
-    [11, 22]
+    >>> @curry(numargs=2)
+    ... def add(*args):
+    ...     total = 0
+    ...     for arg in args:
+    ...         total += arg
+    ...     return total
 
     See Also:
         toolz.curried - namespace of curried functions
@@ -266,6 +266,9 @@ def curry(func, *args, **kwargs):
     """
     numargs = kwargs.pop('numargs', None)
     return Curry(func, args, kwargs, numargs=numargs)
+
+
+curry = curry(curry, numargs=1)
 
 
 def has_kwargs(f):
