@@ -246,10 +246,12 @@ def curry(func, *args, **kwargs):
     >>> add(2, 3)
     5
 
-    There is one special keyword argument, ``numargs``, that can specify
-    at creation the minimum number of required positional arguments.
-    This can be useful when currying extention types or functions with
-    variadic arguments:
+    A curried function collects arguments until it has enough to call the
+    actual.  The required number of arguments is found using the ``inspect``
+    module.  If this module fails to find the correct number (true for some
+    builtins) a ``try-except TypeError`` scheme is used.  You can also
+    explicitly specify the required number of arguments with the optional
+    ``numargs`` keyword argument.
 
     >>> def combine_with(func, *seqs):
     ...     return map(func, zip(*seqs))
