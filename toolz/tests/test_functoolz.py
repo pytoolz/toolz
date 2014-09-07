@@ -1,5 +1,6 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt)
+                             compose, pipe, complement, conjunction,
+                             disjunction, do, juxt)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -13,6 +14,10 @@ def iseven(x):
 
 def isodd(x):
     return x % 2 == 1
+
+
+def isdiv3(x):
+    return x % 3 == 0
 
 
 def inc(x):
@@ -367,6 +372,62 @@ def test_complement():
     assert not complement(lambda: "x")()
     assert not complement(lambda: 1)()
     assert not complement(lambda: [1])()
+
+
+def test_conjunction():
+    # No args
+    assert conjunction(lambda: True, lambda: True)()
+    assert not conjunction(lambda: True, lambda: False)()
+
+    # Single arity:
+    assert conjunction(isdiv3, iseven)(6)
+    assert not conjunction(isdiv3, iseven)(4)
+    assert not conjunction(isdiv3, iseven)(3)
+
+    # Multiple arities:
+    both_even = lambda a, b: iseven(a) and iseven(b)
+    both_div_3 = lambda a, b: isdiv3(a) and isdiv3(b)
+    assert conjunction(both_div_3, both_even)(6, 12)
+    assert not conjunction(both_div_3, both_even)(6, 8)
+
+    # Generic truthiness:
+    assert not conjunction(lambda: "")()
+    assert not conjunction(lambda: 0)()
+    assert not conjunction(lambda: None)()
+    assert not conjunction(lambda: [])()
+
+    assert conjunction(lambda: "x")()
+    assert conjunction(lambda: 1)()
+    assert conjunction(lambda: [1])()
+
+
+def test_disjunction():
+    # No args
+    assert disjunction(lambda: False, lambda: True)()
+    assert not disjunction(lambda: False, lambda: False)()
+
+    # Single arity:
+    assert disjunction(isdiv3, iseven)(6)
+    assert disjunction(isdiv3, iseven)(4)
+    assert not disjunction(isdiv3, iseven)(5)
+
+    # Multiple arities:
+    both_even = lambda a, b: iseven(a) and iseven(b)
+    both_div_3 = lambda a, b: isdiv3(a) and isdiv3(b)
+    assert disjunction(both_div_3, both_even)(6, 12)
+    assert disjunction(both_div_3, both_even)(2, 6)
+    assert disjunction(both_div_3, both_even)(3, 6)
+    assert not disjunction(both_div_3, both_even)(2, 3)
+
+    # Generic truthiness:
+    assert not disjunction(lambda: "")()
+    assert not disjunction(lambda: 0)()
+    assert not disjunction(lambda: None)()
+    assert not disjunction(lambda: [])()
+
+    assert disjunction(lambda: "x")()
+    assert disjunction(lambda: 1)()
+    assert disjunction(lambda: [1])()
 
 
 def test_do():

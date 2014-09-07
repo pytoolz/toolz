@@ -5,7 +5,8 @@ import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry')
+           'pipe', 'complement', 'conjunction', 'disjunction', 'juxt',
+           'do', 'curry')
 
 
 def identity(x):
@@ -439,7 +440,68 @@ def complement(func):
     return compose(operator.not_, func)
 
 
-class juxt(object):
+class BaseJuxt(object):
+    """ A base class for functions operating on sequences of functions.
+    """
+    __slots__ = ['funcs']
+
+    def __init__(self, *funcs):
+        if len(funcs) == 1 and not callable(funcs[0]):
+            funcs = funcs[0]
+        self.funcs = tuple(funcs)
+
+    def __getstate__(self):
+        return self.funcs
+
+    def __setstate__(self, state):
+        self.funcs = state
+
+
+class conjunction(BaseJuxt):
+    """ Return the logical conjunction of the passed predicates
+
+    In other words, return a function that returns True if and only if
+    each of the passed functions yields True for that input:
+
+
+    >>> def iseven(n): return n % 2 == 0
+    >>> def div_3(n): return n % 3 == 0
+    >>> div_6 = conjunction(div_3, iseven)
+    >>> div_6(10)
+    False
+    >>> div_6(12)
+    True
+    >>> div_6(15)
+    False
+    """
+    def __call__(self, *args, **kwargs):
+        return all(f(*args, **kwargs) for f in self.funcs)
+
+
+class disjunction(BaseJuxt):
+    """ Return the logical disjunction of the passed predicates
+
+    In other words, return a function that returns True if
+    any of the passed functions yields True for that input:
+
+
+    >>> def iseven(n): return n % 2 == 0
+    >>> def div_3(n): return n % 3 == 0
+    >>> div_3_2 = disjunction(div_3, iseven)
+    >>> div_3_2(9)
+    True
+    >>> div_3_2(10)
+    True
+    >>> div_3_2(11)
+    False
+    >>> div_3_2(12)
+    True
+    """
+    def __call__(self, *args, **kwargs):
+        return any(f(*args, **kwargs) for f in self.funcs)
+
+
+class juxt(BaseJuxt):
     """
     Creates a function that calls several functions with the same arguments.
 
@@ -456,21 +518,8 @@ class juxt(object):
     >>> juxt([inc, double])(10)
     (11, 20)
     """
-    __slots__ = ['funcs']
-
-    def __init__(self, *funcs):
-        if len(funcs) == 1 and not callable(funcs[0]):
-            funcs = funcs[0]
-        self.funcs = tuple(funcs)
-
     def __call__(self, *args, **kwargs):
         return tuple(func(*args, **kwargs) for func in self.funcs)
-
-    def __getstate__(self):
-        return self.funcs
-
-    def __setstate__(self, state):
-        self.funcs = state
 
 
 def do(func, x):
