@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join')
+           'join', 'consume')
 
 
 def remove(predicate, seq):
@@ -776,3 +776,28 @@ def join(leftkey, leftseq, rightkey, rightseq,
             if key not in seen_keys:
                 for match in matches:
                     yield (match, right_default)
+
+
+def consume(iterator, n=None):
+    """ Efficiently consume an iterator without returning anything.
+
+    If `n` is specified and not `None`, consume `n` items from the iterator.
+
+    The iterator is advanced in-place. There is no return value.
+
+    >>> a = iter([0, 1, 2, 3, 4, 5])
+    >>> consume(a)
+    >>> list(a)
+    []
+
+    >>> a = iter([0, 1, 2, 3, 4, 5])
+    >>> consume(a, 3)
+    >>> list(a)
+    [3, 4, 5]
+    """
+    if n is None:
+        # feed the entire iterator into a zero-length deque
+        collections.deque(iterator, maxlen=0)
+    else:
+        # advance to the empty slice starting at position n
+        next(itertools.islice(iterator, n, n), None)
