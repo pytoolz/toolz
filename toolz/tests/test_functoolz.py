@@ -1,5 +1,5 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt)
+                             compose, mkpipe, pipe, complement, do, juxt)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -334,6 +334,19 @@ def test_compose():
         return (a + b) * c
 
     assert compose(str, inc, f)(1, 2, c=3) == '10'
+
+
+def test_mkpipe():
+    assert mkpipe()(0) == 0
+    assert mkpipe(inc)(0) == 1
+    assert mkpipe(inc, double)(0) == 2
+    assert mkpipe(double, inc, iseven, str)(3) == "False"
+    assert mkpipe(add, str)(1, 2) == '3'
+
+    def f(a, b, c=10):
+        return (a + b) * c
+
+    assert mkpipe(f, inc, str)(1, 2, c=3) == '10'
 
 
 def test_pipe():
