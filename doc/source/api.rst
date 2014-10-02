@@ -71,6 +71,7 @@ Dicttoolz
 
 .. autosummary::
    assoc
+   dissoc
    get_in
    keyfilter
    keymap
