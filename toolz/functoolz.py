@@ -9,6 +9,11 @@ __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
 
 
 def identity(x):
+    """ Identity function. Return x
+    
+    >>> identity(3)
+    3
+    """
     return x
 
 
