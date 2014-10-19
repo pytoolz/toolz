@@ -14,6 +14,7 @@ Itertoolz
    concat
    concatv
    cons
+   consume
    count
    drop
    first

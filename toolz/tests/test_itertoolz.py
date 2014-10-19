@@ -10,7 +10,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
-                             partition_all, take_nth, pluck, join)
+                             partition_all, take_nth, pluck, join, consume)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -386,3 +386,22 @@ def test_outer_join():
     expected = set([(2, 2), (1, None), (None, 3)])
 
     assert result == expected
+
+
+def test_consume():
+    testlist = [0, 1, 2, 3, 4, 5]
+
+    testiter1 = iter(testlist)
+    testiter2 = iter(testlist)
+    testiter3 = iter(testlist)
+    testiter4 = iter(testlist)
+
+    consume(testiter1)
+    consume(testiter2, n=None)
+    consume(testiter3, 3)
+    consume(testiter4, n=7)
+
+    assert list(testiter1) == []
+    assert list(testiter2) == []
+    assert list(testiter3) == [3, 4, 5]
+    assert list(testiter4) == []
