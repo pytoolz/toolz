@@ -161,6 +161,7 @@ def test_curry_simple():
     cmap = curry(map)
     assert list(cmap(inc)([1, 2, 3])) == [2, 3, 4]
 
+    assert raises(TypeError, lambda: curry())
     assert raises(TypeError, lambda: curry({1: 2}))
 
 
