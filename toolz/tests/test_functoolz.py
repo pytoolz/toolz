@@ -187,6 +187,14 @@ def test_curry_kwargs():
     assert cg(0) == 2  # pass "a" as arg, not kwarg
     assert raises(TypeError, lambda: cg(1, 2))  # pass "b" as arg AND kwarg
 
+    def h(x, func=int):
+        return func(x)
+
+    # __init__ must not pick func as positional arg
+    assert curry(h)(0.0) == 0
+    assert curry(h)(func=str)(0.0) == '0.0'
+    assert curry(h, func=str)(0.0) == '0.0'
+
 
 def test_curry_passes_errors():
     @curry
