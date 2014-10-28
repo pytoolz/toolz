@@ -20,6 +20,7 @@ Itertoolz
    frequencies
    get
    groupby
+   identical
    interleave
    interpose
    isdistinct
