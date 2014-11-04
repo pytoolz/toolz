@@ -1,6 +1,6 @@
 from toolz.utils import raises
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
-                             assoc, keyfilter, valfilter)
+                             assoc, dissoc, keyfilter, valfilter)
 
 
 inc = lambda x: x + 1
@@ -62,6 +62,19 @@ def test_assoc():
     oldd = d
     assoc(d, 'x', 2)
     assert d is oldd
+
+
+def test_dissoc():
+    assert dissoc({"a": 1}, "a") == {}
+    assert dissoc({"a": 1, "b": 2}, "a") == {"b": 2}
+    assert dissoc({"a": 1, "b": 2}, "b") == {"a": 1}
+
+    # Verify immutability:
+    d = {'x': 1}
+    oldd = d
+    d2 = dissoc(d, 'x')
+    assert d is oldd
+    assert d2 is not oldd
 
 
 def test_update_in():

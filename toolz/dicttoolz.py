@@ -3,7 +3,7 @@ from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'valfilter', 'keyfilter',
-           'assoc', 'update_in', 'get_in')
+           'assoc', 'dissoc', 'update_in', 'get_in')
 
 
 def merge(*dicts):
@@ -133,6 +133,21 @@ def assoc(d, key, value):
     {'x': 1, 'y': 3}
     """
     return merge(d, {key: value})
+
+
+def dissoc(d, key):
+    """
+    Return a new dict with the given key removed.
+
+    New dict has d[key] deleted.
+    Does not modify the initial dictionary.
+
+    >>> dissoc({'x': 1, 'y': 2}, 'y')
+    {'x': 1}
+    """
+    d2 = d.copy()
+    del d2[key]
+    return d2
 
 
 def update_in(d, keys, func, default=None):
