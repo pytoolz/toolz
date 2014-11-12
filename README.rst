@@ -113,13 +113,15 @@ Contributions Welcome
 
 ``toolz`` aims to be a repository for utility functions, particularly
 those that come from the functional programming and list processing
-traditions. We welcome contributions that fall within this scope and
-encourage users to scrape their ``util.py`` files for functions that are
-broadly useful.
+traditions. We welcome contributions that fall within this scope.
 
-Please take a look at our `issue
-page <https://github.com/pytoolz/toolz/issues>`__ for contribution
-ideas.
+We also try to keep the API small to keep ``toolz`` manageable.  The ideal
+contribution is significantly different from existing functions and has
+precedent in a few other functional systems.
+
+Please take a look at our
+`issue page <https://github.com/pytoolz/toolz/issues>`__
+for contribution ideas.
 
 Community
 ---------
