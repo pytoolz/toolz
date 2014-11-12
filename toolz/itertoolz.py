@@ -325,10 +325,7 @@ def last(seq):
     >>> last('ABC')
     'C'
     """
-    try:
-        return seq[-1]
-    except (TypeError, KeyError):
-        return collections.deque(seq, 1)[0]
+    return tail(1, seq)[0]
 
 
 rest = partial(drop, 1)
