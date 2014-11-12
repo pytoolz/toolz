@@ -255,6 +255,10 @@ def take(n, seq):
 
     >>> list(take(2, [10, 20, 30, 40, 50]))
     [10, 20]
+
+    See Also:
+        drop
+        tail
     """
     return itertools.islice(seq, n)
 
@@ -264,6 +268,10 @@ def tail(n, seq):
 
     >>> tail(2, [10, 20, 30, 40, 50])
     [40, 50]
+
+    See Also:
+        drop
+        take
     """
     try:
         return seq[-n:]
@@ -276,6 +284,10 @@ def drop(n, seq):
 
     >>> list(drop(2, [10, 20, 30, 40, 50]))
     [30, 40, 50]
+
+    See Also:
+        take
+        tail
     """
     return itertools.islice(seq, n, None)
 
