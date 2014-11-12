@@ -6,7 +6,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
-                             nth, take, drop, interpose, get,
+                             nth, take, tail, drop, interpose, get,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
@@ -138,6 +138,11 @@ def test_rest():
 def test_take():
     assert list(take(3, 'ABCDE')) == list('ABC')
     assert list(take(2, (3, 2, 1))) == list((3, 2))
+
+
+def test_tail():
+    assert list(tail(3, 'ABCDE')) == list('CDE')
+    assert list(tail(2, (3, 2, 1))) == list((2, 1))
 
 
 def test_drop():

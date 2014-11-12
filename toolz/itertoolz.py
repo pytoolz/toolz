@@ -259,6 +259,18 @@ def take(n, seq):
     return itertools.islice(seq, n)
 
 
+def tail(n, seq):
+    """ The last n elements of a sequence
+
+    >>> list(take(2, [10, 20, 30, 40, 50]))
+    [10, 20]
+    """
+    try:
+        return seq[-n:]
+    except (TypeError, KeyError):
+        return tuple(collections.deque(seq, n))
+
+
 def drop(n, seq):
     """ The sequence following the first n elements
 

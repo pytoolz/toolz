@@ -38,6 +38,7 @@ Itertoolz
    second
    sliding_window
    take
+   tail
    take_nth
    unique
 
