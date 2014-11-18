@@ -313,6 +313,44 @@ def test_curry_doesnot_transmogrify():
     assert cf(y=1)(y=2)(y=3)(1) == f(1, 3)
 
 
+def test_curry_on_classmethods():
+    class A(object):
+        BASE = 10
+
+        def __init__(self, base):
+            self.BASE = base
+
+        @curry
+        def addmethod(self, x, y):
+            return self.BASE + x + y
+
+        @classmethod
+        @curry
+        def addclass(cls, x, y):
+            return cls.BASE + x + y
+
+        @staticmethod
+        @curry
+        def addstatic(x, y):
+            return x + y
+
+    a = A(100)
+    assert a.addmethod(3, 4) == 107
+    assert a.addmethod(3)(4) == 107
+    assert raises(AttributeError, lambda: A.addmethod(3, 4))
+    assert raises(AttributeError, lambda: A.addmethod(3)(4))
+
+    assert a.addclass(3, 4) == 17
+    assert a.addclass(3)(4) == 17
+    assert A.addclass(3, 4) == 17
+    assert A.addclass(3)(4) == 17
+
+    assert a.addstatic(3, 4) == 7
+    assert a.addstatic(3)(4) == 7
+    assert A.addstatic(3, 4) == 7
+    assert A.addstatic(3)(4) == 7
+
+
 def test__num_required_args():
     assert _num_required_args(map) != 0
     assert _num_required_args(lambda x: x) == 1
