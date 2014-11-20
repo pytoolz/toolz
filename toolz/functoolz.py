@@ -224,12 +224,9 @@ class curry(object):
         return curry(self._partial, *args, **kwargs)
 
     def __get__(self, instance, owner):
-        selfcurry = self
-        def curried_method(self, *args, **kwargs):
-            return selfcurry(self, *args, **kwargs)
-        curried_method.__name__ = self.__name__
-        curried_method.__doc__ = self.__doc__
-        return curried_method.__get__(instance, owner)
+        if instance is None:
+            return self
+        return curry(self, instance)
 
     # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):

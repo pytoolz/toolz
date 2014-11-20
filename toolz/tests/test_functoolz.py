@@ -337,12 +337,8 @@ def test_curry_on_classmethods():
     a = A(100)
     assert a.addmethod(3, 4) == 107
     assert a.addmethod(3)(4) == 107
-    if PY3:
-        assert A.addmethod(a, 3, 4) == 107
-        assert A.addmethod(a)(3)(4) == 107
-    else:
-        assert raises(TypeError, lambda: A.addmethod(3, 4))
-        assert raises(TypeError, lambda: A.addmethod(3)(4))
+    assert A.addmethod(a, 3, 4) == 107
+    assert A.addmethod(a)(3)(4) == 107
 
     assert a.addclass(3, 4) == 17
     assert a.addclass(3)(4) == 17
@@ -354,6 +350,9 @@ def test_curry_on_classmethods():
     assert A.addstatic(3, 4) == 7
     assert A.addstatic(3)(4) == 7
 
+    # we want this to be of type curry
+    assert isinstance(a.addmethod, curry)
+    assert isinstance(A.addmethod, curry)
 
 def test_memoize_on_classmethods():
     class A(object):
@@ -382,10 +381,7 @@ def test_memoize_on_classmethods():
 
     a = A(100)
     assert a.addmethod(3, 4) == 107
-    if PY3:
-        assert A.addmethod(a, 3, 4) == 107
-    else:
-        assert raises(TypeError, lambda: A.addmethod(3, 4))
+    assert A.addmethod(a, 3, 4) == 107
 
     a.BASE = 200
     assert a.addmethod(3, 4) == 107
