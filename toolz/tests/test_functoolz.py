@@ -354,6 +354,7 @@ def test_curry_on_classmethods():
     assert isinstance(a.addmethod, curry)
     assert isinstance(A.addmethod, curry)
 
+
 def test_memoize_on_classmethods():
     class A(object):
         BASE = 10
