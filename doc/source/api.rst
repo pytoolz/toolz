@@ -76,6 +76,8 @@ Dicttoolz
    get_in
    keyfilter
    keymap
+   itemfilter
+   itemmap
    merge
    merge_with
    update_in
