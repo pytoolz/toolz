@@ -1,6 +1,7 @@
 from toolz.utils import raises
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
-                             assoc, dissoc, keyfilter, valfilter)
+                             assoc, dissoc, keyfilter, valfilter, itemmap,
+                             itemfilter)
 
 
 inc = lambda x: x + 1
@@ -44,12 +45,21 @@ def test_keymap():
     assert keymap(inc, {1: 1, 2: 2}) == {2: 1, 3: 2}
 
 
+def test_itemmap():
+    assert itemmap(reversed, {1: 2, 2: 4}) == {2: 1, 4: 2}
+
+
 def test_valfilter():
     assert valfilter(iseven, {1: 2, 2: 3}) == {1: 2}
 
 
 def test_keyfilter():
     assert keyfilter(iseven, {1: 2, 2: 3}) == {2: 3}
+
+
+def test_itemfilter():
+    assert itemfilter(lambda item: iseven(item[0]), {1: 2, 2: 3}) == {2: 3}
+    assert itemfilter(lambda item: iseven(item[1]), {1: 2, 2: 3}) == {1: 2}
 
 
 def test_assoc():
