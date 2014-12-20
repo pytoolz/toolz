@@ -506,6 +506,10 @@ def reduceby(key, binop, seq, init=no_default):
     operate in much less space.  This makes it suitable for larger datasets
     that do not fit comfortably in memory
 
+    The ``init`` keyword argument is the default initialization of the
+    reduction.  This can be either a constant value like ``0`` or a callable
+    like ``lambda : 0`` as might be used in ``defaultdict``.
+
     Simple Examples
     ---------------
 
@@ -532,7 +536,21 @@ def reduceby(key, binop, seq, init=no_default):
     ...          lambda acc, x: acc + x['cost'],
     ...          projects, 0)
     {'CA': 1200000, 'IL': 2100000}
+
+    Example Using ``init``
+    ----------------------
+
+    >>> def set_add(s, i):
+    ...     s.add(i)
+    ...     return s
+
+    >>> reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2, 3], set)  # doctest: +SKIP
+    {True:  set([2, 4]),
+     False: set([1, 3])}
     """
+    if init is not no_default and not callable(init):
+        _init = init
+        init = lambda: _init
     if not callable(key):
         key = getter(key)
     d = {}
@@ -543,7 +561,7 @@ def reduceby(key, binop, seq, init=no_default):
                 d[k] = item
                 continue
             else:
-                d[k] = init
+                d[k] = init()
         d[k] = binop(d[k], item)
     return d
 
