@@ -241,7 +241,7 @@ def test_reduce_by_callable_default():
         return s
 
     assert reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2], set) == \
-            {True: set([2, 4]), False: set([1, 3])}
+        {True: set([2, 4]), False: set([1, 3])}
 
 
 def test_iterate():
