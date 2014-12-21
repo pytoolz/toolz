@@ -11,8 +11,7 @@ engine:
   - python=3.3
   - python=3.4
 script:
-  - touch build.sh
-  - conda build .
+  - conda build conda.recipe
 build_targets:
   files: conda
   channels: main

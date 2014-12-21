@@ -4,8 +4,6 @@ package:
 
 build:
     number: {{environ.get('BINSTAR_BUILD', 1)}}
-    script:
-      - $PYTHON setup.py install
 
 requirements:
     build:
