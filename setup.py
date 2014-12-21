@@ -15,6 +15,7 @@ setup(name='toolz',
       keywords='functional utility itertools functools',
       packages=['toolz',
                 'toolz.sandbox'],
+      package_data={'toolz': ['tests/*.py']},
       long_description=(open('README.rst').read() if exists('README.rst')
                         else ''),
       zip_safe=False)
