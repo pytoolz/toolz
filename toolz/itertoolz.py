@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'diff')
+           'join', 'tail', 'diff')
 
 
 def remove(predicate, seq):
@@ -255,8 +255,28 @@ def take(n, seq):
 
     >>> list(take(2, [10, 20, 30, 40, 50]))
     [10, 20]
+
+    See Also:
+        drop
+        tail
     """
     return itertools.islice(seq, n)
+
+
+def tail(n, seq):
+    """ The last n elements of a sequence
+
+    >>> tail(2, [10, 20, 30, 40, 50])
+    [40, 50]
+
+    See Also:
+        drop
+        take
+    """
+    try:
+        return seq[-n:]
+    except (TypeError, KeyError):
+        return tuple(collections.deque(seq, n))
 
 
 def drop(n, seq):
@@ -264,6 +284,10 @@ def drop(n, seq):
 
     >>> list(drop(2, [10, 20, 30, 40, 50]))
     [30, 40, 50]
+
+    See Also:
+        take
+        tail
     """
     return itertools.islice(seq, n, None)
 
@@ -313,10 +337,7 @@ def last(seq):
     >>> last('ABC')
     'C'
     """
-    try:
-        return seq[-1]
-    except (TypeError, KeyError):
-        return collections.deque(seq, 1)[0]
+    return tail(1, seq)[0]
 
 
 rest = partial(drop, 1)
@@ -372,8 +393,10 @@ def get(ind, seq, default=no_default):
             if default is no_default:
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
-                else:
+                elif ind:
                     return (seq[ind[0]],)
+                else:
+                    return ()
             else:
                 return tuple(_get(i, seq, default) for i in ind)
         elif default is not no_default:
@@ -483,6 +506,10 @@ def reduceby(key, binop, seq, init=no_default):
     operate in much less space.  This makes it suitable for larger datasets
     that do not fit comfortably in memory
 
+    The ``init`` keyword argument is the default initialization of the
+    reduction.  This can be either a constant value like ``0`` or a callable
+    like ``lambda : 0`` as might be used in ``defaultdict``.
+
     Simple Examples
     ---------------
 
@@ -509,7 +536,21 @@ def reduceby(key, binop, seq, init=no_default):
     ...          lambda acc, x: acc + x['cost'],
     ...          projects, 0)
     {'CA': 1200000, 'IL': 2100000}
+
+    Example Using ``init``
+    ----------------------
+
+    >>> def set_add(s, i):
+    ...     s.add(i)
+    ...     return s
+
+    >>> reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2, 3], set)  # doctest: +SKIP
+    {True:  set([2, 4]),
+     False: set([1, 3])}
     """
+    if init is not no_default and not callable(init):
+        _init = init
+        init = lambda: _init
     if not callable(key):
         key = getter(key)
     d = {}
@@ -520,7 +561,7 @@ def reduceby(key, binop, seq, init=no_default):
                 d[k] = item
                 continue
             else:
-                d[k] = init
+                d[k] = init()
         d[k] = binop(d[k], item)
     return d
 
@@ -688,8 +729,10 @@ def getter(index):
         if len(index) == 1:
             index = index[0]
             return lambda x: (x[index],)
-        else:
+        elif index:
             return operator.itemgetter(*index)
+        else:
+            return lambda x: ()
     else:
         return operator.itemgetter(index)
 

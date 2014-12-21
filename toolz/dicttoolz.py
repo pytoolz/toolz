@@ -2,8 +2,9 @@ import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
-__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'valfilter', 'keyfilter',
-           'assoc', 'update_in', 'get_in')
+__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
+           'valfilter', 'keyfilter', 'itemfilter',
+           'assoc', 'dissoc', 'update_in', 'get_in')
 
 
 def merge(*dicts):
@@ -66,6 +67,7 @@ def valmap(func, d):
 
     See Also:
         keymap
+        itemmap
     """
     return dict(zip(iterkeys(d), map(func, itervalues(d))))
 
@@ -79,8 +81,23 @@ def keymap(func, d):
 
     See Also:
         valmap
+        itemmap
     """
     return dict(zip(map(func, iterkeys(d)), itervalues(d)))
+
+
+def itemmap(func, d):
+    """ Apply function to items of dictionary
+
+    >>> accountids = {"Alice": 10, "Bob": 20}
+    >>> itemmap(reversed, accountids)  # doctest: +SKIP
+    {10: "Alice", 20: "Bob"}
+
+    See Also:
+        keymap
+        valmap
+    """
+    return dict(map(func, iteritems(d)))
 
 
 def valfilter(predicate, d):
@@ -93,6 +110,7 @@ def valfilter(predicate, d):
 
     See Also:
         keyfilter
+        itemfilter
         valmap
     """
     rv = {}
@@ -112,11 +130,36 @@ def keyfilter(predicate, d):
 
     See Also:
         valfilter
+        itemfilter
         keymap
     """
     rv = {}
     for k, v in iteritems(d):
         if predicate(k):
+            rv[k] = v
+    return rv
+
+
+def itemfilter(predicate, d):
+    """ Filter items in dictionary by item
+
+    >>> def isvalid(item):
+    ...     k, v = item
+    ...     return k % 2 == 0 and v < 4
+
+    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
+    >>> itemfilter(isvalid, d)
+    {2: 3}
+
+    See Also:
+        keyfilter
+        valfilter
+        itemmap
+    """
+    rv = {}
+    for item in iteritems(d):
+        if predicate(item):
+            k, v = item
             rv[k] = v
     return rv
 
@@ -133,6 +176,21 @@ def assoc(d, key, value):
     {'x': 1, 'y': 3}
     """
     return merge(d, {key: value})
+
+
+def dissoc(d, key):
+    """
+    Return a new dict with the given key removed.
+
+    New dict has d[key] deleted.
+    Does not modify the initial dictionary.
+
+    >>> dissoc({'x': 1, 'y': 2}, 'y')
+    {'x': 1}
+    """
+    d2 = d.copy()
+    del d2[key]
+    return d2
 
 
 def update_in(d, keys, func, default=None):

@@ -4,9 +4,9 @@ from toolz.utils import raises
 from functools import partial
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
-                             isiterable,
+                             isiterable, getter,
                              mapcat, isdistinct, first, second,
-                             nth, take, drop, interpose, get,
+                             nth, take, tail, drop, interpose, get,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
@@ -111,6 +111,8 @@ def test_nth():
     assert nth(1, (3, 2, 1)) == 2
     assert nth(0, {'foo': 'bar'}) == 'foo'
     assert raises(StopIteration, lambda: nth(10, {10: 'foo'}))
+    assert nth(-2, 'ABCDE') == 'D'
+    assert raises(ValueError, lambda: nth(-2, iter('ABCDE')))
 
 
 def test_first():
@@ -141,6 +143,12 @@ def test_take():
     assert list(take(2, (3, 2, 1))) == list((3, 2))
 
 
+def test_tail():
+    assert list(tail(3, 'ABCDE')) == list('CDE')
+    assert list(tail(3, iter('ABCDE'))) == list('CDE')
+    assert list(tail(2, (3, 2, 1))) == list((2, 1))
+
+
 def test_drop():
     assert list(drop(3, 'ABCDE')) == list('DE')
     assert list(drop(1, (3, 2, 1))) == list((2, 1))
@@ -161,6 +169,7 @@ def test_get():
     assert get([0, 2], 'AB', 'C') == ('A', 'C')
 
     assert get([0], 'AB') == ('A',)
+    assert get([], 'AB') == ()
 
     assert raises(IndexError, lambda: get(10, 'ABC'))
     assert raises(KeyError, lambda: get(10, {'a': 1}))
@@ -233,6 +242,15 @@ def test_reduceby():
 
 def test_reduce_by_init():
     assert reduceby(iseven, add, [1, 2, 3, 4]) == {True: 2 + 4, False: 1 + 3}
+
+
+def test_reduce_by_callable_default():
+    def set_add(s, i):
+        s.add(i)
+        return s
+
+    assert reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2], set) == \
+        {True: set([2, 4]), False: set([1, 3])}
 
 
 def test_iterate():
@@ -313,6 +331,12 @@ def test_join():
                     ((2, 'two', 'coconut', 2))])
 
     assert result == expected
+
+
+def test_getter():
+    assert getter(0)('Alice') == 'A'
+    assert getter([0])('Alice') == ('A',)
+    assert getter([])('Alice') == ()
 
 
 def test_key_as_getter():

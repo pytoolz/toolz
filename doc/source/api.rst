@@ -39,6 +39,7 @@ Itertoolz
    second
    sliding_window
    take
+   tail
    take_nth
    unique
 
@@ -72,9 +73,12 @@ Dicttoolz
 
 .. autosummary::
    assoc
+   dissoc
    get_in
    keyfilter
    keymap
+   itemfilter
+   itemmap
    merge
    merge_with
    update_in
