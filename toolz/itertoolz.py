@@ -833,11 +833,13 @@ def diff(*seqs, **kwargs):
 
     >>> list(diff(['apples', 'bananas'], ['Apples', 'Oranges'], key=str.lower))
     [('bananas', 'Oranges')]
-
     """
     N = len(seqs)
+    if N == 1 and isinstance(seqs[0], list):
+        seqs = seqs[0]
+        N = len(seqs)
     if N < 2:
-        raise StopIteration()
+        raise TypeError('Too few sequences given (min 2 required)')
     default = kwargs.get('default', no_default)
     if default is no_default:
         iters = zip(*seqs)
