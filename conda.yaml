@@ -4,9 +4,8 @@ package:
 
 build:
     number: {{environ.get('BINSTAR_BUILD', 1)}}
-    script: 
-      - cd $RECIPE_DIR
-      - $PYTHON setup.py install 
+    script:
+      - $PYTHON setup.py install
 
 requirements:
     build:
@@ -15,6 +14,14 @@ requirements:
 
     run:
       - python
+
+test:
+    requires:
+      - pytest
+    imports:
+      - toolz
+    commands:
+      - py.test -x --doctest-modules --pyargs toolz
 
 about:
     home: http://toolz.readthedocs.org/
