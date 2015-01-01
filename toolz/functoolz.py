@@ -378,6 +378,10 @@ class Compose(object):
     def __setstate__(self, state):
         self.funcs = tuple(state)
 
+    @property
+    def __name__(self):
+        return '_o_'.join([fn.__name__ for fn in self.funcs])
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.
