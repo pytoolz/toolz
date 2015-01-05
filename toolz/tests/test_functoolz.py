@@ -1,5 +1,5 @@
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt)
+                             compose, pipe, complement, do, juxt, Curry)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -238,9 +238,9 @@ def test_curry_is_idempotent():
 
     f = curry(foo, 1, c=2)
     g = curry(f)
-    assert isinstance(f, curry)
-    assert isinstance(g, curry)
-    assert not isinstance(g.func, curry)
+    assert isinstance(f, Curry)
+    assert isinstance(g, Curry)
+    assert not isinstance(g.func, Curry)
     assert not hasattr(g.func, 'func')
     assert f.func == g.func
     assert f.args == g.args
@@ -311,6 +311,25 @@ def test_curry_doesnot_transmogrify():
 
     cf = curry(f)
     assert cf(y=1)(y=2)(y=3)(1) == f(1, 3)
+
+
+def test_curry_numargs():
+    def f(x, *y):
+        return x + sum(y)
+
+    assert curry(f)(1) == 1
+    assert curry(f, numargs=2)(1) != 1
+    assert curry(f, numargs=2)(1, 2) == 3
+
+    def g(x, numargs=10):
+        return x + numargs
+
+    assert curry(g, 1)() == 11
+    assert curry(g)(1) == 11
+    assert curry(g, numargs=1)(1) == 11
+    assert curry(g, numargs=1)(numargs=2)(1) == 3
+    assert curry(g)(numargs=1)(1) == 2
+    assert curry(g)(1, numargs=1) == 2
 
 
 def test__num_required_args():

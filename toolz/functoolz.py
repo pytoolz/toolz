@@ -124,35 +124,13 @@ def _num_required_args(func):
         return None
 
 
-class curry(object):
-    """ Curry a callable function
-
-    Enables partial application of arguments through calling a function with an
-    incomplete set of arguments.
-
-    >>> def mul(x, y):
-    ...     return x * y
-    >>> mul = curry(mul)
-
-    >>> double = mul(2)
-    >>> double(10)
-    20
-
-    Also supports keyword arguments
-
-    >>> @curry                  # Can use curry as a decorator
-    ... def f(x, y, a=10):
-    ...     return a * (x + y)
-
-    >>> add = f(a=1)
-    >>> add(2, 3)
-    5
+class Curry(object):
+    """ A curried function
 
     See Also:
-        toolz.curried - namespace of curried functions
-                        http://toolz.readthedocs.org/en/latest/curry.html
+        curry
     """
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, func, args, kwargs, numargs=None):
         if not callable(func):
             raise TypeError("Input must be callable")
 
@@ -164,7 +142,8 @@ class curry(object):
             _kwargs = {}
             if func.keywords:
                 _kwargs.update(func.keywords)
-            _kwargs.update(kwargs)
+            if kwargs:
+                _kwargs.update(kwargs)
             kwargs = _kwargs
             args = func.args + args
             func = func.func
@@ -176,6 +155,12 @@ class curry(object):
 
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
+
+        self._numargs = numargs
+        if numargs is None:
+            self._numargs_needed = None
+        else:
+            self._numargs_needed = numargs - len(args)
 
     @property
     def func(self):
@@ -205,13 +190,19 @@ class curry(object):
                      else None))
 
     def __eq__(self, other):
-        return (isinstance(other, curry) and self.func == other.func and
+        return (isinstance(other, Curry) and self.func == other.func and
                 self.args == other.args and self.keywords == other.keywords)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __call__(self, *args, **kwargs):
+        if self._numargs is not None:
+            if len(args) >= self._numargs_needed:
+                return self._partial(*args, **kwargs)
+            else:
+                return Curry(self._partial, args, kwargs,
+                             numargs=self._numargs)
         try:
             return self._partial(*args, **kwargs)
         except TypeError:
@@ -221,19 +212,68 @@ class curry(object):
                     len(args) + len(self.args) >= required_args):
                 raise
 
-        return curry(self._partial, *args, **kwargs)
+        return Curry(self._partial, args, kwargs)
 
     # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):
         # dictoolz.keyfilter, I miss you!
         userdict = tuple((k, v) for k, v in self.__dict__.items()
-                         if k != '_partial')
-        return self.func, self.args, self.keywords, userdict
+                         if k != '_partial' and k != '_numargs')
+        return self.func, self.args, self.keywords, self._numargs, userdict
 
     def __setstate__(self, state):
-        func, args, kwargs, userdict = state
-        self.__init__(func, *args, **(kwargs or {}))
+        func, args, kwargs, numargs, userdict = state
+        self.__init__(func, args, kwargs, numargs=numargs)
         self.__dict__.update(userdict)
+
+
+def curry(func, *args, **kwargs):
+    """ Curry a callable function
+
+    Enables partial application of arguments through calling a function with an
+    incomplete set of arguments.
+
+    >>> def mul(x, y):
+    ...     return x * y
+    >>> mul = curry(mul)
+
+    >>> double = mul(2)
+    >>> double(10)
+    20
+
+    Also supports keyword arguments
+
+    >>> @curry                  # Can use curry as a decorator
+    ... def f(x, y, a=10):
+    ...     return a * (x + y)
+
+    >>> add = f(a=1)
+    >>> add(2, 3)
+    5
+
+    A curried function collects arguments until it has enough to call the
+    actual.  The required number of arguments is found using the ``inspect``
+    module.  If this module fails to find the correct number (true for some
+    builtins) a ``try-except TypeError`` scheme is used.  You can also
+    explicitly specify the required number of arguments with the optional
+    ``numargs`` keyword argument.
+
+    >>> @curry(numargs=2)
+    ... def add(*args):
+    ...     total = 0
+    ...     for arg in args:
+    ...         total += arg
+    ...     return total
+
+    See Also:
+        toolz.curried - namespace of curried functions
+                        http://toolz.readthedocs.org/en/latest/curry.html
+    """
+    numargs = kwargs.pop('numargs', None)
+    return Curry(func, args, kwargs, numargs=numargs)
+
+
+curry = curry(curry, numargs=1)
 
 
 def has_kwargs(f):

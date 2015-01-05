@@ -1,6 +1,7 @@
 import toolz
 import toolz.curried
 from toolz.curried import take, first, second, sorted, merge_with, reduce
+from toolz.utils import raises
 from operator import add
 
 
@@ -30,3 +31,8 @@ def test_reduce():
 
 def test_module_name():
     assert toolz.curried.__name__ == 'toolz.curried'
+
+
+def test_raises_typeerror():
+    badmap = toolz.curried.map(1)([1, 2])
+    assert raises(TypeError, lambda: list(badmap))

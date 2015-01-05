@@ -14,6 +14,34 @@ def test_curry():
     assert list(f((1, 2, 3))) == list(g((1, 2, 3)))
 
 
+def curry_numargs_f(x, *y):
+    return x + sum(y)
+
+
+def curry_numargs_g(x, numargs=10):
+    return x + numargs
+
+
+def test_curry_numargs():
+    f = curry_numargs_f
+    g = curry_numargs_g
+
+    def dopickle(func):
+        return pickle.loads(pickle.dumps(func))
+
+    assert dopickle(curry(f, numargs=2))(1) != 1
+    assert dopickle(curry(f, numargs=2))(1, 2) == 3
+
+    assert dopickle(curry(g, 1))() == 11
+    assert dopickle(curry(g))(1) == 11
+    assert dopickle(curry(g, numargs=1))(1) == 11
+    assert dopickle(curry(g, numargs=1))(numargs=2)(1) == 3
+    assert dopickle(curry(g, numargs=1)(numargs=2))(1) == 3
+    assert dopickle(curry(g))(numargs=1)(1) == 2
+    assert dopickle(curry(g)(numargs=1))(1) == 2
+    assert dopickle(curry(g))(1, numargs=1) == 2
+
+
 def test_juxt():
     f = juxt(str, int, bool)
     g = pickle.loads(pickle.dumps(f))
