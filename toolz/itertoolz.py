@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail')
+           'join', 'tail', 'diff')
 
 
 def remove(predicate, seq):
@@ -815,3 +815,43 @@ def join(leftkey, leftseq, rightkey, rightseq,
             if key not in seen_keys:
                 for match in matches:
                     yield (match, right_default)
+
+
+def diff(*seqs, **kwargs):
+    """ Return those items that differ between sequences
+
+    >>> list(diff([1, 2, 3], [1, 2, 10, 100]))
+    [(3, 10)]
+
+    Shorter sequences may be padded with a ``default`` value:
+
+    >>> list(diff([1, 2, 3], [1, 2, 10, 100], default=None))
+    [(3, 10), (None, 100)]
+
+    A ``key`` function may also be applied to each item to use during
+    comparisons:
+
+    >>> list(diff(['apples', 'bananas'], ['Apples', 'Oranges'], key=str.lower))
+    [('bananas', 'Oranges')]
+    """
+    N = len(seqs)
+    if N == 1 and isinstance(seqs[0], list):
+        seqs = seqs[0]
+        N = len(seqs)
+    if N < 2:
+        raise TypeError('Too few sequences given (min 2 required)')
+    default = kwargs.get('default', no_default)
+    if default is no_default:
+        iters = zip(*seqs)
+    else:
+        iters = zip_longest(*seqs, fillvalue=default)
+    key = kwargs.get('key', None)
+    if key is None:
+        for items in iters:
+            if items.count(items[0]) != N:
+                yield items
+    else:
+        for items in iters:
+            vals = tuple(map(key, items))
+            if vals.count(vals[0]) != N:
+                yield items
