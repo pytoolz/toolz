@@ -223,6 +223,11 @@ class curry(object):
 
         return curry(self._partial, *args, **kwargs)
 
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return curry(self, instance)
+
     # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):
         # dictoolz.keyfilter, I miss you!
