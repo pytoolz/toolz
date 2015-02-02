@@ -41,6 +41,7 @@ Itertoolz
    take
    tail
    take_nth
+   topk
    unique
 
 .. currentmodule:: toolz.recipes

@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff')
+           'join', 'tail', 'diff', 'topk')
 
 
 def remove(predicate, seq):
@@ -855,3 +855,6 @@ def diff(*seqs, **kwargs):
             vals = tuple(map(key, items))
             if vals.count(vals[0]) != N:
                 yield items
+
+
+topk = heapq.nlargest
