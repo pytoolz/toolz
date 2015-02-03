@@ -859,7 +859,6 @@ def diff(*seqs, **kwargs):
 
 def topk(k, seq, key=None):
     """
-
     Find the k largest elements of a sequence
 
     Operates lazily in ``n*log(k)`` time
