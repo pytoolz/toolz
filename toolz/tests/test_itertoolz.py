@@ -11,7 +11,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff)
+                             diff, topk)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -435,3 +435,8 @@ def test_diff():
 
     list(diff(data1, data2, key=indollars)) == [
         ({'cost': 2, 'currency': 'dollar'}, {'cost': 300, 'currency': 'yen'})]
+
+
+def test_topk():
+    assert topk(2, [4, 1, 5, 2]) == (5, 4)
+    assert topk(2, [4, 1, 5, 2], key=lambda x: -x) == (1, 2)

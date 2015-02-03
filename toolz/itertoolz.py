@@ -857,4 +857,22 @@ def diff(*seqs, **kwargs):
                 yield items
 
 
-topk = heapq.nlargest
+def topk(k, seq, key=None):
+    """
+
+    Find the k largest elements of a sequence
+
+    Operates lazily in ``n*log(k)`` time
+
+    >>> topk(2, [1, 100, 10, 1000])
+    (1000, 100)
+
+    Use a key function to change sorted order
+
+    >>> topk(2, ['Alice', 'Bob', 'Charlie', 'Dan'], key=len)
+    ('Charlie', 'Alice')
+    """
+    if key is None:
+        return tuple(heapq.nlargest(k, seq))
+    else:
+        return tuple(pluck(1, heapq.nlargest(k, zip(map(key, seq), seq))))
