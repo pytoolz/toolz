@@ -441,3 +441,11 @@ def test_topk():
     assert topk(2, [4, 1, 5, 2]) == (5, 4)
     assert topk(2, [4, 1, 5, 2], key=lambda x: -x) == (1, 2)
     assert topk(2, iter([5, 1, 4, 2]), key=lambda x: -x) == (1, 2)
+
+    assert topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9},
+                    {'a': 10, 'b': 1}, {'a': 9, 'b': 2}], key='a') == \
+        ({'a': 10, 'b': 1}, {'a': 9, 'b': 2})
+
+    assert topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9},
+                    {'a': 10, 'b': 1}, {'a': 9, 'b': 2}], key='b') == \
+        ({'a': 1, 'b': 10}, {'a': 2, 'b': 9})

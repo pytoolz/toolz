@@ -874,6 +874,7 @@ def topk(k, seq, key=None):
     """
     if key is None:
         return tuple(heapq.nlargest(k, seq))
-    else:
-        keyed_seq = map(lambda x: (key(x), x), seq)
-        return tuple(pluck(1, heapq.nlargest(k, keyed_seq)))
+    if not callable(key):
+        key = getter(key)
+    keyed_seq = map(lambda x: (key(x), x), seq)
+    return tuple(pluck(1, heapq.nlargest(k, keyed_seq)))
