@@ -440,3 +440,4 @@ def test_diff():
 def test_topk():
     assert topk(2, [4, 1, 5, 2]) == (5, 4)
     assert topk(2, [4, 1, 5, 2], key=lambda x: -x) == (1, 2)
+    assert topk(2, iter([5, 1, 4, 2]), key=lambda x: -x) == (1, 2)

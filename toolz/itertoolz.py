@@ -875,4 +875,5 @@ def topk(k, seq, key=None):
     if key is None:
         return tuple(heapq.nlargest(k, seq))
     else:
-        return tuple(pluck(1, heapq.nlargest(k, zip(map(key, seq), seq))))
+        keyed_seq = map(lambda x: (key(x), x), seq)
+        return tuple(pluck(1, heapq.nlargest(k, keyed_seq)))
