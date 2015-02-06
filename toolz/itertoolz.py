@@ -57,11 +57,11 @@ def groupby(key, seq):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
-    >>> groupby(len, names)
+    >>> groupby(len, names)  # doctest: +SKIP
     {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
 
     >>> iseven = lambda x: x % 2 == 0
-    >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])
+    >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])  # doctest: +SKIP
     {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
 
     Non-callable keys imply grouping on a member.
@@ -518,10 +518,10 @@ def reduceby(key, binop, seq, init=no_default):
 
     >>> data = [1, 2, 3, 4, 5]
 
-    >>> reduceby(iseven, add, data)
+    >>> reduceby(iseven, add, data)  # doctest: +SKIP
     {False: 9, True: 6}
 
-    >>> reduceby(iseven, mul, data)
+    >>> reduceby(iseven, mul, data)  # doctest: +SKIP
     {False: 15, True: 8}
 
     Complex Example
