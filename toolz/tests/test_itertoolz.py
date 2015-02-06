@@ -449,3 +449,7 @@ def test_topk():
     assert topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9},
                     {'a': 10, 'b': 1}, {'a': 9, 'b': 2}], key='b') == \
         ({'a': 1, 'b': 10}, {'a': 2, 'b': 9})
+
+
+def test_topk_is_stable():
+    assert topk(4, [5, 9, 2, 1, 5, 3], key=lambda x: 1) == (5, 9, 2, 1)

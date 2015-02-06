@@ -870,10 +870,10 @@ def topk(k, seq, key=None):
 
     >>> topk(2, ['Alice', 'Bob', 'Charlie', 'Dan'], key=len)
     ('Charlie', 'Alice')
+
+    See also:
+        heapq.nlargest
     """
-    if key is None:
-        return tuple(heapq.nlargest(k, seq))
-    if not callable(key):
+    if key and not callable(key):
         key = getter(key)
-    keyed_seq = map(lambda x: (key(x), x), seq)
-    return tuple(pluck(1, heapq.nlargest(k, keyed_seq)))
+    return tuple(heapq.nlargest(k, seq, key=key))
