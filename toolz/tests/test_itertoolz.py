@@ -11,7 +11,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff)
+                             diff, topk)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -435,3 +435,21 @@ def test_diff():
 
     list(diff(data1, data2, key=indollars)) == [
         ({'cost': 2, 'currency': 'dollar'}, {'cost': 300, 'currency': 'yen'})]
+
+
+def test_topk():
+    assert topk(2, [4, 1, 5, 2]) == (5, 4)
+    assert topk(2, [4, 1, 5, 2], key=lambda x: -x) == (1, 2)
+    assert topk(2, iter([5, 1, 4, 2]), key=lambda x: -x) == (1, 2)
+
+    assert topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9},
+                    {'a': 10, 'b': 1}, {'a': 9, 'b': 2}], key='a') == \
+        ({'a': 10, 'b': 1}, {'a': 9, 'b': 2})
+
+    assert topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9},
+                    {'a': 10, 'b': 1}, {'a': 9, 'b': 2}], key='b') == \
+        ({'a': 1, 'b': 10}, {'a': 2, 'b': 9})
+
+
+def test_topk_is_stable():
+    assert topk(4, [5, 9, 2, 1, 5, 3], key=lambda x: 1) == (5, 9, 2, 1)

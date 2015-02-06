@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff')
+           'join', 'tail', 'diff', 'topk')
 
 
 def remove(predicate, seq):
@@ -57,11 +57,11 @@ def groupby(key, seq):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
-    >>> groupby(len, names)
+    >>> groupby(len, names)  # doctest: +SKIP
     {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
 
     >>> iseven = lambda x: x % 2 == 0
-    >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])
+    >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])  # doctest: +SKIP
     {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
 
     Non-callable keys imply grouping on a member.
@@ -518,10 +518,10 @@ def reduceby(key, binop, seq, init=no_default):
 
     >>> data = [1, 2, 3, 4, 5]
 
-    >>> reduceby(iseven, add, data)
+    >>> reduceby(iseven, add, data)  # doctest: +SKIP
     {False: 9, True: 6}
 
-    >>> reduceby(iseven, mul, data)
+    >>> reduceby(iseven, mul, data)  # doctest: +SKIP
     {False: 15, True: 8}
 
     Complex Example
@@ -855,3 +855,25 @@ def diff(*seqs, **kwargs):
             vals = tuple(map(key, items))
             if vals.count(vals[0]) != N:
                 yield items
+
+
+def topk(k, seq, key=None):
+    """
+    Find the k largest elements of a sequence
+
+    Operates lazily in ``n*log(k)`` time
+
+    >>> topk(2, [1, 100, 10, 1000])
+    (1000, 100)
+
+    Use a key function to change sorted order
+
+    >>> topk(2, ['Alice', 'Bob', 'Charlie', 'Dan'], key=len)
+    ('Charlie', 'Alice')
+
+    See also:
+        heapq.nlargest
+    """
+    if key and not callable(key):
+        key = getter(key)
+    return tuple(heapq.nlargest(k, seq, key=key))
