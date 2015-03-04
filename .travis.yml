@@ -9,7 +9,7 @@ python:
     - "pypy3"
 
 env:
-    - PEP8_IGNORE=""
+    - PEP8_IGNORE="E731,W503"
 
 # command to install dependencies
 install:
@@ -24,6 +24,7 @@ script:
                    --with-doctest
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then coverage report --show-missing --fail-under=100 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py -r --show-source . ; fi
+    - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py,tests,examples,bench -r --show-source . ; fi
 
 # load coverage status to https://coveralls.io
 after_success:
