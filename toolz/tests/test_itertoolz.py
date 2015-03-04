@@ -76,6 +76,11 @@ def test_merge_sorted():
                                 key=lambda x: -ord(x))) == 'cccbbbaaa'
     assert list(merge_sorted([1], [2, 3, 4], key=identity)) == [1, 2, 3, 4]
 
+    data = [[(1, 2), (0, 4), (3, 6)], [(5, 3), (6, 5), (8, 8)],
+            [(9, 1), (9, 8), (9, 9)]]
+    assert list(merge_sorted(*data, key=lambda x: x[1])) == [
+        (9, 1), (1, 2), (5, 3), (0, 4), (6, 5), (3, 6), (8, 8), (9, 8), (9, 9)]
+
 
 def test_interleave():
     assert ''.join(interleave(('ABC', '123'))) == 'A1B2C3'
