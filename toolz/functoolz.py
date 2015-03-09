@@ -1,7 +1,9 @@
-from functools import reduce, partial
+from functools import reduce, partial, WRAPPER_ASSIGNMENTS, WRAPPER_UPDATES
 import inspect
 import operator
 import sys
+
+from .compatibility import PY3
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry')
@@ -123,6 +125,34 @@ def _num_required_args(func):
         return None
 
 
+# backport Python 3.4 update_wrapper
+def update_wrapper(wrapper,
+                   wrapped,
+                   assigned=WRAPPER_ASSIGNMENTS,
+                   updated=WRAPPER_UPDATES):
+
+    """Makes wrapper appear as the wrapped callable.
+    Backport of Python3.4's functools.update_wrapper
+    """
+
+    for attr in assigned:
+        try:
+            value = getattr(wrapped, attr)
+        except AttributeError:
+            pass
+        else:
+            setattr(wrapper, attr, value)
+
+    for attr in updated:
+        getattr(wrapper, attr).update(getattr(wrapped, attr, {}))
+
+    # store original callable last so it's accidentally not copied over
+    wrapper.__wrapped__ = wrapped
+
+    # return wrapper for use as a decorator
+    return wrapper
+
+
 class curry(object):
     """ Curry a callable function
 
@@ -155,6 +185,9 @@ class curry(object):
         if not callable(func):
             raise TypeError("Input must be callable")
 
+        # must go first, otherwise pickling is borked
+        update_wrapper(self, func)
+
         # curry- or functools.partial-like object?  Unpack and merge arguments
         if (hasattr(func, 'func')
                 and hasattr(func, 'args')
@@ -172,14 +205,6 @@ class curry(object):
             self._partial = partial(func, *args, **kwargs)
         else:
             self._partial = partial(func, *args)
-
-        self.__name__ = getattr(func, '__name__', '<curried>')
-        self.__doc__ = getattr(func, '__doc__', '<curry>')
-        self.__module__ = getattr(func, '__module__', 'toolz.functoolz')
-        # checking explicitly against PY3 fails for pypy3 and >3,3
-        if hasattr(func, '__qualname__'):  # pragma: no cover
-            self.__qualname__ = getattr(func, '__qualname__', '')
-            self.__annotations__ = getattr(func, '__annotations__', {})
 
     @property
     def func(self):
@@ -332,6 +357,7 @@ def memoize(func, cache=None, key=None):
         may_have_kwargs = True
         is_unary = False
 
+    @wraps(func)
     def memof(*args, **kwargs):
         try:
             if key is not None:
@@ -355,15 +381,6 @@ def memoize(func, cache=None, key=None):
             cache[k] = result
             return result
 
-    memof.__doc__ = getattr(func, '__doc__', None)
-    memof.__name__ = getattr(func, '__name__', '<memoized>')
-    memof.__module__ = getattr(func, '__module__', 'toolz.functoolz')
-    # checking explicitly against PY3 fails for pypy3 and >3.3
-    if hasattr(func, '__qualname__'):  # pragma: no cover
-        memof.__qualname__ = getattr(func, '__qualname__', '')
-        memof.__annotations__ = getattr(func, '__annotations__', {})
-
-    memof.__dict__.update(getattr(func, '__dict__', {}))
     return memof
 
 
@@ -516,3 +533,10 @@ def do(func, x):
     """
     func(x)
     return x
+
+
+def wraps(wrapped, assigned=WRAPPER_ASSIGNMENTS, updated=WRAPPER_UPDATES):
+    """Decorator form of updated version of update_wrapper."""
+
+    return partial(update_wrapper, wrapped=wrapped,  # noqa
+           assigned=assigned, updated=updated)  # noqa
