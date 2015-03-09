@@ -3,8 +3,6 @@ import inspect
 import operator
 import sys
 
-from .compatibility import PY3
-
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry')
 
@@ -178,7 +176,8 @@ class curry(object):
         self.__name__ = getattr(func, '__name__', '<curried>')
         self.__doc__ = getattr(func, '__doc__', '<curry>')
         self.__module__ = getattr(func, '__module__', '')
-        if PY3:
+        # checking explicitly against PY3 fails for pypy3 and >3,3
+        if hasattr(func, '__qualname__') and hasattr(func, '__annotations__'):
             self.__qualname__ = getattr(func, '__qualname__', '')
             self.__annotations__ = getattr(func, '__annotations__', {})
 
@@ -359,7 +358,8 @@ def memoize(func, cache=None, key=None):
     memof.__doc__ = getattr(func, '__doc__', None)
     memof.__name__ = getattr(func, '__name__', '<memoized>')
     memof.__module__ = getattr(func, '__module__', '')
-    if PY3:
+    # checking explicitly against PY3 fails for pypy3 and >3.3
+    if hasattr(func, '__qualname__') and hasattr(func, '__annotations__'):
         memof.__qualname__ = getattr(func, '__qualname__', '')
         memof.__annotations__ = getattr(func, '__annotations__', {})
 

@@ -50,7 +50,7 @@ def test_memoize():
     assert fn_calls == [1]  # function was only called once
     assert mf.__doc__ == f.__doc__ and mf.__name__ == f.__name__
 
-    if PY3:
+    if hasattr(mf, '__qualname__') and hasattr(mf, '__annotations__'):
         assert mf.__qualname__ == f.__qualname__
         assert mf.__annotations__ == f.__annotations__
 
@@ -283,7 +283,7 @@ def test_curry_attributes_update_from_func():
     assert f.__name__ == 'foo'
     assert f.__doc__ == 'a doc string'
 
-    if PY3:
+    if hasattr(f, '__annotations__'):
         # can't test actual annotations
         # Python2 will refuse to compile code
         assert f.__annotations__ == {}
