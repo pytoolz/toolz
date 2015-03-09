@@ -201,6 +201,10 @@ class curry(object):
             args = func.args + args
             func = func.func
 
+        # don't store any partial instances at all
+        # kludge for 2.6
+        self.__wrapped__ = func
+
         if kwargs:
             self._partial = partial(func, *args, **kwargs)
         else:
