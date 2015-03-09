@@ -48,7 +48,12 @@ def test_memoize():
 
     assert mf(2, 3) == mf(2, 3)
     assert fn_calls == [1]  # function was only called once
-    assert mf.__doc__ == f.__doc__
+    assert mf.__doc__ == f.__doc__ and mf.__name__ == f.__name__
+
+    if PY3:
+        assert mf.__qualname__ == f.__qualname__
+        assert mf.__annotations__ == f.__annotations__
+
     assert raises(TypeError, lambda: mf(1, {}))
 
 
@@ -269,6 +274,19 @@ def test_curry_attributes_writable():
     if hasattr(f, 'func_name'):
         assert f.__name__ == f.func_name
 
+def test_curry_attributes_update_from_func():
+    def foo(a):
+        "a doc string"
+        return 4
+
+    f = curry(foo)
+    assert f.__name__ == 'foo'
+    assert f.__doc__ == 'a doc string'
+
+    if PY3:
+        # can't test actual annotations
+        # Python2 will refuse to compile code
+        assert f.__annotations__ == {}
 
 def test_curry_comparable():
     def foo(a, b, c=1):

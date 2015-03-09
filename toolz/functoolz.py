@@ -3,6 +3,7 @@ import inspect
 import operator
 import sys
 
+from .compatibility import PY3
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry')
@@ -174,8 +175,12 @@ class curry(object):
         else:
             self._partial = partial(func, *args)
 
-        self.__doc__ = getattr(func, '__doc__', None)
-        self.__name__ = getattr(func, '__name__', '<curry>')
+        self.__name__ = getattr(func, '__name__', '<curried>')
+        self.__doc__ = getattr(func, '__doc__', '<curry>')
+        self.__module__ = getattr(func, '__module__', '')
+        if PY3:
+            self.__qualname__ = getattr(func, '__qualname__', '')
+            self.__annotations__ = getattr(func, '__annotations__', {})
 
     @property
     def func(self):
@@ -351,11 +356,14 @@ def memoize(func, cache=None, key=None):
             cache[k] = result
             return result
 
-    try:
-        memof.__name__ = func.__name__
-    except AttributeError:
-        pass
-    memof.__doc__ = func.__doc__
+    memof.__doc__ = getattr(func, '__doc__', None)
+    memof.__name__ = getattr(func, '__name__', '<memoized>')
+    memof.__module__ = getattr(func, '__module__', '')
+    if PY3:
+        memof.__qualname__ = getattr(func, '__qualname__', '')
+        memof.__annotations__ = getattr(func, '__annotations__', {})
+
+    memof.__dict__.update(getattr(func, '__dict__', {}))
     return memof
 
 
