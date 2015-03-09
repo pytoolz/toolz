@@ -177,7 +177,7 @@ class curry(object):
         self.__doc__ = getattr(func, '__doc__', '<curry>')
         self.__module__ = getattr(func, '__module__', 'toolz.functoolz')
         # checking explicitly against PY3 fails for pypy3 and >3,3
-        if hasattr(func, '__qualname__') and hasattr(func, '__annotations__'): # pragma: no cover
+        if hasattr(func, '__qualname__'):  # pragma: no cover
             self.__qualname__ = getattr(func, '__qualname__', '')
             self.__annotations__ = getattr(func, '__annotations__', {})
 
@@ -359,7 +359,7 @@ def memoize(func, cache=None, key=None):
     memof.__name__ = getattr(func, '__name__', '<memoized>')
     memof.__module__ = getattr(func, '__module__', 'toolz.functoolz')
     # checking explicitly against PY3 fails for pypy3 and >3.3
-    if hasattr(func, '__qualname__') and hasattr(func, '__annotations__'): # pragma: no cover
+    if hasattr(func, '__qualname__'):  # pragma: no cover
         memof.__qualname__ = getattr(func, '__qualname__', '')
         memof.__annotations__ = getattr(func, '__annotations__', {})
 
