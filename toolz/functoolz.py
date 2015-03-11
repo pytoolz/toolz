@@ -1,9 +1,9 @@
-from functools import reduce, partial, WRAPPER_ASSIGNMENTS, WRAPPER_UPDATES
+from functools import reduce, partial
 import inspect
 import operator
 import sys
 
-from .compatibility import PY3
+from .compatibility import PY3, update_wrapper, wraps
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry')
@@ -123,61 +123,6 @@ def _num_required_args(func):
         return len(spec.args) - num_defaults
     except TypeError:
         return None
-
-
-def update_wrapper(wrapper,
-                   wrapped,
-                   assigned=WRAPPER_ASSIGNMENTS,
-                   updated=WRAPPER_UPDATES):
-
-    """Makes wrapper appear as the wrapped callable.
-
-    Backport of Python3.4's functools.update_wrapper. This version is
-    more intelligent than what's found in Python 2 as it uses a
-    try/except/else block when moving attributes rather than just
-    charitably assuming the attributes are present.
-
-    It also backports Python 3's `__wrapped__` attribute as well
-    to give access to the original callable.
-
-    WARNING: This function modifies the wrapper function.
-
-    More useful for class based decorator than closure based decorators.
-
-    >>> class Decorator(object):
-    ...     def __init__(self, f):
-    ...         update_wrapper(self, f)
-    ...         self._f = f
-    ...     def __call__(self, *a, **k):
-    ...         return self._f(*a, **k)
-
-    >>> @Decorator
-    ... def add(a, b):
-    ...     "a doc string"
-    ...     return a + b
-
-    >>> print(add.__name__)
-    add
-    >>> print(add.__doc__)
-    a doc string
-    """
-
-    for attr in assigned:
-        try:
-            value = getattr(wrapped, attr)
-        except AttributeError:
-            pass
-        else:
-            setattr(wrapper, attr, value)
-
-    for attr in updated:
-        getattr(wrapper, attr).update(getattr(wrapped, attr, {}))
-
-    # store original callable last so it's accidentally not copied over
-    wrapper.__wrapped__ = wrapped
-
-    # return wrapper for use as a decorator
-    return wrapper
 
 
 class curry(object):
@@ -563,35 +508,3 @@ def do(func, x):
     """
     func(x)
     return x
-
-
-def wraps(wrapped, assigned=WRAPPER_ASSIGNMENTS, updated=WRAPPER_UPDATES):
-    """Decorator form of updated version of update_wrapper.
-
-    This is very useful for writing closure based decorators
-    rather than using update_wrapper manually on the closure.
-
-    WARNING: This function modifies what it's applied to.
-
-    >>> def decorator(f):
-    ...     @wraps(f)
-    ...     def wrapper(*a, **k):
-    ...         return f(*a, **k)
-    ...     return wrapper
-
-    >>> @decorator
-    ... def add(a, b):
-    ...     "a doc string"
-    ...     return a+b
-
-    >>> print(add.__name__)
-    add
-
-    >>> print(add.__doc__)
-    a doc string
-    """
-
-    # use functools.partial rather than curry to prevent
-    # recursion since curry *uses* update_wrapper to update itself
-    return partial(update_wrapper, wrapped=wrapped,  # noqa
-           assigned=assigned, updated=updated)  # noqa
