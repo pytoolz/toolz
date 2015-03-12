@@ -30,9 +30,11 @@ def merge(*dicts):
         dicts = dicts[0]
 
     rv = OrderedDict()
+    return_ordered_dict = True
     for d in dicts:
-        if not isinstance(d, OrderedDict):
+        if return_ordered_dict and not isinstance(d, OrderedDict):
             rv = dict(rv)
+            return_ordered_dict = False
         rv.update(d)
     return rv
 
