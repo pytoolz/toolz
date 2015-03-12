@@ -1,4 +1,5 @@
 import operator
+from collections import OrderedDict
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
@@ -24,8 +25,10 @@ def merge(*dicts):
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
 
-    rv = {}
+    rv = OrderedDict()
     for d in dicts:
+        if not isinstance(d, OrderedDict):
+            rv = dict(rv)
         rv.update(d)
     return rv
 
@@ -48,14 +51,17 @@ def merge_with(func, *dicts):
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
 
-    result = {}
+    dict_ = OrderedDict
+    result = OrderedDict()
     for d in dicts:
+        if not isinstance(d, OrderedDict):
+            dict_ = dict
         for k, v in iteritems(d):
             if k not in result:
                 result[k] = [v]
             else:
                 result[k].append(v)
-    return dict((k, func(v)) for k, v in iteritems(result))
+    return dict_((k, func(v)) for k, v in iteritems(result))
 
 
 def valmap(func, d):
@@ -83,7 +89,7 @@ def keymap(func, d):
         valmap
         itemmap
     """
-    return dict(zip(map(func, iterkeys(d)), itervalues(d)))
+    return type(d)(zip(map(func, iterkeys(d)), itervalues(d)))
 
 
 def itemmap(func, d):
@@ -97,7 +103,7 @@ def itemmap(func, d):
         keymap
         valmap
     """
-    return dict(map(func, iteritems(d)))
+    return type(d)(map(func, iteritems(d)))
 
 
 def valfilter(predicate, d):
@@ -113,7 +119,7 @@ def valfilter(predicate, d):
         itemfilter
         valmap
     """
-    rv = {}
+    rv = type(d)()
     for k, v in iteritems(d):
         if predicate(v):
             rv[k] = v
@@ -133,7 +139,7 @@ def keyfilter(predicate, d):
         itemfilter
         keymap
     """
-    rv = {}
+    rv = type(d)()
     for k, v in iteritems(d):
         if predicate(k):
             rv[k] = v
@@ -156,7 +162,7 @@ def itemfilter(predicate, d):
         valfilter
         itemmap
     """
-    rv = {}
+    rv = type(d)()
     for item in iteritems(d):
         if predicate(item):
             k, v = item
@@ -175,7 +181,7 @@ def assoc(d, key, value):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    return merge(d, {key: value})
+    return merge(d, type(d)([(key, value)]))
 
 
 def dissoc(d, key):
@@ -230,7 +236,7 @@ def update_in(d, keys, func, default=None):
     assert len(keys) > 0
     k, ks = keys[0], keys[1:]
     if ks:
-        return assoc(d, k, update_in(d.get(k, {}), ks, func, default))
+        return assoc(d, k, update_in(d.get(k, type(d)()), ks, func, default))
     else:
         innermost = func(d.get(k)) if (k in d) else func(default)
         return assoc(d, k, innermost)
