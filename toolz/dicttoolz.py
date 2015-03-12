@@ -1,11 +1,15 @@
 import operator
-from collections import OrderedDict
+import collections
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
            'assoc', 'dissoc', 'update_in', 'get_in')
+
+# Python 2.6 compatibility
+OrderedDict = getattr(collections, 'OrderedDict',
+                      type('OrderedDict', (dict,), {}))
 
 
 def merge(*dicts):
