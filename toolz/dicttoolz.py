@@ -57,9 +57,12 @@ def merge_with(func, *dicts):
 
     dict_ = OrderedDict
     result = OrderedDict()
+    return_ordered_dict = True
     for d in dicts:
-        if not isinstance(d, OrderedDict):
+        if return_ordered_dict and not isinstance(d, OrderedDict):
+            result = dict(result)
             dict_ = dict
+            return_ordered_dict = False
         for k, v in iteritems(d):
             if k not in result:
                 result[k] = [v]
