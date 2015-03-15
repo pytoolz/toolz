@@ -1,13 +1,14 @@
-from toolz.utils import raises
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter)
 
 
-inc = lambda x: x + 1
+def inc(x):
+    return x + 1
 
 
-iseven = lambda i: i % 2 == 0
+def iseven(i):
+    return i % 2 == 0
 
 
 def test_merge():
