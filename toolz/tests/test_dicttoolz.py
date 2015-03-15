@@ -1,6 +1,20 @@
+import collections
+
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter)
+
+# Python 2.6 compatibility
+_OrderedDict = getattr(collections, 'OrderedDict',
+                       type('OrderedDict', (dict,), {}))
+
+
+class OrderedDict(_OrderedDict):
+    def __eq__(self, other):
+        # Ensure that comparisons against dict return False
+        if not isinstance(other, _OrderedDict):
+            return False
+        return super(OrderedDict, self).__eq__(other)
 
 
 def inc(x):
@@ -13,6 +27,13 @@ def iseven(i):
 
 def test_merge():
     assert merge({1: 1, 2: 2}, {3: 4}) == {1: 1, 2: 2, 3: 4}
+    assert merge({1: 1}, OrderedDict([(3, 4)])) == {1: 1, 3: 4}
+    assert merge(OrderedDict([(3, 4)]), {1: 1}) == {1: 1, 3: 4}
+    assert (merge(OrderedDict([(1, 1)]), OrderedDict([(2, 2), (1, 3)])) ==
+            OrderedDict([(1, 3), (2, 2)]))
+    dicts = (OrderedDict([(1, 1)]), OrderedDict([(1, 2)]),
+             OrderedDict([(2, 3)]))
+    assert merge(dicts) == OrderedDict([(1, 2), (2, 3)])
 
 
 def test_merge_iterable_arg():
@@ -27,6 +48,14 @@ def test_merge_with():
     dicts = {1: 1, 2: 2, 3: 3}, {1: 10, 2: 20}
     assert merge_with(sum, *dicts) == {1: 11, 2: 22, 3: 3}
     assert merge_with(tuple, *dicts) == {1: (1, 10), 2: (2, 20), 3: (3,)}
+
+    ordered_dicts = (OrderedDict([(1, 1), (2, 2)]),
+                     OrderedDict([(1, 10), (2, 20)]))
+    assert merge_with(sum, ordered_dicts) == OrderedDict([(1, 11), (2, 22)])
+    assert merge_with(sum, *ordered_dicts) == OrderedDict([(1, 11), (2, 22)])
+
+    mixed_dicts = OrderedDict([(1, 10)]), {1: 1}, OrderedDict([(2, 3)])
+    assert merge_with(sum, mixed_dicts) == {1: 11, 2: 3}
 
     assert not merge_with(sum)
 
