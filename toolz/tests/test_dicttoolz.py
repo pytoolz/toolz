@@ -1,3 +1,4 @@
+import sys
 import collections
 
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
@@ -7,12 +8,13 @@ from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
 # Python 2.6 compatibility
 _OrderedDict = getattr(collections, 'OrderedDict',
                        type('OrderedDict', (dict,), {}))
+PY26 = not all(i <= j for i, j in zip((2, 7), sys.version_info[:2]))
 
 
 class OrderedDict(_OrderedDict):
     def __eq__(self, other):
-        # Ensure that comparisons against dict return False
-        if not isinstance(other, _OrderedDict):
+        # Ensure that comparisons against dict return False on Python 2.7+
+        if not PY26 and not isinstance(other, _OrderedDict):
             return False
         return super(OrderedDict, self).__eq__(other)
 
