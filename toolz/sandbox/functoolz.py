@@ -1,5 +1,6 @@
 from toolz.functoolz import pipe
 
+
 def pipeseq(seq, *funcs):
     """ Pipe each value in a sequence through a sequence of functions
 
@@ -22,6 +23,3 @@ def pipeseq(seq, *funcs):
     """
     for item in seq:
         yield pipe(item, *funcs)
-
-
-
