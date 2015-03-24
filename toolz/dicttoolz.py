@@ -1,15 +1,10 @@
 import operator
-import collections
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
            'assoc', 'dissoc', 'update_in', 'get_in')
-
-# Python 2.6 compatibility
-OrderedDict = getattr(collections, 'OrderedDict',
-                      type('OrderedDict', (dict,), {}))
 
 
 def merge(*dicts):
@@ -29,12 +24,8 @@ def merge(*dicts):
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
 
-    rv = OrderedDict()
-    return_ordered_dict = True
+    rv = {}
     for d in dicts:
-        if return_ordered_dict and not isinstance(d, OrderedDict):
-            rv = dict(rv)
-            return_ordered_dict = False
         rv.update(d)
     return rv
 
@@ -56,21 +47,15 @@ def merge_with(func, *dicts):
     """
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
-    dicts = list(dicts)
 
-    if all(isinstance(d, OrderedDict) for d in dicts):
-        dict_ = OrderedDict
-    else:
-        dict_ = dict
-
-    result = dict_()
+    result = {}
     for d in dicts:
         for k, v in iteritems(d):
             if k not in result:
                 result[k] = [v]
             else:
                 result[k].append(v)
-    return dict_((k, func(v)) for k, v in iteritems(result))
+    return dict((k, func(v)) for k, v in iteritems(result))
 
 
 def valmap(func, d):
@@ -98,7 +83,7 @@ def keymap(func, d):
         valmap
         itemmap
     """
-    return type(d)(zip(map(func, iterkeys(d)), itervalues(d)))
+    return dict(zip(map(func, iterkeys(d)), itervalues(d)))
 
 
 def itemmap(func, d):
@@ -112,7 +97,7 @@ def itemmap(func, d):
         keymap
         valmap
     """
-    return type(d)(map(func, iteritems(d)))
+    return dict(map(func, iteritems(d)))
 
 
 def valfilter(predicate, d):
@@ -128,7 +113,7 @@ def valfilter(predicate, d):
         itemfilter
         valmap
     """
-    rv = type(d)()
+    rv = {}
     for k, v in iteritems(d):
         if predicate(v):
             rv[k] = v
@@ -148,7 +133,7 @@ def keyfilter(predicate, d):
         itemfilter
         keymap
     """
-    rv = type(d)()
+    rv = {}
     for k, v in iteritems(d):
         if predicate(k):
             rv[k] = v
@@ -171,7 +156,7 @@ def itemfilter(predicate, d):
         valfilter
         itemmap
     """
-    rv = type(d)()
+    rv = {}
     for item in iteritems(d):
         if predicate(item):
             k, v = item
@@ -190,7 +175,7 @@ def assoc(d, key, value):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    return merge(d, type(d)([(key, value)]))
+    return merge(d, {key: value})
 
 
 def dissoc(d, key):
@@ -245,7 +230,7 @@ def update_in(d, keys, func, default=None):
     assert len(keys) > 0
     k, ks = keys[0], keys[1:]
     if ks:
-        return assoc(d, k, update_in(d.get(k, type(d)()), ks, func, default))
+        return assoc(d, k, update_in(d.get(k, {}), ks, func, default))
     else:
         innermost = func(d.get(k)) if (k in d) else func(default)
         return assoc(d, k, innermost)
