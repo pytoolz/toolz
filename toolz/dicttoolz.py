@@ -11,8 +11,8 @@ __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
 def _get_factory(f, kwargs):
     factory = kwargs.pop('factory', dict)
     if kwargs:
-        raise TypeError("{}() got an unexpected keyword argument "
-                        "'{}'".format(f.__name__, kwargs.popitem()[0]))
+        raise TypeError("{0}() got an unexpected keyword argument "
+                        "'{1}'".format(f.__name__, kwargs.popitem()[0]))
     return factory
 
 
