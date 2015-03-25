@@ -1,3 +1,4 @@
+import copy
 import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
@@ -207,7 +208,7 @@ def dissoc(d, key):
     >>> dissoc({'x': 1, 'y': 2}, 'y')
     {'x': 1}
     """
-    d2 = d.copy()
+    d2 = copy.copy(d)
     del d2[key]
     return d2
 
