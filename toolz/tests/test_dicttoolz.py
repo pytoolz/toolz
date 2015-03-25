@@ -1,6 +1,14 @@
+from collections import defaultdict as _defaultdict
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter)
+
+
+class defaultdict(_defaultdict):
+    def __eq__(self, other):
+        return (super(defaultdict, self).__eq__(other) and
+                isinstance(other, _defaultdict) and
+                self.default_factory == other.default_factory)
 
 
 def inc(x):
@@ -109,3 +117,12 @@ def test_update_in():
     oldd = d
     update_in(d, ['x'], inc)
     assert d is oldd
+
+
+def test_factory():
+    assert merge(defaultdict(int, {1: 2}), {2: 3}) == {1: 2, 2: 3}
+    assert (merge(defaultdict(int, {1: 2}), {2: 3},
+                  factory=lambda: defaultdict(int)) ==
+            defaultdict(int, {1: 2, 2: 3}))
+    assert not (merge(defaultdict(int, {1: 2}), {2: 3},
+                      factory=lambda: defaultdict(int)) == {1: 2, 2: 3})
