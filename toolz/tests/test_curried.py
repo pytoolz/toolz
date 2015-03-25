@@ -1,6 +1,8 @@
 import toolz
 import toolz.curried
-from toolz.curried import take, first, second, sorted, merge_with, reduce
+from toolz.curried import (take, first, second, sorted, merge_with, reduce,
+                           merge)
+from collections import defaultdict
 from operator import add
 
 
@@ -10,6 +12,12 @@ def test_take():
 
 def test_first():
     assert first is toolz.itertoolz.first
+
+
+def test_merge():
+    assert merge(factory=lambda: defaultdict(int))({1: 1}) == {1: 1}
+    assert merge({1: 1}) == {1: 1}
+    assert merge({1: 1}, factory=lambda: defaultdict(int)) == {1: 1}
 
 
 def test_merge_with():
