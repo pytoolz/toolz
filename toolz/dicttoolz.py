@@ -16,15 +16,6 @@ def _get_factory(f, kwargs):
     return factory
 
 
-def _update(self, other):
-    if callable(getattr(self, 'update', None)):
-        self.update(other)
-    else:
-        for k, v in other.iteritems():
-            self[k] = v
-    return self
-
-
 def merge(*dicts, **kwargs):
     """ Merge a collection of dictionaries
 
@@ -45,7 +36,7 @@ def merge(*dicts, **kwargs):
 
     rv = factory()
     for d in dicts:
-        _update(rv, d)
+        rv.update(d)
     return rv
 
 

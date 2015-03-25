@@ -2,6 +2,7 @@ from collections import defaultdict as _defaultdict
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter)
+from toolz.utils import raises
 
 
 class defaultdict(_defaultdict):
@@ -126,3 +127,4 @@ def test_factory():
             defaultdict(int, {1: 2, 2: 3}))
     assert not (merge(defaultdict(int, {1: 2}), {2: 3},
                       factory=lambda: defaultdict(int)) == {1: 2, 2: 3})
+    assert raises(TypeError, lambda: merge({1: 2}, {2: 3}, factoryy=dict))
