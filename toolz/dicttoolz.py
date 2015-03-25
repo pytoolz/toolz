@@ -66,7 +66,7 @@ def merge_with(func, *dicts, **kwargs):
                 result[k] = [v]
             else:
                 result[k].append(v)
-    return factory((k, func(v)) for k, v in iteritems(result))
+    return valmap(func, result, factory=factory)
 
 
 def valmap(func, d, factory=dict):
@@ -80,7 +80,9 @@ def valmap(func, d, factory=dict):
         keymap
         itemmap
     """
-    return factory(zip(iterkeys(d), map(func, itervalues(d))))
+    rv = factory()
+    rv.update(zip(iterkeys(d), map(func, itervalues(d))))
+    return rv
 
 
 def keymap(func, d, factory=dict):
@@ -94,7 +96,9 @@ def keymap(func, d, factory=dict):
         valmap
         itemmap
     """
-    return factory(zip(map(func, iterkeys(d)), itervalues(d)))
+    rv = factory()
+    rv.update(zip(map(func, iterkeys(d)), itervalues(d)))
+    return rv
 
 
 def itemmap(func, d, factory=dict):
@@ -108,7 +112,9 @@ def itemmap(func, d, factory=dict):
         keymap
         valmap
     """
-    return factory(map(func, iteritems(d)))
+    rv = factory()
+    rv.update(map(func, iteritems(d)))
+    return rv
 
 
 def valfilter(predicate, d, factory=dict):
@@ -186,7 +192,9 @@ def assoc(d, key, value, factory=dict):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    return merge(d, factory([(key, value)]), factory=factory)
+    d2 = factory()
+    d2[key] = value
+    return merge(d, d2, factory=factory)
 
 
 def dissoc(d, key):
