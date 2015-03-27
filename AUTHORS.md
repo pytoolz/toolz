@@ -17,3 +17,5 @@ Lars Buitinck                                   [@larsmans](http://github.com/la
 José Ricardo                                    [@josericardo](https://github.com/josericardo)
 
 Tom Prince                                      [@tomprince](https://github.com/tomprince)
+
+Bart van Merriënboer                            [@bartvm](https://github.com/bartvm)
