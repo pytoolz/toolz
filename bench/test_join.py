@@ -1,6 +1,10 @@
 from toolz.curried import *
 import random
 
+try:
+    xrange
+except NameError:
+    xrange = range
 
 def burn(seq):
     for item in seq:
