@@ -16,7 +16,7 @@ big = pipe([110]*10000, map(range), concat, list)
 
 
 def test_many_to_many_large():
-    burn(join(get(0), identity, small, big))
+    burn(join(get(0), small, identity, big))
 
 
 def test_one_to_one_tiny():
@@ -24,7 +24,7 @@ def test_one_to_one_tiny():
     B = A[::2] + A[1::2][::-1]
 
     for i in xrange(50000):
-        burn(join(identity, identity, A, B))
+        burn(join(identity, A, identity, B))
 
 
 def test_one_to_many():
@@ -32,4 +32,4 @@ def test_one_to_many():
     B = pipe([20]*1000, map(range), concat, list)
 
     for i in xrange(100):
-        burn(join(identity, identity, A, B))
+        burn(join(identity, A, identity, B))
