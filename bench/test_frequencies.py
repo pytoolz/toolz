@@ -1,8 +1,8 @@
 from toolz import frequencies, identity
 
 
-big_data = range(1000)*1000
-small_data = range(100)
+big_data = list(range(1000)) * 1000
+small_data = list(range(100))
 
 
 def test_frequencies():

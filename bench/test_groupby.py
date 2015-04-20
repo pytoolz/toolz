@@ -1,7 +1,7 @@
 from toolz import groupby, identity
 
 
-data = range(1000)*1000
+data = list(range(1000)) * 1000
 
 
 def test_groupby():
