@@ -19,3 +19,5 @@ José Ricardo                                    [@josericardo](https://github.c
 Tom Prince                                      [@tomprince](https://github.com/tomprince)
 
 Bart van Merriënboer                            [@bartvm](https://github.com/bartvm)
+
+Nikolaos-Digenis Karagiannis                    [@digenis](https://github.com/digenis/)
