@@ -152,7 +152,10 @@ class curry(object):
         toolz.curried - namespace of curried functions
                         http://toolz.readthedocs.org/en/latest/curry.html
     """
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        if not args:
+            raise TypeError('__init__() takes at least 2 arguments (1 given)')
+        func, args = args[0], args[1:]
         if not callable(func):
             raise TypeError("Input must be callable")
 
