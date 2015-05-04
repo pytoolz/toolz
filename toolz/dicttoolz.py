@@ -66,7 +66,7 @@ def merge_with(func, *dicts, **kwargs):
                 result[k] = [v]
             else:
                 result[k].append(v)
-    return valmap(func, result, factory=factory)
+    return valmap(func, result, factory)
 
 
 def valmap(func, d, factory=dict):
@@ -249,11 +249,12 @@ def update_in(d, keys, func, default=None, factory=dict):
     assert len(keys) > 0
     k, ks = keys[0], keys[1:]
     if ks:
-        return assoc(d, k, update_in(d.get(k, factory()), ks, func, default),
-                     factory=factory)
+        return assoc(d, k, update_in(d[k] if (k in d) else factory(),
+                                     ks, func, default, factory),
+                     factory)
     else:
-        innermost = func(d.get(k)) if (k in d) else func(default)
-        return assoc(d, k, innermost, factory=factory)
+        innermost = func(d[k]) if (k in d) else func(default)
+        return assoc(d, k, innermost, factory)
 
 
 def get_in(keys, coll, default=None, no_default=False):
