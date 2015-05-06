@@ -1,5 +1,7 @@
-from toolz import curry, unique, first
-from toolz.sandbox.core import EqualityHashKey
+from toolz import curry, unique, first, take
+from toolz.sandbox.core import EqualityHashKey, unzip
+from itertools import count, repeat
+
 
 
 def test_EqualityHashKey_default_key():
@@ -72,3 +74,39 @@ def test_EqualityHashKey_index_key():
     EqualityHash0 = curry(EqualityHashKey, 0)
     assert list(unique(3*[list1, list2, list3a, list3b],
                        key=EqualityHash0)) == [list1, list2, list3a]
+
+
+def test_unzip():
+    def _to_lists(seq, n = 10):
+        """iter of iters -> finite list of finite lists
+        """
+        def initial(s):
+            return list(take(n, s))
+
+        return initial(map(initial, seq))
+
+    def _assert_initial_matches(a, b, n = 10):
+        assert list(take(n, a)) == list(take(n, b))
+
+    # Unzips a simple list correctly
+    assert _to_lists(unzip([('a', 1), ('b', 2), ('c', 3)])) \
+        == [['a', 'b', 'c'], [1, 2, 3]]
+
+    # Can handle a finite number of infinite iterators (the naive unzip
+    # implementation `zip(*args)` impelementation fails on this example).
+    a, b, c = unzip(zip(count(1), repeat(0), repeat(1)))
+    _assert_initial_matches(a, count(1))
+    _assert_initial_matches(b, repeat(0))
+    _assert_initial_matches(c, repeat(1))
+
+    # QUESTION: is there a good way to check that the above is working
+    # lazily? Because if it isn't lazy the current test will take forever.
+    # A test timeout maybe?
+
+    # TODO:
+    # # Can handle an infinite list of finite itertors
+    # out = unzip(repeat([1, 2, 3]))
+    # a = next(out)
+    # assert identical(take(10, a), repeat(1, 10))
+    # b = next(out)
+    # assert identical(take(10, b), repeat(2, 10))
