@@ -77,7 +77,7 @@ def test_EqualityHashKey_index_key():
 
 
 def test_unzip():
-    def _to_lists(seq, n = 10):
+    def _to_lists(seq, n=10):
         """iter of iters -> finite list of finite lists
         """
         def initial(s):
@@ -85,7 +85,7 @@ def test_unzip():
 
         return initial(map(initial, seq))
 
-    def _assert_initial_matches(a, b, n = 10):
+    def _assert_initial_matches(a, b, n=10):
         assert list(take(n, a)) == list(take(n, b))
 
     # Unzips a simple list correctly
