@@ -99,17 +99,5 @@ def test_unzip():
     _assert_initial_matches(b, repeat(0))
     _assert_initial_matches(c, repeat(1))
 
-    # QUESTION: is there a good way to check that the above is working
-    # lazily? Because if it isn't lazy the current test will take forever.
-    # A test timeout maybe?
-
-    # TODO:
-    # # Can handle an infinite list of finite itertors
-    # out = unzip(repeat([1, 2, 3]))
-    # a = next(out)
-    # assert identical(take(10, a), repeat(1, 10))
-    # b = next(out)
-    # assert identical(take(10, b), repeat(2, 10))
-
     # Sensibly handles empty input
     assert list(unzip(zip([]))) == []

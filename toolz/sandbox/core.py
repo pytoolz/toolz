@@ -113,7 +113,7 @@ def unzip(seq):
       of auxiliary storage if the resulting iterators are consumed at
       different times.
 
-    * The top level sequence cannot (currently?) be infinite.
+    * The top level sequence cannot be infinite.
 
     """
 
@@ -128,8 +128,5 @@ def unzip(seq):
     # and create them
     niters = len(first)
     seqs = tee(cons(first, seq), niters)
-
-    # TODO: This should be ideally be replaced by a lazy version of tee
-    # which can yield as many iterators as are needed.
 
     return tuple(starmap(pluck, enumerate(seqs)))
