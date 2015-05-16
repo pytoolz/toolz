@@ -123,7 +123,7 @@ def unzip(seq):
     try:
         first = tuple(next(seq))
     except StopIteration:
-        return iter([])
+        return tuple()
 
     # and create them
     niters = len(first)
@@ -132,4 +132,4 @@ def unzip(seq):
     # TODO: This should be ideally be replaced by a lazy version of tee
     # which can yield as many iterators as are needed.
 
-    return starmap(pluck, enumerate(seqs))
+    return tuple(starmap(pluck, enumerate(seqs)))
