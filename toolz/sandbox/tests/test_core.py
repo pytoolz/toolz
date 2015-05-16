@@ -110,3 +110,6 @@ def test_unzip():
     # assert identical(take(10, a), repeat(1, 10))
     # b = next(out)
     # assert identical(take(10, b), repeat(2, 10))
+
+    # Sensibly handles empty input
+    assert list(unzip(zip([]))) == []

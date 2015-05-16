@@ -119,8 +119,13 @@ def unzip(seq):
 
     seq = iter(seq)
 
-    # Check how many iterators we need, and create them
-    first = tuple(next(seq))
+    # Check how many iterators we need
+    try:
+        first = tuple(next(seq))
+    except StopIteration:
+        return iter([])
+
+    # and create them
     niters = len(first)
     seqs = tee(cons(first, seq), niters)
 
