@@ -94,6 +94,7 @@ Sandbox
 .. autosummary::
    parallel.fold
    core.EqualityHashKey
+   functoolz.pipeseq
 
 
 Definitions
