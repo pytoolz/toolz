@@ -133,7 +133,7 @@ We're friendly.
    :target: https://travis-ci.org/pytoolz/toolz
 .. |Coverage Status| image:: https://coveralls.io/repos/pytoolz/toolz/badge.png
    :target: https://coveralls.io/r/pytoolz/toolz
-.. |Version Status| image:: https://pypip.in/v/toolz/badge.png
-   :target: https://pypi.python.org/pypi/toolz/
-.. |Downloads| image:: https://pypip.in/d/toolz/badge.png
+.. |Version Status| image:: https://badge.fury.io/py/toolz.svg
+   :target: http://badge.fury.io/py/toolz
+.. |Downloads| image:: https://img.shields.io/pypi/dm/toolz.svg
    :target: https://pypi.python.org/pypi/toolz/
