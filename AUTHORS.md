@@ -21,3 +21,5 @@ Tom Prince                                      [@tomprince](https://github.com/
 Bart van Merriënboer                            [@bartvm](https://github.com/bartvm)
 
 Nikolaos-Digenis Karagiannis                    [@digenis](https://github.com/digenis/)
+
+[Antonio Lima](https://twitter.com/themiurgo)   [@themiurgo](https://github.com/themiurgo/)

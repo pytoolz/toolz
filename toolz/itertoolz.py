@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk')
+           'join', 'tail', 'diff', 'topk', 'peek')
 
 
 def remove(predicate, seq):
@@ -877,3 +877,22 @@ def topk(k, seq, key=None):
     if key and not callable(key):
         key = getter(key)
     return tuple(heapq.nlargest(k, seq, key=key))
+
+
+def peek(seq):
+    """ Retrieve the next element of a sequence
+
+    Returns the first element and an iterable equivalent to the original
+    sequence, still having the element retrieved.
+
+    >>> seq = [0, 1, 2, 3, 4]
+    >>> first, seq = peek(seq)
+    >>> first
+    0
+    >>> list(seq)
+    [0, 1, 2, 3, 4]
+
+    """
+    iterator = iter(seq)
+    item = next(iterator)
+    return item, itertools.chain([item], iterator)

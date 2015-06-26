@@ -33,6 +33,7 @@ Itertoolz
    nth
    partition
    partition_all
+   peek
    pluck
    reduceby
    remove

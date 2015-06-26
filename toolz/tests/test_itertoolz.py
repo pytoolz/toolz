@@ -11,7 +11,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk)
+                             diff, topk, peek)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -458,3 +458,12 @@ def test_topk():
 
 def test_topk_is_stable():
     assert topk(4, [5, 9, 2, 1, 5, 3], key=lambda x: 1) == (5, 9, 2, 1)
+
+
+def test_peek():
+    alist = ["Alice", "Bob", "Carol"]
+    element, blist  = peek(alist)
+    element == alist[0]
+    assert list(blist) == alist
+
+    assert raises(StopIteration, lambda: peek([]))
