@@ -437,6 +437,11 @@ def test_compose():
     assert compose(str, inc, f)(1, 2, c=3) == '10'
 
 
+def test_compose__name__():
+    assert 'double' in compose(double, inc).__name__
+    assert 'inc' in compose(double, inc).__name__
+
+
 def test_pipe():
     assert pipe(1, inc) == 2
     assert pipe(1, inc, inc) == 3

@@ -368,10 +368,11 @@ class Compose(object):
     See Also:
         compose
     """
-    __slots__ = ['funcs']
+    __slots__ = ['funcs', '_name']
 
-    def __init__(self, *funcs):
+    def __init__(self, *funcs, **kwargs):
         self.funcs = funcs
+        self._name = kwargs.get('name', None)
 
     def __call__(self, *args, **kwargs):
         fns = list(reversed(self.funcs))
@@ -386,8 +387,12 @@ class Compose(object):
     def __setstate__(self, state):
         self.funcs = tuple(state)
 
+    @property
+    def __name__(self):
+        return self._name or '_o_'.join([fn.__name__ for fn in self.funcs])
 
-def compose(*funcs):
+
+def compose(*funcs, **kwargs):
     """ Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
@@ -409,7 +414,7 @@ def compose(*funcs):
     if len(funcs) == 1:
         return funcs[0]
     else:
-        return Compose(*funcs)
+        return Compose(*funcs, name=kwargs.get('name', None))
 
 
 def pipe(data, *funcs):
@@ -449,7 +454,7 @@ def complement(func):
     >>> isodd(2)
     False
     """
-    return compose(operator.not_, func)
+    return compose(operator.not_, func, name='not_' + func.__name__)
 
 
 class juxt(object):
