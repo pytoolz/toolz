@@ -387,6 +387,35 @@ class Compose(object):
     def __setstate__(self, state):
         self.first, self.funcs = state
 
+    @property
+    def __doc__(self):
+        def composed_doc(*fs):
+            """Generate a docstring for the composition of fs.
+            """
+            if not fs:
+                # Argument name for the docstring.
+                return '*args, **kwargs'
+
+            return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+
+        try:
+            return (
+                'lambda *args, **kwargs: ' +
+                composed_doc(self.first, *self.funcs)
+            )
+        except AttributeError:
+            # One of our callables does not have a `__name__`, whatever.
+            return 'A composition of functions'
+
+    @property
+    def __name__(self):
+        try:
+            return '_of_'.join(
+                f.__name__ for f in reversed((self.first,) + self.funcs),
+            )
+        except AttributeError:
+            return type(self).__name__
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.
