@@ -436,6 +436,24 @@ def test_compose():
 
     assert compose(str, inc, f)(1, 2, c=3) == '10'
 
+    # Define two functions with different names
+    def f(a):
+        return a
+
+    def g(a):
+        return a
+
+    composed = compose(f, g)
+    assert composed.__name__ == 'f_of_g'
+    assert composed.__doc__ == 'lambda *args, **kwargs: f(g(*args, **kwargs))'
+
+    # Create an object with no __name__.
+    h = object()
+
+    composed = compose(f, h)
+    assert composed.__name__ == 'Compose'
+    assert composed.__doc__ == 'A composition of functions'
+
 
 def test_pipe():
     assert pipe(1, inc) == 2

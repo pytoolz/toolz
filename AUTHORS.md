@@ -23,3 +23,5 @@ Bart van Merriënboer                            [@bartvm](https://github.com/ba
 Nikolaos-Digenis Karagiannis                    [@digenis](https://github.com/digenis/)
 
 [Antonio Lima](https://twitter.com/themiurgo)   [@themiurgo](https://github.com/themiurgo/)
+
+Joe Jevnik                                      [@llllllllll](https://github.com/llllllllll)

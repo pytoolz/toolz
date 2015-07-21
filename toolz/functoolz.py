@@ -368,23 +368,53 @@ class Compose(object):
     See Also:
         compose
     """
-    __slots__ = ['funcs']
+    __slots__ = 'first', 'funcs'
 
-    def __init__(self, *funcs):
-        self.funcs = funcs
+    def __init__(self, funcs):
+        funcs = tuple(reversed(funcs))
+        self.first = funcs[0]
+        self.funcs = funcs[1:]
 
     def __call__(self, *args, **kwargs):
-        fns = list(reversed(self.funcs))
-        ret = fns[0](*args, **kwargs)
-        for f in fns[1:]:
+        ret = self.first(*args, **kwargs)
+        for f in self.funcs:
             ret = f(ret)
         return ret
 
     def __getstate__(self):
-        return self.funcs
+        return self.first, self.funcs
 
     def __setstate__(self, state):
-        self.funcs = tuple(state)
+        self.first, self.funcs = state
+
+    @property
+    def __doc__(self):
+        def composed_doc(*fs):
+            """Generate a docstring for the composition of fs.
+            """
+            if not fs:
+                # Argument name for the docstring.
+                return '*args, **kwargs'
+
+            return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+
+        try:
+            return (
+                'lambda *args, **kwargs: ' +
+                composed_doc(*reversed((self.first,) + self.funcs))
+            )
+        except AttributeError:
+            # One of our callables does not have a `__name__`, whatever.
+            return 'A composition of functions'
+
+    @property
+    def __name__(self):
+        try:
+            return '_of_'.join(
+                f.__name__ for f in reversed((self.first,) + self.funcs),
+            )
+        except AttributeError:
+            return type(self).__name__
 
 
 def compose(*funcs):
@@ -409,7 +439,7 @@ def compose(*funcs):
     if len(funcs) == 1:
         return funcs[0]
     else:
-        return Compose(*funcs)
+        return Compose(funcs)
 
 
 def pipe(data, *funcs):
