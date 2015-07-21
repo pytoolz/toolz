@@ -401,7 +401,7 @@ class Compose(object):
         try:
             return (
                 'lambda *args, **kwargs: ' +
-                composed_doc(self.first, *self.funcs)
+                composed_doc(*reversed((self.first,) + self.funcs))
             )
         except AttributeError:
             # One of our callables does not have a `__name__`, whatever.
