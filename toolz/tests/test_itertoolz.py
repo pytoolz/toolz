@@ -11,7 +11,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek)
+                             diff, topk, peek, PeekableIterator)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -467,3 +467,26 @@ def test_peek():
     assert list(blist) == alist
 
     assert raises(StopIteration, lambda: peek([]))
+
+
+def test_peekable_iterator_iter():
+    peekable = PeekableIterator(iter([1, 2, 3]))
+    assert iter(peekable) is peekable
+    assert next(peekable) == 1
+    assert list(peekable) == [2, 3]
+
+
+def test_peekable_iterator_peek():
+    peekable = PeekableIterator(iter([1, 2, 3]))
+    assert peekable.peek(2) == (1, 2)
+    assert list(peekable) == [1, 2, 3]
+
+
+def test_peekable_iterator_lookahead_iter():
+    peekable = PeekableIterator(iter([1, 2, 3]))
+    for n in peekable.lookahead_iter():
+        if n == 2:
+            break
+        assert n == 1
+
+    assert list(peekable) == [2, 3]
