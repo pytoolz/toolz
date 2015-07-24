@@ -5,7 +5,7 @@ import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry')
+           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
 
 
 def identity(x):
@@ -541,3 +541,32 @@ def do(func, x):
     """
     func(x)
     return x
+
+
+@curry
+def flip(func, a, b):
+    """Call the function call with the arguments flipped.
+
+    Parameters
+    ----------
+    f : callable
+        A binary function.
+    a : any
+        The second argument to `f`.
+    b : any
+        The first argument to `f`.
+
+    Returns
+    -------
+    out : any
+        The result of calling f(b, a).
+
+    Examples
+    --------
+    >>> def f(a, b):
+    ...     return a / b
+    ...
+    >>> flip(f, 2, 1)
+    0.5
+    """
+    return func(b, a)
