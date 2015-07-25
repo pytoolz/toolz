@@ -547,26 +547,15 @@ def do(func, x):
 def flip(func, a, b):
     """Call the function call with the arguments flipped.
 
-    Parameters
-    ----------
-    f : callable
-        A binary function.
-    a : any
-        The second argument to `f`.
-    b : any
-        The first argument to `f`.
+    This function is curried.
 
-    Returns
-    -------
-    out : any
-        The result of calling f(b, a).
-
-    Examples
-    --------
-    >>> def f(a, b):
+    >>> def div(a, b):
     ...     return a / b
     ...
-    >>> flip(f, 2, 1)
+    >>> flip(div, 2, 1)
     0.5
+    >>> div_by_two = flip(div, 2)
+    >>> div_by_two(4)
+    2.0
     """
     return func(b, a)
