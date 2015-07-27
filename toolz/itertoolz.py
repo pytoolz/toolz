@@ -15,6 +15,9 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'join', 'tail', 'diff', 'topk', 'peek')
 
 
+_no_default = object()  # sentinel
+
+
 def remove(predicate, seq):
     """ Return those items of sequence for which predicate(item) is False
 
@@ -343,9 +346,6 @@ def last(seq):
 rest = partial(drop, 1)
 
 
-no_default = '__no__default__'
-
-
 def _get(ind, seq, default):
     try:
         return seq[ind]
@@ -353,7 +353,7 @@ def _get(ind, seq, default):
         return default
 
 
-def get(ind, seq, default=no_default):
+def get(ind, seq, default=_no_default):
     """ Get element in a sequence or dict
 
     Provides standard indexing
@@ -390,7 +390,7 @@ def get(ind, seq, default=no_default):
         return seq[ind]
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
-            if default is no_default:
+            if default is _no_default:
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
                 elif ind:
@@ -399,12 +399,12 @@ def get(ind, seq, default=no_default):
                     return ()
             else:
                 return tuple(_get(i, seq, default) for i in ind)
-        elif default is not no_default:
+        elif default is not _no_default:
             return default
         else:
             raise
     except (KeyError, IndexError):  # we know `ind` is not a list
-        if default is no_default:
+        if default is _no_default:
             raise
         else:
             return default
@@ -487,7 +487,7 @@ def frequencies(seq):
     return dict(d)
 
 
-def reduceby(key, binop, seq, init=no_default):
+def reduceby(key, binop, seq, init=_no_default):
     """ Perform a simultaneous groupby and reduction
 
     The computation:
@@ -548,7 +548,7 @@ def reduceby(key, binop, seq, init=no_default):
     {True:  set([2, 4]),
      False: set([1, 3])}
     """
-    if init is not no_default and not callable(init):
+    if init is not _no_default and not callable(init):
         _init = init
         init = lambda: _init
     if not callable(key):
@@ -557,7 +557,7 @@ def reduceby(key, binop, seq, init=no_default):
     for item in seq:
         k = key(item)
         if k not in d:
-            if init is no_default:
+            if init is _no_default:
                 d[k] = item
                 continue
             else:
@@ -691,7 +691,7 @@ def count(seq):
     return sum(1 for i in seq)
 
 
-def pluck(ind, seqs, default=no_default):
+def pluck(ind, seqs, default=_no_default):
     """ plucks an element or several elements from each item in a sequence.
 
     ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
@@ -715,7 +715,7 @@ def pluck(ind, seqs, default=no_default):
         get
         map
     """
-    if default is no_default:
+    if default is _no_default:
         get = getter(ind)
         return map(get, seqs)
     elif isinstance(ind, list):
@@ -738,7 +738,7 @@ def getter(index):
 
 
 def join(leftkey, leftseq, rightkey, rightseq,
-         left_default=no_default, right_default=no_default):
+         left_default=_no_default, right_default=_no_default):
     """ Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
@@ -807,10 +807,10 @@ def join(leftkey, leftseq, rightkey, rightseq,
             for match in left_matches:
                 yield (match, item)
         except KeyError:
-            if left_default is not no_default:
+            if left_default is not _no_default:
                 yield (left_default, item)
 
-    if right_default is not no_default:
+    if right_default is not _no_default:
         for key, matches in d.items():
             if key not in seen_keys:
                 for match in matches:
@@ -840,8 +840,8 @@ def diff(*seqs, **kwargs):
         N = len(seqs)
     if N < 2:
         raise TypeError('Too few sequences given (min 2 required)')
-    default = kwargs.get('default', no_default)
-    if default is no_default:
+    default = kwargs.get('default', _no_default)
+    if default is _no_default:
         iters = zip(*seqs)
     else:
         iters = zip_longest(*seqs, fillvalue=default)
