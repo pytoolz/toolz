@@ -5,7 +5,7 @@ import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry')
+           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
 
 
 def identity(x):
@@ -541,3 +541,30 @@ def do(func, x):
     """
     func(x)
     return x
+
+
+@curry
+def flip(func, a, b):
+    """Call the function call with the arguments flipped.
+
+    This function is curried.
+
+    >>> def div(a, b):
+    ...     return a / b
+    ...
+    >>> flip(div, 2, 1)
+    0.5
+    >>> div_by_two = flip(div, 2)
+    >>> div_by_two(4)
+    2.0
+
+    This is particularly useful for built in functions and functions defined
+    in C extensions that accept positional only arguments. For example:
+    isinstance, issubclass.
+
+    >>> data = [1, 'a', 'b', 2, 1.5, object(), 3]
+    >>> only_ints = list(filter(flip(isinstance, int), data))
+    >>> only_ints
+    [1, 2, 3]
+    """
+    return func(b, a)
