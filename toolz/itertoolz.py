@@ -3,8 +3,7 @@ import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import (map, filter, filterfalse, zip, zip_longest,
-                                 iteritems)
+from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems)
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
