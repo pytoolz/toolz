@@ -557,5 +557,14 @@ def flip(func, a, b):
     >>> div_by_two = flip(div, 2)
     >>> div_by_two(4)
     2.0
+
+    This is particularly useful for built in functions and functions defined
+    in C extensions that accept positional only arguments. For example:
+    isinstance, issubclass.
+
+    >>> data = [1, 'a', 'b', 2, 1.5, object(), 3]
+    >>> only_ints = list(filter(flip(isinstance, int), data))
+    >>> only_ints
+    [1, 2, 3]
     """
     return func(b, a)
