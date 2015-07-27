@@ -1,10 +1,11 @@
 import itertools
+from itertools import islice
 import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import (map, filter, filterfalse, zip, zip_longest,
-                                 iteritems)
+from toolz.compatibility import (map, filterfalse, zip, zip_longest,
+                                 iteritems, Queue, Empty, PY3)
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -12,7 +13,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek')
+           'join', 'tail', 'diff', 'topk', 'peek', 'PeekableIterator')
 
 
 def remove(predicate, seq):
@@ -260,7 +261,7 @@ def take(n, seq):
         drop
         tail
     """
-    return itertools.islice(seq, n)
+    return islice(seq, n)
 
 
 def tail(n, seq):
@@ -289,7 +290,7 @@ def drop(n, seq):
         take
         tail
     """
-    return itertools.islice(seq, n, None)
+    return islice(seq, n, None)
 
 
 def take_nth(n, seq):
@@ -298,7 +299,7 @@ def take_nth(n, seq):
     >>> list(take_nth(2, [10, 20, 30, 40, 50]))
     [10, 30, 50]
     """
-    return itertools.islice(seq, 0, None, n)
+    return islice(seq, 0, None, n)
 
 
 def first(seq):
@@ -316,7 +317,7 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    return next(itertools.islice(seq, 1, None))
+    return next(islice(seq, 1, None))
 
 
 def nth(n, seq):
@@ -328,7 +329,7 @@ def nth(n, seq):
     if isinstance(seq, (tuple, list, collections.Sequence)):
         return seq[n]
     else:
-        return next(itertools.islice(seq, n, None))
+        return next(islice(seq, n, None))
 
 
 def last(seq):
@@ -612,7 +613,7 @@ def sliding_window(n, seq):
     """
     it = iter(seq)
     # An efficient FIFO data structure with maximum length
-    d = collections.deque(itertools.islice(it, n), n)
+    d = collections.deque(islice(it, n), n)
     if len(d) != n:
         raise StopIteration()
     d_append = d.append
@@ -896,3 +897,70 @@ def peek(seq):
     iterator = iter(seq)
     item = next(iterator)
     return item, itertools.chain([item], iterator)
+
+
+class PeekableIterator(object):
+    """An iterator that allows us to peek at elements without consuming them
+    from the stream.
+
+    Parameters
+    ----------
+    stream : iterator
+        The iterator to wrap.
+    """
+    def __init__(self, stream):
+        self._stream = iter(stream)
+        self._peeked = Queue()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            return self._peeked.get_nowait()
+        except Empty:
+            return next(self._stream)
+
+    if not PY3:
+        next = __next__
+        del __next__
+
+    def peek(self, n=1):
+        """Peek at the next n elements
+
+        Parameters
+        ----------
+        n : int, optional
+            The number elements to peek at.
+
+        Returns
+        -------
+        peeked : tuple
+            The next n elements in this sequence.
+        """
+        peeked = tuple(islice(self, None, n))
+        put = self._peeked.put_nowait
+        for item in peeked:
+            put(item)
+        return peeked
+
+    def lookahead_iter(self):
+        """Get an iterator that yields elements before consuming them from
+        the sequence.
+
+        This is useful for feeding into takewhiles where you want to break
+        the take without consuming the element that triggered the exit
+        condition.
+
+        Returns
+        -------
+        it : iterator
+            The iterator.
+        """
+        while True:
+            for p in self.peek(1):
+                yield p
+            try:
+                next(self)
+            except StopIteration:
+                break
