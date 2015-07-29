@@ -23,22 +23,39 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
-from .core import should_curry
-from .operator import *
+import inspect
 
+from .operator import *
+from . import exceptions
 import toolz
 
 
-locals().update(
-    dict((name, toolz.curry(f) if should_curry(f) else f)
-         for name, f in vars(toolz).items() if '__' not in name),
-)
+def _nargs(f):
+    try:
+        return len(inspect.getargspec(f).args)
+    except TypeError:
+        return 0
+
+
+def _should_curry(f):
+    do_curry = frozenset((toolz.map, toolz.filter, toolz.sorted, toolz.reduce))
+    return (callable(f) and _nargs(f) > 1 or f in do_curry)
+
+
+def _curry_namespace(ns):
+    return dict(
+        (name, toolz.curry(f) if _should_curry(f) else f)
+        for name, f in ns.items() if '__' not in name
+    )
+
+
+locals().update(toolz.merge(
+    _curry_namespace(vars(toolz)),
+    _curry_namespace(vars(exceptions)),
+))
 
 # Clean up the namespace.
+del _nargs
+del _should_curry
+del exceptions
 del toolz
-del should_curry
-
-
-# This should come after the previous `locals().update` call to make
-# sure the exceptions get added to the namespace.
-from .exceptions import *

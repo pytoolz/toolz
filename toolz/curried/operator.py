@@ -1,24 +1,28 @@
-import operator as _operator
-from test.support import import_fresh_module
+import operator
 
 from toolz import curry
-from .core import should_curry
 
-# Potentially defined in C and _should_curry will fail.
-_operator = vars(_operator)
-# The pure python implementations.
-# We will use these to inspect the call signatures of the C versions.
-_pyoperator = vars(import_fresh_module('operator', blocked=['_operator']))
+
+# We use a blacklist instead of whitelist because:
+#   1. We have more things to include than exclude.
+#   2. This gives us access to things like matmul iff we are in Python >=3.5.
+no_curry = frozenset((
+    'abs',
+    'index',
+    'inv',
+    'invert',
+    'neg',
+    'not_',
+    'pos',
+    'truth',
+))
 
 locals().update(
-    dict((name, curry(_operator[name])
-          if should_curry(pyfunc) else _operator[name])
-         for name, pyfunc in _pyoperator.items()),
+    dict((name, curry(f) if name not in no_curry else f)
+         for name, f in vars(operator).items() if callable(f)),
 )
 
 # Clean up the namespace.
-del _operator
-del _pyoperator
 del curry
-del import_fresh_module
-del should_curry
+del no_curry
+del operator
