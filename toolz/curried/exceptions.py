@@ -1,6 +1,10 @@
 import toolz
 
 
+__all__ = ['merge_with', 'merge']
+
+
+@toolz.curry
 def merge_with(fn, *dicts, **kwargs):
     if len(dicts) == 0:
         raise TypeError()
@@ -8,6 +12,7 @@ def merge_with(fn, *dicts, **kwargs):
         return toolz.merge_with(fn, *dicts, **kwargs)
 
 
+@toolz.curry
 def merge(*dicts, **kwargs):
     if len(dicts) == 0:
         raise TypeError()

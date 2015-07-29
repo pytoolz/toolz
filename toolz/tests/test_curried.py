@@ -1,7 +1,7 @@
 import toolz
 import toolz.curried
 from toolz.curried import (take, first, second, sorted, merge_with, reduce,
-                           merge)
+                           merge, operator as cop)
 from collections import defaultdict
 from operator import add
 
@@ -38,3 +38,19 @@ def test_reduce():
 
 def test_module_name():
     assert toolz.curried.__name__ == 'toolz.curried'
+
+
+def test_curried_operator():
+    for k, v in vars(cop).items():
+        if not callable(v):
+            continue
+
+        if not isinstance(v, toolz.curry):
+            try:
+                # Make sure it is unary
+                # We cannot use isunary because it might be defined in C.
+                v(1)
+            except TypeError:
+                raise AssertionError(
+                    'toolz.curried.operator.%s is not curried!' % k,
+                )
