@@ -4,6 +4,7 @@ import collections
 import operator
 from functools import partial
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems)
+from toolz.utils import no_default
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -12,9 +13,6 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
            'join', 'tail', 'diff', 'topk', 'peek')
-
-
-_no_default = object()  # sentinel
 
 
 def remove(predicate, seq):
@@ -28,7 +26,7 @@ def remove(predicate, seq):
     return filterfalse(predicate, seq)
 
 
-def accumulate(binop, seq, start=_no_default):
+def accumulate(binop, seq, start=no_default):
     """ Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
@@ -56,7 +54,7 @@ def accumulate(binop, seq, start=_no_default):
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    result = next(seq) if start is _no_default else start
+    result = next(seq) if start is no_default else start
     yield result
     for elem in seq:
         result = binop(result, elem)
@@ -360,7 +358,7 @@ def _get(ind, seq, default):
         return default
 
 
-def get(ind, seq, default=_no_default):
+def get(ind, seq, default=no_default):
     """ Get element in a sequence or dict
 
     Provides standard indexing
@@ -397,7 +395,7 @@ def get(ind, seq, default=_no_default):
         return seq[ind]
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
-            if default is _no_default:
+            if default is no_default:
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
                 elif ind:
@@ -406,12 +404,12 @@ def get(ind, seq, default=_no_default):
                     return ()
             else:
                 return tuple(_get(i, seq, default) for i in ind)
-        elif default is not _no_default:
+        elif default is not no_default:
             return default
         else:
             raise
     except (KeyError, IndexError):  # we know `ind` is not a list
-        if default is _no_default:
+        if default is no_default:
             raise
         else:
             return default
@@ -494,7 +492,7 @@ def frequencies(seq):
     return dict(d)
 
 
-def reduceby(key, binop, seq, init=_no_default):
+def reduceby(key, binop, seq, init=no_default):
     """ Perform a simultaneous groupby and reduction
 
     The computation:
@@ -555,7 +553,7 @@ def reduceby(key, binop, seq, init=_no_default):
     {True:  set([2, 4]),
      False: set([1, 3])}
     """
-    if init is not _no_default and not callable(init):
+    if init is not no_default and not callable(init):
         _init = init
         init = lambda: _init
     if not callable(key):
@@ -564,7 +562,7 @@ def reduceby(key, binop, seq, init=_no_default):
     for item in seq:
         k = key(item)
         if k not in d:
-            if init is _no_default:
+            if init is no_default:
                 d[k] = item
                 continue
             else:
@@ -698,7 +696,7 @@ def count(seq):
     return sum(1 for i in seq)
 
 
-def pluck(ind, seqs, default=_no_default):
+def pluck(ind, seqs, default=no_default):
     """ plucks an element or several elements from each item in a sequence.
 
     ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
@@ -722,7 +720,7 @@ def pluck(ind, seqs, default=_no_default):
         get
         map
     """
-    if default is _no_default:
+    if default is no_default:
         get = getter(ind)
         return map(get, seqs)
     elif isinstance(ind, list):
@@ -745,7 +743,7 @@ def getter(index):
 
 
 def join(leftkey, leftseq, rightkey, rightseq,
-         left_default=_no_default, right_default=_no_default):
+         left_default=no_default, right_default=no_default):
     """ Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
@@ -814,10 +812,10 @@ def join(leftkey, leftseq, rightkey, rightseq,
             for match in left_matches:
                 yield (match, item)
         except KeyError:
-            if left_default is not _no_default:
+            if left_default is not no_default:
                 yield (left_default, item)
 
-    if right_default is not _no_default:
+    if right_default is not no_default:
         for key, matches in d.items():
             if key not in seen_keys:
                 for match in matches:
@@ -847,8 +845,8 @@ def diff(*seqs, **kwargs):
         N = len(seqs)
     if N < 2:
         raise TypeError('Too few sequences given (min 2 required)')
-    default = kwargs.get('default', _no_default)
-    if default is _no_default:
+    default = kwargs.get('default', no_default)
+    if default is no_default:
         iters = zip(*seqs)
     else:
         iters = zip_longest(*seqs, fillvalue=default)

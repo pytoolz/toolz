@@ -6,4 +6,11 @@ def raises(err, lamda):
         return True
 
 
-no_default = '__no__default__'
+@object.__new__
+class no_default(object):
+    def __new__(self):
+        raise TypeError("cannot create 'no_default' instances")
+
+    def __str__(self):
+        return '<object no_default>'
+    __repr__ = __str__
