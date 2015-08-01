@@ -25,8 +25,8 @@ See Also:
 """
 import inspect
 
-from .operator import *
 from . import exceptions
+from . import operator
 import toolz
 
 

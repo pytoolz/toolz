@@ -54,3 +54,6 @@ def test_curried_operator():
                 raise AssertionError(
                     'toolz.curried.operator.%s is not curried!' % k,
                 )
+
+    # Make sure this isn't totally empty.
+    assert len(set(vars(cop)) & set(['add', 'sub', 'mul'])) == 3
