@@ -197,18 +197,19 @@ def assoc(d, key, value, factory=dict):
     return merge(d, d2, factory=factory)
 
 
-def dissoc(d, key):
+def dissoc(d, *keys):
     """
-    Return a new dict with the given key removed.
+    Return a new dict with the given keys removed.
 
-    New dict has d[key] deleted.
+    For each key in keys, new dict has d[key] deleted.
     Does not modify the initial dictionary.
 
     >>> dissoc({'x': 1, 'y': 2}, 'y')
     {'x': 1}
     """
     d2 = copy.copy(d)
-    del d2[key]
+    for key in keys:
+        del d2[key]
     return d2
 
 
