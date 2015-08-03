@@ -9,7 +9,7 @@ X-Python3-Version: >= 3.2
 
 Package: python-toolz
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, ${python3:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
 Homepage: http://github.com/pytoolz/toolz/
 Description: List processing tools and functional utilities
  Toolz provides a set of utility functions for iterators, functions, and
