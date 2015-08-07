@@ -1,11 +1,13 @@
 from functools import reduce, partial
 import inspect
 import operator
+from operator import attrgetter
+from textwrap import dedent
 import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
+           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
 
 
 def identity(x):
@@ -568,3 +570,98 @@ def flip(func, a, b):
     [1, 2, 3]
     """
     return func(b, a)
+
+
+def return_none():
+    """Returns None
+    """
+    return None
+
+
+class excepts(object):
+    """A wrapper around a function to catch exceptions and return some default.
+
+    Examples
+    --------
+    >>> excepting = excepts(lambda a: [1, 2].index(a), ValueError, lambda: -1)
+    >>> excepting(1)
+    0
+    >>> excepting(3)
+    -1
+
+    Multiple exceptions and default except clause.
+    >>> excepting = excepts(lambda a: a[0], (IndexError, KeyError))
+    >>> excepting([])
+    >>> excepting([1])
+    1
+    >>> excepting({})
+    >>> excepting({0: 1})
+    1
+    """
+    def __init__(self, f, exc, default=return_none):
+        self.f = f
+        self.exc = exc
+        self.default = default
+
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.f(*args, **kwargs)
+        except self.exc:
+            return self.default()
+
+    @object.__new__
+    class __name__(object):
+        def __get__(self, instance, owner):
+            if instance is None:
+                return 'excepts'
+
+            exc = instance.exc
+            try:
+                if isinstance(exc, tuple):
+                    exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
+                else:
+                    exc_name = exc.__name__
+                return '%s_excepting_%s' % (instance.f.__name__, exc_name)
+            except AttributeError:
+                return 'excepting'
+
+    @partial(lambda a, b=__doc__: a(b))  # close over the class __doc__
+    class __doc__(object):
+        """An inner doc object that allows us to get the class docstring
+        or the instance docstring.
+        """
+        def __init__(self, default_doc):
+            self._default_doc = default_doc
+
+        def __get__(self, instance, owner):
+            if instance is None:
+                return self._default_doc
+
+            exc = instance.exc
+            try:
+                if isinstance(exc, tuple):
+                    exc_name = '(%s)' % ', '.join(
+                        map(attrgetter('__name__'), exc),
+                    )
+                else:
+                    exc_name = exc.__name__
+
+                return dedent(
+                    """\
+                    A wrapper around {f.__name__} that will except:
+                    {exc}
+                    and return the result of {default.__name__}() instead.
+
+                    Docs for {f.__name__}:
+                    {f.__doc__}
+
+                    Docs for {default.__name__}:
+                    {default.__doc__}
+                    """
+                ).format(
+                    f=instance.f,
+                    exc=exc_name,
+                    default=instance.default,
+                )
+            except AttributeError:
+                return self._default_doc

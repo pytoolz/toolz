@@ -2,7 +2,7 @@ import platform
 
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt, flip)
+                             compose, pipe, complement, do, juxt, flip, excepts)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -508,3 +508,52 @@ def test_flip():
         return a, b
 
     assert flip(f, 'a', 'b') == ('b', 'a')
+
+
+def test_excepts():
+    # These are descriptors, make sure this works correctly.
+    assert excepts.__name__ == 'excepts'
+    assert excepts.__doc__.startswith(
+        'A wrapper around a function to catch exceptions and'
+        ' return some default.\n'
+    )
+
+    def idx(a):
+        """idx docstring
+        """
+        return [1, 2].index(a)
+
+    def default_func():
+        """default_func docstring
+        """
+        return -1
+
+    excepting = excepts(idx, ValueError, default_func)
+    assert excepting(1) == 0
+    assert excepting(2) == 1
+    assert excepting(3) == -1
+
+    assert excepting.__name__ == 'idx_excepting_ValueError'
+    assert 'idx docstring' in excepting.__doc__
+    assert 'ValueError' in excepting.__doc__
+    assert 'default_func docstring' in excepting.__doc__
+
+    def getzero(a):
+        """getzero docstring
+        """
+        return a[0]
+
+    excepting = excepts(getzero, (IndexError, KeyError))
+    assert excepting([]) is None
+    assert excepting([1]) == 1
+    assert excepting({}) is None
+    assert excepting({0: 1}) == 1
+
+    assert excepting.__name__ == 'getzero_excepting_IndexError_or_KeyError'
+    assert 'getzero docstring' in excepting.__doc__
+    assert 'return_none' in excepting.__doc__
+    assert 'Returns None' in excepting.__doc__
+
+    excepting = excepts(object(), object(), object())
+    assert excepting.__name__ == 'excepting'
+    assert excepting.__doc__ == excepts.__doc__
