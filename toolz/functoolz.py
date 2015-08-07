@@ -583,14 +583,14 @@ class excepts(object):
 
     Examples
     --------
-    >>> excepting = excepts(lambda a: [1, 2].index(a), ValueError, lambda: -1)
+    >>> excepting = excepts(ValueError, lambda a: [1, 2].index(a), lambda: -1)
     >>> excepting(1)
     0
     >>> excepting(3)
     -1
 
     Multiple exceptions and default except clause.
-    >>> excepting = excepts(lambda a: a[0], (IndexError, KeyError))
+    >>> excepting = excepts((IndexError, KeyError), lambda a: a[0])
     >>> excepting([])
     >>> excepting([1])
     1
@@ -598,9 +598,9 @@ class excepts(object):
     >>> excepting({0: 1})
     1
     """
-    def __init__(self, f, exc, default=return_none):
-        self.f = f
+    def __init__(self, exc, f, default=return_none):
         self.exc = exc
+        self.f = f
         self.default = default
 
     def __call__(self, *args, **kwargs):

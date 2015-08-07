@@ -528,7 +528,7 @@ def test_excepts():
         """
         return -1
 
-    excepting = excepts(idx, ValueError, default_func)
+    excepting = excepts(ValueError, idx, default_func)
     assert excepting(1) == 0
     assert excepting(2) == 1
     assert excepting(3) == -1
@@ -543,7 +543,7 @@ def test_excepts():
         """
         return a[0]
 
-    excepting = excepts(getzero, (IndexError, KeyError))
+    excepting = excepts((IndexError, KeyError), getzero)
     assert excepting([]) is None
     assert excepting([1]) == 1
     assert excepting({}) is None
