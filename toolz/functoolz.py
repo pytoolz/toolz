@@ -609,21 +609,17 @@ class excepts(object):
         except self.exc:
             return self.default()
 
-    @object.__new__
-    class __name__(object):
-        def __get__(self, instance, owner):
-            if instance is None:
-                return 'excepts'
-
-            exc = instance.exc
-            try:
-                if isinstance(exc, tuple):
-                    exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
-                else:
-                    exc_name = exc.__name__
-                return '%s_excepting_%s' % (instance.f.__name__, exc_name)
-            except AttributeError:
-                return 'excepting'
+    @property
+    def __name__(self):
+        exc = self.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
+            else:
+                exc_name = exc.__name__
+            return '%s_excepting_%s' % (self.f.__name__, exc_name)
+        except AttributeError:
+            return 'excepting'
 
     @partial(lambda a, b=__doc__: a(b))  # close over the class __doc__
     class __doc__(object):
