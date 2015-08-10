@@ -26,7 +26,7 @@ def remove(predicate, seq):
     return filterfalse(predicate, seq)
 
 
-def accumulate(binop, seq, start=no_default):
+def accumulate(binop, seq, initial=no_default):
     """ Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
@@ -54,7 +54,7 @@ def accumulate(binop, seq, start=no_default):
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    result = next(seq) if start is no_default else start
+    result = next(seq) if initial is no_default else initial
     yield result
     for elem in seq:
         result = binop(result, elem)
