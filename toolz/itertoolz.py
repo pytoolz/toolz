@@ -3,8 +3,8 @@ import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import (map, filter, filterfalse, zip, zip_longest,
-                                 iteritems)
+from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems)
+from toolz.utils import no_default
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -26,7 +26,7 @@ def remove(predicate, seq):
     return filterfalse(predicate, seq)
 
 
-def accumulate(binop, seq):
+def accumulate(binop, seq, initial=no_default):
     """ Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
@@ -42,11 +42,19 @@ def accumulate(binop, seq):
     >>> sum    = partial(reduce, add)
     >>> cumsum = partial(accumulate, add)
 
+    Accumulate also takes an optional argument that will be used as the first
+    value. This is similar to reduce.
+
+    >>> list(accumulate(add, [1, 2, 3], -1))
+    [-1, 0, 2, 5]
+    >>> list(accumulate(add, [], 1))
+    [1]
+
     See Also:
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    result = next(seq)
+    result = next(seq) if initial is no_default else initial
     yield result
     for elem in seq:
         result = binop(result, elem)
@@ -341,9 +349,6 @@ def last(seq):
 
 
 rest = partial(drop, 1)
-
-
-no_default = '__no__default__'
 
 
 def _get(ind, seq, default):
