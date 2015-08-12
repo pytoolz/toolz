@@ -48,7 +48,7 @@ def test_memoize():
         return x + y
     mf = memoize(f)
 
-    assert mf(2, 3) == mf(2, 3)
+    assert mf(2, 3) is mf(2, 3)
     assert fn_calls == [1]  # function was only called once
     assert mf.__doc__ == f.__doc__
     assert raises(TypeError, lambda: mf(1, {}))
