@@ -1,4 +1,4 @@
-from functools import reduce, partial
+from functools import reduce, partial, wraps
 import inspect
 import operator
 import sys
@@ -331,27 +331,28 @@ def memoize(func, cache=None, key=None):
         may_have_kwargs = True
         is_unary = False
 
-    def memof(*args, **kwargs):
-        try:
-            if key is not None:
-                k = key(args, kwargs)
-            elif is_unary:
-                k = args[0]
-            elif may_have_kwargs:
-                k = (args or None,
-                     frozenset(kwargs.items()) if kwargs else None)
-            else:
-                k = args
+    if key is None:
+        if is_unary:
+            def key(args, kwargs):
+                return args[0]
+        elif may_have_kwargs:
+            def key(args, kwargs):
+                return (
+                    args or None,
+                    frozenset(kwargs.items()) if kwargs else None,
+                )
+        else:
+            def key(args, kwargs):
+                return args
 
-            in_cache = k in cache
+    def memof(*args, **kwargs):
+        k = key(args, kwargs)
+        try:
+            return cache[k]
         except TypeError:
             raise TypeError("Arguments to memoized function must be hashable")
-
-        if in_cache:
-            return cache[k]
-        else:
-            result = func(*args, **kwargs)
-            cache[k] = result
+        except KeyError:
+            cache[k] = result = func(*args, **kwargs)
             return result
 
     try:
