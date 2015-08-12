@@ -58,5 +58,7 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
 
     if len(results) == 1:    # Return completed result
         return results[0]
+    elif len(results) == 0:  # Empty sequence passed, don't recurse
+        return []
     else:                    # Recurse to reaggregate intermediate results
         return fold(combine, results, map=map, chunksize=chunksize)
