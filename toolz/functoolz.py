@@ -368,7 +368,7 @@ class Compose(object):
     See Also:
         compose
     """
-    __slots__ = 'first', 'funcs', '__doc__', '__custom_doc'
+    __slots__ = 'first', 'funcs', '__custom_doc'
 
     def __init__(self, funcs):
         funcs = tuple(reversed(funcs))
