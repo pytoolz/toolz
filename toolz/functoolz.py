@@ -398,7 +398,9 @@ class Compose(object):
                     # Argument name for the docstring.
                     return '*args, **kwargs'
 
-                return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+                return '{f}({g})'.format(
+                    f=fs[0].__name__, g=composed_doc(*fs[1:])
+                )
 
             try:
                 return (
