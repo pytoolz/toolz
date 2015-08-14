@@ -368,12 +368,13 @@ class Compose(object):
     See Also:
         compose
     """
-    __slots__ = 'first', 'funcs'
+    __slots__ = 'first', 'funcs', '__doc__', '__custom_doc'
 
     def __init__(self, funcs):
         funcs = tuple(reversed(funcs))
         self.first = funcs[0]
         self.funcs = funcs[1:]
+        self.__custom_doc = None
 
     def __call__(self, *args, **kwargs):
         ret = self.first(*args, **kwargs)
@@ -389,23 +390,30 @@ class Compose(object):
 
     @property
     def __doc__(self):
-        def composed_doc(*fs):
-            """Generate a docstring for the composition of fs.
-            """
-            if not fs:
-                # Argument name for the docstring.
-                return '*args, **kwargs'
+        if self.__custom_doc is None:
+            def composed_doc(*fs):
+                """Generate a docstring for the composition of fs.
+                """
+                if not fs:
+                    # Argument name for the docstring.
+                    return '*args, **kwargs'
 
-            return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+                return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
 
-        try:
-            return (
-                'lambda *args, **kwargs: ' +
-                composed_doc(*reversed((self.first,) + self.funcs))
-            )
-        except AttributeError:
-            # One of our callables does not have a `__name__`, whatever.
-            return 'A composition of functions'
+            try:
+                return (
+                    'lambda *args, **kwargs: ' +
+                    composed_doc(*reversed((self.first,) + self.funcs))
+                )
+            except AttributeError:
+                # One of our callables does not have a `__name__`, whatever.
+                return 'A composition of functions'
+        else:
+            return self.__custom_doc
+
+    @__doc__.setter
+    def __doc__(self, doc):
+        self.__custom_doc = doc
 
     @property
     def __name__(self):
