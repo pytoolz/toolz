@@ -390,7 +390,9 @@ class Compose(object):
 
     @property
     def __doc__(self):
-        if self.__custom_doc is None:
+        if self.__custom_doc is not None:
+            return self.__custom_doc
+        else:
             def composed_doc(*fs):
                 """Generate a docstring for the composition of fs.
                 """
@@ -402,16 +404,14 @@ class Compose(object):
                     f=fs[0].__name__, g=composed_doc(*fs[1:])
                 )
 
-            try:
-                return (
-                    'lambda *args, **kwargs: ' +
-                    composed_doc(*reversed((self.first,) + self.funcs))
-                )
-            except AttributeError:
-                # One of our callables does not have a `__name__`, whatever.
-                return 'A composition of functions'
-        else:
-            return self.__custom_doc
+        try:
+            return (
+                'lambda *args, **kwargs: ' +
+                composed_doc(*reversed((self.first,) + self.funcs))
+            )
+        except AttributeError:
+            # One of our callables does not have a `__name__`, whatever.
+            return 'A composition of functions'
 
     @__doc__.setter
     def __doc__(self, doc):
