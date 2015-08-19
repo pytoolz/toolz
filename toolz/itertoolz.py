@@ -879,7 +879,7 @@ def topk(k, seq, key=None):
     See also:
         heapq.nlargest
     """
-    if key and not callable(key):
+    if key is not None and not callable(key):
         key = getter(key)
     return tuple(heapq.nlargest(k, seq, key=key))
 
