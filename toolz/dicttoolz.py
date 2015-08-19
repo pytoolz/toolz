@@ -208,11 +208,10 @@ def dissoc(d, *keys):
     {'x': 1}
     >>> dissoc({'x': 1, 'y': 2}, 'y', 'x')
     {}
+    >>> dissoc({'x': 1}, 'x') == dissoc(dissoc({'x' : 1}, 'x'), 'x')
+    True
     """
-    d2 = copy.copy(d)
-    for key in keys:
-        del d2[key]
-    return d2
+    return dict((key, d[key]) for key in d if key not in keys)
 
 
 def update_in(d, keys, func, default=None, factory=dict):
