@@ -423,17 +423,22 @@ def test__num_required_args():
     assert _num_required_args(foo) == 2
 
 
-def test_compose():
-    assert compose()(0) == 0
-    assert compose(inc)(0) == 1
-    assert compose(double, inc)(0) == 2
-    assert compose(str, iseven, inc, double)(3) == "False"
-    assert compose(str, add)(1, 2) == '3'
+def _test_compose(compose_func, application_order):
+    def _compose(*args):
+        if application_order == 'ltr':
+            args = reversed(args)
+        return compose_func(*args)
+
+    assert _compose()(0) == 0
+    assert _compose(inc)(0) == 1
+    assert _compose(double, inc)(0) == 2
+    assert _compose(str, iseven, inc, double)(3) == "False"
+    assert _compose(str, add)(1, 2) == '3'
 
     def f(a, b, c=10):
         return (a + b) * c
 
-    assert compose(str, inc, f)(1, 2, c=3) == '10'
+    assert _compose(str, inc, f)(1, 2, c=3) == '10'
 
     # Define two functions with different names
     def f(a):
@@ -442,29 +447,24 @@ def test_compose():
     def g(a):
         return a
 
-    composed = compose(f, g)
+    composed = _compose(f, g)
     assert composed.__name__ == 'f_of_g'
     assert composed.__doc__ == 'lambda *args, **kwargs: f(g(*args, **kwargs))'
 
     # Create an object with no __name__.
     h = object()
 
-    composed = compose(f, h)
+    composed = _compose(f, h)
     assert composed.__name__ == 'Compose'
     assert composed.__doc__ == 'A composition of functions'
 
 
+def test_compose():
+    _test_compose(compose, 'rtl')
+
+
 def test_mkpipe():
-    assert mkpipe()(0) == 0
-    assert mkpipe(inc)(0) == 1
-    assert mkpipe(inc, double)(0) == 2
-    assert mkpipe(double, inc, iseven, str)(3) == "False"
-    assert mkpipe(add, str)(1, 2) == '3'
-
-    def f(a, b, c=10):
-        return (a + b) * c
-
-    assert mkpipe(f, inc, str)(1, 2, c=3) == '10'
+    _test_compose(mkpipe, 'ltr')
 
 
 def test_pipe():
