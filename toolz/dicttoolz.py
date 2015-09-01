@@ -1,12 +1,22 @@
+import copy
 import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
-__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'valfilter', 'keyfilter',
-           'assoc', 'update_in', 'get_in')
+__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
+           'valfilter', 'keyfilter', 'itemfilter',
+           'assoc', 'dissoc', 'update_in', 'get_in')
 
 
-def merge(*dicts):
+def _get_factory(f, kwargs):
+    factory = kwargs.pop('factory', dict)
+    if kwargs:
+        raise TypeError("{0}() got an unexpected keyword argument "
+                        "'{1}'".format(f.__name__, kwargs.popitem()[0]))
+    return factory
+
+
+def merge(*dicts, **kwargs):
     """ Merge a collection of dictionaries
 
     >>> merge({1: 'one'}, {2: 'two'})
@@ -22,14 +32,15 @@ def merge(*dicts):
     """
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
+    factory = _get_factory(merge, kwargs)
 
-    rv = {}
+    rv = factory()
     for d in dicts:
         rv.update(d)
     return rv
 
 
-def merge_with(func, *dicts):
+def merge_with(func, *dicts, **kwargs):
     """ Merge dictionaries and apply function to combined values
 
     A key may occur in more than one dict, and all values mapped from the key
@@ -46,18 +57,19 @@ def merge_with(func, *dicts):
     """
     if len(dicts) == 1 and not isinstance(dicts[0], dict):
         dicts = dicts[0]
+    factory = _get_factory(merge_with, kwargs)
 
-    result = {}
+    result = factory()
     for d in dicts:
         for k, v in iteritems(d):
             if k not in result:
                 result[k] = [v]
             else:
                 result[k].append(v)
-    return dict((k, func(v)) for k, v in iteritems(result))
+    return valmap(func, result, factory)
 
 
-def valmap(func, d):
+def valmap(func, d, factory=dict):
     """ Apply function to values of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
@@ -66,11 +78,14 @@ def valmap(func, d):
 
     See Also:
         keymap
+        itemmap
     """
-    return dict(zip(iterkeys(d), map(func, itervalues(d))))
+    rv = factory()
+    rv.update(zip(iterkeys(d), map(func, itervalues(d))))
+    return rv
 
 
-def keymap(func, d):
+def keymap(func, d, factory=dict):
     """ Apply function to keys of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
@@ -79,11 +94,30 @@ def keymap(func, d):
 
     See Also:
         valmap
+        itemmap
     """
-    return dict(zip(map(func, iterkeys(d)), itervalues(d)))
+    rv = factory()
+    rv.update(zip(map(func, iterkeys(d)), itervalues(d)))
+    return rv
 
 
-def valfilter(predicate, d):
+def itemmap(func, d, factory=dict):
+    """ Apply function to items of dictionary
+
+    >>> accountids = {"Alice": 10, "Bob": 20}
+    >>> itemmap(reversed, accountids)  # doctest: +SKIP
+    {10: "Alice", 20: "Bob"}
+
+    See Also:
+        keymap
+        valmap
+    """
+    rv = factory()
+    rv.update(map(func, iteritems(d)))
+    return rv
+
+
+def valfilter(predicate, d, factory=dict):
     """ Filter items in dictionary by value
 
     >>> iseven = lambda x: x % 2 == 0
@@ -93,16 +127,17 @@ def valfilter(predicate, d):
 
     See Also:
         keyfilter
+        itemfilter
         valmap
     """
-    rv = {}
+    rv = factory()
     for k, v in iteritems(d):
         if predicate(v):
             rv[k] = v
     return rv
 
 
-def keyfilter(predicate, d):
+def keyfilter(predicate, d, factory=dict):
     """ Filter items in dictionary by key
 
     >>> iseven = lambda x: x % 2 == 0
@@ -112,16 +147,41 @@ def keyfilter(predicate, d):
 
     See Also:
         valfilter
+        itemfilter
         keymap
     """
-    rv = {}
+    rv = factory()
     for k, v in iteritems(d):
         if predicate(k):
             rv[k] = v
     return rv
 
 
-def assoc(d, key, value):
+def itemfilter(predicate, d, factory=dict):
+    """ Filter items in dictionary by item
+
+    >>> def isvalid(item):
+    ...     k, v = item
+    ...     return k % 2 == 0 and v < 4
+
+    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
+    >>> itemfilter(isvalid, d)
+    {2: 3}
+
+    See Also:
+        keyfilter
+        valfilter
+        itemmap
+    """
+    rv = factory()
+    for item in iteritems(d):
+        if predicate(item):
+            k, v = item
+            rv[k] = v
+    return rv
+
+
+def assoc(d, key, value, factory=dict):
     """
     Return a new dict with new key value pair
 
@@ -132,10 +192,30 @@ def assoc(d, key, value):
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    return merge(d, {key: value})
+    d2 = factory()
+    d2[key] = value
+    return merge(d, d2, factory=factory)
 
 
-def update_in(d, keys, func, default=None):
+def dissoc(d, *keys):
+    """
+    Return a new dict with the given key(s) removed.
+
+    New dict has d[key] deleted for each supplied key.
+    Does not modify the initial dictionary.
+
+    >>> dissoc({'x': 1, 'y': 2}, 'y')
+    {'x': 1}
+    >>> dissoc({'x': 1, 'y': 2}, 'y', 'x')
+    {}
+    """
+    d2 = copy.copy(d)
+    for key in keys:
+        del d2[key]
+    return d2
+
+
+def update_in(d, keys, func, default=None, factory=dict):
     """ Update value in a (potentially) nested dictionary
 
     inputs:
@@ -172,10 +252,12 @@ def update_in(d, keys, func, default=None):
     assert len(keys) > 0
     k, ks = keys[0], keys[1:]
     if ks:
-        return assoc(d, k, update_in(d.get(k, {}), ks, func, default))
+        return assoc(d, k, update_in(d[k] if (k in d) else factory(),
+                                     ks, func, default, factory),
+                     factory)
     else:
-        innermost = func(d.get(k)) if (k in d) else func(default)
-        return assoc(d, k, innermost)
+        innermost = func(d[k]) if (k in d) else func(default)
+        return assoc(d, k, innermost, factory)
 
 
 def get_in(keys, coll, default=None, no_default=False):

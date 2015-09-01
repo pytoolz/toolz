@@ -102,3 +102,25 @@ a few of these recipes.
      'location': 'Oakland',
      'name': 'Matthew',
      'person_id': 2}]
+
+* .. function:: areidentical(\*seqs)
+
+  Determine if sequences are identical element-wise.
+  This lazily evaluates the sequences and stops as soon as the result
+  is determined.
+
+  ::
+
+    from toolz import diff
+
+    def areidentical(*seqs):
+        return not any(diff(*seqs, default=object()))
+
+
+  Example:
+
+   >>> areidentical([1, 2, 3], (1, 2, 3))
+   True
+
+   >>> areidentical([1, 2, 3], [1, 2])
+   False

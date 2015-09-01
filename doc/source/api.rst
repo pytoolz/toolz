@@ -15,6 +15,7 @@ Itertoolz
    concatv
    cons
    count
+   diff
    drop
    first
    frequencies
@@ -32,13 +33,16 @@ Itertoolz
    nth
    partition
    partition_all
+   peek
    pluck
    reduceby
    remove
    second
    sliding_window
    take
+   tail
    take_nth
+   topk
    unique
 
 .. currentmodule:: toolz.recipes
@@ -72,9 +76,12 @@ Dicttoolz
 
 .. autosummary::
    assoc
+   dissoc
    get_in
    keyfilter
    keymap
+   itemfilter
+   itemmap
    merge
    merge_with
    update_in
@@ -89,6 +96,7 @@ Sandbox
 .. autosummary::
    parallel.fold
    core.EqualityHashKey
+   core.unzip
 
 
 Definitions

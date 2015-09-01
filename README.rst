@@ -113,13 +113,15 @@ Contributions Welcome
 
 ``toolz`` aims to be a repository for utility functions, particularly
 those that come from the functional programming and list processing
-traditions. We welcome contributions that fall within this scope and
-encourage users to scrape their ``util.py`` files for functions that are
-broadly useful.
+traditions. We welcome contributions that fall within this scope.
 
-Please take a look at our `issue
-page <https://github.com/pytoolz/toolz/issues>`__ for contribution
-ideas.
+We also try to keep the API small to keep ``toolz`` manageable.  The ideal
+contribution is significantly different from existing functions and has
+precedent in a few other functional systems.
+
+Please take a look at our
+`issue page <https://github.com/pytoolz/toolz/issues>`__
+for contribution ideas.
 
 Community
 ---------
@@ -127,11 +129,11 @@ Community
 See our `mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
 We're friendly.
 
-.. |Build Status| image:: https://travis-ci.org/pytoolz/toolz.png
+.. |Build Status| image:: https://travis-ci.org/pytoolz/toolz.svg
    :target: https://travis-ci.org/pytoolz/toolz
-.. |Coverage Status| image:: https://coveralls.io/repos/pytoolz/toolz/badge.png
+.. |Coverage Status| image:: https://coveralls.io/repos/pytoolz/toolz/badge.svg
    :target: https://coveralls.io/r/pytoolz/toolz
-.. |Version Status| image:: https://pypip.in/v/toolz/badge.png
-   :target: https://pypi.python.org/pypi/toolz/
-.. |Downloads| image:: https://pypip.in/d/toolz/badge.png
+.. |Version Status| image:: https://badge.fury.io/py/toolz.svg
+   :target: http://badge.fury.io/py/toolz
+.. |Downloads| image:: https://img.shields.io/pypi/dm/toolz.svg
    :target: https://pypi.python.org/pypi/toolz/

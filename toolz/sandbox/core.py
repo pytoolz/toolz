@@ -1,4 +1,5 @@
-from toolz.itertoolz import getter
+from toolz.itertoolz import getter, cons, pluck
+from itertools import tee, starmap
 
 
 # See #166: https://github.com/pytoolz/toolz/issues/166
@@ -91,3 +92,41 @@ class EqualityHashKey(object):
 
     def __repr__(self):
         return '=%s=' % repr(self.item)
+
+
+# See issue #293: https://github.com/pytoolz/toolz/issues/239
+def unzip(seq):
+    """Inverse of ``zip``
+
+    >>> a, b = unzip([('a', 1), ('b', 2)])
+    >>> list(a)
+    ['a', 'b']
+    >>> list(b)
+    [1, 2]
+
+    Unlike the naive implementation ``def unzip(seq): zip(*seq)`` this
+    implementation can handle a finite sequence of infinite sequences.
+
+    Caveats:
+
+    * The implementation uses ``tee``, and so can use a significant amount
+      of auxiliary storage if the resulting iterators are consumed at
+      different times.
+
+    * The top level sequence cannot be infinite.
+
+    """
+
+    seq = iter(seq)
+
+    # Check how many iterators we need
+    try:
+        first = tuple(next(seq))
+    except StopIteration:
+        return tuple()
+
+    # and create them
+    niters = len(first)
+    seqs = tee(cons(first, seq), niters)
+
+    return tuple(starmap(pluck, enumerate(seqs)))

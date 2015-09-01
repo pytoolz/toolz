@@ -3,8 +3,8 @@ import heapq
 import collections
 import operator
 from functools import partial
-from toolz.compatibility import (map, filter, filterfalse, zip, zip_longest,
-                                 iteritems)
+from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems)
+from toolz.utils import no_default
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -12,7 +12,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join')
+           'join', 'tail', 'diff', 'topk', 'peek')
 
 
 def remove(predicate, seq):
@@ -26,7 +26,7 @@ def remove(predicate, seq):
     return filterfalse(predicate, seq)
 
 
-def accumulate(binop, seq):
+def accumulate(binop, seq, initial=no_default):
     """ Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
@@ -42,11 +42,19 @@ def accumulate(binop, seq):
     >>> sum    = partial(reduce, add)
     >>> cumsum = partial(accumulate, add)
 
+    Accumulate also takes an optional argument that will be used as the first
+    value. This is similar to reduce.
+
+    >>> list(accumulate(add, [1, 2, 3], -1))
+    [-1, 0, 2, 5]
+    >>> list(accumulate(add, [], 1))
+    [1]
+
     See Also:
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    result = next(seq)
+    result = next(seq) if initial is no_default else initial
     yield result
     for elem in seq:
         result = binop(result, elem)
@@ -57,11 +65,11 @@ def groupby(key, seq):
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
-    >>> groupby(len, names)
+    >>> groupby(len, names)  # doctest: +SKIP
     {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
 
     >>> iseven = lambda x: x % 2 == 0
-    >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])
+    >>> groupby(iseven, [1, 2, 3, 4, 5, 6, 7, 8])  # doctest: +SKIP
     {False: [1, 3, 5, 7], True: [2, 4, 6, 8]}
 
     Non-callable keys imply grouping on a member.
@@ -255,8 +263,28 @@ def take(n, seq):
 
     >>> list(take(2, [10, 20, 30, 40, 50]))
     [10, 20]
+
+    See Also:
+        drop
+        tail
     """
     return itertools.islice(seq, n)
+
+
+def tail(n, seq):
+    """ The last n elements of a sequence
+
+    >>> tail(2, [10, 20, 30, 40, 50])
+    [40, 50]
+
+    See Also:
+        drop
+        take
+    """
+    try:
+        return seq[-n:]
+    except (TypeError, KeyError):
+        return tuple(collections.deque(seq, n))
 
 
 def drop(n, seq):
@@ -264,6 +292,10 @@ def drop(n, seq):
 
     >>> list(drop(2, [10, 20, 30, 40, 50]))
     [30, 40, 50]
+
+    See Also:
+        take
+        tail
     """
     return itertools.islice(seq, n, None)
 
@@ -313,16 +345,10 @@ def last(seq):
     >>> last('ABC')
     'C'
     """
-    try:
-        return seq[-1]
-    except (TypeError, KeyError):
-        return collections.deque(seq, 1)[0]
+    return tail(1, seq)[0]
 
 
 rest = partial(drop, 1)
-
-
-no_default = '__no__default__'
 
 
 def _get(ind, seq, default):
@@ -485,6 +511,10 @@ def reduceby(key, binop, seq, init=no_default):
     operate in much less space.  This makes it suitable for larger datasets
     that do not fit comfortably in memory
 
+    The ``init`` keyword argument is the default initialization of the
+    reduction.  This can be either a constant value like ``0`` or a callable
+    like ``lambda : 0`` as might be used in ``defaultdict``.
+
     Simple Examples
     ---------------
 
@@ -493,10 +523,10 @@ def reduceby(key, binop, seq, init=no_default):
 
     >>> data = [1, 2, 3, 4, 5]
 
-    >>> reduceby(iseven, add, data)
+    >>> reduceby(iseven, add, data)  # doctest: +SKIP
     {False: 9, True: 6}
 
-    >>> reduceby(iseven, mul, data)
+    >>> reduceby(iseven, mul, data)  # doctest: +SKIP
     {False: 15, True: 8}
 
     Complex Example
@@ -511,7 +541,21 @@ def reduceby(key, binop, seq, init=no_default):
     ...          lambda acc, x: acc + x['cost'],
     ...          projects, 0)
     {'CA': 1200000, 'IL': 2100000}
+
+    Example Using ``init``
+    ----------------------
+
+    >>> def set_add(s, i):
+    ...     s.add(i)
+    ...     return s
+
+    >>> reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2, 3], set)  # doctest: +SKIP
+    {True:  set([2, 4]),
+     False: set([1, 3])}
     """
+    if init is not no_default and not callable(init):
+        _init = init
+        init = lambda: _init
     if not callable(key):
         key = getter(key)
     d = {}
@@ -522,7 +566,7 @@ def reduceby(key, binop, seq, init=no_default):
                 d[k] = item
                 continue
             else:
-                d[k] = init
+                d[k] = init()
         d[k] = binop(d[k], item)
     return d
 
@@ -776,3 +820,84 @@ def join(leftkey, leftseq, rightkey, rightseq,
             if key not in seen_keys:
                 for match in matches:
                     yield (match, right_default)
+
+
+def diff(*seqs, **kwargs):
+    """ Return those items that differ between sequences
+
+    >>> list(diff([1, 2, 3], [1, 2, 10, 100]))
+    [(3, 10)]
+
+    Shorter sequences may be padded with a ``default`` value:
+
+    >>> list(diff([1, 2, 3], [1, 2, 10, 100], default=None))
+    [(3, 10), (None, 100)]
+
+    A ``key`` function may also be applied to each item to use during
+    comparisons:
+
+    >>> list(diff(['apples', 'bananas'], ['Apples', 'Oranges'], key=str.lower))
+    [('bananas', 'Oranges')]
+    """
+    N = len(seqs)
+    if N == 1 and isinstance(seqs[0], list):
+        seqs = seqs[0]
+        N = len(seqs)
+    if N < 2:
+        raise TypeError('Too few sequences given (min 2 required)')
+    default = kwargs.get('default', no_default)
+    if default is no_default:
+        iters = zip(*seqs)
+    else:
+        iters = zip_longest(*seqs, fillvalue=default)
+    key = kwargs.get('key', None)
+    if key is None:
+        for items in iters:
+            if items.count(items[0]) != N:
+                yield items
+    else:
+        for items in iters:
+            vals = tuple(map(key, items))
+            if vals.count(vals[0]) != N:
+                yield items
+
+
+def topk(k, seq, key=None):
+    """
+    Find the k largest elements of a sequence
+
+    Operates lazily in ``n*log(k)`` time
+
+    >>> topk(2, [1, 100, 10, 1000])
+    (1000, 100)
+
+    Use a key function to change sorted order
+
+    >>> topk(2, ['Alice', 'Bob', 'Charlie', 'Dan'], key=len)
+    ('Charlie', 'Alice')
+
+    See also:
+        heapq.nlargest
+    """
+    if key is not None and not callable(key):
+        key = getter(key)
+    return tuple(heapq.nlargest(k, seq, key=key))
+
+
+def peek(seq):
+    """ Retrieve the next element of a sequence
+
+    Returns the first element and an iterable equivalent to the original
+    sequence, still having the element retrieved.
+
+    >>> seq = [0, 1, 2, 3, 4]
+    >>> first, seq = peek(seq)
+    >>> first
+    0
+    >>> list(seq)
+    [0, 1, 2, 3, 4]
+
+    """
+    iterator = iter(seq)
+    item = next(iterator)
+    return item, itertools.chain([item], iterator)

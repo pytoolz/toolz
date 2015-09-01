@@ -5,10 +5,15 @@ import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'mkpipe', 'pipe', 'complement', 'juxt', 'do', 'curry')
+           'mkpipe', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
 
 
 def identity(x):
+    """ Identity function. Return x
+
+    >>> identity(3)
+    3
+    """
     return x
 
 
@@ -147,7 +152,10 @@ class curry(object):
         toolz.curried - namespace of curried functions
                         http://toolz.readthedocs.org/en/latest/curry.html
     """
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        if not args:
+            raise TypeError('__init__() takes at least 2 arguments (1 given)')
+        func, args = args[0], args[1:]
         if not callable(func):
             raise TypeError("Input must be callable")
 
@@ -217,6 +225,11 @@ class curry(object):
                 raise
 
         return curry(self._partial, *args, **kwargs)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return curry(self, instance)
 
     # pickle protocol because functools.partial objects can't be pickled
     def __getstate__(self):
@@ -355,23 +368,53 @@ class Compose(object):
     See Also:
         compose
     """
-    __slots__ = ['funcs']
+    __slots__ = 'first', 'funcs'
 
-    def __init__(self, *funcs):
-        self.funcs = funcs
+    def __init__(self, funcs):
+        funcs = tuple(reversed(funcs))
+        self.first = funcs[0]
+        self.funcs = funcs[1:]
 
     def __call__(self, *args, **kwargs):
-        fns = list(reversed(self.funcs))
-        ret = fns[0](*args, **kwargs)
-        for f in fns[1:]:
+        ret = self.first(*args, **kwargs)
+        for f in self.funcs:
             ret = f(ret)
         return ret
 
     def __getstate__(self):
-        return self.funcs
+        return self.first, self.funcs
 
     def __setstate__(self, state):
-        self.funcs = tuple(state)
+        self.first, self.funcs = state
+
+    @property
+    def __doc__(self):
+        def composed_doc(*fs):
+            """Generate a docstring for the composition of fs.
+            """
+            if not fs:
+                # Argument name for the docstring.
+                return '*args, **kwargs'
+
+            return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+
+        try:
+            return (
+                'lambda *args, **kwargs: ' +
+                composed_doc(*reversed((self.first,) + self.funcs))
+            )
+        except AttributeError:
+            # One of our callables does not have a `__name__`, whatever.
+            return 'A composition of functions'
+
+    @property
+    def __name__(self):
+        try:
+            return '_of_'.join(
+                f.__name__ for f in reversed((self.first,) + self.funcs),
+            )
+        except AttributeError:
+            return type(self).__name__
 
 
 def compose(*funcs):
@@ -397,7 +440,7 @@ def compose(*funcs):
     if len(funcs) == 1:
         return funcs[0]
     else:
-        return Compose(*funcs)
+        return Compose(funcs)
 
 
 def mkpipe(*funcs):
@@ -521,3 +564,30 @@ def do(func, x):
     """
     func(x)
     return x
+
+
+@curry
+def flip(func, a, b):
+    """Call the function call with the arguments flipped.
+
+    This function is curried.
+
+    >>> def div(a, b):
+    ...     return a / b
+    ...
+    >>> flip(div, 2, 1)
+    0.5
+    >>> div_by_two = flip(div, 2)
+    >>> div_by_two(4)
+    2.0
+
+    This is particularly useful for built in functions and functions defined
+    in C extensions that accept positional only arguments. For example:
+    isinstance, issubclass.
+
+    >>> data = [1, 'a', 'b', 2, 1.5, object(), 3]
+    >>> only_ints = list(filter(flip(isinstance, int), data))
+    >>> only_ints
+    [1, 2, 3]
+    """
+    return func(b, a)

@@ -23,32 +23,39 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
-
-import toolz
-import toolz.curried_exceptions
-from .functoolz import curry
 import inspect
+
+from . import exceptions
+from . import operator
+import toolz
 
 
 def _nargs(f):
     try:
         return len(inspect.getargspec(f).args)
     except TypeError:
-        return None
+        return 0
 
 
 def _should_curry(f):
-    do_curry = set((toolz.map, toolz.filter, toolz.sorted, toolz.reduce))
-    return (callable(f) and _nargs(f) and _nargs(f) > 1
-            or f in do_curry)
+    do_curry = frozenset((toolz.map, toolz.filter, toolz.sorted, toolz.reduce))
+    return (callable(f) and _nargs(f) > 1 or f in do_curry)
 
 
-_d = dict((name, curry(f) if _should_curry(f) else f)
-          for name, f in toolz.__dict__.items()
-          if '__' not in name)
+def _curry_namespace(ns):
+    return dict(
+        (name, toolz.curry(f) if _should_curry(f) else f)
+        for name, f in ns.items() if '__' not in name
+    )
 
-_exceptions = dict((name, curry(f) if callable(f) else f)
-                   for name, f in toolz.curried_exceptions.__dict__.items()
-                   if '__' not in name)
 
-locals().update(toolz.merge(_d, _exceptions))
+locals().update(toolz.merge(
+    _curry_namespace(vars(toolz)),
+    _curry_namespace(vars(exceptions)),
+))
+
+# Clean up the namespace.
+del _nargs
+del _should_curry
+del exceptions
+del toolz

@@ -6,11 +6,12 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
-                             nth, take, drop, interpose, get,
+                             nth, take, tail, drop, interpose, get,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
-                             partition_all, take_nth, pluck, join)
+                             partition_all, take_nth, pluck, join,
+                             diff, topk, peek)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -75,6 +76,11 @@ def test_merge_sorted():
                                 key=lambda x: -ord(x))) == 'cccbbbaaa'
     assert list(merge_sorted([1], [2, 3, 4], key=identity)) == [1, 2, 3, 4]
 
+    data = [[(1, 2), (0, 4), (3, 6)], [(5, 3), (6, 5), (8, 8)],
+            [(9, 1), (9, 8), (9, 9)]]
+    assert list(merge_sorted(*data, key=lambda x: x[1])) == [
+        (9, 1), (1, 2), (5, 3), (0, 4), (6, 5), (3, 6), (8, 8), (9, 8), (9, 9)]
+
 
 def test_interleave():
     assert ''.join(interleave(('ABC', '123'))) == 'A1B2C3'
@@ -110,6 +116,8 @@ def test_nth():
     assert nth(1, (3, 2, 1)) == 2
     assert nth(0, {'foo': 'bar'}) == 'foo'
     assert raises(StopIteration, lambda: nth(10, {10: 'foo'}))
+    assert nth(-2, 'ABCDE') == 'D'
+    assert raises(ValueError, lambda: nth(-2, iter('ABCDE')))
 
 
 def test_first():
@@ -138,6 +146,12 @@ def test_rest():
 def test_take():
     assert list(take(3, 'ABCDE')) == list('ABC')
     assert list(take(2, (3, 2, 1))) == list((3, 2))
+
+
+def test_tail():
+    assert list(tail(3, 'ABCDE')) == list('CDE')
+    assert list(tail(3, iter('ABCDE'))) == list('CDE')
+    assert list(tail(2, (3, 2, 1))) == list((2, 1))
 
 
 def test_drop():
@@ -235,6 +249,15 @@ def test_reduce_by_init():
     assert reduceby(iseven, add, [1, 2, 3, 4]) == {True: 2 + 4, False: 1 + 3}
 
 
+def test_reduce_by_callable_default():
+    def set_add(s, i):
+        s.add(i)
+        return s
+
+    assert reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2], set) == \
+        {True: set([2, 4]), False: set([1, 3])}
+
+
 def test_iterate():
     assert list(itertools.islice(iterate(inc, 0), 0, 5)) == [0, 1, 2, 3, 4]
     assert list(take(4, iterate(double, 1))) == [1, 2, 4, 8]
@@ -243,6 +266,13 @@ def test_iterate():
 def test_accumulate():
     assert list(accumulate(add, [1, 2, 3, 4, 5])) == [1, 3, 6, 10, 15]
     assert list(accumulate(mul, [1, 2, 3, 4, 5])) == [1, 2, 6, 24, 120]
+    assert list(accumulate(add, [1, 2, 3, 4, 5], -1)) == [-1, 0, 2, 5, 9, 14]
+
+    def binop(a, b):
+        raise AssertionError('binop should not be called')
+
+    start = object()
+    assert list(accumulate(binop, [], start)) == [start]
 
 
 def test_accumulate_works_on_consumable_iterables():
@@ -386,3 +416,63 @@ def test_outer_join():
     expected = set([(2, 2), (1, None), (None, 3)])
 
     assert result == expected
+
+
+def test_diff():
+    assert raises(TypeError, lambda: list(diff()))
+    assert raises(TypeError, lambda: list(diff([1, 2])))
+    assert raises(TypeError, lambda: list(diff([1, 2], 3)))
+    assert list(diff([1, 2], (1, 2), iter([1, 2]))) == []
+    assert list(diff([1, 2, 3], (1, 10, 3), iter([1, 2, 10]))) == [
+        (2, 10, 2), (3, 3, 10)]
+    assert list(diff([1, 2], [10])) == [(1, 10)]
+    assert list(diff([1, 2], [10], default=None)) == [(1, 10), (2, None)]
+    # non-variadic usage
+    assert raises(TypeError, lambda: list(diff([])))
+    assert raises(TypeError, lambda: list(diff([[]])))
+    assert raises(TypeError, lambda: list(diff([[1, 2]])))
+    assert raises(TypeError, lambda: list(diff([[1, 2], 3])))
+    assert list(diff([(1, 2), (1, 3)])) == [(2, 3)]
+
+    data1 = [{'cost': 1, 'currency': 'dollar'},
+             {'cost': 2, 'currency': 'dollar'}]
+
+    data2 = [{'cost': 100, 'currency': 'yen'},
+             {'cost': 300, 'currency': 'yen'}]
+
+    conversions = {'dollar': 1, 'yen': 0.01}
+
+    def indollars(item):
+        return conversions[item['currency']] * item['cost']
+
+    list(diff(data1, data2, key=indollars)) == [
+        ({'cost': 2, 'currency': 'dollar'}, {'cost': 300, 'currency': 'yen'})]
+
+
+def test_topk():
+    assert topk(2, [4, 1, 5, 2]) == (5, 4)
+    assert topk(2, [4, 1, 5, 2], key=lambda x: -x) == (1, 2)
+    assert topk(2, iter([5, 1, 4, 2]), key=lambda x: -x) == (1, 2)
+
+    assert topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9},
+                    {'a': 10, 'b': 1}, {'a': 9, 'b': 2}], key='a') == \
+        ({'a': 10, 'b': 1}, {'a': 9, 'b': 2})
+
+    assert topk(2, [{'a': 1, 'b': 10}, {'a': 2, 'b': 9},
+                    {'a': 10, 'b': 1}, {'a': 9, 'b': 2}], key='b') == \
+        ({'a': 1, 'b': 10}, {'a': 2, 'b': 9})
+    assert topk(2, [(0, 4), (1, 3), (2, 2), (3, 1), (4, 0)], 0) == \
+        ((4, 0), (3, 1))
+
+
+def test_topk_is_stable():
+    assert topk(4, [5, 9, 2, 1, 5, 3], key=lambda x: 1) == (5, 9, 2, 1)
+
+
+def test_peek():
+    alist = ["Alice", "Bob", "Carol"]
+    element, blist  = peek(alist)
+    element == alist[0]
+    assert list(blist) == alist
+
+    assert raises(StopIteration, lambda: peek([]))
