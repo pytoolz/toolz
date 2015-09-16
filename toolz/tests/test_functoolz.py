@@ -514,8 +514,8 @@ def test_excepts():
     # These are descriptors, make sure this works correctly.
     assert excepts.__name__ == 'excepts'
     assert excepts.__doc__.startswith(
-        'A wrapper around a function to catch exceptions and'
-        ' return some default.\n'
+        'A wrapper around a function to catch exceptions and\n'
+        '    dispatch to a handler.\n'
     )
 
     def idx(a):
@@ -523,12 +523,13 @@ def test_excepts():
         """
         return [1, 2].index(a)
 
-    def default_func():
-        """default_func docstring
+    def handler(e):
+        """handler docstring
         """
+        assert isinstance(e, ValueError)
         return -1
 
-    excepting = excepts(ValueError, idx, default_func)
+    excepting = excepts(ValueError, idx, handler)
     assert excepting(1) == 0
     assert excepting(2) == 1
     assert excepting(3) == -1
@@ -536,7 +537,7 @@ def test_excepts():
     assert excepting.__name__ == 'idx_excepting_ValueError'
     assert 'idx docstring' in excepting.__doc__
     assert 'ValueError' in excepting.__doc__
-    assert 'default_func docstring' in excepting.__doc__
+    assert 'handler docstring' in excepting.__doc__
 
     def getzero(a):
         """getzero docstring

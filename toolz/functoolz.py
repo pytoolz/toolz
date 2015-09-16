@@ -572,18 +572,26 @@ def flip(func, a, b):
     return func(b, a)
 
 
-def return_none():
-    """Returns None
+def return_none(exc):
+    """Returns None.
     """
     return None
 
 
 class excepts(object):
-    """A wrapper around a function to catch exceptions and return some default.
+    """A wrapper around a function to catch exceptions and
+    dispatch to a handler.
+
+    This is like a functional try/except block, in the same way that
+    ifexprs are functional if/else blocks.
 
     Examples
     --------
-    >>> excepting = excepts(ValueError, lambda a: [1, 2].index(a), lambda: -1)
+    >>> excepting = excepts(
+    ...     ValueError,
+    ...     lambda a: [1, 2].index(a),
+    ...     lambda _: -1,
+    ... )
     >>> excepting(1)
     0
     >>> excepting(3)
@@ -598,16 +606,16 @@ class excepts(object):
     >>> excepting({0: 1})
     1
     """
-    def __init__(self, exc, f, default=return_none):
+    def __init__(self, exc, f, handler=return_none):
         self.exc = exc
         self.f = f
-        self.default = default
+        self.handler = handler
 
     def __call__(self, *args, **kwargs):
         try:
             return self.f(*args, **kwargs)
-        except self.exc:
-            return self.default()
+        except self.exc as e:
+            return self.handler(e)
 
     @property
     def __name__(self):
@@ -644,20 +652,19 @@ class excepts(object):
 
                 return dedent(
                     """\
-                    A wrapper around {f.__name__} that will except:
+                    A wrapper around {inst.f.__name__} that will except:
                     {exc}
-                    and return the result of {default.__name__}() instead.
+                    and handle any exceptions with {inst.handler.__name__}.
 
-                    Docs for {f.__name__}:
-                    {f.__doc__}
+                    Docs for {inst.f.__name__}:
+                    {inst.f.__doc__}
 
-                    Docs for {default.__name__}:
-                    {default.__doc__}
+                    Docs for {inst.handler.__name__}:
+                    {inst.handler.__doc__}
                     """
                 ).format(
-                    f=instance.f,
+                    inst=instance,
                     exc=exc_name,
-                    default=instance.default,
                 )
             except AttributeError:
                 return self._default_doc
