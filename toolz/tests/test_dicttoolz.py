@@ -94,6 +94,7 @@ class TestDict(object):
         assert dissoc(D({"a": 1, "b": 2}), "a") == D({"b": 2})
         assert dissoc(D({"a": 1, "b": 2}), "b") == D({"a": 1})
         assert dissoc(D({"a": 1, "b": 2}), "a", "b") == D({})
+        assert dissoc(D({"a": 1}), "a") == dissoc(dissoc(D({"a": 1}), "a"), "a")
 
         # Verify immutability:
         d = D({'x': 1})

@@ -208,10 +208,13 @@ def dissoc(d, *keys):
     {'x': 1}
     >>> dissoc({'x': 1, 'y': 2}, 'y', 'x')
     {}
+    >>> dissoc({'x': 1}, 'y') # Ignores missing keys
+    {'x': 1}
     """
     d2 = copy.copy(d)
     for key in keys:
-        del d2[key]
+        if key in d2:
+            del d2[key]
     return d2
 
 
