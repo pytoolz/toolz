@@ -186,7 +186,7 @@ common first column, id.
 
 .. code::
 
-   >>> from toolz import join, first, second
+   >>> from toolz import join, first
 
    >>> result = join(first, accounts,
    ...               first, addresses)
