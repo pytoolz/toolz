@@ -78,7 +78,7 @@ This builds a standard wordcount function from pieces within ``toolz``:
 Dependencies
 ------------
 
-``toolz`` supports Python 2.6+ and Python 3.2+ with a common codebase.
+``toolz`` supports Python 2.6+ and Python 3.3+ with a common codebase.
 It is pure Python and requires no dependencies beyond the standard
 library.
 

@@ -1,10 +1,11 @@
+sudo: false
 language: python
 python:
     - "2.6"
     - "2.7"
-    - "3.2"
     - "3.3"
     - "3.4"
+    - "3.5"
     - "pypy"
     - "pypy3"
 
@@ -13,8 +14,7 @@ env:
 
 # command to install dependencies
 install:
-    - pip install coverage --use-mirrors
-    - pip install pep8 --use-mirrors
+    - pip install coverage pep8
 
 # command to run tests
 # require 100% coverage (not including test files) to pass Travis CI test
