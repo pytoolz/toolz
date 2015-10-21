@@ -1,12 +1,13 @@
+from functools import partial
+from operator import add, mul, itemgetter
+import pickle
 import platform
 
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt, flip)
+                             compose, pipe, complement, do, juxt, flip, const)
 from toolz.functoolz import _num_required_args
-from operator import add, mul, itemgetter
 from toolz.utils import raises
-from functools import partial
 
 
 def iseven(x):
@@ -508,3 +509,14 @@ def test_flip():
         return a, b
 
     assert flip(f, 'a', 'b') == ('b', 'a')
+
+
+def test_const():
+    for c in (const(1), pickle.loads(pickle.dumps(const(1)))):
+        for n in range(10):
+            assert c(n) == 1
+
+        for arg in 'abcdefghij':
+            assert c(n) == 1
+
+        assert c(1, 2, *(3, 4), kwarg=5, **{'kw': 6})
