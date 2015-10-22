@@ -5,7 +5,7 @@ import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
+           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'const')
 
 
 def identity(x):
@@ -568,3 +568,23 @@ def flip(func, a, b):
     [1, 2, 3]
     """
     return func(b, a)
+
+
+def const(v):
+    """Return a function that returns v.
+
+    >>> f = const(5)
+    >>> f()
+    5
+    >>> f(100)
+    5
+    >>> [f(i) for i in range(3)]
+    [5, 5, 5]
+    >>> f('')
+    5
+    >>> f(n=1000)
+    5
+    >>> f(1, 2, 3)
+    5
+    """
+    return lambda *args, **kwargs: v

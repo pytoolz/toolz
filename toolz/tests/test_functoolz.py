@@ -2,7 +2,7 @@ import platform
 
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt, flip)
+                             compose, pipe, complement, do, juxt, flip, const)
 from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -508,3 +508,9 @@ def test_flip():
         return a, b
 
     assert flip(f, 'a', 'b') == ('b', 'a')
+
+
+def test_const():
+    f = const(5)
+    assert f(100) == 5
+    assert f(100, n=200) == 5
