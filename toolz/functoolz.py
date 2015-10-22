@@ -572,7 +572,7 @@ def flip(func, a, b):
 
 def const(v):
     """Return a function that returns v.
-    
+
     >>> f = const(5)
     >>> f()
     5
