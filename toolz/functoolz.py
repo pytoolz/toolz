@@ -3,6 +3,7 @@ import inspect
 import operator
 import sys
 
+from .compatibility import PY3, update_wrapper, wraps
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
@@ -159,6 +160,9 @@ class curry(object):
         if not callable(func):
             raise TypeError("Input must be callable")
 
+        # must go first, otherwise pickling is borked
+        update_wrapper(self, func)
+
         # curry- or functools.partial-like object?  Unpack and merge arguments
         if (hasattr(func, 'func')
                 and hasattr(func, 'args')
@@ -171,14 +175,14 @@ class curry(object):
             kwargs = _kwargs
             args = func.args + args
             func = func.func
+            # don't store any partial instances at all
+            # kludge for 2.6
+            self.__wrapped__ = func
 
         if kwargs:
             self._partial = partial(func, *args, **kwargs)
         else:
             self._partial = partial(func, *args)
-
-        self.__doc__ = getattr(func, '__doc__', None)
-        self.__name__ = getattr(func, '__name__', '<curry>')
 
     @property
     def func(self):
@@ -331,6 +335,7 @@ def memoize(func, cache=None, key=None):
         may_have_kwargs = True
         is_unary = False
 
+    @wraps(func)
     def memof(*args, **kwargs):
         try:
             if key is not None:
@@ -354,11 +359,6 @@ def memoize(func, cache=None, key=None):
             cache[k] = result
             return result
 
-    try:
-        memof.__name__ = func.__name__
-    except AttributeError:
-        pass
-    memof.__doc__ = func.__doc__
     return memof
 
 
