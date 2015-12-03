@@ -1,6 +1,5 @@
 import platform
 
-
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do, juxt, flip)
 from toolz.functoolz import _num_required_args
@@ -151,6 +150,17 @@ def test_memoize_key():
 
     assert f(1, 2) == 3
     assert f(1, 3) == 3
+
+
+def test_memoize_wrapped():
+
+    def foo():
+        """
+        Docstring
+        """
+        pass
+    memoized_foo = memoize(foo)
+    assert memoized_foo.__wrapped__ is foo
 
 
 def test_curry_simple():
@@ -411,6 +421,17 @@ def test_memoize_on_classmethods():
 
     assert a.addstatic(3, 4) == 7
     assert A.addstatic(3, 4) == 7
+
+
+def test_curry_wrapped():
+
+    def foo(a):
+        """
+        Docstring
+        """
+        pass
+    curried_foo = curry(foo)
+    assert curried_foo.__wrapped__ is foo
 
 
 def test__num_required_args():

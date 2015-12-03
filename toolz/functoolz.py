@@ -183,6 +183,7 @@ class curry(object):
     @property
     def func(self):
         return self._partial.func
+    __wrapped__ = func
 
     @property
     def args(self):
@@ -359,6 +360,7 @@ def memoize(func, cache=None, key=None):
     except AttributeError:
         pass
     memof.__doc__ = func.__doc__
+    memof.__wrapped__ = func
     return memof
 
 
