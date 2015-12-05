@@ -25,3 +25,5 @@ Nikolaos-Digenis Karagiannis                    [@digenis](https://github.com/di
 [Antonio Lima](https://twitter.com/themiurgo)   [@themiurgo](https://github.com/themiurgo/)
 
 Joe Jevnik                                      [@llllllllll](https://github.com/llllllllll)
+
+Rory Kirchner                                      [@roryk](https://github.com/roryk)
