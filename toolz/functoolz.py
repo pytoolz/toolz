@@ -544,7 +544,6 @@ def do(func, x):
     func(x)
     return x
 
-
 @curry
 def flip(func, a, b):
     """Call the function call with the arguments flipped.
@@ -578,6 +577,52 @@ def return_none(exc):
     return None
 
 
+class _ExceptsDoc(object):
+    """A descriptor that allows us to get the docstring for both the
+    `excepts` class and generate a custom docstring for the instances of
+    excepts.
+
+    Parameters
+    ----------
+    class_doc : str
+        The docstring for the excepts class.
+    """
+    def __init__(self, class_doc):
+        self._class_doc = class_doc
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self._class_doc
+
+        exc = instance.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '(%s)' % ', '.join(
+                    map(attrgetter('__name__'), exc),
+                )
+            else:
+                exc_name = exc.__name__
+
+            return dedent(
+                """\
+                A wrapper around {inst.f.__name__!r} that will except:
+                {exc}
+                and handle any exceptions with {inst.handler.__name__!r}.
+
+                Docs for {inst.f.__name__!r}:
+                {inst.f.__doc__}
+
+                Docs for {inst.handler.__name__!r}:
+                {inst.handler.__doc__}
+                """
+            ).format(
+                inst=instance,
+                exc=exc_name,
+            )
+        except AttributeError:
+            return self._class_doc
+
+
 class excepts(object):
     """A wrapper around a function to catch exceptions and
     dispatch to a handler.
@@ -606,6 +651,10 @@ class excepts(object):
     >>> excepting({0: 1})
     1
     """
+    # override the docstring above with a descritor that can return
+    # an instance-specific docstring
+    __doc__ = _ExceptsDoc(__doc__)
+
     def __init__(self, exc, f, handler=return_none):
         self.exc = exc
         self.f = f
@@ -628,43 +677,3 @@ class excepts(object):
             return '%s_excepting_%s' % (self.f.__name__, exc_name)
         except AttributeError:
             return 'excepting'
-
-    @partial(lambda a, b=__doc__: a(b))  # close over the class __doc__
-    class __doc__(object):
-        """An inner doc object that allows us to get the class docstring
-        or the instance docstring.
-        """
-        def __init__(self, default_doc):
-            self._default_doc = default_doc
-
-        def __get__(self, instance, owner):
-            if instance is None:
-                return self._default_doc
-
-            exc = instance.exc
-            try:
-                if isinstance(exc, tuple):
-                    exc_name = '(%s)' % ', '.join(
-                        map(attrgetter('__name__'), exc),
-                    )
-                else:
-                    exc_name = exc.__name__
-
-                return dedent(
-                    """\
-                    A wrapper around {inst.f.__name__} that will except:
-                    {exc}
-                    and handle any exceptions with {inst.handler.__name__}.
-
-                    Docs for {inst.f.__name__}:
-                    {inst.f.__doc__}
-
-                    Docs for {inst.handler.__name__}:
-                    {inst.handler.__doc__}
-                    """
-                ).format(
-                    inst=instance,
-                    exc=exc_name,
-                )
-            except AttributeError:
-                return self._default_doc
