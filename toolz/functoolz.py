@@ -5,7 +5,7 @@ import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
+           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'const')
 
 
 def identity(x):
@@ -571,3 +571,35 @@ def flip(func, a, b):
     [1, 2, 3]
     """
     return func(b, a)
+
+
+class const(object):
+    """Create a constant function. A constant function is a function
+    that returns the same value for all inputs.
+
+    >>> c = const(1)
+    >>> c
+    <constant function: 1>
+    >>> c(2)
+    1
+    >>> c(3)
+    1
+    >>> c('a', 'b', kwarg='c')
+    1
+    """
+    __slots__ = '_value', '__weakref__'
+
+    def __init__(self, value):
+        self._value = value
+
+    def __call__(self, *args, **kwargs):
+        return self._value
+
+    def __repr__(self):
+        return '<constant function: %r>' % self._value
+
+    __str__ = __repr__
+
+    @property
+    def value(self):
+        return self._value
