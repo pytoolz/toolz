@@ -555,6 +555,17 @@ def test_excepts():
     assert 'return_none' in excepting.__doc__
     assert 'Returns None' in excepting.__doc__
 
+    def raise_(a):
+        """A function that raises an instance of the exception type given.
+        """
+        raise a()
+
+    excepting = excepts((ValueError, KeyError), raise_)
+    assert excepting(ValueError) is None
+    assert excepting(KeyError) is None
+    assert raises(TypeError, lambda: excepting(TypeError))
+    assert raises(NotImplementedError, lambda: excepting(NotImplementedError))
+
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
