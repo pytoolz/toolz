@@ -544,6 +544,7 @@ def do(func, x):
     func(x)
     return x
 
+
 @curry
 def flip(func, a, b):
     """Call the function call with the arguments flipped.
