@@ -5,7 +5,7 @@ import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
+           'mkpipe', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
 
 
 def identity(x):
@@ -435,6 +435,7 @@ def compose(*funcs):
     '4'
 
     See Also:
+        mkpipe
         pipe
     """
     if not funcs:
@@ -443,6 +444,27 @@ def compose(*funcs):
         return funcs[0]
     else:
         return Compose(funcs)
+
+
+def mkpipe(*funcs):
+    """ Compose functions to operate in series.
+
+    Returns a function that applies other functions in sequence.
+
+    Functions are applied from left to right so that
+    ``mkpipe(f, g, h)(x, y)`` is the same as ``h(g(f(x, y)))``.
+
+    If no arguments are provided, the identity function (f(x) = x) is returned.
+
+    >>> inc = lambda i: i + 1
+    >>> mkpipe(inc, str)(3)
+    '4'
+
+    See Also:
+        compose
+        pipe
+    """
+    return compose(*reversed(funcs))
 
 
 def pipe(data, *funcs):
@@ -461,6 +483,7 @@ def pipe(data, *funcs):
 
     See Also:
         compose
+        mkpipe
         thread_first
         thread_last
     """

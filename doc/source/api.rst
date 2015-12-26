@@ -64,6 +64,7 @@ Functoolz
    identity
    juxt
    memoize
+   mkpipe
    pipe
    thread_first
    thread_last
