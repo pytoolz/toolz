@@ -1,11 +1,13 @@
 from functools import reduce, partial, wraps
 import inspect
 import operator
+from operator import attrgetter
+from textwrap import dedent
 import sys
 
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip')
+           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
 
 
 def identity(x):
@@ -571,3 +573,111 @@ def flip(func, a, b):
     [1, 2, 3]
     """
     return func(b, a)
+
+
+def return_none(exc):
+    """Returns None.
+    """
+    return None
+
+
+class _ExceptsDoc(object):
+    """A descriptor that allows us to get the docstring for both the
+    `excepts` class and generate a custom docstring for the instances of
+    excepts.
+
+    Parameters
+    ----------
+    class_doc : str
+        The docstring for the excepts class.
+    """
+    def __init__(self, class_doc):
+        self._class_doc = class_doc
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self._class_doc
+
+        exc = instance.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '(%s)' % ', '.join(
+                    map(attrgetter('__name__'), exc),
+                )
+            else:
+                exc_name = exc.__name__
+
+            return dedent(
+                """\
+                A wrapper around {inst.f.__name__!r} that will except:
+                {exc}
+                and handle any exceptions with {inst.handler.__name__!r}.
+
+                Docs for {inst.f.__name__!r}:
+                {inst.f.__doc__}
+
+                Docs for {inst.handler.__name__!r}:
+                {inst.handler.__doc__}
+                """
+            ).format(
+                inst=instance,
+                exc=exc_name,
+            )
+        except AttributeError:
+            return self._class_doc
+
+
+class excepts(object):
+    """A wrapper around a function to catch exceptions and
+    dispatch to a handler.
+
+    This is like a functional try/except block, in the same way that
+    ifexprs are functional if/else blocks.
+
+    Examples
+    --------
+    >>> excepting = excepts(
+    ...     ValueError,
+    ...     lambda a: [1, 2].index(a),
+    ...     lambda _: -1,
+    ... )
+    >>> excepting(1)
+    0
+    >>> excepting(3)
+    -1
+
+    Multiple exceptions and default except clause.
+    >>> excepting = excepts((IndexError, KeyError), lambda a: a[0])
+    >>> excepting([])
+    >>> excepting([1])
+    1
+    >>> excepting({})
+    >>> excepting({0: 1})
+    1
+    """
+    # override the docstring above with a descritor that can return
+    # an instance-specific docstring
+    __doc__ = _ExceptsDoc(__doc__)
+
+    def __init__(self, exc, f, handler=return_none):
+        self.exc = exc
+        self.f = f
+        self.handler = handler
+
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.f(*args, **kwargs)
+        except self.exc as e:
+            return self.handler(e)
+
+    @property
+    def __name__(self):
+        exc = self.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
+            else:
+                exc_name = exc.__name__
+            return '%s_excepting_%s' % (self.f.__name__, exc_name)
+        except AttributeError:
+            return 'excepting'
