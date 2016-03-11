@@ -68,6 +68,7 @@ def test_memoize_kwargs():
 
 
 def test_memoize_curried():
+    @curry
     def f(x, y=0):
         return x + y
 

@@ -49,10 +49,10 @@ def _num_required_args_p3(func):
         required_args = 0
         for param in inspect.signature(func).parameters.values():
             kind = param.kind
-            # Presense of *args or **kwargs precludes a requirement.
+            # Presence of *args or **kwargs precludes a requirement.
             if kind in [param.VAR_POSITIONAL, param.VAR_KEYWORD]:
                 return None
-            # keyword only arguments, and ones with a default aren't required.
+            # Keyword only arguments, and ones with a default aren't required.
             elif kind == param.KEYWORD_ONLY or param.default != inspect._empty:
                 continue
             elif kind in [param.POSITIONAL_OR_KEYWORD, param.POSITIONAL_ONLY]:
@@ -63,7 +63,6 @@ def _num_required_args_p3(func):
     except TypeError:
         return None
 
-lol = 'test'
 
 if PY3:
     map = map
