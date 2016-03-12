@@ -20,19 +20,19 @@ def _num_required_args_p2(func):
     >>> def foo(a, b, c=None):
     ...     return a + b + c
 
-    >>> _num_required_args(foo)
+    >>> _num_required_args_p2(foo)
     2
 
     >>> def bar(*args):
     ...     return sum(args)
 
-    >>> print(_num_required_args(bar))
+    >>> print(_num_required_args_p2(bar))
     None
     """
     if func in known_numargs:
         return known_numargs[func]
     try:
-        spec = inspect.getfullargspec(func)
+        spec = inspect.getargspec(func)
         if spec.varargs:
             return None
         num_defaults = len(spec.defaults) if spec.defaults else 0
@@ -40,8 +40,9 @@ def _num_required_args_p2(func):
     except TypeError:
         return None
 
+
 def _num_required_args_p3(func):
-    """ See description of _num_required_args_p3
+    """ See description of _num_required_args_p2
     """
     if func in known_numargs:
         return known_numargs[func]
@@ -61,6 +62,10 @@ def _num_required_args_p3(func):
                 raise AttributeError("Invalid kind found")
         return required_args
     except TypeError:
+        return None
+    # ValueError indicates non signature found, usually for built-in functions.
+    # This is kludgy.
+    except ValueError:
         return None
 
 

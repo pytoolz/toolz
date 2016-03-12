@@ -2,7 +2,7 @@ import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do, juxt, flip, excepts)
-from toolz.functoolz import _num_required_args
+from toolz.compatibility import num_required_args as num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -434,14 +434,14 @@ def test_curry_wrapped():
     assert curried_foo.__wrapped__ is foo
 
 
-def test__num_required_args():
-    assert _num_required_args(map) != 0
-    assert _num_required_args(lambda x: x) == 1
-    assert _num_required_args(lambda x, y: x) == 2
+def test_num_required_args():
+    assert num_required_args(map) != 0
+    assert num_required_args(lambda x: x) == 1
+    assert num_required_args(lambda x, y: x) == 2
 
     def foo(x, y, z=2):
         pass
-    assert _num_required_args(foo) == 2
+    assert num_required_args(foo) == 2
 
 
 def test_compose():
