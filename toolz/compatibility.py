@@ -50,13 +50,14 @@ def _num_required_args_p3(func):
         required_args = 0
         for param in inspect.signature(func).parameters.values():
             kind = param.kind
-            # Presence of *args or **kwargs precludes a requirement.
+            # Skip *args and **kwargs arguments.
             if kind in [param.VAR_POSITIONAL, param.VAR_KEYWORD]:
                 return None
             # Keyword only arguments, and ones with a default aren't required.
-            elif kind == param.KEYWORD_ONLY or param.default != inspect._empty:
+            elif param.default != inspect._empty:
                 continue
-            elif kind in [param.POSITIONAL_OR_KEYWORD, param.POSITIONAL_ONLY]:
+            elif kind in [param.POSITIONAL_OR_KEYWORD, param.POSITIONAL_ONLY,
+                          param.KEYWORD_ONLY]:
                 required_args += 1
             else:
                 raise AttributeError("Invalid kind found")
