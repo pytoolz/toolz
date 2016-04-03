@@ -685,6 +685,11 @@ def is_valid_args(func, args, kwargs):
     Many builtins in the standard library are also supported.
     """
     if PY3:  # pragma: no cover
+        if sys.version_info[1] == 4:
+            # Python 3.4 may lie, so use our registry for builtins instead
+            val = _is_builtin_valid_args(func, args, kwargs)
+            if val is not None:
+                return val
         try:
             sig = inspect.signature(func)
         except ValueError:
@@ -760,6 +765,11 @@ def is_partial_args(func, args, kwargs):
     Many builtins in the standard library are also supported.
     """
     if PY3:  # pragma: no cover
+        if sys.version_info[1] == 4:
+            # Python 3.4 may lie, so use our registry for builtins instead
+            val = _is_builtin_partial_args(func, args, kwargs)
+            if val is not None:
+                return val
         try:
             sig = inspect.signature(func)
         except ValueError:
