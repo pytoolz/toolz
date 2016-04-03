@@ -5,6 +5,7 @@ from operator import attrgetter
 from textwrap import dedent
 import sys
 
+from .compatibility import PY3
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
@@ -90,40 +91,6 @@ def thread_last(val, *forms):
             args = args + (val,)
             return func(*args)
     return reduce(evalform_back, forms, val)
-
-
-# This is a kludge for Python 3.4.0 support
-# currently len(inspect.getargspec(map).args) == 0, a wrong result.
-# As this is fixed in future versions then hopefully this kludge can be
-# removed.
-known_numargs = {map: 2, filter: 2, reduce: 2}
-
-
-def _num_required_args(func):
-    """ Number of args for func
-
-    >>> def foo(a, b, c=None):
-    ...     return a + b + c
-
-    >>> _num_required_args(foo)
-    2
-
-    >>> def bar(*args):
-    ...     return sum(args)
-
-    >>> print(_num_required_args(bar))
-    None
-    """
-    if func in known_numargs:
-        return known_numargs[func]
-    try:
-        spec = inspect.getargspec(func)
-        if spec.varargs:
-            return None
-        num_defaults = len(spec.defaults) if spec.defaults else 0
-        return len(spec.args) - num_defaults
-    except TypeError:
-        return None
 
 
 class curry(object):
@@ -220,14 +187,25 @@ class curry(object):
     def __call__(self, *args, **kwargs):
         try:
             return self._partial(*args, **kwargs)
-        except TypeError:
-            # If there was a genuine TypeError
-            required_args = _num_required_args(self.func)
-            if (required_args is not None and
-                    len(args) + len(self.args) >= required_args):
-                raise
+        except TypeError as exc:
+            if self._should_curry(args, kwargs, exc):
+                return self.bind(*args, **kwargs)
+            raise
 
-        return curry(self._partial, *args, **kwargs)
+    def _should_curry(self, args, kwargs, exc=None):
+        args = self.args + args
+        if self.keywords:
+            kwargs = dict(self.keywords, **kwargs)
+        return (
+            not is_valid_args(self.func, args, kwargs)
+            and is_partial_args(self.func, args, kwargs) is not False
+        )
+
+    def bind(self, *args, **kwargs):
+        return type(self)(self, *args, **kwargs)
+
+    def call(self, *args, **kwargs):
+        return self._partial(*args, **kwargs)
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -681,3 +659,152 @@ class excepts(object):
             return '%s_excepting_%s' % (self.f.__name__, exc_name)
         except AttributeError:
             return 'excepting'
+
+
+def is_valid_args(func, args, kwargs):
+    """ Is ``func(*args, **kwargs)`` a valid function call?
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def add(x, y):
+    ...     return x + y
+
+    >>> is_valid_args(add, (1,), {})
+    False
+    >>> is_valid_args(add, (1, 2), {})
+    True
+    >>> is_valid_args(map, (), {})
+    False
+
+    **Implementation notes**
+    Python 2 relies on ``inspect.getargspec``, which only works for
+    user-defined functions.  Python 3 uses ``inspect.signature``, which
+    works for many more types of callables.
+
+    Many builtins in the standard library are also supported.
+    """
+    if PY3:  # pragma: no cover
+        try:
+            sig = inspect.signature(func)
+        except ValueError:
+            return _is_builtin_valid_args(func, args, kwargs)
+        except TypeError:
+            return False
+        try:
+            sig.bind(*args, **kwargs)
+        except TypeError:
+            return False
+        return True
+    else:  # pragma: no cover
+        try:
+            spec = inspect.getargspec(func)
+        except TypeError:
+            return _is_builtin_valid_args(func, args, kwargs)
+
+        defaults = spec.defaults or ()
+        num_pos = len(spec.args) - len(defaults)
+        missing_pos = spec.args[len(args):num_pos]
+        if any(arg not in kwargs for arg in missing_pos):
+            return False
+
+        if spec.varargs is None:
+            num_extra_pos = max(0, len(args) - num_pos)
+        else:
+            num_extra_pos = 0
+
+        kwargs = dict(kwargs)
+
+        # Add missing keyword arguments (unless already included in `args`)
+        missing_kwargs = spec.args[num_pos + num_extra_pos:]
+        kwargs.update(zip(missing_kwargs, defaults[num_extra_pos:]))
+
+        # Convert call to use positional arguments
+        args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
+        if spec.keywords:
+            kwargs.pop('func', None)
+
+        try:
+            inspect.getcallargs(func, *args, **kwargs)
+        except TypeError:
+            return False
+        return True
+
+
+def is_partial_args(func, args, kwargs):
+    """ Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
+
+    Returns True *only* if the call is valid or if it is possible for the
+    call to become valid by adding more positional or keyword arguments.
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def add(x, y):
+    ...     return x + y
+
+    >>> is_partial_args(add, (1,), {})
+    True
+    >>> is_partial_args(add, (1, 2), {})
+    True
+    >>> is_partial_args(add, (1, 2, 3), {})
+    False
+    >>> is_partial_args(map, (), {})
+    True
+
+    **Implementation notes**
+    Python 2 relies on ``inspect.getargspec``, which only works for
+    user-defined functions.  Python 3 uses ``inspect.signature``, which
+    works for many more types of callables.
+
+    Many builtins in the standard library are also supported.
+    """
+    if PY3:  # pragma: no cover
+        try:
+            sig = inspect.signature(func)
+        except ValueError:
+            return _is_builtin_partial_args(func, args, kwargs)
+        except TypeError:
+            return False
+        try:
+            sig.bind_partial(*args, **kwargs)
+        except TypeError:
+            return False
+        return True
+    else:  # pragma: no cover
+        try:
+            spec = inspect.getargspec(func)
+        except TypeError:
+            return _is_builtin_partial_args(func, args, kwargs)
+
+        defaults = spec.defaults or ()
+        num_pos = len(spec.args) - len(defaults)
+        if spec.varargs is None:
+            num_extra_pos = max(0, len(args) - num_pos)
+        else:
+            num_extra_pos = 0
+
+        kwargs = dict(kwargs)
+
+        # Add missing keyword arguments (unless already included in `args`)
+        missing_kwargs = spec.args[num_pos + num_extra_pos:]
+        kwargs.update(zip(missing_kwargs, defaults[num_extra_pos:]))
+
+        # Add missing position arguments as keywords (may already be in kwargs)
+        missing_args = spec.args[len(args):num_pos + num_extra_pos]
+        kwargs.update((x, None) for x in missing_args)
+
+        # Convert call to use positional arguments
+        args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
+        if spec.keywords:
+            kwargs.pop('func', None)
+
+        try:
+            inspect.getcallargs(func, *args, **kwargs)
+        except TypeError:
+            return False
+        return True
+
+
+from ._signatures import (is_builtin_valid_args as _is_builtin_valid_args,
+                          is_builtin_partial_args as _is_builtin_partial_args)

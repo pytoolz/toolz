@@ -2,11 +2,10 @@ import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do, juxt, flip, excepts)
-from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
-
+from toolz.compatibility import PY3
 
 def iseven(x):
     return x % 2 == 0
@@ -434,14 +433,24 @@ def test_curry_wrapped():
     assert curried_foo.__wrapped__ is foo
 
 
-def test__num_required_args():
-    assert _num_required_args(map) != 0
-    assert _num_required_args(lambda x: x) == 1
-    assert _num_required_args(lambda x, y: x) == 2
+def test_curry_call():
+    @curry
+    def add(x, y):
+        return x + y
+    assert raises(TypeError, lambda: add.call(1))
+    assert add(1)(2) == add.call(1, 2)
+    assert add(1)(2) == add(1).call(2)
 
-    def foo(x, y, z=2):
-        pass
-    assert _num_required_args(foo) == 2
+
+def test_curry_bind():
+    @curry
+    def add(x=1, y=2):
+        return x + y
+    assert add() == add(1, 2)
+    assert add.bind(10)(20) == add(10, 20)
+    assert add.bind(10).bind(20)() == add(10, 20)
+    assert add.bind(x=10)(y=20) == add(10, 20)
+    assert add.bind(x=10).bind(y=20)() == add(10, 20)
 
 
 def test_compose():
@@ -590,3 +599,4 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
+
