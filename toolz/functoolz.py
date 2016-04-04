@@ -5,7 +5,7 @@ from operator import attrgetter
 from textwrap import dedent
 import sys
 
-from .compatibility import PY3
+from .compatibility import PY3, PY34, PYPY
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
@@ -685,7 +685,7 @@ def is_valid_args(func, args, kwargs):
     Many builtins in the standard library are also supported.
     """
     if PY3:  # pragma: no cover
-        if sys.version_info[1] == 4:
+        if PY34 or PYPY:
             # Python 3.4 may lie, so use our registry for builtins instead
             val = _is_builtin_valid_args(func, args, kwargs)
             if val is not None:
@@ -702,6 +702,10 @@ def is_valid_args(func, args, kwargs):
             return False
         return True
     else:  # pragma: no cover
+        if PYPY:
+            val = _is_builtin_valid_args(func, args, kwargs)
+            if val is not None:
+                return val
         try:
             spec = inspect.getargspec(func)
         except TypeError:
@@ -765,7 +769,7 @@ def is_partial_args(func, args, kwargs):
     Many builtins in the standard library are also supported.
     """
     if PY3:  # pragma: no cover
-        if sys.version_info[1] == 4:
+        if PY34 or PYPY:
             # Python 3.4 may lie, so use our registry for builtins instead
             val = _is_builtin_partial_args(func, args, kwargs)
             if val is not None:
@@ -782,6 +786,10 @@ def is_partial_args(func, args, kwargs):
             return False
         return True
     else:  # pragma: no cover
+        if PYPY:
+            val = _is_builtin_partial_args(func, args, kwargs)
+            if val is not None:
+                return val
         try:
             spec = inspect.getargspec(func)
         except TypeError:
