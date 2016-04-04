@@ -730,14 +730,15 @@ def is_valid_args(func, args, kwargs):
 
         # Convert call to use positional arguments
         args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
-        if spec.keywords:
-            kwargs.pop('func', None)
 
-        try:
-            inspect.getcallargs(func, *args, **kwargs)
-        except TypeError:
+        if (
+            not spec.keywords and kwargs or
+            not spec.varargs and len(args) > len(spec.args) or
+            set(spec.args[:len(args)]) & set(kwargs)
+        ):
             return False
-        return True
+        else:
+            return True
 
 
 def is_partial_args(func, args, kwargs):
@@ -814,14 +815,15 @@ def is_partial_args(func, args, kwargs):
 
         # Convert call to use positional arguments
         args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
-        if spec.keywords:
-            kwargs.pop('func', None)
 
-        try:
-            inspect.getcallargs(func, *args, **kwargs)
-        except TypeError:
+        if (
+            not spec.keywords and kwargs or
+            not spec.varargs and len(args) > len(spec.args) or
+            set(spec.args[:len(args)]) & set(kwargs)
+        ):
             return False
-        return True
+        else:
+            return True
 
 
 from ._signatures import (is_builtin_valid_args as _is_builtin_valid_args,
