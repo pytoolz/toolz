@@ -5,6 +5,7 @@ from operator import attrgetter
 from textwrap import dedent
 import sys
 
+from toolz.compatibility import num_required_args
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
@@ -90,40 +91,6 @@ def thread_last(val, *forms):
             args = args + (val,)
             return func(*args)
     return reduce(evalform_back, forms, val)
-
-
-# This is a kludge for Python 3.4.0 support
-# currently len(inspect.getargspec(map).args) == 0, a wrong result.
-# As this is fixed in future versions then hopefully this kludge can be
-# removed.
-known_numargs = {map: 2, filter: 2, reduce: 2}
-
-
-def _num_required_args(func):
-    """ Number of args for func
-
-    >>> def foo(a, b, c=None):
-    ...     return a + b + c
-
-    >>> _num_required_args(foo)
-    2
-
-    >>> def bar(*args):
-    ...     return sum(args)
-
-    >>> print(_num_required_args(bar))
-    None
-    """
-    if func in known_numargs:
-        return known_numargs[func]
-    try:
-        spec = inspect.getargspec(func)
-        if spec.varargs:
-            return None
-        num_defaults = len(spec.defaults) if spec.defaults else 0
-        return len(spec.args) - num_defaults
-    except TypeError:
-        return None
 
 
 class curry(object):
@@ -222,7 +189,7 @@ class curry(object):
             return self._partial(*args, **kwargs)
         except TypeError:
             # If there was a genuine TypeError
-            required_args = _num_required_args(self.func)
+            required_args = num_required_args(self.func)
             if (required_args is not None and
                     len(args) + len(self.args) >= required_args):
                 raise
