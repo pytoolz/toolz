@@ -1,5 +1,5 @@
 """
-Alternate namespece for toolz such that all functions are curried
+Alternate namespace for toolz such that all functions are curried
 
 Currying provides implicit partial evaluation of all functions
 
