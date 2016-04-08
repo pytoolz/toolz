@@ -563,25 +563,20 @@ module_info[operator] = dict(
         lambda a, b: None],
 )
 
-# cache of signatures or argspecs for functions in `signatures`
-sigspec_cache = {}
-
 if PY3:  # pragma: py2 no cover
-    def num_pos_args(func):
-        sig = inspect.signature(func)
-        return sum(1 for x in sig.parameters.values()
+    def num_pos_args(func, sigspec):
+        return sum(1 for x in sigspec.parameters.values()
                    if x.kind == x.POSITIONAL_OR_KEYWORD and
                    x.default is x.empty)
 
-    def get_exclude_keywords(func, num_pos_only):
+    def get_exclude_keywords(func, num_pos_only, sigspec):
         if num_pos_only == 0:
             return ()
-        sig = inspect.signature(func)
         has_kwargs = any(x.kind == x.VAR_KEYWORD
-                         for x in sig.parameters.values())
+                         for x in sigspec.parameters.values())
         if not has_kwargs:
             return ()
-        pos_args = list(sig.parameters.values())[:num_pos_only]
+        pos_args = list(sigspec.parameters.values())[:num_pos_only]
         return tuple(x.name for x in pos_args)
 
     def signature_or_spec(func):
@@ -591,20 +586,18 @@ if PY3:  # pragma: py2 no cover
             return e
 
 else:  # pragma: py3 no cover
-    def num_pos_args(func):
-        spec = inspect.getargspec(func)
-        if spec.defaults:
-            return len(spec.args) - len(spec.defaults)
-        return len(spec.args)
+    def num_pos_args(func, sigspec):
+        if sigspec.defaults:
+            return len(sigspec.args) - len(sigspec.defaults)
+        return len(sigspec.args)
 
-    def get_exclude_keywords(func, num_pos_only):
+    def get_exclude_keywords(func, num_pos_only, sigspec):
         if num_pos_only == 0:
             return ()
-        spec = inspect.getargspec(func)
-        has_kwargs = spec.keywords is not None
+        has_kwargs = sigspec.keywords is not None
         if not has_kwargs:
             return ()
-        return tuple(spec.args[:num_pos_only])
+        return tuple(sigspec.args[:num_pos_only])
 
     def signature_or_spec(func):
         try:
@@ -621,12 +614,14 @@ def expand_sig(sig):
         else:
             num_pos_only, func = sig
             keyword_only = ()
+        sigspec = signature_or_spec(func)
     else:
         func = sig
-        num_pos_only = num_pos_args(func)
+        sigspec = signature_or_spec(func)
+        num_pos_only = num_pos_args(func, sigspec)
         keyword_only = ()
-    keyword_exclude = get_exclude_keywords(func, num_pos_only)
-    return (num_pos_only, func, keyword_only + keyword_exclude)
+    keyword_exclude = get_exclude_keywords(func, num_pos_only, sigspec)
+    return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
 
 
 signatures = {}
@@ -638,7 +633,7 @@ for module, info in module_info.items():
 
 
 def check_valid(sig, args, kwargs):
-    num_pos_only, func, keyword_exclude = sig
+    num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         return False
     if keyword_exclude:
@@ -653,7 +648,7 @@ def check_valid(sig, args, kwargs):
 
 
 def check_partial(sig, args, kwargs):
-    num_pos_only, func, keyword_exclude = sig
+    num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         pad = (None,) * (num_pos_only - len(args))
         args = args + pad
@@ -661,9 +656,7 @@ def check_partial(sig, args, kwargs):
         kwargs = dict(kwargs)
         for item in keyword_exclude:
             kwargs.pop(item, None)
-    if func not in sigspec_cache:
-        sigspec_cache[func] = signature_or_spec(func)
-    return is_partial_args(func, args, kwargs, sigspec=sigspec_cache[func])
+    return is_partial_args(func, args, kwargs, sigspec=sigspec)
 
 
 def is_builtin_valid_args(func, args, kwargs):
