@@ -563,6 +563,9 @@ module_info[operator] = dict(
         lambda a, b: None],
 )
 
+# cache of signatures or argspecs for functions in `signatures`
+sigspec_cache = {}
+
 if PY3:  # pragma: py2 no cover
     def num_pos_args(func):
         sig = inspect.signature(func)
@@ -623,8 +626,7 @@ def expand_sig(sig):
         num_pos_only = num_pos_args(func)
         keyword_only = ()
     keyword_exclude = get_exclude_keywords(func, num_pos_only)
-    sigspec = signature_or_spec(func)
-    return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
+    return (num_pos_only, func, keyword_only + keyword_exclude)
 
 
 signatures = {}
@@ -636,7 +638,7 @@ for module, info in module_info.items():
 
 
 def check_valid(sig, args, kwargs):
-    num_pos_only, func, keyword_exclude, sigspec = sig
+    num_pos_only, func, keyword_exclude = sig
     if len(args) < num_pos_only:
         return False
     if keyword_exclude:
@@ -651,7 +653,7 @@ def check_valid(sig, args, kwargs):
 
 
 def check_partial(sig, args, kwargs):
-    num_pos_only, func, keyword_exclude, sigspec = sig
+    num_pos_only, func, keyword_exclude = sig
     if len(args) < num_pos_only:
         pad = (None,) * (num_pos_only - len(args))
         args = args + pad
@@ -659,7 +661,9 @@ def check_partial(sig, args, kwargs):
         kwargs = dict(kwargs)
         for item in keyword_exclude:
             kwargs.pop(item, None)
-    return is_partial_args(func, args, kwargs, sigspec=sigspec)
+    if func not in sigspec_cache:
+        sigspec_cache[func] = signature_or_spec(func)
+    return is_partial_args(func, args, kwargs, sigspec=sigspec_cache[func])
 
 
 def is_builtin_valid_args(func, args, kwargs):
