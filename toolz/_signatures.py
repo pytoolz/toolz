@@ -581,6 +581,12 @@ if PY3:  # pragma: py2 no cover
         pos_args = list(sig.parameters.values())[:num_pos_only]
         return tuple(x.name for x in pos_args)
 
+    def signature_or_spec(func):
+        try:
+            return inspect.signature(func)
+        except (ValueError, TypeError) as e:
+            return e
+
 else:  # pragma: py3 no cover
     def num_pos_args(func):
         spec = inspect.getargspec(func)
@@ -597,6 +603,12 @@ else:  # pragma: py3 no cover
             return ()
         return tuple(spec.args[:num_pos_only])
 
+    def signature_or_spec(func):
+        try:
+            return inspect.getargspec(func)
+        except TypeError as e:
+            return e
+
 
 def expand_sig(sig):
     if isinstance(sig, tuple):
@@ -611,7 +623,8 @@ def expand_sig(sig):
         num_pos_only = num_pos_args(func)
         keyword_only = ()
     keyword_exclude = get_exclude_keywords(func, num_pos_only)
-    return (num_pos_only, func, keyword_only + keyword_exclude)
+    sigspec = signature_or_spec(func)
+    return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
 
 
 signatures = {}
@@ -623,7 +636,7 @@ for module, info in module_info.items():
 
 
 def check_valid(sig, args, kwargs):
-    num_pos_only, func, keyword_exclude = sig
+    num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         return False
     if keyword_exclude:
@@ -638,7 +651,7 @@ def check_valid(sig, args, kwargs):
 
 
 def check_partial(sig, args, kwargs):
-    num_pos_only, func, keyword_exclude = sig
+    num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         pad = (None,) * (num_pos_only - len(args))
         args = args + pad
@@ -646,7 +659,7 @@ def check_partial(sig, args, kwargs):
         kwargs = dict(kwargs)
         for item in keyword_exclude:
             kwargs.pop(item, None)
-    return is_partial_args(func, args, kwargs)
+    return is_partial_args(func, args, kwargs, sigspec=sigspec)
 
 
 def is_builtin_valid_args(func, args, kwargs):
@@ -664,30 +677,36 @@ def is_builtin_partial_args(func, args, kwargs):
 
 
 if PY3:  # pragma: py2 no cover
-    def has_unknown_args(func):
+    def has_unknown_args(func, sigspec=None):
         if func in signatures:
             return False
-        try:
-            sig = inspect.signature(func)
-        except ValueError:
+        if sigspec is None:
+            try:
+                sigspec = inspect.signature(func)
+            except (ValueError, TypeError) as e:
+                sigspec = e
+        if isinstance(sigspec, ValueError):
             return True
-        except TypeError:
+        elif isinstance(sigspec, TypeError):
             return False
         try:
             return any(x.kind == x.VAR_POSITIONAL
-                       for x in sig.parameters.values())
+                       for x in sigspec.parameters.values())
         except AttributeError:  # pragma: no cover
             return False
 
 else:  # pragma: py3 no cover
-    def has_unknown_args(func):
+    def has_unknown_args(func, sigspec=None):
         if func in signatures:
             return False
-        try:
-            spec = inspect.getargspec(func)
-        except TypeError:
+        if sigspec is None:
+            try:
+                sigspec = inspect.getargspec(func)
+            except TypeError as e:
+                sigspec = e
+        if isinstance(sigspec, TypeError):
             return callable(func)
-        return spec.varargs is not None
+        return sigspec.varargs is not None
 
 
 from .functoolz import is_partial_args

@@ -197,9 +197,13 @@ class curry(object):
         args = self.args + args
         if self.keywords:
             kwargs = dict(self.keywords, **kwargs)
+        sigspec = _signature_or_spec(func)
         return (
-            (not is_valid_args(func, args, kwargs) or _has_unknown_args(func))
-            and is_partial_args(func, args, kwargs) is not False
+            (
+                not is_valid_args(func, args, kwargs, sigspec=sigspec) or
+                _has_unknown_args(func, sigspec=sigspec)
+            ) and
+            is_partial_args(func, args, kwargs, sigspec=sigspec) is not False
         )
 
     def bind(self, *args, **kwargs):
@@ -663,28 +667,35 @@ class excepts(object):
 
 
 if PY3:  # pragma: py2 no cover
-    def is_valid_args(func, args, kwargs):
-        try:
-            sig = inspect.signature(func)
-        except ValueError:
+    def is_valid_args(func, args, kwargs, sigspec=None):
+        if sigspec is None:
+            try:
+                sigspec = inspect.signature(func)
+            except (ValueError, TypeError) as e:
+                sigspec = e
+        if isinstance(sigspec, ValueError):
             return _is_builtin_valid_args(func, args, kwargs)
-        except TypeError:
+        elif isinstance(sigspec, TypeError):
             return False
         try:
-            sig.bind(*args, **kwargs)
+            sigspec.bind(*args, **kwargs)
         except (TypeError, AttributeError):
             return False
         return True
 
 else:  # pragma: py3 no cover
-    def is_valid_args(func, args, kwargs):
-        try:
-            spec = inspect.getargspec(func)
-        except TypeError:
+    def is_valid_args(func, args, kwargs, sigspec=None):
+        if sigspec is None:
+            try:
+                sigspec = inspect.getargspec(func)
+            except TypeError as e:
+                sigspec = e
+        if isinstance(sigspec, TypeError):
             if not callable(func):
                 return False
             return _is_builtin_valid_args(func, args, kwargs)
 
+        spec = sigspec
         defaults = spec.defaults or ()
         num_pos = len(spec.args) - len(defaults)
         missing_pos = spec.args[len(args):num_pos]
@@ -717,12 +728,12 @@ else:  # pragma: py3 no cover
 if PY34 or PYPY:  # pragma: no cover
     _is_valid_args = is_valid_args
 
-    def is_valid_args(func, args, kwargs):
+    def is_valid_args(func, args, kwargs, sigspec=None):
         # Python 3.4 and PyPy may lie, so use our registry for builtins instead
         val = _is_builtin_valid_args(func, args, kwargs)
         if val is not None:
             return val
-        return _is_valid_args(func, args, kwargs)
+        return _is_valid_args(func, args, kwargs, sigspec=sigspec)
 
 
 is_valid_args.__doc__ = """ \
@@ -750,28 +761,35 @@ Is ``func(*args, **kwargs)`` a valid function call?
     """
 
 if PY3:  # pragma: py2 no cover
-    def is_partial_args(func, args, kwargs):
-        try:
-            sig = inspect.signature(func)
-        except ValueError:
+    def is_partial_args(func, args, kwargs, sigspec=None):
+        if sigspec is None:
+            try:
+                sigspec = inspect.signature(func)
+            except (ValueError, TypeError) as e:
+                sigspec = e
+        if isinstance(sigspec, ValueError):
             return _is_builtin_partial_args(func, args, kwargs)
-        except TypeError:
+        elif isinstance(sigspec, TypeError):
             return False
         try:
-            sig.bind_partial(*args, **kwargs)
+            sigspec.bind_partial(*args, **kwargs)
         except (TypeError, AttributeError):
             return False
         return True
 
 else:  # pragma: py3 no cover
-    def is_partial_args(func, args, kwargs):
-        try:
-            spec = inspect.getargspec(func)
-        except TypeError:
+    def is_partial_args(func, args, kwargs, sigspec=None):
+        if sigspec is None:
+            try:
+                sigspec = inspect.getargspec(func)
+            except TypeError as e:
+                sigspec = e
+        if isinstance(sigspec, TypeError):
             if not callable(func):
                 return False
             return _is_builtin_partial_args(func, args, kwargs)
 
+        spec = sigspec
         defaults = spec.defaults or ()
         num_pos = len(spec.args) - len(defaults)
         if spec.varargs is None:
@@ -805,12 +823,12 @@ else:  # pragma: py3 no cover
 if PY34 or PYPY:  # pragma: no cover
     _is_partial_args = is_partial_args
 
-    def is_partial_args(func, args, kwargs):
+    def is_partial_args(func, args, kwargs, sigspec=None):
         # Python 3.4 and PyPy may lie, so use our registry for builtins instead
         val = _is_builtin_partial_args(func, args, kwargs)
         if val is not None:
             return val
-        return _is_partial_args(func, args, kwargs)
+        return _is_partial_args(func, args, kwargs, sigspec=sigspec)
 
 
 is_partial_args.__doc__ = """ \
@@ -844,4 +862,5 @@ Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
 
 from ._signatures import (is_builtin_valid_args as _is_builtin_valid_args,
                           is_builtin_partial_args as _is_builtin_partial_args,
-                          has_unknown_args as _has_unknown_args)
+                          has_unknown_args as _has_unknown_args,
+                          signature_or_spec as _signature_or_spec)
