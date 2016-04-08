@@ -1,3 +1,16 @@
+"""Internal module (i.e., not public) to support better introspection for curry
+
+The primary functions are ``is_valid_args``, ``is_partial_args``, and
+``has_unknown_args``.  Other functions in this module support these three.
+
+Notably, we create a ``signatures`` registry to enable introspection of
+builtin functions in any Python version.  This includes builtins that
+have more than one valid signature.
+
+Everything in this module should be regarded as implementation details.
+Users should try to not use this module directly.
+
+"""
 import functools
 import inspect
 import itertools
@@ -10,6 +23,21 @@ if PY3:  # pragma: py2 no cover
     import builtins
 else:  # pragma: py3 no cover
     import __builtin__ as builtins
+
+# We mock builtin callables using lists of tuples with lambda functions.
+#
+# The tuple spec is (num_position_args, lambda_func, keyword_only_args).
+#
+#   num_position_args:
+#       - The number of positional-only arguments.  If not specified,
+#         all positional arguments are considered positional-only.
+#
+#   lambda_func:
+#       - lambda function that matches a signature of a builtin, but does
+#         not include keyword-only arguments.
+#
+#   keyword_only_args: (optional)
+#       - Tuple of keyword-only argumemts.
 
 module_info = {}
 
