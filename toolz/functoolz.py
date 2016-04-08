@@ -672,7 +672,7 @@ if PY3:  # pragma: py2 no cover
             return False
         try:
             sig.bind(*args, **kwargs)
-        except TypeError:
+        except (TypeError, AttributeError):
             return False
         return True
 
@@ -759,7 +759,7 @@ if PY3:  # pragma: py2 no cover
             return False
         try:
             sig.bind_partial(*args, **kwargs)
-        except TypeError:
+        except (TypeError, AttributeError):
             return False
         return True
 

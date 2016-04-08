@@ -645,7 +645,11 @@ if PY3:  # pragma: py2 no cover
             return True
         except TypeError:
             return False
-        return any(x.kind == x.VAR_POSITIONAL for x in sig.parameters.values())
+        try:
+            return any(x.kind == x.VAR_POSITIONAL
+                       for x in sig.parameters.values())
+        except AttributeError:  # pragma: no cover
+            return False
 
 else:  # pragma: py3 no cover
     def has_unknown_args(func):
