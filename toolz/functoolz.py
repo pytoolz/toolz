@@ -148,6 +148,7 @@ class curry(object):
 
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
+        self._sigspec = None
 
     @property
     def func(self):
@@ -197,7 +198,10 @@ class curry(object):
         args = self.args + args
         if self.keywords:
             kwargs = dict(self.keywords, **kwargs)
-        sigspec = _signature_or_spec(func)
+        if self._sigspec is None:
+            sigspec = self._sigspec = _signature_or_spec(func)
+        else:
+            sigspec = self._sigspec
         return (
             (
                 not is_valid_args(func, args, kwargs, sigspec=sigspec) or
