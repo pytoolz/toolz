@@ -193,12 +193,13 @@ class curry(object):
             raise
 
     def _should_curry(self, args, kwargs, exc=None):
+        func = self.func
         args = self.args + args
         if self.keywords:
             kwargs = dict(self.keywords, **kwargs)
         return (
-            not is_valid_args(self.func, args, kwargs)
-            and is_partial_args(self.func, args, kwargs) is not False
+            (not is_valid_args(func, args, kwargs) or _has_unknown_args(func))
+            and is_partial_args(func, args, kwargs) is not False
         )
 
     def bind(self, *args, **kwargs):
@@ -234,10 +235,10 @@ def has_kwargs(f):
     >>> has_kwargs(f)
     True
     """
-    if sys.version_info[0] == 2:  # pragma: no cover
+    if sys.version_info[0] == 2:  # pragma: py3 no cover
         spec = inspect.getargspec(f)
         return bool(spec and (spec.keywords or spec.defaults))
-    if sys.version_info[0] == 3:  # pragma: no cover
+    if sys.version_info[0] == 3:  # pragma: py2 no cover
         spec = inspect.getfullargspec(f)
         return bool(spec.defaults)
 
@@ -254,9 +255,9 @@ def isunary(f):
     False
     """
     try:
-        if sys.version_info[0] == 2:  # pragma: no cover
+        if sys.version_info[0] == 2:  # pragma: py3 no cover
             spec = inspect.getargspec(f)
-        if sys.version_info[0] == 3:  # pragma: no cover
+        if sys.version_info[0] == 3:  # pragma: py2 no cover
             spec = inspect.getfullargspec(f)
         return bool(spec and spec.varargs is None and not has_kwargs(f)
                     and len(spec.args) == 1)
@@ -684,8 +685,8 @@ def is_valid_args(func, args, kwargs):
 
     Many builtins in the standard library are also supported.
     """
-    if PY3:  # pragma: no cover
-        if PY34 or PYPY:
+    if PY3:  # pragma: py2 no cover
+        if PY34 or PYPY:  # pragma: no cover
             # Python 3.4 may lie, so use our registry for builtins instead
             val = _is_builtin_valid_args(func, args, kwargs)
             if val is not None:
@@ -701,14 +702,16 @@ def is_valid_args(func, args, kwargs):
         except TypeError:
             return False
         return True
-    else:  # pragma: no cover
-        if PYPY:
+    else:  # pragma: py3 no cover
+        if PYPY:  # pragma: no cover
             val = _is_builtin_valid_args(func, args, kwargs)
             if val is not None:
                 return val
         try:
             spec = inspect.getargspec(func)
         except TypeError:
+            if not callable(func):
+                return False
             return _is_builtin_valid_args(func, args, kwargs)
 
         defaults = spec.defaults or ()
@@ -769,8 +772,8 @@ def is_partial_args(func, args, kwargs):
 
     Many builtins in the standard library are also supported.
     """
-    if PY3:  # pragma: no cover
-        if PY34 or PYPY:
+    if PY3:  # pragma: py2 no cover
+        if PY34 or PYPY:  # pragma: no cover
             # Python 3.4 may lie, so use our registry for builtins instead
             val = _is_builtin_partial_args(func, args, kwargs)
             if val is not None:
@@ -786,14 +789,16 @@ def is_partial_args(func, args, kwargs):
         except TypeError:
             return False
         return True
-    else:  # pragma: no cover
-        if PYPY:
+    else:  # pragma: py3 no cover
+        if PYPY:  # pragma: no cover
             val = _is_builtin_partial_args(func, args, kwargs)
             if val is not None:
                 return val
         try:
             spec = inspect.getargspec(func)
         except TypeError:
+            if not callable(func):
+                return False
             return _is_builtin_partial_args(func, args, kwargs)
 
         defaults = spec.defaults or ()
@@ -827,4 +832,5 @@ def is_partial_args(func, args, kwargs):
 
 
 from ._signatures import (is_builtin_valid_args as _is_builtin_valid_args,
-                          is_builtin_partial_args as _is_builtin_partial_args)
+                          is_builtin_partial_args as _is_builtin_partial_args,
+                          has_unknown_args as _has_unknown_args)

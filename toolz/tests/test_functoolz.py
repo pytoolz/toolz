@@ -453,6 +453,25 @@ def test_curry_bind():
     assert add.bind(x=10).bind(y=20)() == add(10, 20)
 
 
+def test_curry_unknown_args():
+    def add3(x, y, z):
+        return x + y + z
+
+    @curry
+    def f(*args):
+        return add3(*args)
+
+    assert f()(1)(2)(3) == 6
+    assert f(1)(2)(3) == 6
+    assert f(1, 2)(3) == 6
+    assert f(1, 2, 3) == 6
+    assert f(1, 2)(3, 4) == f(1, 2, 3, 4)
+
+
+def test_curry_bad_types():
+    assert raises(TypeError, lambda: curry(1))
+
+
 def test_compose():
     assert compose()(0) == 0
     assert compose(inc)(0) == 1

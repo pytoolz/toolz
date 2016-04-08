@@ -1,5 +1,6 @@
 import sys
 from toolz.functoolz import is_valid_args, is_partial_args
+from toolz._signatures import has_unknown_args
 from toolz.compatibility import PY3
 from toolz.utils import raises
 
@@ -104,6 +105,8 @@ def test_is_valid(check_valid=is_valid_args, incomplete=False):
     assert check_valid(f, 1, 2, e=3) is False
     assert check_valid(f, 1, 2, b=3) is False
 
+    assert check_valid(1) is False
+
 
 def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
     if not PY3:
@@ -196,4 +199,16 @@ def test_func_keyword():
     assert is_partial_args(f, (None,), {})
     assert is_partial_args(f, (), {'func': None})
     assert is_partial_args(f, (None,), {'func': None}) is False
+
+
+def test_has_unknown_args():
+    assert has_unknown_args(1) is False
+    assert has_unknown_args(map) is False
+    assert has_unknown_args(make_func('')) is False
+    assert has_unknown_args(make_func('x, y, z')) is False
+    assert has_unknown_args(make_func('*args'))
+    assert has_unknown_args(make_func('**kwargs')) is False
+    assert has_unknown_args(make_func('x, y, *args, **kwargs'))
+    assert has_unknown_args(make_func('x, y, z=1')) is False
+    assert has_unknown_args(make_func('x, y, z=1, **kwargs')) is False
 

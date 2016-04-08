@@ -6,9 +6,9 @@ import sys
 
 from .compatibility import PY3
 
-if PY3:  # pragma: no cover
+if PY3:  # pragma: py2 no cover
     import builtins
-else:  # pragma: no cover
+else:  # pragma: py3 no cover
     import __builtin__ as builtins
 
 module_info = {}
@@ -199,7 +199,7 @@ module_info[builtins]['exec'] = [
     lambda source, globals: None,
     lambda source, globals, locals: None]
 
-if PY3:  # pragma: no cover
+if PY3:  # pragma: py2 no cover
     module_info[builtins].update(
         bytes=[
             lambda: None,
@@ -225,7 +225,7 @@ if PY3:  # pragma: no cover
     module_info[builtins]['print'] = [
         (0, lambda *args: None, ('sep', 'end', 'file', 'flush',))]
 
-else:  # pragma: no cover
+else:  # pragma: py3 no cover
     module_info[builtins].update(
         bytes=[
             lambda object='': None],
@@ -308,12 +308,12 @@ module_info[itertools] = dict(
         (0, lambda *iterables: None, ('fillvalue',))],
 )
 
-if PY3:  # pragma: no cover
+if PY3:  # pragma: py2 no cover
     module_info[itertools].update(
         product=[
             (0, lambda *iterables: None, ('repeat',))],
     )
-else:  # pragma: no cover
+else:  # pragma: py3 no cover
     module_info[itertools].update(
         product=[
             lambda *iterables: None],
@@ -563,14 +563,14 @@ module_info[operator] = dict(
         lambda a, b: None],
 )
 
-if PY3:  # pragma: no cover
+if PY3:  # pragma: py2 no cover
     def num_pos_args(func):
         sig = inspect.signature(func)
         return sum(1 for x in sig.parameters.values()
-                   if x.kind is x.POSITIONAL_OR_KEYWORD and
+                   if x.kind == x.POSITIONAL_OR_KEYWORD and
                    x.default is x.empty)
 
-else:  # pragma: no cover
+else:  # pragma: py3 no cover
     def num_pos_args(func):
         spec = inspect.getargspec(func)
         if spec.defaults:
@@ -633,6 +633,25 @@ def is_builtin_partial_args(func, args, kwargs):
         return None
     sigs = signatures[func]
     return any(check_partial(sig, args, kwargs) for sig in sigs)
+
+
+def has_unknown_args(func):
+    if func in signatures:
+        return False
+    if PY3:  # pragma: py2 no cover
+        try:
+            sig = inspect.signature(func)
+        except ValueError:  # pragma: no cover
+            return True
+        except TypeError:
+            return False
+        return any(x.kind == x.VAR_POSITIONAL for x in sig.parameters.values())
+    else:  # pragma: py3 no cover
+        try:
+            spec = inspect.getargspec(func)
+        except TypeError:
+            return callable(func)
+        return spec.varargs is not None
 
 
 from .functoolz import is_valid_args, is_partial_args
