@@ -182,6 +182,19 @@ def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
     assert check_valid(f, b=1) is incomplete
     assert check_valid(f, 1, 2)
 
+    f.__signature__ = 34
+    assert check_valid(f) is False
+
+    class RaisesValueError(object):
+        def __call__(self):
+            pass
+        @property
+        def __signature__(self):
+            raise ValueError('Testing Python 3.4')
+
+    f = RaisesValueError()
+    assert check_valid(f) is None
+
 
 def test_is_partial():
     test_is_valid(check_valid=is_partial_args, incomplete=True)
@@ -211,4 +224,19 @@ def test_has_unknown_args():
     assert has_unknown_args(make_func('x, y, *args, **kwargs'))
     assert has_unknown_args(make_func('x, y, z=1')) is False
     assert has_unknown_args(make_func('x, y, z=1, **kwargs')) is False
+
+    if PY3:
+        f = make_func('*args')
+        f.__signature__ = 34
+        assert has_unknown_args(f) is False
+
+        class RaisesValueError(object):
+            def __call__(self):
+                pass
+            @property
+            def __signature__(self):
+                raise ValueError('Testing Python 3.4')
+
+        f = RaisesValueError()
+        assert has_unknown_args(f)
 

@@ -662,35 +662,8 @@ class excepts(object):
             return 'excepting'
 
 
-def is_valid_args(func, args, kwargs):
-    """ Is ``func(*args, **kwargs)`` a valid function call?
-
-    This function relies on introspection and does not call the function.
-    Returns None if validity can't be determined.
-
-    >>> def add(x, y):
-    ...     return x + y
-
-    >>> is_valid_args(add, (1,), {})
-    False
-    >>> is_valid_args(add, (1, 2), {})
-    True
-    >>> is_valid_args(map, (), {})
-    False
-
-    **Implementation notes**
-    Python 2 relies on ``inspect.getargspec``, which only works for
-    user-defined functions.  Python 3 uses ``inspect.signature``, which
-    works for many more types of callables.
-
-    Many builtins in the standard library are also supported.
-    """
-    if PY3:  # pragma: py2 no cover
-        if PY34 or PYPY:  # pragma: no cover
-            # Python 3.4 may lie, so use our registry for builtins instead
-            val = _is_builtin_valid_args(func, args, kwargs)
-            if val is not None:
-                return val
+if PY3:  # pragma: py2 no cover
+    def is_valid_args(func, args, kwargs):
         try:
             sig = inspect.signature(func)
         except ValueError:
@@ -702,11 +675,9 @@ def is_valid_args(func, args, kwargs):
         except TypeError:
             return False
         return True
-    else:  # pragma: py3 no cover
-        if PYPY:  # pragma: no cover
-            val = _is_builtin_valid_args(func, args, kwargs)
-            if val is not None:
-                return val
+
+else:  # pragma: py3 no cover
+    def is_valid_args(func, args, kwargs):
         try:
             spec = inspect.getargspec(func)
         except TypeError:
@@ -743,12 +714,19 @@ def is_valid_args(func, args, kwargs):
         else:
             return True
 
+if PY34 or PYPY:  # pragma: no cover
+    _is_valid_args = is_valid_args
 
-def is_partial_args(func, args, kwargs):
-    """ Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
+    def is_valid_args(func, args, kwargs):
+        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
+        val = _is_builtin_valid_args(func, args, kwargs)
+        if val is not None:
+            return val
+        return _is_valid_args(func, args, kwargs)
 
-    Returns True *only* if the call is valid or if it is possible for the
-    call to become valid by adding more positional or keyword arguments.
+
+is_valid_args.__doc__ = """ \
+Is ``func(*args, **kwargs)`` a valid function call?
 
     This function relies on introspection and does not call the function.
     Returns None if validity can't be determined.
@@ -756,14 +734,12 @@ def is_partial_args(func, args, kwargs):
     >>> def add(x, y):
     ...     return x + y
 
-    >>> is_partial_args(add, (1,), {})
-    True
-    >>> is_partial_args(add, (1, 2), {})
-    True
-    >>> is_partial_args(add, (1, 2, 3), {})
+    >>> is_valid_args(add, (1,), {})
     False
-    >>> is_partial_args(map, (), {})
+    >>> is_valid_args(add, (1, 2), {})
     True
+    >>> is_valid_args(map, (), {})
+    False
 
     **Implementation notes**
     Python 2 relies on ``inspect.getargspec``, which only works for
@@ -772,12 +748,9 @@ def is_partial_args(func, args, kwargs):
 
     Many builtins in the standard library are also supported.
     """
-    if PY3:  # pragma: py2 no cover
-        if PY34 or PYPY:  # pragma: no cover
-            # Python 3.4 may lie, so use our registry for builtins instead
-            val = _is_builtin_partial_args(func, args, kwargs)
-            if val is not None:
-                return val
+
+if PY3:  # pragma: py2 no cover
+    def is_partial_args(func, args, kwargs):
         try:
             sig = inspect.signature(func)
         except ValueError:
@@ -789,11 +762,9 @@ def is_partial_args(func, args, kwargs):
         except TypeError:
             return False
         return True
-    else:  # pragma: py3 no cover
-        if PYPY:  # pragma: no cover
-            val = _is_builtin_partial_args(func, args, kwargs)
-            if val is not None:
-                return val
+
+else:  # pragma: py3 no cover
+    def is_partial_args(func, args, kwargs):
         try:
             spec = inspect.getargspec(func)
         except TypeError:
@@ -830,6 +801,46 @@ def is_partial_args(func, args, kwargs):
         else:
             return True
 
+
+if PY34 or PYPY:  # pragma: no cover
+    _is_partial_args = is_partial_args
+
+    def is_partial_args(func, args, kwargs):
+        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
+        val = _is_builtin_partial_args(func, args, kwargs)
+        if val is not None:
+            return val
+        return _is_partial_args(func, args, kwargs)
+
+
+is_partial_args.__doc__ = """ \
+Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
+
+    Returns True *only* if the call is valid or if it is possible for the
+    call to become valid by adding more positional or keyword arguments.
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def add(x, y):
+    ...     return x + y
+
+    >>> is_partial_args(add, (1,), {})
+    True
+    >>> is_partial_args(add, (1, 2), {})
+    True
+    >>> is_partial_args(add, (1, 2, 3), {})
+    False
+    >>> is_partial_args(map, (), {})
+    True
+
+    **Implementation notes**
+    Python 2 relies on ``inspect.getargspec``, which only works for
+    user-defined functions.  Python 3 uses ``inspect.signature``, which
+    works for many more types of callables.
+
+    Many builtins in the standard library are also supported.
+    """
 
 from ._signatures import (is_builtin_valid_args as _is_builtin_valid_args,
                           is_builtin_partial_args as _is_builtin_partial_args,

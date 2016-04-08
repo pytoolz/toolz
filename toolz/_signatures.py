@@ -635,18 +635,22 @@ def is_builtin_partial_args(func, args, kwargs):
     return any(check_partial(sig, args, kwargs) for sig in sigs)
 
 
-def has_unknown_args(func):
-    if func in signatures:
-        return False
-    if PY3:  # pragma: py2 no cover
+if PY3:  # pragma: py2 no cover
+    def has_unknown_args(func):
+        if func in signatures:
+            return False
         try:
             sig = inspect.signature(func)
-        except ValueError:  # pragma: no cover
+        except ValueError:
             return True
         except TypeError:
             return False
         return any(x.kind == x.VAR_POSITIONAL for x in sig.parameters.values())
-    else:  # pragma: py3 no cover
+
+else:  # pragma: py3 no cover
+    def has_unknown_args(func):
+        if func in signatures:
+            return False
         try:
             spec = inspect.getargspec(func)
         except TypeError:
