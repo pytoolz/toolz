@@ -1,7 +1,7 @@
-"""Internal module (i.e., not public) to support better introspection for curry
+"""Internal module for better introspection of builtins.
 
-The primary functions are ``is_valid_args``, ``is_partial_args``, and
-``has_unknown_args``.  Other functions in this module support these three.
+The main functions are ``is_builtin_valid_args``, ``is_builtin_partial_args``,
+and ``has_unknown_args``.  Other functions in this module support these three.
 
 Notably, we create a ``signatures`` registry to enable introspection of
 builtin functions in any Python version.  This includes builtins that
