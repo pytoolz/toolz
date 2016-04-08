@@ -1,3 +1,4 @@
+import functools
 import sys
 from toolz._signatures import (builtins, is_builtin_valid_args,
                                is_builtin_partial_args)
@@ -66,6 +67,13 @@ def test_is_valid(check_valid=is_builtin_valid_args, incomplete=False):
     assert check_valid(f, 1, 2, 3)
     assert check_valid(f, 1, 2, step=3) is False
     assert check_valid(f, 1, 2, 3, 4) is False
+
+    f = functools.partial
+    assert orig_check_valid(f, (), {}) is incomplete
+    assert orig_check_valid(f, (), {'func': 1}) is incomplete
+    assert orig_check_valid(f, (1,), {})
+    assert orig_check_valid(f, (1,), {'func': 1})
+    assert orig_check_valid(f, (1, 2), {})
 
 
 def test_is_partial():

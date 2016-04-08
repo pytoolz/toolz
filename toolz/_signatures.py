@@ -570,6 +570,17 @@ if PY3:  # pragma: py2 no cover
                    if x.kind == x.POSITIONAL_OR_KEYWORD and
                    x.default is x.empty)
 
+    def get_exclude_keywords(func, num_pos_only):
+        if num_pos_only == 0:
+            return ()
+        sig = inspect.signature(func)
+        has_kwargs = any(x.kind == x.VAR_KEYWORD
+                         for x in sig.parameters.values())
+        if not has_kwargs:
+            return ()
+        pos_args = list(sig.parameters.values())[:num_pos_only]
+        return tuple(x.name for x in pos_args)
+
 else:  # pragma: py3 no cover
     def num_pos_args(func):
         spec = inspect.getargspec(func)
@@ -577,17 +588,30 @@ else:  # pragma: py3 no cover
             return len(spec.args) - len(spec.defaults)
         return len(spec.args)
 
+    def get_exclude_keywords(func, num_pos_only):
+        if num_pos_only == 0:
+            return ()
+        spec = inspect.getargspec(func)
+        has_kwargs = spec.keywords is not None
+        if not has_kwargs:
+            return ()
+        return tuple(spec.args[:num_pos_only])
+
 
 def expand_sig(sig):
     if isinstance(sig, tuple):
         if len(sig) == 3:
+            num_pos_only, func, keyword_only = sig
             assert isinstance(sig[-1], tuple)
-            return sig
-        num_pos_only, func = sig
+        else:
+            num_pos_only, func = sig
+            keyword_only = ()
     else:
         func = sig
         num_pos_only = num_pos_args(func)
-    return (num_pos_only, func, ())
+        keyword_only = ()
+    keyword_exclude = get_exclude_keywords(func, num_pos_only)
+    return (num_pos_only, func, keyword_only + keyword_exclude)
 
 
 signatures = {}
@@ -599,24 +623,28 @@ for module, info in module_info.items():
 
 
 def check_valid(sig, args, kwargs):
-    num_pos_only, func, keyword_only = sig
+    num_pos_only, func, keyword_exclude = sig
     if len(args) < num_pos_only:
         return False
-    if keyword_only:
+    if keyword_exclude:
         kwargs = dict(kwargs)
-        for item in keyword_only:
+        for item in keyword_exclude:
             kwargs.pop(item, None)
-    return is_valid_args(func, args, kwargs)
+    try:
+        func(*args, **kwargs)
+        return True
+    except TypeError:
+        return False
 
 
 def check_partial(sig, args, kwargs):
-    num_pos_only, func, keyword_only = sig
+    num_pos_only, func, keyword_exclude = sig
     if len(args) < num_pos_only:
         pad = (None,) * (num_pos_only - len(args))
         args = args + pad
-    if keyword_only:
+    if keyword_exclude:
         kwargs = dict(kwargs)
-        for item in keyword_only:
+        for item in keyword_exclude:
             kwargs.pop(item, None)
     return is_partial_args(func, args, kwargs)
 
@@ -662,4 +690,4 @@ else:  # pragma: py3 no cover
         return spec.varargs is not None
 
 
-from .functoolz import is_valid_args, is_partial_args
+from .functoolz import is_partial_args
