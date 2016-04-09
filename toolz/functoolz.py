@@ -149,6 +149,7 @@ class curry(object):
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
         self._sigspec = None
+        self._has_unknown_args = None
 
     @property
     def func(self):
@@ -200,19 +201,20 @@ class curry(object):
             kwargs = dict(self.keywords, **kwargs)
         if self._sigspec is None:
             sigspec = self._sigspec = _signature_or_spec(func)
+            self._has_unknown_args = _has_unknown_args(func, sigspec=sigspec)
         else:
             sigspec = self._sigspec
 
         if is_partial_args(func, args, kwargs, sigspec=sigspec) is False:
             # Nothing can make the call valid
             return False
+        elif self._has_unknown_args:
+            # The call may be valid and raised a TypeError, but we curry
+            # anyway because the function may have `*args`.  This is useful
+            # for decorators with signature `func(*args, **kwargs)`.
+            return True
         elif not is_valid_args(func, args, kwargs, sigspec=sigspec):
             # Adding more arguments may make the call valid
-            return True
-        elif _has_unknown_args(func, sigspec=sigspec):
-            # The call was valid and raised a TypeError, but we curry anyway
-            # because the function may have `*args`.  This is convenient for
-            # decorators with signature `func(*args, **kwargs)`.
             return True
         else:
             # There was a genuine TypeError
