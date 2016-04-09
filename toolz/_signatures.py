@@ -5,7 +5,9 @@ and ``has_unknown_args``.  Other functions in this module support these three.
 
 Notably, we create a ``signatures`` registry to enable introspection of
 builtin functions in any Python version.  This includes builtins that
-have more than one valid signature.
+have more than one valid signature.  Currently, the registry includes
+builtins from ``builtins``, ``functools``, ``itertools``, and ``operator``
+modules.  More can be added as requested.  We don't guarantee full coverage.
 
 Everything in this module should be regarded as implementation details.
 Users should try to not use this module directly.
@@ -593,11 +595,13 @@ module_info[operator] = dict(
 
 if PY3:  # pragma: py2 no cover
     def num_pos_args(func, sigspec):
+        """Return the number of positional arguments.  ``f(x, y=1)`` has 1."""
         return sum(1 for x in sigspec.parameters.values()
                    if x.kind == x.POSITIONAL_OR_KEYWORD and
                    x.default is x.empty)
 
     def get_exclude_keywords(func, num_pos_only, sigspec):
+        """Return the names of position-only arguments if func has **kwargs"""
         if num_pos_only == 0:
             return ()
         has_kwargs = any(x.kind == x.VAR_KEYWORD
@@ -615,11 +619,13 @@ if PY3:  # pragma: py2 no cover
 
 else:  # pragma: py3 no cover
     def num_pos_args(func, sigspec):
+        """Return the number of positional arguments.  ``f(x, y=1)`` has 1."""
         if sigspec.defaults:
             return len(sigspec.args) - len(sigspec.defaults)
         return len(sigspec.args)
 
     def get_exclude_keywords(func, num_pos_only, sigspec):
+        """Return the names of position-only arguments if func has **kwargs"""
         if num_pos_only == 0:
             return ()
         has_kwargs = sigspec.keywords is not None
@@ -635,6 +641,23 @@ else:  # pragma: py3 no cover
 
 
 def expand_sig(sig):
+    """Convert the signature spec in ``module_info`` to add to ``signatures``.
+
+    The input signature spec is one of:
+        - ``lambda_func``
+        - ``(num_position_args, lambda_func)``
+        - ``(num_position_args, lambda_func, keyword_only_args)``
+
+    The output signature spec is:
+        ``(num_position_args, lambda_func, keyword_exclude, sigspec)``
+
+    where ``keyword_exclude`` includes keyword only arguments and, if variadic
+    keywords is present, the names of position-only argument.  The latter is
+    included to support builtins such as ``partial(func, *args, **kwargs)``,
+    which allows ``func=`` to be used as a keyword even though it's the name
+    of a positional argument.
+
+    """
     if isinstance(sig, tuple):
         if len(sig) == 3:
             num_pos_only, func, keyword_only = sig
@@ -661,6 +684,7 @@ for module, info in module_info.items():
 
 
 def check_valid(sig, args, kwargs):
+    """Like ``is_valid_args`` for the given signature spec."""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         return False
@@ -676,6 +700,7 @@ def check_valid(sig, args, kwargs):
 
 
 def check_partial(sig, args, kwargs):
+    """Like ``is_partial_args`` for the given signature spec."""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         pad = (None,) * (num_pos_only - len(args))
@@ -688,6 +713,7 @@ def check_partial(sig, args, kwargs):
 
 
 def is_builtin_valid_args(func, args, kwargs):
+    """Like ``is_valid_args`` for builtins in our ``signatures`` registry."""
     if func not in signatures:
         return None
     sigs = signatures[func]
@@ -695,6 +721,7 @@ def is_builtin_valid_args(func, args, kwargs):
 
 
 def is_builtin_partial_args(func, args, kwargs):
+    """Like ``is_partial_args`` for builtins in our ``signatures`` registry."""
     if func not in signatures:
         return None
     sigs = signatures[func]
@@ -703,6 +730,11 @@ def is_builtin_partial_args(func, args, kwargs):
 
 if PY3:  # pragma: py2 no cover
     def has_unknown_args(func, sigspec=None):
+        """Might ``func`` have ``*args`` that is passed to a wrapped function?
+
+        This is specifically to support ``curry``.
+
+        """
         if func in signatures:
             return False
         if sigspec is None:
@@ -722,6 +754,11 @@ if PY3:  # pragma: py2 no cover
 
 else:  # pragma: py3 no cover
     def has_unknown_args(func, sigspec=None):
+        """Might ``func`` have ``*args`` that is passed to a wrapped function?
+
+        This is specifically to support ``curry``.
+
+        """
         if func in signatures:
             return False
         if sigspec is None:

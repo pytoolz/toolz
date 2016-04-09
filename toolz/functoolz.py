@@ -202,13 +202,21 @@ class curry(object):
             sigspec = self._sigspec = _signature_or_spec(func)
         else:
             sigspec = self._sigspec
-        return (
-            (
-                not is_valid_args(func, args, kwargs, sigspec=sigspec) or
-                _has_unknown_args(func, sigspec=sigspec)
-            ) and
-            is_partial_args(func, args, kwargs, sigspec=sigspec) is not False
-        )
+
+        if is_partial_args(func, args, kwargs, sigspec=sigspec) is False:
+            # Nothing can make the call valid
+            return False
+        elif not is_valid_args(func, args, kwargs, sigspec=sigspec):
+            # Adding more arguments may make the call valid
+            return True
+        elif _has_unknown_args(func, sigspec=sigspec):
+            # The call was valid and raised a TypeError, but we curry anyway
+            # because the function may have `*args`.  This is convenient for
+            # decorators with signature `func(*args, **kwargs)`.
+            return True
+        else:
+            # There was a genuine TypeError
+            return False
 
     def bind(self, *args, **kwargs):
         return type(self)(self, *args, **kwargs)
