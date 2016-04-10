@@ -2,11 +2,10 @@ import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do, juxt, flip, excepts)
-from toolz.functoolz import _num_required_args
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
-
+from toolz.compatibility import PY3
 
 def iseven(x):
     return x % 2 == 0
@@ -434,14 +433,68 @@ def test_curry_wrapped():
     assert curried_foo.__wrapped__ is foo
 
 
-def test__num_required_args():
-    assert _num_required_args(map) != 0
-    assert _num_required_args(lambda x: x) == 1
-    assert _num_required_args(lambda x, y: x) == 2
+def test_curry_call():
+    @curry
+    def add(x, y):
+        return x + y
+    assert raises(TypeError, lambda: add.call(1))
+    assert add(1)(2) == add.call(1, 2)
+    assert add(1)(2) == add(1).call(2)
 
-    def foo(x, y, z=2):
+
+def test_curry_bind():
+    @curry
+    def add(x=1, y=2):
+        return x + y
+    assert add() == add(1, 2)
+    assert add.bind(10)(20) == add(10, 20)
+    assert add.bind(10).bind(20)() == add(10, 20)
+    assert add.bind(x=10)(y=20) == add(10, 20)
+    assert add.bind(x=10).bind(y=20)() == add(10, 20)
+
+
+def test_curry_unknown_args():
+    def add3(x, y, z):
+        return x + y + z
+
+    @curry
+    def f(*args):
+        return add3(*args)
+
+    assert f()(1)(2)(3) == 6
+    assert f(1)(2)(3) == 6
+    assert f(1, 2)(3) == 6
+    assert f(1, 2, 3) == 6
+    assert f(1, 2)(3, 4) == f(1, 2, 3, 4)
+
+
+def test_curry_bad_types():
+    assert raises(TypeError, lambda: curry(1))
+
+
+def test_curry_subclassable():
+    class mycurry(curry):
         pass
-    assert _num_required_args(foo) == 2
+
+    add = mycurry(lambda x, y: x+y)
+    assert isinstance(add, curry)
+    assert isinstance(add, mycurry)
+    assert isinstance(add(1), mycurry)
+    assert isinstance(add()(1), mycurry)
+    assert add(1)(2) == 3
+
+    # Should we make `_should_curry` public?
+    """
+    class curry2(curry):
+        def _should_curry(self, args, kwargs, exc=None):
+            return len(self.args) + len(args) < 2
+
+    add = curry2(lambda x, y: x+y)
+    assert isinstance(add(1), curry2)
+    assert add(1)(2) == 3
+    assert isinstance(add(1)(x=2), curry2)
+    assert raises(TypeError, lambda: add(1)(x=2)(3))
+    """
 
 
 def test_compose():
@@ -590,3 +643,4 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
+

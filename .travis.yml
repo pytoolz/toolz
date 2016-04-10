@@ -7,10 +7,9 @@ python:
     - "3.4"
     - "3.5"
     - "pypy"
-    - "pypy3"
 
 env:
-    - PEP8_IGNORE="E731,W503"
+    - PEP8_IGNORE="E731,W503,E402"
 
 # command to install dependencies
 install:
@@ -20,6 +19,7 @@ install:
 # require 100% coverage (not including test files) to pass Travis CI test
 # To skip pypy: - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then DOSTUFF ; fi
 script:
+    - export MAJOR_PYTHON_VERSION=`echo $TRAVIS_PYTHON_VERSION | cut -c 1`
     - coverage run --source=toolz $(which nosetests)
                    --with-doctest
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then coverage report --show-missing --fail-under=100 ; fi
