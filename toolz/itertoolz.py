@@ -4,7 +4,8 @@ import collections
 import operator
 from functools import partial
 from random import Random
-from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems, filter)
+from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
+                                 filter)
 from toolz.utils import no_default
 
 
@@ -910,9 +911,9 @@ def random_sample(prob, seq, random_state=None):
 
     Returns a lazy iterator of random items from seq.
 
-    ``random_sample`` considers each item independently and without replacement.
-    See below how the first time it returned 13 items and the next time
-    it returned 6 items.
+    ``random_sample`` considers each item independently and without
+    replacement. See below how the first time it returned 13 items and the
+    next time it returned 6 items.
 
     >>> seq = list(range(100))
     >>> list(random_sample(0.1, seq))
@@ -941,5 +942,6 @@ def random_sample(prob, seq, random_state=None):
     if random_state is None or isinstance(random_state, int):
         random_state = Random(random_state)
     elif not hasattr(random_state, 'random'):
-        raise TypeError("random_state must be None, int, or have method random")
+        raise TypeError("random_state must be None, int, or have method random"
+                        )
     return filter(lambda _: random_state.random() < prob, seq)
