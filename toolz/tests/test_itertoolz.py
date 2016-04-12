@@ -471,7 +471,7 @@ def test_topk_is_stable():
 
 def test_peek():
     alist = ["Alice", "Bob", "Carol"]
-    element, blist  = peek(alist)
+    element, blist = peek(alist)
     element == alist[0]
     assert list(blist) == alist
 
