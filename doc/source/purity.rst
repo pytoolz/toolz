@@ -37,7 +37,7 @@ The function ``min`` is pure.  It always produces the same result given the
 same inputs and it doesn't affect any external variable.
 
 The function ``powers`` is impure for two reasons.  First, it depends on a
-global variable, ``exponent``, which can change[*]_.  Second, it changes the
+global variable, ``exponent``, which can change [*]_.  Second, it changes the
 input ``L`` which may have external state.  Consider the following execution:
 
 .. code::
