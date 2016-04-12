@@ -248,7 +248,7 @@ if PY3:  # pragma: py2 no cover
             (0, lambda file, mode='r', buffering=-1, encoding=None,
                 errors=None, newline=None, closefd=True, opener=None: None)],
         sorted=[
-            lambda iterable, key=None, reverse=False: None],
+            (1, lambda iterable: None, ('key', 'reverse'))],
         str=[
             lambda object='', encoding='utf', errors='strict': None],
     )
