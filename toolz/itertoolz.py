@@ -4,6 +4,8 @@ import collections
 import operator
 from functools import partial
 from random import Random
+import collections
+from numbers import Integral
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
                                  filter)
 from toolz.utils import no_default
@@ -939,9 +941,9 @@ def random_sample(prob, seq, random_state=None):
     [7, 9, 19, 25, 30, 32, 34, 48, 59, 60, 81, 98]
 
     """
-    if random_state is None or isinstance(random_state, int):
+    if random_state is None or isinstance(random_state,
+                                          (Integral,
+                                           collections.MutableSequence,
+                                           collections.Sequence)):
         random_state = Random(random_state)
-    elif not hasattr(random_state, 'random'):
-        raise TypeError("random_state must be None, int, or have method random"
-                        )
     return filter(lambda _: random_state.random() < prob, seq)

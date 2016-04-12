@@ -483,7 +483,9 @@ def test_random_sample():
     alist = list(range(100))
     assert list(random_sample(prob=1.0, seq=alist, random_state=2016)) == alist
 
-    mk_rsample = lambda rs=1: list(random_sample(prob=0.1, seq=alist, random_state=rs))
+    mk_rsample = lambda rs=1: list(random_sample(prob=0.1,
+                                                 seq=alist,
+                                                 random_state=rs))
     rsample1 = mk_rsample()
     assert rsample1 == mk_rsample()
 
@@ -493,4 +495,12 @@ def test_random_sample():
 
     assert rsample1 != rsample2
 
-    assert raises(TypeError, lambda: mk_rsample(object))
+    assert raises(AttributeError, lambda: mk_rsample(object))
+
+    mk_identity_sample = lambda rs=1: list(random_sample(prob=1,
+                                                         seq=alist,
+                                                         random_state=rs))
+    assert mk_identity_sample("a") == alist
+
+    assert mk_rsample("sdhf-sghie-who") != mk_rsample("sdhf-sghie-wh")
+    assert mk_rsample(b"sdhf-sghie-who") != mk_rsample(u"sdhf-sghie-wh")
