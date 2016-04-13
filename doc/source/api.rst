@@ -35,6 +35,7 @@ Itertoolz
    partition_all
    peek
    pluck
+   random_sample
    reduceby
    remove
    second
