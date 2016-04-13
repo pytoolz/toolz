@@ -27,3 +27,5 @@ Nikolaos-Digenis Karagiannis                    [@digenis](https://github.com/di
 Joe Jevnik                                      [@llllllllll](https://github.com/llllllllll)
 
 Rory Kirchner                                      [@roryk](https://github.com/roryk)
+
+[Steven Cutting](http://steven-cutting.github.io) [@steven_cutting](https://github.com/steven-cutting)
