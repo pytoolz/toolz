@@ -504,3 +504,5 @@ def test_random_sample():
 
     assert mk_rsample("sdhf-sghie-who") != mk_rsample("sdhf-sghie-wh")
     assert mk_rsample(b"sdhf-sghie-who") != mk_rsample(u"sdhf-sghie-wh")
+
+    assert raises(AttributeError, lambda: mk_rsample([]))

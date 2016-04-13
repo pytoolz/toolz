@@ -941,9 +941,11 @@ def random_sample(prob, seq, random_state=None):
     [7, 9, 19, 25, 30, 32, 34, 48, 59, 60, 81, 98]
 
     """
-    if random_state is None or isinstance(random_state,
-                                          (Integral,
-                                           collections.MutableSequence,
-                                           collections.Sequence)):
+    if random_state is None or (isinstance(random_state,
+                                           (Integral,
+                                            collections.MutableSequence,
+                                            collections.Sequence)) and
+                                isinstance(random_state,
+                                           collections.Hashable)):
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
