@@ -939,7 +939,6 @@ def random_sample(prob, seq, random_state=None):
     >>> randobj = Random(2016)
     >>> list(random_sample(0.1, seq, random_state=randobj))
     [7, 9, 19, 25, 30, 32, 34, 48, 59, 60, 81, 98]
-
     """
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
