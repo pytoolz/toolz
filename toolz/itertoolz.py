@@ -4,8 +4,6 @@ import collections
 import operator
 from functools import partial
 from random import Random
-import collections
-from numbers import Integral
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
                                  filter)
 from toolz.utils import no_default
