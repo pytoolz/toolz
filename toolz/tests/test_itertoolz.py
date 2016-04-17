@@ -2,7 +2,6 @@ import itertools
 from itertools import starmap
 from toolz.utils import raises
 from functools import partial
-from random import Random
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
@@ -12,7 +11,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, random_sample)
+                             diff, topk, peek)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -477,27 +476,3 @@ def test_peek():
     assert list(blist) == alist
 
     assert raises(StopIteration, lambda: peek([]))
-
-
-def test_random_sample():
-    alist = list(range(100))
-
-    assert list(random_sample(prob=1, seq=alist, random_state=2016)) == alist
-
-    mk_rsample = lambda rs=1: list(random_sample(prob=0.1,
-                                                 seq=alist,
-                                                 random_state=rs))
-    rsample1 = mk_rsample()
-    assert rsample1 == mk_rsample()
-
-    rsample2 = mk_rsample(1984)
-    randobj = Random(1984)
-    assert rsample2 == mk_rsample(randobj)
-
-    assert rsample1 != rsample2
-
-    assert mk_rsample(object) == mk_rsample(object)
-    assert mk_rsample(object) != mk_rsample(object())
-    assert mk_rsample(b"a") == mk_rsample(u"a")
-
-    assert raises(TypeError, lambda: mk_rsample([]))
