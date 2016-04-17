@@ -38,7 +38,8 @@ def _nargs(f):
 
 
 def _should_curry(f):
-    do_curry = frozenset((toolz.map, toolz.filter, toolz.sorted, toolz.reduce))
+    do_curry = frozenset((toolz.map, toolz.filter, toolz.sorted, toolz.reduce,
+                          toolz.excepts))
     return (callable(f) and _nargs(f) > 1 or f in do_curry)
 
 
