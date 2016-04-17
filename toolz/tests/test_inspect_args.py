@@ -1,5 +1,6 @@
+import functools
 import sys
-from toolz.functoolz import is_valid_args, is_partial_args
+from toolz.functoolz import curry, is_valid_args, is_partial_args
 from toolz._signatures import has_unknown_args
 from toolz.compatibility import PY3
 from toolz.utils import raises
@@ -199,6 +200,28 @@ def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
 def test_is_partial():
     test_is_valid(check_valid=is_partial_args, incomplete=True)
     test_is_valid_py3(check_valid=is_partial_args, incomplete=True)
+
+
+def test_is_valid_curry():
+    def check_curry(func, args, kwargs, incomplete=True):
+        try:
+            curry(func)(*args, **kwargs)
+            curry(func, *args)(**kwargs)
+            curry(func, **kwargs)(*args)
+            curry(func, *args, **kwargs)()
+            return incomplete
+        except ValueError:
+            return True
+        except TypeError:
+            return False
+
+    check_valid = functools.partial(check_curry, incomplete=True)
+    test_is_valid(check_valid=check_valid, incomplete=True)
+    test_is_valid_py3(check_valid=check_valid, incomplete=True)
+
+    check_valid = functools.partial(check_curry, incomplete=False)
+    test_is_valid(check_valid=check_valid, incomplete=False)
+    test_is_valid_py3(check_valid=check_valid, incomplete=False)
 
 
 def test_func_keyword():
