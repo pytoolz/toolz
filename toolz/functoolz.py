@@ -606,12 +606,12 @@ class _ExceptsDoc(object):
 
             return dedent(
                 """\
-                A wrapper around {inst.f.__name__!r} that will except:
+                A wrapper around {inst.func.__name__!r} that will except:
                 {exc}
                 and handle any exceptions with {inst.handler.__name__!r}.
 
-                Docs for {inst.f.__name__!r}:
-                {inst.f.__doc__}
+                Docs for {inst.func.__name__!r}:
+                {inst.func.__doc__}
 
                 Docs for {inst.handler.__name__!r}:
                 {inst.handler.__doc__}
@@ -656,14 +656,14 @@ class excepts(object):
     # an instance-specific docstring
     __doc__ = _ExceptsDoc(__doc__)
 
-    def __init__(self, exc, f, handler=return_none):
+    def __init__(self, exc, func, handler=return_none):
         self.exc = exc
-        self.f = f
+        self.func = func
         self.handler = handler
 
     def __call__(self, *args, **kwargs):
         try:
-            return self.f(*args, **kwargs)
+            return self.func(*args, **kwargs)
         except self.exc as e:
             return self.handler(e)
 
@@ -675,7 +675,7 @@ class excepts(object):
                 exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
             else:
                 exc_name = exc.__name__
-            return '%s_excepting_%s' % (self.f.__name__, exc_name)
+            return '%s_excepting_%s' % (self.func.__name__, exc_name)
         except AttributeError:
             return 'excepting'
 
