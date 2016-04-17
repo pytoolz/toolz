@@ -209,6 +209,8 @@ def test_is_valid_curry():
             curry(func, *args)(**kwargs)
             curry(func, **kwargs)(*args)
             curry(func, *args, **kwargs)()
+            if not isinstance(func, type(lambda: None)):
+                return None
             return incomplete
         except ValueError:
             return True
