@@ -652,7 +652,7 @@ if PY3:  # pragma: py2 no cover
             return None, builtin_func(*builtin_args)
         elif isinstance(sigspec, TypeError):
             return None, False
-        elif not isinstance(sigspec, inspect.Signature):
+        elif not isinstance(sigspec, inspect.Signature):  # pragma: no cover
             return None, False
         return sigspec, None
 
