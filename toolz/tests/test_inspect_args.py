@@ -316,8 +316,15 @@ def test_introspect_builtin_modules():
     mods = [builtins, functools, itertools, operator]
 
     blacklist = set()
-    if hasattr(builtins, 'basestring'):
-        blacklist.add(builtins.basestring)
+
+    def add_blacklist(mod, attr):
+        if hasattr(mod, attr):
+            blacklist.add(getattr(mod, attr))
+
+    add_blacklist(builtins, 'basestring')
+    add_blacklist(builtins, 'NoneType')
+    add_blacklist(builtins, '__metaclass__')
+    add_blacklist(builtins, 'sequenceiterator')
 
     def is_missing(modname, name, func):
         if name.startswith('_') and not name.startswith('__'):
