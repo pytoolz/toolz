@@ -223,6 +223,11 @@ module_info[builtins] = dict(
         lambda start, stop, step: None],
     zip=[
         lambda *iterables: None],
+    __build_class__=[
+        (2, lambda func, name, *bases, **kwds: None, ('metaclass',))],
+    __import__=[
+        (0, lambda name, globals=None, locals=None, fromlist=None,
+            level=None: None)],
 )
 module_info[builtins]['exec'] = [
     lambda source: None,
@@ -699,6 +704,14 @@ def check_valid(sig, args, kwargs):
         return False
 
 
+def _is_valid_args(func, args, kwargs):
+    """Like ``is_valid_args`` for builtins in our ``signatures`` registry."""
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    return any(check_valid(sig, args, kwargs) for sig in sigs)
+
+
 def check_partial(sig, args, kwargs):
     """Like ``is_partial_args`` for the given signature spec."""
     num_pos_only, func, keyword_exclude, sigspec = sig
@@ -709,18 +722,10 @@ def check_partial(sig, args, kwargs):
         kwargs = dict(kwargs)
         for item in keyword_exclude:
             kwargs.pop(item, None)
-    return is_partial_args(func, args, kwargs, sigspec=sigspec)
+    return is_partial_args(func, args, kwargs, sigspec)
 
 
-def is_builtin_valid_args(func, args, kwargs):
-    """Like ``is_valid_args`` for builtins in our ``signatures`` registry."""
-    if func not in signatures:
-        return None
-    sigs = signatures[func]
-    return any(check_valid(sig, args, kwargs) for sig in sigs)
-
-
-def is_builtin_partial_args(func, args, kwargs):
+def _is_partial_args(func, args, kwargs):
     """Like ``is_partial_args`` for builtins in our ``signatures`` registry."""
     if func not in signatures:
         return None
@@ -728,47 +733,76 @@ def is_builtin_partial_args(func, args, kwargs):
     return any(check_partial(sig, args, kwargs) for sig in sigs)
 
 
-if PY3:  # pragma: py2 no cover
-    def has_unknown_args(func, sigspec=None):
-        """Might ``func`` have ``*args`` that is passed to a wrapped function?
-
-        This is specifically to support ``curry``.
-
-        """
-        if func in signatures:
-            return False
-        if sigspec is None:
-            try:
-                sigspec = inspect.signature(func)
-            except (ValueError, TypeError) as e:
-                sigspec = e
-        if isinstance(sigspec, ValueError):
-            return True
-        elif isinstance(sigspec, TypeError):
-            return False
-        try:
-            return any(x.kind == x.VAR_POSITIONAL
-                       for x in sigspec.parameters.values())
-        except AttributeError:  # pragma: no cover
-            return False
-
-else:  # pragma: py3 no cover
-    def has_unknown_args(func, sigspec=None):
-        """Might ``func`` have ``*args`` that is passed to a wrapped function?
-
-        This is specifically to support ``curry``.
-
-        """
-        if func in signatures:
-            return False
-        if sigspec is None:
-            try:
-                sigspec = inspect.getargspec(func)
-            except TypeError as e:
-                sigspec = e
-        if isinstance(sigspec, TypeError):
-            return callable(func)
-        return sigspec.varargs is not None
+def check_arity(n, sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    if keyword_exclude or num_pos_only > n:
+        return False
+    return is_arity(n, func, sigspec)
 
 
-from .functoolz import is_partial_args
+def _is_arity(n, func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    checks = [check_arity(n, sig) for sig in sigs]
+    if all(checks):
+        return True
+    elif any(checks):
+        return None
+    return False
+
+
+def check_varargs(sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    return has_varargs(func, sigspec)
+
+
+def _has_varargs(func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    checks = [check_varargs(sig) for sig in sigs]
+    if all(checks):
+        return True
+    elif any(checks):  # pragma: py2 no cover
+        return None
+    return False
+
+
+def check_keywords(sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    if keyword_exclude:
+        return True
+    return has_keywords(func, sigspec)
+
+
+def _has_keywords(func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    checks = [check_keywords(sig) for sig in sigs]
+    if all(checks):
+        return True
+    elif any(checks):
+        return None
+    return False
+
+
+def check_required_args(sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    return num_required_args(func, sigspec)
+
+
+def _num_required_args(func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    vals = [check_required_args(sig) for sig in sigs]
+    val = vals[0]
+    if all(x == val for x in vals):
+        return val
+    return None
+
+
+from .functoolz import (is_partial_args, is_valid_args, is_arity,
+                        has_varargs, has_keywords, num_required_args)

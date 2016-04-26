@@ -1,12 +1,12 @@
 import functools
 import sys
-from toolz._signatures import (builtins, is_builtin_valid_args,
-                               is_builtin_partial_args)
+import toolz._signatures as _sigs
+from toolz._signatures import builtins, _is_valid_args, _is_partial_args
 from toolz.compatibility import PY3
 from toolz.utils import raises
 
 
-def test_is_valid(check_valid=is_builtin_valid_args, incomplete=False):
+def test_is_valid(check_valid=_is_valid_args, incomplete=False):
     orig_check_valid = check_valid
     check_valid = lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
 
@@ -77,5 +77,13 @@ def test_is_valid(check_valid=is_builtin_valid_args, incomplete=False):
 
 
 def test_is_partial():
-    test_is_valid(check_valid=is_builtin_partial_args, incomplete=True)
+    test_is_valid(check_valid=_is_partial_args, incomplete=True)
+
+
+def test_for_coverage():  # :)
+    assert _sigs._is_arity(1, 1) is None
+    assert _sigs._is_arity(1, all)
+    assert _sigs._has_varargs(None) is None
+    assert _sigs._has_keywords(None) is None
+    assert _sigs._num_required_args(None) is None
 

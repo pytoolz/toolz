@@ -200,12 +200,12 @@ class curry(object):
         if self.keywords:
             kwargs = dict(self.keywords, **kwargs)
         if self._sigspec is None:
-            sigspec = self._sigspec = _signature_or_spec(func)
-            self._has_unknown_args = _has_unknown_args(func, sigspec=sigspec)
+            sigspec = self._sigspec = _sigs.signature_or_spec(func)
+            self._has_unknown_args = has_varargs(func, sigspec) is not False
         else:
             sigspec = self._sigspec
 
-        if is_partial_args(func, args, kwargs, sigspec=sigspec) is False:
+        if is_partial_args(func, args, kwargs, sigspec) is False:
             # Nothing can make the call valid
             return False
         elif self._has_unknown_args:
@@ -213,7 +213,7 @@ class curry(object):
             # anyway because the function may have `*args`.  This is useful
             # for decorators with signature `func(*args, **kwargs)`.
             return True
-        elif not is_valid_args(func, args, kwargs, sigspec=sigspec):
+        elif not is_valid_args(func, args, kwargs, sigspec):
             # Adding more arguments may make the call valid
             return True
         else:
@@ -242,45 +242,6 @@ class curry(object):
         func, args, kwargs, userdict = state
         self.__init__(func, *args, **(kwargs or {}))
         self.__dict__.update(userdict)
-
-
-def has_kwargs(f):
-    """ Does a function have keyword arguments?
-
-    >>> def f(x, y=0):
-    ...     return x + y
-
-    >>> has_kwargs(f)
-    True
-    """
-    if sys.version_info[0] == 2:  # pragma: py3 no cover
-        spec = inspect.getargspec(f)
-        return bool(spec and (spec.keywords or spec.defaults))
-    if sys.version_info[0] == 3:  # pragma: py2 no cover
-        spec = inspect.getfullargspec(f)
-        return bool(spec.defaults)
-
-
-def isunary(f):
-    """ Does a function have only a single argument?
-
-    >>> def f(x):
-    ...     return x
-
-    >>> isunary(f)
-    True
-    >>> isunary(lambda x, y: x + y)
-    False
-    """
-    try:
-        if sys.version_info[0] == 2:  # pragma: py3 no cover
-            spec = inspect.getargspec(f)
-        if sys.version_info[0] == 3:  # pragma: py2 no cover
-            spec = inspect.getfullargspec(f)
-        return bool(spec and spec.varargs is None and not has_kwargs(f)
-                    and len(spec.args) == 1)
-    except TypeError:  # pragma: no cover
-        return None    # in Python < 3.4 builtins fail, return None
 
 
 @curry
@@ -324,9 +285,9 @@ def memoize(func, cache=None, key=None):
         cache = {}
 
     try:
-        may_have_kwargs = has_kwargs(func)
+        may_have_kwargs = has_keywords(func) is not False
         # Is unary function (single arg, no variadic argument or keywords)?
-        is_unary = isunary(func)
+        is_unary = is_arity(1, func)
     except TypeError:  # pragma: no cover
         may_have_kwargs = True
         is_unary = False
@@ -681,24 +642,22 @@ class excepts(object):
 
 
 if PY3:  # pragma: py2 no cover
-    def is_valid_args(func, args, kwargs, sigspec=None):
+    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
         if sigspec is None:
             try:
                 sigspec = inspect.signature(func)
             except (ValueError, TypeError) as e:
                 sigspec = e
         if isinstance(sigspec, ValueError):
-            return _is_builtin_valid_args(func, args, kwargs)
+            return None, builtin_func(*builtin_args)
         elif isinstance(sigspec, TypeError):
-            return False
-        try:
-            sigspec.bind(*args, **kwargs)
-        except (TypeError, AttributeError):
-            return False
-        return True
+            return None, False
+        elif not isinstance(sigspec, inspect.Signature):
+            return None, False
+        return sigspec, None
 
 else:  # pragma: py3 no cover
-    def is_valid_args(func, args, kwargs, sigspec=None):
+    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
         if sigspec is None:
             try:
                 sigspec = inspect.getargspec(func)
@@ -706,9 +665,98 @@ else:  # pragma: py3 no cover
                 sigspec = e
         if isinstance(sigspec, TypeError):
             if not callable(func):
-                return False
-            return _is_builtin_valid_args(func, args, kwargs)
+                return None, False
+            return None, builtin_func(*builtin_args)
+        return sigspec, None
 
+
+if PY34 or PYPY:  # pragma: no cover
+    _check_sigspec_orig = _check_sigspec
+
+    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
+        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
+        if func in _sigs.signatures:
+            val = builtin_func(*builtin_args)
+            return None, val
+        return _check_sigspec_orig(sigspec, func, builtin_func, *builtin_args)
+
+_check_sigspec.__doc__ = """ \
+
+"""
+
+if PY3:  # pragma: py2 no cover
+    def num_required_args(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
+                                     func)
+        if sigspec is None:
+            return rv
+        return sum(1 for p in sigspec.parameters.values()
+                   if p.default is p.empty and
+                   p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
+
+    def has_varargs(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
+        if sigspec is None:
+            return rv
+        return any(p.kind == p.VAR_POSITIONAL
+                   for p in sigspec.parameters.values())
+
+    def has_keywords(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
+        if sigspec is None:
+            return rv
+        return any(p.default is not p.empty
+                   or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD)
+                   for p in sigspec.parameters.values())
+
+    def is_valid_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
+                                     func, args, kwargs)
+        if sigspec is None:
+            return rv
+        try:
+            sigspec.bind(*args, **kwargs)
+        except TypeError:
+            return False
+        return True
+
+    def is_partial_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
+                                     func, args, kwargs)
+        if sigspec is None:
+            return rv
+        try:
+            sigspec.bind_partial(*args, **kwargs)
+        except TypeError:
+            return False
+        return True
+
+else:  # pragma: py3 no cover
+    def num_required_args(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
+                                     func)
+        if sigspec is None:
+            return rv
+        num_defaults = len(sigspec.defaults) if sigspec.defaults else 0
+        return len(sigspec.args) - num_defaults
+
+    def has_varargs(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
+        if sigspec is None:
+            return rv
+        return sigspec.varargs is not None
+
+    def has_keywords(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
+        if sigspec is None:
+            return rv
+        return sigspec.defaults is not None or sigspec.keywords is not None
+
+    def is_valid_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
+                                     func, args, kwargs)
+        if sigspec is None:
+            return rv
         spec = sigspec
         defaults = spec.defaults or ()
         num_pos = len(spec.args) - len(defaults)
@@ -739,70 +787,11 @@ else:  # pragma: py3 no cover
         else:
             return True
 
-if PY34 or PYPY:  # pragma: no cover
-    _is_valid_args = is_valid_args
-
-    def is_valid_args(func, args, kwargs, sigspec=None):
-        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
-        val = _is_builtin_valid_args(func, args, kwargs)
-        if val is not None:
-            return val
-        return _is_valid_args(func, args, kwargs, sigspec=sigspec)
-
-
-is_valid_args.__doc__ = """ \
-Is ``func(*args, **kwargs)`` a valid function call?
-
-    This function relies on introspection and does not call the function.
-    Returns None if validity can't be determined.
-
-    >>> def add(x, y):
-    ...     return x + y
-
-    >>> is_valid_args(add, (1,), {})
-    False
-    >>> is_valid_args(add, (1, 2), {})
-    True
-    >>> is_valid_args(map, (), {})
-    False
-
-    **Implementation notes**
-    Python 2 relies on ``inspect.getargspec``, which only works for
-    user-defined functions.  Python 3 uses ``inspect.signature``, which
-    works for many more types of callables.
-
-    Many builtins in the standard library are also supported.
-    """
-
-if PY3:  # pragma: py2 no cover
     def is_partial_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
+                                     func, args, kwargs)
         if sigspec is None:
-            try:
-                sigspec = inspect.signature(func)
-            except (ValueError, TypeError) as e:
-                sigspec = e
-        if isinstance(sigspec, ValueError):
-            return _is_builtin_partial_args(func, args, kwargs)
-        elif isinstance(sigspec, TypeError):
-            return False
-        try:
-            sigspec.bind_partial(*args, **kwargs)
-        except (TypeError, AttributeError):
-            return False
-        return True
-
-else:  # pragma: py3 no cover
-    def is_partial_args(func, args, kwargs, sigspec=None):
-        if sigspec is None:
-            try:
-                sigspec = inspect.getargspec(func)
-            except TypeError as e:
-                sigspec = e
-        if isinstance(sigspec, TypeError):
-            if not callable(func):
-                return False
-            return _is_builtin_partial_args(func, args, kwargs)
-
+            return rv
         spec = sigspec
         defaults = spec.defaults or ()
         num_pos = len(spec.args) - len(defaults)
@@ -834,16 +823,79 @@ else:  # pragma: py3 no cover
             return True
 
 
-if PY34 or PYPY:  # pragma: no cover
-    _is_partial_args = is_partial_args
+def is_arity(n, func, sigspec=None):
+    """ Does a function have only n positional arguments?
 
-    def is_partial_args(func, args, kwargs, sigspec=None):
-        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
-        val = _is_builtin_partial_args(func, args, kwargs)
-        if val is not None:
-            return val
-        return _is_partial_args(func, args, kwargs, sigspec=sigspec)
+    Returns None if validity can't be determined.
 
+    >>> def f(x):
+    ...     return x
+
+    >>> is_arity(1, f)
+    True
+    >>> is_arity(1, lambda x, y=0: x + y)
+    False
+    """
+    sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_arity, n, func)
+    if sigspec is None:
+        return rv
+    num = num_required_args(func, sigspec)
+    if num is not None:
+        num = num == n
+        if not num:
+            return False
+    varargs = has_varargs(func, sigspec)
+    if varargs:
+        return False
+    keywords = has_keywords(func, sigspec)
+    if keywords:
+        return False
+    if num is None or varargs is None or keywords is None:  # pragma: no cover
+        return None
+    return True
+
+
+num_required_args.__doc__ = """ \
+
+    """
+
+has_varargs.__doc__ = """ \
+
+    """
+
+has_keywords.__doc__ = """ \
+Does a function have keyword arguments?
+
+    >>> def f(x, y=0):
+    ...     return x + y
+
+    >>> has_keywords(f)
+    True
+    """
+
+is_valid_args.__doc__ = """ \
+Is ``func(*args, **kwargs)`` a valid function call?
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def add(x, y):
+    ...     return x + y
+
+    >>> is_valid_args(add, (1,), {})
+    False
+    >>> is_valid_args(add, (1, 2), {})
+    True
+    >>> is_valid_args(map, (), {})
+    False
+
+    **Implementation notes**
+    Python 2 relies on ``inspect.getargspec``, which only works for
+    user-defined functions.  Python 3 uses ``inspect.signature``, which
+    works for many more types of callables.
+
+    Many builtins in the standard library are also supported.
+    """
 
 is_partial_args.__doc__ = """ \
 Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
@@ -874,7 +926,4 @@ Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
     Many builtins in the standard library are also supported.
     """
 
-from ._signatures import (is_builtin_valid_args as _is_builtin_valid_args,
-                          is_builtin_partial_args as _is_builtin_partial_args,
-                          has_unknown_args as _has_unknown_args,
-                          signature_or_spec as _signature_or_spec)
+from . import _signatures as _sigs

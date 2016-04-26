@@ -1,7 +1,10 @@
 import functools
+import itertools
+import operator
 import sys
-from toolz.functoolz import curry, is_valid_args, is_partial_args
-from toolz._signatures import has_unknown_args
+from toolz.functoolz import (curry, is_valid_args, is_partial_args, is_arity,
+                             num_required_args, has_varargs, has_keywords)
+from toolz._signatures import builtins
 from toolz.compatibility import PY3
 from toolz.utils import raises
 
@@ -240,20 +243,20 @@ def test_func_keyword():
 
 
 def test_has_unknown_args():
-    assert has_unknown_args(1) is False
-    assert has_unknown_args(map) is False
-    assert has_unknown_args(make_func('')) is False
-    assert has_unknown_args(make_func('x, y, z')) is False
-    assert has_unknown_args(make_func('*args'))
-    assert has_unknown_args(make_func('**kwargs')) is False
-    assert has_unknown_args(make_func('x, y, *args, **kwargs'))
-    assert has_unknown_args(make_func('x, y, z=1')) is False
-    assert has_unknown_args(make_func('x, y, z=1, **kwargs')) is False
+    assert has_varargs(1) is False
+    assert has_varargs(map)
+    assert has_varargs(make_func('')) is False
+    assert has_varargs(make_func('x, y, z')) is False
+    assert has_varargs(make_func('*args'))
+    assert has_varargs(make_func('**kwargs')) is False
+    assert has_varargs(make_func('x, y, *args, **kwargs'))
+    assert has_varargs(make_func('x, y, z=1')) is False
+    assert has_varargs(make_func('x, y, z=1, **kwargs')) is False
 
     if PY3:
         f = make_func('*args')
         f.__signature__ = 34
-        assert has_unknown_args(f) is False
+        assert has_varargs(f) is False
 
         class RaisesValueError(object):
             def __call__(self):
@@ -263,5 +266,84 @@ def test_has_unknown_args():
                 raise ValueError('Testing Python 3.4')
 
         f = RaisesValueError()
-        assert has_unknown_args(f)
+        assert has_varargs(f) is None
+
+
+def test_num_required_args():
+    assert num_required_args(lambda: None) == 0
+    assert num_required_args(lambda x: None) == 1
+    assert num_required_args(lambda x, *args: None) == 1
+    assert num_required_args(lambda x, **kwargs: None) == 1
+    assert num_required_args(lambda x, y, *args, **kwargs: None) == 2
+    assert num_required_args(map) == 2
+    assert num_required_args(dict) is None
+
+
+def test_has_keywords():
+    assert has_keywords(lambda: None) is False
+    assert has_keywords(lambda x: None) is False
+    assert has_keywords(lambda x=1: None)
+    assert has_keywords(lambda **kwargs: None)
+    assert has_keywords(int)
+    assert has_keywords(sorted)
+    assert has_keywords(max)
+    assert has_keywords(map) is False
+    assert has_keywords(bytearray) is None
+
+
+def test_has_varargs():
+    assert has_varargs(lambda: None) is False
+    assert has_varargs(lambda *args: None)
+    assert has_varargs(lambda **kwargs: None) is False
+    assert has_varargs(map)
+    if PY3:
+        assert has_varargs(max) is None
+
+
+def test_is_arity():
+    assert is_arity(0, lambda: None)
+    assert is_arity(1, lambda: None) is False
+    assert is_arity(1, lambda x: None)
+    assert is_arity(3, lambda x, y, z: None)
+    assert is_arity(1, lambda x, *args: None) is False
+    assert is_arity(1, lambda x, **kwargs: None) is False
+    assert is_arity(1, all)
+    assert is_arity(2, map) is False
+    assert is_arity(2, range) is None
+
+
+def test_introspect_builtin_modules():
+    mods = [builtins, functools, itertools, operator]
+
+    blacklist = set()
+    if hasattr(builtins, 'basestring'):
+        blacklist.add(builtins.basestring)
+
+    def is_missing(modname, name, func):
+        if name.startswith('_') and not name.startswith('__'):
+            return False
+        try:
+            if issubclass(func, BaseException):
+                return False
+        except TypeError:
+            pass
+        return (callable(func) and modname in func.__module__
+                and is_partial_args(func, (), {}) is None
+                and func not in blacklist)
+
+    missing = {}
+    for mod in mods:
+        modname = mod.__name__
+        for name, func in vars(mod).items():
+            if is_missing(modname, name, func):
+                if modname not in missing:
+                    missing[modname] = []
+                missing[modname].append(name)
+    if missing:
+        messages = []
+        for modname, names in sorted(missing.items()):
+            msg = '{}\n    {}'.format(modname, '\n    '.join(sorted(names)))
+            messages.append(msg)
+        message = 'Missing introspection for the following builtins:\n\n'
+        raise AssertionError(message + '\n'.join(messages))
 
