@@ -6,6 +6,8 @@ from textwrap import dedent
 import sys
 
 from .compatibility import PY3, PY34, PYPY
+from .utils import no_default
+
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
@@ -93,6 +95,57 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 
+def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
+    """Like @property, but returns ``classval`` when used as a class attribute.
+
+    >>> class MyClass(object):
+    ...     '''The class docstring'''
+    ...     @instanceproperty(classval=__doc__)
+    ...     def __doc__(self):
+    ...         return 'An object docstring'
+    ...     @instanceproperty
+    ...     def val(self):
+    ...         return 42
+    ...
+    >>> MyClass.__doc__
+    'The class docstring'
+    >>> MyClass.val is None
+    True
+    >>> obj = MyClass()
+    >>> obj.__doc__
+    'An object docstring'
+    >>> obj.val
+    42
+
+    """
+    if fget is None:
+        return partial(instanceproperty, fset=fset, fdel=fdel, doc=doc,
+                       classval=classval)
+    return InstanceProperty(fget=fget, fset=fset, fdel=fdel, doc=doc,
+                            classval=classval)
+
+
+class InstanceProperty(property):
+    """Like @property, but returns ``classval`` when used as a class attribute.
+
+    Should not be used directly.  Use ``instanceproperty`` instead.
+
+    """
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None,
+                 classval=None):
+        self.classval = classval
+        property.__init__(self, fget=fget, fset=fset, fdel=fdel, doc=doc)
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self.classval
+        return property.__get__(self, obj, type)
+
+    def __reduce__(self):
+        state = (self.fget, self.fset, self.fdel, self.__doc__, self.classval)
+        return InstanceProperty, state
+
+
 class curry(object):
     """ Curry a callable function
 
@@ -150,21 +203,40 @@ class curry(object):
         self.__name__ = getattr(func, '__name__', '<curry>')
         self._sigspec = None
         self._has_unknown_args = None
+        # self.__wrapped__ = self.func
 
-    @property
+    @instanceproperty
     def func(self):
         return self._partial.func
-    __wrapped__ = func
 
-    @property
+    __wrapped__ = func  # XXX: doesn't work in PY33
+
+    if PY3:  # pragma: py2 no cover
+        @instanceproperty
+        def __signature__(self):
+            sig = inspect.signature(self._partial)  # XXX: doesn't work in PY33
+
+            def make_optional(p):
+                if (
+                    p.default is not p.empty
+                    or p.kind == p.VAR_KEYWORD
+                    or p.kind == p.VAR_POSITIONAL
+                ):
+                    return p
+                return p.replace(default=no_default)
+
+            params = [make_optional(p) for p in sig.parameters.values()]
+            return sig.replace(parameters=params)
+
+    @instanceproperty
     def args(self):
         return self._partial.args
 
-    @property
+    @instanceproperty
     def keywords(self):
         return self._partial.keywords
 
-    @property
+    @instanceproperty
     def func_name(self):
         return self.__name__
 
@@ -350,7 +422,7 @@ class Compose(object):
     def __setstate__(self, state):
         self.first, self.funcs = state
 
-    @property
+    @instanceproperty(classval=__doc__)
     def __doc__(self):
         def composed_doc(*fs):
             """Generate a docstring for the composition of fs.
@@ -539,52 +611,6 @@ def return_none(exc):
     return None
 
 
-class _ExceptsDoc(object):
-    """A descriptor that allows us to get the docstring for both the
-    `excepts` class and generate a custom docstring for the instances of
-    excepts.
-
-    Parameters
-    ----------
-    class_doc : str
-        The docstring for the excepts class.
-    """
-    def __init__(self, class_doc):
-        self._class_doc = class_doc
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self._class_doc
-
-        exc = instance.exc
-        try:
-            if isinstance(exc, tuple):
-                exc_name = '(%s)' % ', '.join(
-                    map(attrgetter('__name__'), exc),
-                )
-            else:
-                exc_name = exc.__name__
-
-            return dedent(
-                """\
-                A wrapper around {inst.func.__name__!r} that will except:
-                {exc}
-                and handle any exceptions with {inst.handler.__name__!r}.
-
-                Docs for {inst.func.__name__!r}:
-                {inst.func.__doc__}
-
-                Docs for {inst.handler.__name__!r}:
-                {inst.handler.__doc__}
-                """
-            ).format(
-                inst=instance,
-                exc=exc_name,
-            )
-        except AttributeError:
-            return self._class_doc
-
-
 class excepts(object):
     """A wrapper around a function to catch exceptions and
     dispatch to a handler.
@@ -613,10 +639,6 @@ class excepts(object):
     >>> excepting({0: 1})
     1
     """
-    # override the docstring above with a descritor that can return
-    # an instance-specific docstring
-    __doc__ = _ExceptsDoc(__doc__)
-
     def __init__(self, exc, func, handler=return_none):
         self.exc = exc
         self.func = func
@@ -627,6 +649,36 @@ class excepts(object):
             return self.func(*args, **kwargs)
         except self.exc as e:
             return self.handler(e)
+
+    @instanceproperty(classval=__doc__)
+    def __doc__(self):
+        exc = self.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '(%s)' % ', '.join(
+                    map(attrgetter('__name__'), exc),
+                )
+            else:
+                exc_name = exc.__name__
+
+            return dedent(
+                """\
+                A wrapper around {inst.func.__name__!r} that will except:
+                {exc}
+                and handle any exceptions with {inst.handler.__name__!r}.
+
+                Docs for {inst.func.__name__!r}:
+                {inst.func.__doc__}
+
+                Docs for {inst.handler.__name__!r}:
+                {inst.handler.__doc__}
+                """
+            ).format(
+                inst=self,
+                exc=exc_name,
+            )
+        except AttributeError:
+            return type(self).__doc__
 
     @property
     def __name__(self):

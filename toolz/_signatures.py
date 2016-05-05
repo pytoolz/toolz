@@ -20,6 +20,8 @@ import operator
 import sys
 
 from .compatibility import PY3
+from .functoolz import (is_partial_args, is_arity, has_varargs,
+                        has_keywords, num_required_args)
 
 if PY3:  # pragma: py2 no cover
     import builtins
@@ -598,6 +600,27 @@ module_info[operator] = dict(
         lambda a, b: None],
 )
 
+module_info['toolz'] = dict(
+    curry=[
+        (0, lambda *args, **kwargs: None)],
+    excepts=[
+        (0, lambda exc, func, handler=None: None)],
+    flip=[
+        (0, lambda func=None, a=None, b=None: None)],
+    juxt=[
+        (0, lambda *funcs: None)],
+    memoize=[
+        (0, lambda func=None, cache=None, key=None: None)],
+)
+
+module_info['toolz.functoolz'] = dict(
+    Compose=[
+        (0, lambda funcs: None)],
+    InstanceProperty=[
+        (0, lambda fget=None, fset=None, fdel=None, doc=None,
+            classval=None: None)],
+)
+
 if PY3:  # pragma: py2 no cover
     def num_pos_args(func, sigspec):
         """Return the number of positional arguments.  ``f(x, y=1)`` has 1."""
@@ -681,11 +704,19 @@ def expand_sig(sig):
 
 
 signatures = {}
-for module, info in module_info.items():
-    for name, sigs in info.items():
-        if hasattr(module, name):
-            new_sigs = tuple(expand_sig(sig) for sig in sigs)
-            signatures[getattr(module, name)] = new_sigs
+
+
+def create_signature_registry(module_info=module_info, signatures=signatures):
+    for module, info in module_info.items():
+        if isinstance(module, str):
+            modnames = module.split('.')
+            module = __import__(module)
+            for attr in modnames[1:]:
+                module = getattr(module, attr)
+        for name, sigs in info.items():
+            if hasattr(module, name):
+                new_sigs = tuple(expand_sig(sig) for sig in sigs)
+                signatures[getattr(module, name)] = new_sigs
 
 
 def check_valid(sig, args, kwargs):
@@ -802,7 +833,3 @@ def _num_required_args(func):
     if all(x == val for x in vals):
         return val
     return None
-
-
-from .functoolz import (is_partial_args, is_valid_args, is_arity,
-                        has_varargs, has_keywords, num_required_args)
