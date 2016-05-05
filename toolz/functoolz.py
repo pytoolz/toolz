@@ -5,7 +5,7 @@ from operator import attrgetter
 from textwrap import dedent
 import sys
 
-from .compatibility import PY3, PY34, PYPY
+from .compatibility import PY3, PY33, PY34, PYPY
 from .utils import no_default
 
 
@@ -203,18 +203,15 @@ class curry(object):
         self.__name__ = getattr(func, '__name__', '<curry>')
         self._sigspec = None
         self._has_unknown_args = None
-        # self.__wrapped__ = self.func
 
     @instanceproperty
     def func(self):
         return self._partial.func
 
-    __wrapped__ = func  # XXX: doesn't work in PY33
-
-    if PY3:  # pragma: py2 no cover
+    if PY3 and not PY33:  # pragma: no cover
         @instanceproperty
         def __signature__(self):
-            sig = inspect.signature(self._partial)  # XXX: doesn't work in PY33
+            sig = inspect.signature(self._partial)
 
             def make_optional(p):
                 if (

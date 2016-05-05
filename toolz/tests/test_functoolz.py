@@ -425,17 +425,6 @@ def test_memoize_on_classmethods():
     assert A.addstatic(3, 4) == 7
 
 
-def test_curry_wrapped():
-
-    def foo(a):
-        """
-        Docstring
-        """
-        pass
-    curried_foo = curry(foo)
-    assert curried_foo.__wrapped__ is foo
-
-
 def test_curry_call():
     @curry
     def add(x, y):

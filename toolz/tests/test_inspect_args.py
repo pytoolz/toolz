@@ -6,7 +6,7 @@ import toolz
 from toolz.functoolz import (curry, is_valid_args, is_partial_args, is_arity,
                              num_required_args, has_varargs, has_keywords)
 from toolz._signatures import builtins
-from toolz.compatibility import PY3
+from toolz.compatibility import PY3, PY33
 from toolz.utils import raises
 
 
@@ -314,7 +314,7 @@ def test_is_arity():
 
 
 def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete=False):
-    if not PY3:
+    if not PY3 or PY33:
         return
     orig_check_valid = check_valid
     check_valid = lambda _func, *args, **kwargs: orig_check_valid(_func, args, kwargs)
@@ -344,7 +344,7 @@ def test_introspect_curry_partial_py3():
 
 
 def test_introspect_curry_py3():
-    if not PY3:
+    if not PY3 or PY33:
         return
     f = toolz.curry(make_func(''))
     assert num_required_args(f) == 0
