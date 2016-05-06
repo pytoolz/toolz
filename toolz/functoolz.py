@@ -1,11 +1,10 @@
-from functools import reduce, partial, wraps
+from functools import reduce, partial
 import inspect
 import operator
 from operator import attrgetter
 from textwrap import dedent
-import sys
 
-from .compatibility import PY3, PY33, PY34, PYPY
+from .compatibility import PY3, PY34, PYPY
 from .utils import no_default
 
 
@@ -96,7 +95,7 @@ def thread_last(val, *forms):
 
 
 def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
-    """Like @property, but returns ``classval`` when used as a class attribute.
+    """ Like @property, but returns ``classval`` when used as a class attribute
 
     >>> class MyClass(object):
     ...     '''The class docstring'''
@@ -116,7 +115,6 @@ def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
     'An object docstring'
     >>> obj.val
     42
-
     """
     if fget is None:
         return partial(instanceproperty, fset=fset, fdel=fdel, doc=doc,
@@ -126,10 +124,9 @@ def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
 
 
 class InstanceProperty(property):
-    """Like @property, but returns ``classval`` when used as a class attribute.
+    """ Like @property, but returns ``classval`` when used as a class attribute
 
     Should not be used directly.  Use ``instanceproperty`` instead.
-
     """
     def __init__(self, fget=None, fset=None, fdel=None, doc=None,
                  classval=None):
@@ -182,10 +179,12 @@ class curry(object):
             raise TypeError("Input must be callable")
 
         # curry- or functools.partial-like object?  Unpack and merge arguments
-        if (hasattr(func, 'func')
-                and hasattr(func, 'args')
-                and hasattr(func, 'keywords')
-                and isinstance(func.args, tuple)):
+        if (
+            hasattr(func, 'func')
+            and hasattr(func, 'args')
+            and hasattr(func, 'keywords')
+            and isinstance(func.args, tuple)
+        ):
             _kwargs = {}
             if func.keywords:
                 _kwargs.update(func.keywords)
@@ -208,22 +207,47 @@ class curry(object):
     def func(self):
         return self._partial.func
 
-    if PY3 and not PY33:  # pragma: no cover
+    if PY3:  # pragma: py2 no cover
         @instanceproperty
         def __signature__(self):
-            sig = inspect.signature(self._partial)
+            sig = inspect.signature(self.func)
+            args = self.args or ()
+            keywords = self.keywords or {}
+            # print(self.func, args, keywords, is_partial_args(self.func,
+            #       args, keywords, sig))
+            if is_partial_args(self.func, args, keywords, sig) is False:
+                raise TypeError('curry object has incorrect arguments')
 
-            def make_optional(p):
-                if (
-                    p.default is not p.empty
-                    or p.kind == p.VAR_KEYWORD
-                    or p.kind == p.VAR_POSITIONAL
-                ):
-                    return p
-                return p.replace(default=no_default)
+            params = list(sig.parameters.items())
+            index = 0
+            for arg in args:
+                name, param = params[index]
+                if param.kind == param.VAR_POSITIONAL:
+                    break
+                index += 1
 
-            params = [make_optional(p) for p in sig.parameters.values()]
-            return sig.replace(parameters=params)
+            kwonly = False
+            newparams = []
+            for index, (name, param) in enumerate(params[index:]):
+                kind = param.kind
+                default = param.default
+                if kind == param.VAR_KEYWORD:
+                    pass
+                elif kind == param.VAR_POSITIONAL:
+                    if kwonly:
+                        continue
+                elif name in keywords:
+                    default = keywords[name]
+                    kind = param.KEYWORD_ONLY
+                    kwonly = True
+                else:
+                    if kwonly:
+                        kind = param.KEYWORD_ONLY
+                    if param.default is param.empty:
+                        default = no_default
+                newparams.append(param.replace(default=default, kind=kind))
+
+            return sig.replace(parameters=newparams)
 
     @instanceproperty
     def args(self):
@@ -515,8 +539,7 @@ def complement(func):
 
 
 class juxt(object):
-    """
-    Creates a function that calls several functions with the same arguments.
+    """ Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
     to each of those functions then returns a tuple of the results.
@@ -569,7 +592,6 @@ def do(func, x):
     12
     >>> log
     [1, 11]
-
     """
     func(x)
     return x
@@ -577,7 +599,7 @@ def do(func, x):
 
 @curry
 def flip(func, a, b):
-    """Call the function call with the arguments flipped.
+    """ Call the function call with the arguments flipped
 
     This function is curried.
 
@@ -603,7 +625,7 @@ def flip(func, a, b):
 
 
 def return_none(exc):
-    """Returns None.
+    """ Returns None.
     """
     return None
 
@@ -730,7 +752,10 @@ if PY34 or PYPY:  # pragma: no cover
         return _check_sigspec_orig(sigspec, func, builtin_func, *builtin_args)
 
 _check_sigspec.__doc__ = """ \
+Private function to aid in introspection compatibly across Python versions.
 
+If a callable doesn't have a signature (Python 3) or an argspec (Python 2),
+our signature registry in toolz._signatures is used.
 """
 
 if PY3:  # pragma: py2 no cover
@@ -740,8 +765,8 @@ if PY3:  # pragma: py2 no cover
         if sigspec is None:
             return rv
         return sum(1 for p in sigspec.parameters.values()
-                   if p.default is p.empty and
-                   p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
+                   if p.default is p.empty
+                   and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
 
     def has_varargs(func, sigspec=None):
         sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
@@ -828,9 +853,9 @@ else:  # pragma: py3 no cover
         args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
 
         if (
-            not spec.keywords and kwargs or
-            not spec.varargs and len(args) > len(spec.args) or
-            set(spec.args[:len(args)]) & set(kwargs)
+            not spec.keywords and kwargs
+            or not spec.varargs and len(args) > len(spec.args)
+            or set(spec.args[:len(args)]) & set(kwargs)
         ):
             return False
         else:
@@ -863,9 +888,9 @@ else:  # pragma: py3 no cover
         args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
 
         if (
-            not spec.keywords and kwargs or
-            not spec.varargs and len(args) > len(spec.args) or
-            set(spec.args[:len(args)]) & set(kwargs)
+            not spec.keywords and kwargs
+            or not spec.varargs and len(args) > len(spec.args)
+            or set(spec.args[:len(args)]) & set(kwargs)
         ):
             return False
         else:
@@ -875,14 +900,16 @@ else:  # pragma: py3 no cover
 def is_arity(n, func, sigspec=None):
     """ Does a function have only n positional arguments?
 
+    This function relies on introspection and does not call the function.
     Returns None if validity can't be determined.
 
     >>> def f(x):
     ...     return x
-
     >>> is_arity(1, f)
     True
-    >>> is_arity(1, lambda x, y=0: x + y)
+    >>> def g(x, y=1):
+    ...     return x + y
+    >>> is_arity(1, g)
     False
     """
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_arity, n, func)
@@ -905,15 +932,42 @@ def is_arity(n, func, sigspec=None):
 
 
 num_required_args.__doc__ = """ \
+Number of required positional arguments
 
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def f(x, y, z=3):
+    ...     return x + y + z
+    >>> num_required_args(f)
+    2
+    >>> def g(*args, **kwargs):
+    ...     pass
+    >>> num_required_args(g)
+    0
     """
 
 has_varargs.__doc__ = """ \
+Does a function have variadic positional arguments?
 
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def f(*args):
+    ...    return args
+    >>> has_varargs(f)
+    True
+    >>> def g(**kwargs):
+    ...    return kwargs
+    >>> has_varargs(g)
+    False
     """
 
 has_keywords.__doc__ = """ \
 Does a function have keyword arguments?
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
 
     >>> def f(x, y=0):
     ...     return x + y

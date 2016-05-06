@@ -23,8 +23,6 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
-import inspect
-
 from . import exceptions
 from . import operator
 import toolz

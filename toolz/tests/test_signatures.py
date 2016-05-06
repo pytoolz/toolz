@@ -1,9 +1,7 @@
 import functools
-import sys
 import toolz._signatures as _sigs
 from toolz._signatures import builtins, _is_valid_args, _is_partial_args
 from toolz.compatibility import PY3
-from toolz.utils import raises
 
 
 def test_is_valid(check_valid=_is_valid_args, incomplete=False):

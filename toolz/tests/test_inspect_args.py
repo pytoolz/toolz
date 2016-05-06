@@ -1,12 +1,11 @@
 import functools
 import itertools
 import operator
-import sys
 import toolz
 from toolz.functoolz import (curry, is_valid_args, is_partial_args, is_arity,
                              num_required_args, has_varargs, has_keywords)
 from toolz._signatures import builtins
-from toolz.compatibility import PY3, PY33
+from toolz.compatibility import PY3
 from toolz.utils import raises
 
 
@@ -314,7 +313,7 @@ def test_is_arity():
 
 
 def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete=False):
-    if not PY3 or PY33:
+    if not PY3:
         return
     orig_check_valid = check_valid
     check_valid = lambda _func, *args, **kwargs: orig_check_valid(_func, args, kwargs)
@@ -338,13 +337,29 @@ def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete=False)
     assert check_valid(f(y=2), 1, z=3)
     assert check_valid(f(y=2), 1, 3) is False
 
+    f = toolz.curry(make_func('x, y, z=0'), 1, x=1)
+    assert check_valid(f) is False
+    assert check_valid(f, z=3) is False
+
+    f = toolz.curry(make_func('x, y, *args, z'))
+    assert check_valid(f)
+    assert check_valid(f, 0)
+    assert check_valid(f(1), 0)
+    assert check_valid(f(1, 2), 0)
+    assert check_valid(f(1, 2, 3), 0)
+    assert check_valid(f(1, 2, 3, 4), 0)
+    assert check_valid(f(1, 2, 3, 4), z=4)
+    assert check_valid(f(x=1))
+    assert check_valid(f(x=1), 1) is False
+    assert check_valid(f(x=1), y=2)
+
 
 def test_introspect_curry_partial_py3():
     test_introspect_curry_valid_py3(check_valid=is_partial_args, incomplete=True)
 
 
 def test_introspect_curry_py3():
-    if not PY3 or PY33:
+    if not PY3:
         return
     f = toolz.curry(make_func(''))
     assert num_required_args(f) == 0

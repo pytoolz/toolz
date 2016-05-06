@@ -11,13 +11,11 @@ modules.  More can be added as requested.  We don't guarantee full coverage.
 
 Everything in this module should be regarded as implementation details.
 Users should try to not use this module directly.
-
 """
 import functools
 import inspect
 import itertools
 import operator
-import sys
 
 from .compatibility import PY3
 from .functoolz import (is_partial_args, is_arity, has_varargs,
@@ -622,14 +620,14 @@ module_info['toolz.functoolz'] = dict(
 )
 
 if PY3:  # pragma: py2 no cover
-    def num_pos_args(func, sigspec):
-        """Return the number of positional arguments.  ``f(x, y=1)`` has 1."""
+    def num_pos_args(sigspec):
+        """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
         return sum(1 for x in sigspec.parameters.values()
-                   if x.kind == x.POSITIONAL_OR_KEYWORD and
-                   x.default is x.empty)
+                   if x.kind == x.POSITIONAL_OR_KEYWORD
+                   and x.default is x.empty)
 
-    def get_exclude_keywords(func, num_pos_only, sigspec):
-        """Return the names of position-only arguments if func has **kwargs"""
+    def get_exclude_keywords(num_pos_only, sigspec):
+        """ Return the names of position-only arguments if func has **kwargs"""
         if num_pos_only == 0:
             return ()
         has_kwargs = any(x.kind == x.VAR_KEYWORD
@@ -646,14 +644,14 @@ if PY3:  # pragma: py2 no cover
             return e
 
 else:  # pragma: py3 no cover
-    def num_pos_args(func, sigspec):
-        """Return the number of positional arguments.  ``f(x, y=1)`` has 1."""
+    def num_pos_args(sigspec):
+        """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
         if sigspec.defaults:
             return len(sigspec.args) - len(sigspec.defaults)
         return len(sigspec.args)
 
-    def get_exclude_keywords(func, num_pos_only, sigspec):
-        """Return the names of position-only arguments if func has **kwargs"""
+    def get_exclude_keywords(num_pos_only, sigspec):
+        """ Return the names of position-only arguments if func has **kwargs"""
         if num_pos_only == 0:
             return ()
         has_kwargs = sigspec.keywords is not None
@@ -669,7 +667,7 @@ else:  # pragma: py3 no cover
 
 
 def expand_sig(sig):
-    """Convert the signature spec in ``module_info`` to add to ``signatures``.
+    """ Convert the signature spec in ``module_info`` to add to ``signatures``
 
     The input signature spec is one of:
         - ``lambda_func``
@@ -684,7 +682,6 @@ def expand_sig(sig):
     included to support builtins such as ``partial(func, *args, **kwargs)``,
     which allows ``func=`` to be used as a keyword even though it's the name
     of a positional argument.
-
     """
     if isinstance(sig, tuple):
         if len(sig) == 3:
@@ -697,9 +694,9 @@ def expand_sig(sig):
     else:
         func = sig
         sigspec = signature_or_spec(func)
-        num_pos_only = num_pos_args(func, sigspec)
+        num_pos_only = num_pos_args(sigspec)
         keyword_only = ()
-    keyword_exclude = get_exclude_keywords(func, num_pos_only, sigspec)
+    keyword_exclude = get_exclude_keywords(num_pos_only, sigspec)
     return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
 
 
@@ -720,7 +717,7 @@ def create_signature_registry(module_info=module_info, signatures=signatures):
 
 
 def check_valid(sig, args, kwargs):
-    """Like ``is_valid_args`` for the given signature spec."""
+    """ Like ``is_valid_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         return False
@@ -736,7 +733,7 @@ def check_valid(sig, args, kwargs):
 
 
 def _is_valid_args(func, args, kwargs):
-    """Like ``is_valid_args`` for builtins in our ``signatures`` registry."""
+    """ Like ``is_valid_args`` for builtins in our ``signatures`` registry"""
     if func not in signatures:
         return None
     sigs = signatures[func]
@@ -744,7 +741,7 @@ def _is_valid_args(func, args, kwargs):
 
 
 def check_partial(sig, args, kwargs):
-    """Like ``is_partial_args`` for the given signature spec."""
+    """ Like ``is_partial_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         pad = (None,) * (num_pos_only - len(args))
@@ -757,7 +754,7 @@ def check_partial(sig, args, kwargs):
 
 
 def _is_partial_args(func, args, kwargs):
-    """Like ``is_partial_args`` for builtins in our ``signatures`` registry."""
+    """ Like ``is_partial_args`` for builtins in our ``signatures`` registry"""
     if func not in signatures:
         return None
     sigs = signatures[func]
