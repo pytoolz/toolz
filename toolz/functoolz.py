@@ -213,8 +213,6 @@ class curry(object):
             sig = inspect.signature(self.func)
             args = self.args or ()
             keywords = self.keywords or {}
-            # print(self.func, args, keywords, is_partial_args(self.func,
-            #       args, keywords, sig))
             if is_partial_args(self.func, args, keywords, sig) is False:
                 raise TypeError('curry object has incorrect arguments')
 
