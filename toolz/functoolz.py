@@ -216,17 +216,16 @@ class curry(object):
             if is_partial_args(self.func, args, keywords, sig) is False:
                 raise TypeError('curry object has incorrect arguments')
 
-            params = list(sig.parameters.items())
-            index = 0
-            for arg in args:
-                name, param = params[index]
+            params = list(sig.parameters.values())
+            skip = 0
+            for param in params[:len(args)]:
                 if param.kind == param.VAR_POSITIONAL:
                     break
-                index += 1
+                skip += 1
 
             kwonly = False
             newparams = []
-            for index, (name, param) in enumerate(params[index:]):
+            for param in params[skip:]:
                 kind = param.kind
                 default = param.default
                 if kind == param.VAR_KEYWORD:
@@ -234,14 +233,14 @@ class curry(object):
                 elif kind == param.VAR_POSITIONAL:
                     if kwonly:
                         continue
-                elif name in keywords:
-                    default = keywords[name]
+                elif param.name in keywords:
+                    default = keywords[param.name]
                     kind = param.KEYWORD_ONLY
                     kwonly = True
                 else:
                     if kwonly:
                         kind = param.KEYWORD_ONLY
-                    if param.default is param.empty:
+                    if default is param.empty:
                         default = no_default
                 newparams.append(param.replace(default=default, kind=kind))
 
@@ -753,7 +752,7 @@ _check_sigspec.__doc__ = """ \
 Private function to aid in introspection compatibly across Python versions.
 
 If a callable doesn't have a signature (Python 3) or an argspec (Python 2),
-our signature registry in toolz._signatures is used.
+the signature registry in toolz._signatures is used.
 """
 
 if PY3:  # pragma: py2 no cover
