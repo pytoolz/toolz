@@ -1,7 +1,10 @@
 import functools
-import sys
-from toolz.functoolz import curry, is_valid_args, is_partial_args
-from toolz._signatures import has_unknown_args
+import itertools
+import operator
+import toolz
+from toolz.functoolz import (curry, is_valid_args, is_partial_args, is_arity,
+                             num_required_args, has_varargs, has_keywords)
+from toolz._signatures import builtins
 from toolz.compatibility import PY3
 from toolz.utils import raises
 
@@ -240,20 +243,20 @@ def test_func_keyword():
 
 
 def test_has_unknown_args():
-    assert has_unknown_args(1) is False
-    assert has_unknown_args(map) is False
-    assert has_unknown_args(make_func('')) is False
-    assert has_unknown_args(make_func('x, y, z')) is False
-    assert has_unknown_args(make_func('*args'))
-    assert has_unknown_args(make_func('**kwargs')) is False
-    assert has_unknown_args(make_func('x, y, *args, **kwargs'))
-    assert has_unknown_args(make_func('x, y, z=1')) is False
-    assert has_unknown_args(make_func('x, y, z=1, **kwargs')) is False
+    assert has_varargs(1) is False
+    assert has_varargs(map)
+    assert has_varargs(make_func('')) is False
+    assert has_varargs(make_func('x, y, z')) is False
+    assert has_varargs(make_func('*args'))
+    assert has_varargs(make_func('**kwargs')) is False
+    assert has_varargs(make_func('x, y, *args, **kwargs'))
+    assert has_varargs(make_func('x, y, z=1')) is False
+    assert has_varargs(make_func('x, y, z=1, **kwargs')) is False
 
     if PY3:
         f = make_func('*args')
         f.__signature__ = 34
-        assert has_unknown_args(f) is False
+        assert has_varargs(f) is False
 
         class RaisesValueError(object):
             def __call__(self):
@@ -263,5 +266,172 @@ def test_has_unknown_args():
                 raise ValueError('Testing Python 3.4')
 
         f = RaisesValueError()
-        assert has_unknown_args(f)
+        assert has_varargs(f) is None
+
+
+def test_num_required_args():
+    assert num_required_args(lambda: None) == 0
+    assert num_required_args(lambda x: None) == 1
+    assert num_required_args(lambda x, *args: None) == 1
+    assert num_required_args(lambda x, **kwargs: None) == 1
+    assert num_required_args(lambda x, y, *args, **kwargs: None) == 2
+    assert num_required_args(map) == 2
+    assert num_required_args(dict) is None
+
+
+def test_has_keywords():
+    assert has_keywords(lambda: None) is False
+    assert has_keywords(lambda x: None) is False
+    assert has_keywords(lambda x=1: None)
+    assert has_keywords(lambda **kwargs: None)
+    assert has_keywords(int)
+    assert has_keywords(sorted)
+    assert has_keywords(max)
+    assert has_keywords(map) is False
+    assert has_keywords(bytearray) is None
+
+
+def test_has_varargs():
+    assert has_varargs(lambda: None) is False
+    assert has_varargs(lambda *args: None)
+    assert has_varargs(lambda **kwargs: None) is False
+    assert has_varargs(map)
+    if PY3:
+        assert has_varargs(max) is None
+
+
+def test_is_arity():
+    assert is_arity(0, lambda: None)
+    assert is_arity(1, lambda: None) is False
+    assert is_arity(1, lambda x: None)
+    assert is_arity(3, lambda x, y, z: None)
+    assert is_arity(1, lambda x, *args: None) is False
+    assert is_arity(1, lambda x, **kwargs: None) is False
+    assert is_arity(1, all)
+    assert is_arity(2, map) is False
+    assert is_arity(2, range) is None
+
+
+def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete=False):
+    if not PY3:
+        return
+    orig_check_valid = check_valid
+    check_valid = lambda _func, *args, **kwargs: orig_check_valid(_func, args, kwargs)
+
+    f = toolz.curry(make_func('x, y, z=0'))
+    assert check_valid(f)
+    assert check_valid(f, 1)
+    assert check_valid(f, 1, 2)
+    assert check_valid(f, 1, 2, 3)
+    assert check_valid(f, 1, 2, 3, 4) is False
+    assert check_valid(f, invalid_keyword=True) is False
+    assert check_valid(f(1))
+    assert check_valid(f(1), 2)
+    assert check_valid(f(1), 2, 3)
+    assert check_valid(f(1), 2, 3, 4) is False
+    assert check_valid(f(1), x=2) is False
+    assert check_valid(f(1), y=2)
+    assert check_valid(f(x=1), 2) is False
+    assert check_valid(f(x=1), y=2)
+    assert check_valid(f(y=2), 1)
+    assert check_valid(f(y=2), 1, z=3)
+    assert check_valid(f(y=2), 1, 3) is False
+
+    f = toolz.curry(make_func('x, y, z=0'), 1, x=1)
+    assert check_valid(f) is False
+    assert check_valid(f, z=3) is False
+
+    f = toolz.curry(make_func('x, y, *args, z'))
+    assert check_valid(f)
+    assert check_valid(f, 0)
+    assert check_valid(f(1), 0)
+    assert check_valid(f(1, 2), 0)
+    assert check_valid(f(1, 2, 3), 0)
+    assert check_valid(f(1, 2, 3, 4), 0)
+    assert check_valid(f(1, 2, 3, 4), z=4)
+    assert check_valid(f(x=1))
+    assert check_valid(f(x=1), 1) is False
+    assert check_valid(f(x=1), y=2)
+
+
+def test_introspect_curry_partial_py3():
+    test_introspect_curry_valid_py3(check_valid=is_partial_args, incomplete=True)
+
+
+def test_introspect_curry_py3():
+    if not PY3:
+        return
+    f = toolz.curry(make_func(''))
+    assert num_required_args(f) == 0
+    assert is_arity(0, f)
+    assert has_varargs(f) is False
+    assert has_keywords(f) is False
+
+    f = toolz.curry(make_func('x'))
+    assert num_required_args(f) == 0
+    assert is_arity(0, f) is False
+    assert is_arity(1, f) is False
+    assert has_varargs(f) is False
+    assert has_keywords(f)  # A side-effect of being curried
+
+    f = toolz.curry(make_func('x, y, z=0'))
+    assert num_required_args(f) == 0
+    assert is_arity(0, f) is False
+    assert is_arity(1, f) is False
+    assert is_arity(2, f) is False
+    assert is_arity(3, f) is False
+    assert has_varargs(f) is False
+    assert has_keywords(f)
+
+    f = toolz.curry(make_func('*args, **kwargs'))
+    assert num_required_args(f) == 0
+    assert has_varargs(f)
+    assert has_keywords(f)
+
+
+def test_introspect_builtin_modules():
+    mods = [builtins, functools, itertools, operator, toolz,
+            toolz.functoolz, toolz.itertoolz, toolz.dicttoolz, toolz.recipes]
+
+    blacklist = set()
+
+    def add_blacklist(mod, attr):
+        if hasattr(mod, attr):
+            blacklist.add(getattr(mod, attr))
+
+    add_blacklist(builtins, 'basestring')
+    add_blacklist(builtins, 'NoneType')
+    add_blacklist(builtins, '__metaclass__')
+    add_blacklist(builtins, 'sequenceiterator')
+
+    def is_missing(modname, name, func):
+        if name.startswith('_') and not name.startswith('__'):
+            return False
+        try:
+            if issubclass(func, BaseException):
+                return False
+        except TypeError:
+            pass
+        try:
+            return (callable(func) and modname in func.__module__
+                    and is_partial_args(func, (), {}) is not True
+                    and func not in blacklist)
+        except AttributeError:
+            return False
+
+    missing = {}
+    for mod in mods:
+        modname = mod.__name__
+        for name, func in vars(mod).items():
+            if is_missing(modname, name, func):
+                if modname not in missing:
+                    missing[modname] = []
+                missing[modname].append(name)
+    if missing:
+        messages = []
+        for modname, names in sorted(missing.items()):
+            msg = '{0}:\n    {1}'.format(modname, '\n    '.join(sorted(names)))
+            messages.append(msg)
+        message = 'Missing introspection for the following callables:\n\n'
+        raise AssertionError(message + '\n\n'.join(messages))
 

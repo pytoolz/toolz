@@ -5,7 +5,7 @@ from toolz.functoolz import (thread_first, thread_last, memoize, curry,
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
-from toolz.compatibility import PY3
+
 
 def iseven(x):
     return x % 2 == 0
@@ -277,6 +277,9 @@ def test_curry_attributes_readonly():
     assert raises(AttributeError, lambda: setattr(f, 'args', (2,)))
     assert raises(AttributeError, lambda: setattr(f, 'keywords', {'c': 3}))
     assert raises(AttributeError, lambda: setattr(f, 'func', f))
+    assert raises(AttributeError, lambda: delattr(f, 'args'))
+    assert raises(AttributeError, lambda: delattr(f, 'keywords'))
+    assert raises(AttributeError, lambda: delattr(f, 'func'))
 
 
 def test_curry_attributes_writable():
@@ -420,17 +423,6 @@ def test_memoize_on_classmethods():
 
     assert a.addstatic(3, 4) == 7
     assert A.addstatic(3, 4) == 7
-
-
-def test_curry_wrapped():
-
-    def foo(a):
-        """
-        Docstring
-        """
-        pass
-    curried_foo = curry(foo)
-    assert curried_foo.__wrapped__ is foo
 
 
 def test_curry_call():

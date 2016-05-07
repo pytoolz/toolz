@@ -1,11 +1,12 @@
-from functools import reduce, partial, wraps
+from functools import reduce, partial
 import inspect
 import operator
 from operator import attrgetter
 from textwrap import dedent
-import sys
 
 from .compatibility import PY3, PY34, PYPY
+from .utils import no_default
+
 
 __all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
            'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
@@ -93,6 +94,55 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 
+def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
+    """ Like @property, but returns ``classval`` when used as a class attribute
+
+    >>> class MyClass(object):
+    ...     '''The class docstring'''
+    ...     @instanceproperty(classval=__doc__)
+    ...     def __doc__(self):
+    ...         return 'An object docstring'
+    ...     @instanceproperty
+    ...     def val(self):
+    ...         return 42
+    ...
+    >>> MyClass.__doc__
+    'The class docstring'
+    >>> MyClass.val is None
+    True
+    >>> obj = MyClass()
+    >>> obj.__doc__
+    'An object docstring'
+    >>> obj.val
+    42
+    """
+    if fget is None:
+        return partial(instanceproperty, fset=fset, fdel=fdel, doc=doc,
+                       classval=classval)
+    return InstanceProperty(fget=fget, fset=fset, fdel=fdel, doc=doc,
+                            classval=classval)
+
+
+class InstanceProperty(property):
+    """ Like @property, but returns ``classval`` when used as a class attribute
+
+    Should not be used directly.  Use ``instanceproperty`` instead.
+    """
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None,
+                 classval=None):
+        self.classval = classval
+        property.__init__(self, fget=fget, fset=fset, fdel=fdel, doc=doc)
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self.classval
+        return property.__get__(self, obj, type)
+
+    def __reduce__(self):
+        state = (self.fget, self.fset, self.fdel, self.__doc__, self.classval)
+        return InstanceProperty, state
+
+
 class curry(object):
     """ Curry a callable function
 
@@ -129,10 +179,12 @@ class curry(object):
             raise TypeError("Input must be callable")
 
         # curry- or functools.partial-like object?  Unpack and merge arguments
-        if (hasattr(func, 'func')
-                and hasattr(func, 'args')
-                and hasattr(func, 'keywords')
-                and isinstance(func.args, tuple)):
+        if (
+            hasattr(func, 'func')
+            and hasattr(func, 'args')
+            and hasattr(func, 'keywords')
+            and isinstance(func.args, tuple)
+        ):
             _kwargs = {}
             if func.keywords:
                 _kwargs.update(func.keywords)
@@ -151,20 +203,58 @@ class curry(object):
         self._sigspec = None
         self._has_unknown_args = None
 
-    @property
+    @instanceproperty
     def func(self):
         return self._partial.func
-    __wrapped__ = func
 
-    @property
+    if PY3:  # pragma: py2 no cover
+        @instanceproperty
+        def __signature__(self):
+            sig = inspect.signature(self.func)
+            args = self.args or ()
+            keywords = self.keywords or {}
+            if is_partial_args(self.func, args, keywords, sig) is False:
+                raise TypeError('curry object has incorrect arguments')
+
+            params = list(sig.parameters.values())
+            skip = 0
+            for param in params[:len(args)]:
+                if param.kind == param.VAR_POSITIONAL:
+                    break
+                skip += 1
+
+            kwonly = False
+            newparams = []
+            for param in params[skip:]:
+                kind = param.kind
+                default = param.default
+                if kind == param.VAR_KEYWORD:
+                    pass
+                elif kind == param.VAR_POSITIONAL:
+                    if kwonly:
+                        continue
+                elif param.name in keywords:
+                    default = keywords[param.name]
+                    kind = param.KEYWORD_ONLY
+                    kwonly = True
+                else:
+                    if kwonly:
+                        kind = param.KEYWORD_ONLY
+                    if default is param.empty:
+                        default = no_default
+                newparams.append(param.replace(default=default, kind=kind))
+
+            return sig.replace(parameters=newparams)
+
+    @instanceproperty
     def args(self):
         return self._partial.args
 
-    @property
+    @instanceproperty
     def keywords(self):
         return self._partial.keywords
 
-    @property
+    @instanceproperty
     def func_name(self):
         return self.__name__
 
@@ -200,12 +290,12 @@ class curry(object):
         if self.keywords:
             kwargs = dict(self.keywords, **kwargs)
         if self._sigspec is None:
-            sigspec = self._sigspec = _signature_or_spec(func)
-            self._has_unknown_args = _has_unknown_args(func, sigspec=sigspec)
+            sigspec = self._sigspec = _sigs.signature_or_spec(func)
+            self._has_unknown_args = has_varargs(func, sigspec) is not False
         else:
             sigspec = self._sigspec
 
-        if is_partial_args(func, args, kwargs, sigspec=sigspec) is False:
+        if is_partial_args(func, args, kwargs, sigspec) is False:
             # Nothing can make the call valid
             return False
         elif self._has_unknown_args:
@@ -213,7 +303,7 @@ class curry(object):
             # anyway because the function may have `*args`.  This is useful
             # for decorators with signature `func(*args, **kwargs)`.
             return True
-        elif not is_valid_args(func, args, kwargs, sigspec=sigspec):
+        elif not is_valid_args(func, args, kwargs, sigspec):
             # Adding more arguments may make the call valid
             return True
         else:
@@ -242,45 +332,6 @@ class curry(object):
         func, args, kwargs, userdict = state
         self.__init__(func, *args, **(kwargs or {}))
         self.__dict__.update(userdict)
-
-
-def has_kwargs(f):
-    """ Does a function have keyword arguments?
-
-    >>> def f(x, y=0):
-    ...     return x + y
-
-    >>> has_kwargs(f)
-    True
-    """
-    if sys.version_info[0] == 2:  # pragma: py3 no cover
-        spec = inspect.getargspec(f)
-        return bool(spec and (spec.keywords or spec.defaults))
-    if sys.version_info[0] == 3:  # pragma: py2 no cover
-        spec = inspect.getfullargspec(f)
-        return bool(spec.defaults)
-
-
-def isunary(f):
-    """ Does a function have only a single argument?
-
-    >>> def f(x):
-    ...     return x
-
-    >>> isunary(f)
-    True
-    >>> isunary(lambda x, y: x + y)
-    False
-    """
-    try:
-        if sys.version_info[0] == 2:  # pragma: py3 no cover
-            spec = inspect.getargspec(f)
-        if sys.version_info[0] == 3:  # pragma: py2 no cover
-            spec = inspect.getfullargspec(f)
-        return bool(spec and spec.varargs is None and not has_kwargs(f)
-                    and len(spec.args) == 1)
-    except TypeError:  # pragma: no cover
-        return None    # in Python < 3.4 builtins fail, return None
 
 
 @curry
@@ -324,9 +375,9 @@ def memoize(func, cache=None, key=None):
         cache = {}
 
     try:
-        may_have_kwargs = has_kwargs(func)
+        may_have_kwargs = has_keywords(func) is not False
         # Is unary function (single arg, no variadic argument or keywords)?
-        is_unary = isunary(func)
+        is_unary = is_arity(1, func)
     except TypeError:  # pragma: no cover
         may_have_kwargs = True
         is_unary = False
@@ -389,7 +440,7 @@ class Compose(object):
     def __setstate__(self, state):
         self.first, self.funcs = state
 
-    @property
+    @instanceproperty(classval=__doc__)
     def __doc__(self):
         def composed_doc(*fs):
             """Generate a docstring for the composition of fs.
@@ -485,8 +536,7 @@ def complement(func):
 
 
 class juxt(object):
-    """
-    Creates a function that calls several functions with the same arguments.
+    """ Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
     to each of those functions then returns a tuple of the results.
@@ -539,7 +589,6 @@ def do(func, x):
     12
     >>> log
     [1, 11]
-
     """
     func(x)
     return x
@@ -547,7 +596,7 @@ def do(func, x):
 
 @curry
 def flip(func, a, b):
-    """Call the function call with the arguments flipped.
+    """ Call the function call with the arguments flipped
 
     This function is curried.
 
@@ -573,55 +622,9 @@ def flip(func, a, b):
 
 
 def return_none(exc):
-    """Returns None.
+    """ Returns None.
     """
     return None
-
-
-class _ExceptsDoc(object):
-    """A descriptor that allows us to get the docstring for both the
-    `excepts` class and generate a custom docstring for the instances of
-    excepts.
-
-    Parameters
-    ----------
-    class_doc : str
-        The docstring for the excepts class.
-    """
-    def __init__(self, class_doc):
-        self._class_doc = class_doc
-
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self._class_doc
-
-        exc = instance.exc
-        try:
-            if isinstance(exc, tuple):
-                exc_name = '(%s)' % ', '.join(
-                    map(attrgetter('__name__'), exc),
-                )
-            else:
-                exc_name = exc.__name__
-
-            return dedent(
-                """\
-                A wrapper around {inst.func.__name__!r} that will except:
-                {exc}
-                and handle any exceptions with {inst.handler.__name__!r}.
-
-                Docs for {inst.func.__name__!r}:
-                {inst.func.__doc__}
-
-                Docs for {inst.handler.__name__!r}:
-                {inst.handler.__doc__}
-                """
-            ).format(
-                inst=instance,
-                exc=exc_name,
-            )
-        except AttributeError:
-            return self._class_doc
 
 
 class excepts(object):
@@ -652,10 +655,6 @@ class excepts(object):
     >>> excepting({0: 1})
     1
     """
-    # override the docstring above with a descritor that can return
-    # an instance-specific docstring
-    __doc__ = _ExceptsDoc(__doc__)
-
     def __init__(self, exc, func, handler=return_none):
         self.exc = exc
         self.func = func
@@ -666,6 +665,36 @@ class excepts(object):
             return self.func(*args, **kwargs)
         except self.exc as e:
             return self.handler(e)
+
+    @instanceproperty(classval=__doc__)
+    def __doc__(self):
+        exc = self.exc
+        try:
+            if isinstance(exc, tuple):
+                exc_name = '(%s)' % ', '.join(
+                    map(attrgetter('__name__'), exc),
+                )
+            else:
+                exc_name = exc.__name__
+
+            return dedent(
+                """\
+                A wrapper around {inst.func.__name__!r} that will except:
+                {exc}
+                and handle any exceptions with {inst.handler.__name__!r}.
+
+                Docs for {inst.func.__name__!r}:
+                {inst.func.__doc__}
+
+                Docs for {inst.handler.__name__!r}:
+                {inst.handler.__doc__}
+                """
+            ).format(
+                inst=self,
+                exc=exc_name,
+            )
+        except AttributeError:
+            return type(self).__doc__
 
     @property
     def __name__(self):
@@ -681,24 +710,22 @@ class excepts(object):
 
 
 if PY3:  # pragma: py2 no cover
-    def is_valid_args(func, args, kwargs, sigspec=None):
+    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
         if sigspec is None:
             try:
                 sigspec = inspect.signature(func)
             except (ValueError, TypeError) as e:
                 sigspec = e
         if isinstance(sigspec, ValueError):
-            return _is_builtin_valid_args(func, args, kwargs)
+            return None, builtin_func(*builtin_args)
         elif isinstance(sigspec, TypeError):
-            return False
-        try:
-            sigspec.bind(*args, **kwargs)
-        except (TypeError, AttributeError):
-            return False
-        return True
+            return None, False
+        elif not isinstance(sigspec, inspect.Signature):
+            return None, False  # pragma: no cover
+        return sigspec, None
 
 else:  # pragma: py3 no cover
-    def is_valid_args(func, args, kwargs, sigspec=None):
+    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
         if sigspec is None:
             try:
                 sigspec = inspect.getargspec(func)
@@ -706,9 +733,101 @@ else:  # pragma: py3 no cover
                 sigspec = e
         if isinstance(sigspec, TypeError):
             if not callable(func):
-                return False
-            return _is_builtin_valid_args(func, args, kwargs)
+                return None, False
+            return None, builtin_func(*builtin_args)
+        return sigspec, None
 
+
+if PY34 or PYPY:  # pragma: no cover
+    _check_sigspec_orig = _check_sigspec
+
+    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
+        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
+        if func in _sigs.signatures:
+            val = builtin_func(*builtin_args)
+            return None, val
+        return _check_sigspec_orig(sigspec, func, builtin_func, *builtin_args)
+
+_check_sigspec.__doc__ = """ \
+Private function to aid in introspection compatibly across Python versions.
+
+If a callable doesn't have a signature (Python 3) or an argspec (Python 2),
+the signature registry in toolz._signatures is used.
+"""
+
+if PY3:  # pragma: py2 no cover
+    def num_required_args(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
+                                     func)
+        if sigspec is None:
+            return rv
+        return sum(1 for p in sigspec.parameters.values()
+                   if p.default is p.empty
+                   and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
+
+    def has_varargs(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
+        if sigspec is None:
+            return rv
+        return any(p.kind == p.VAR_POSITIONAL
+                   for p in sigspec.parameters.values())
+
+    def has_keywords(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
+        if sigspec is None:
+            return rv
+        return any(p.default is not p.empty
+                   or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD)
+                   for p in sigspec.parameters.values())
+
+    def is_valid_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
+                                     func, args, kwargs)
+        if sigspec is None:
+            return rv
+        try:
+            sigspec.bind(*args, **kwargs)
+        except TypeError:
+            return False
+        return True
+
+    def is_partial_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
+                                     func, args, kwargs)
+        if sigspec is None:
+            return rv
+        try:
+            sigspec.bind_partial(*args, **kwargs)
+        except TypeError:
+            return False
+        return True
+
+else:  # pragma: py3 no cover
+    def num_required_args(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
+                                     func)
+        if sigspec is None:
+            return rv
+        num_defaults = len(sigspec.defaults) if sigspec.defaults else 0
+        return len(sigspec.args) - num_defaults
+
+    def has_varargs(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
+        if sigspec is None:
+            return rv
+        return sigspec.varargs is not None
+
+    def has_keywords(func, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
+        if sigspec is None:
+            return rv
+        return sigspec.defaults is not None or sigspec.keywords is not None
+
+    def is_valid_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
+                                     func, args, kwargs)
+        if sigspec is None:
+            return rv
         spec = sigspec
         defaults = spec.defaults or ()
         num_pos = len(spec.args) - len(defaults)
@@ -731,24 +850,128 @@ else:  # pragma: py3 no cover
         args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
 
         if (
-            not spec.keywords and kwargs or
-            not spec.varargs and len(args) > len(spec.args) or
-            set(spec.args[:len(args)]) & set(kwargs)
+            not spec.keywords and kwargs
+            or not spec.varargs and len(args) > len(spec.args)
+            or set(spec.args[:len(args)]) & set(kwargs)
         ):
             return False
         else:
             return True
 
-if PY34 or PYPY:  # pragma: no cover
-    _is_valid_args = is_valid_args
+    def is_partial_args(func, args, kwargs, sigspec=None):
+        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
+                                     func, args, kwargs)
+        if sigspec is None:
+            return rv
+        spec = sigspec
+        defaults = spec.defaults or ()
+        num_pos = len(spec.args) - len(defaults)
+        if spec.varargs is None:
+            num_extra_pos = max(0, len(args) - num_pos)
+        else:
+            num_extra_pos = 0
 
-    def is_valid_args(func, args, kwargs, sigspec=None):
-        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
-        val = _is_builtin_valid_args(func, args, kwargs)
-        if val is not None:
-            return val
-        return _is_valid_args(func, args, kwargs, sigspec=sigspec)
+        kwargs = dict(kwargs)
 
+        # Add missing keyword arguments (unless already included in `args`)
+        missing_kwargs = spec.args[num_pos + num_extra_pos:]
+        kwargs.update(zip(missing_kwargs, defaults[num_extra_pos:]))
+
+        # Add missing position arguments as keywords (may already be in kwargs)
+        missing_args = spec.args[len(args):num_pos + num_extra_pos]
+        kwargs.update((x, None) for x in missing_args)
+
+        # Convert call to use positional arguments
+        args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
+
+        if (
+            not spec.keywords and kwargs
+            or not spec.varargs and len(args) > len(spec.args)
+            or set(spec.args[:len(args)]) & set(kwargs)
+        ):
+            return False
+        else:
+            return True
+
+
+def is_arity(n, func, sigspec=None):
+    """ Does a function have only n positional arguments?
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def f(x):
+    ...     return x
+    >>> is_arity(1, f)
+    True
+    >>> def g(x, y=1):
+    ...     return x + y
+    >>> is_arity(1, g)
+    False
+    """
+    sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_arity, n, func)
+    if sigspec is None:
+        return rv
+    num = num_required_args(func, sigspec)
+    if num is not None:
+        num = num == n
+        if not num:
+            return False
+    varargs = has_varargs(func, sigspec)
+    if varargs:
+        return False
+    keywords = has_keywords(func, sigspec)
+    if keywords:
+        return False
+    if num is None or varargs is None or keywords is None:  # pragma: no cover
+        return None
+    return True
+
+
+num_required_args.__doc__ = """ \
+Number of required positional arguments
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def f(x, y, z=3):
+    ...     return x + y + z
+    >>> num_required_args(f)
+    2
+    >>> def g(*args, **kwargs):
+    ...     pass
+    >>> num_required_args(g)
+    0
+    """
+
+has_varargs.__doc__ = """ \
+Does a function have variadic positional arguments?
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def f(*args):
+    ...    return args
+    >>> has_varargs(f)
+    True
+    >>> def g(**kwargs):
+    ...    return kwargs
+    >>> has_varargs(g)
+    False
+    """
+
+has_keywords.__doc__ = """ \
+Does a function have keyword arguments?
+
+    This function relies on introspection and does not call the function.
+    Returns None if validity can't be determined.
+
+    >>> def f(x, y=0):
+    ...     return x + y
+
+    >>> has_keywords(f)
+    True
+    """
 
 is_valid_args.__doc__ = """ \
 Is ``func(*args, **kwargs)`` a valid function call?
@@ -773,77 +996,6 @@ Is ``func(*args, **kwargs)`` a valid function call?
 
     Many builtins in the standard library are also supported.
     """
-
-if PY3:  # pragma: py2 no cover
-    def is_partial_args(func, args, kwargs, sigspec=None):
-        if sigspec is None:
-            try:
-                sigspec = inspect.signature(func)
-            except (ValueError, TypeError) as e:
-                sigspec = e
-        if isinstance(sigspec, ValueError):
-            return _is_builtin_partial_args(func, args, kwargs)
-        elif isinstance(sigspec, TypeError):
-            return False
-        try:
-            sigspec.bind_partial(*args, **kwargs)
-        except (TypeError, AttributeError):
-            return False
-        return True
-
-else:  # pragma: py3 no cover
-    def is_partial_args(func, args, kwargs, sigspec=None):
-        if sigspec is None:
-            try:
-                sigspec = inspect.getargspec(func)
-            except TypeError as e:
-                sigspec = e
-        if isinstance(sigspec, TypeError):
-            if not callable(func):
-                return False
-            return _is_builtin_partial_args(func, args, kwargs)
-
-        spec = sigspec
-        defaults = spec.defaults or ()
-        num_pos = len(spec.args) - len(defaults)
-        if spec.varargs is None:
-            num_extra_pos = max(0, len(args) - num_pos)
-        else:
-            num_extra_pos = 0
-
-        kwargs = dict(kwargs)
-
-        # Add missing keyword arguments (unless already included in `args`)
-        missing_kwargs = spec.args[num_pos + num_extra_pos:]
-        kwargs.update(zip(missing_kwargs, defaults[num_extra_pos:]))
-
-        # Add missing position arguments as keywords (may already be in kwargs)
-        missing_args = spec.args[len(args):num_pos + num_extra_pos]
-        kwargs.update((x, None) for x in missing_args)
-
-        # Convert call to use positional arguments
-        args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
-
-        if (
-            not spec.keywords and kwargs or
-            not spec.varargs and len(args) > len(spec.args) or
-            set(spec.args[:len(args)]) & set(kwargs)
-        ):
-            return False
-        else:
-            return True
-
-
-if PY34 or PYPY:  # pragma: no cover
-    _is_partial_args = is_partial_args
-
-    def is_partial_args(func, args, kwargs, sigspec=None):
-        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
-        val = _is_builtin_partial_args(func, args, kwargs)
-        if val is not None:
-            return val
-        return _is_partial_args(func, args, kwargs, sigspec=sigspec)
-
 
 is_partial_args.__doc__ = """ \
 Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
@@ -874,7 +1026,4 @@ Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
     Many builtins in the standard library are also supported.
     """
 
-from ._signatures import (is_builtin_valid_args as _is_builtin_valid_args,
-                          is_builtin_partial_args as _is_builtin_partial_args,
-                          has_unknown_args as _has_unknown_args,
-                          signature_or_spec as _signature_or_spec)
+from . import _signatures as _sigs

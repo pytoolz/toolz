@@ -182,8 +182,7 @@ def itemfilter(predicate, d, factory=dict):
 
 
 def assoc(d, key, value, factory=dict):
-    """
-    Return a new dict with new key value pair
+    """ Return a new dict with new key value pair
 
     New dict has d[key] set to value. Does not modify the initial dictionary.
 
@@ -198,8 +197,7 @@ def assoc(d, key, value, factory=dict):
 
 
 def dissoc(d, *keys):
-    """
-    Return a new dict with the given key(s) removed.
+    """ Return a new dict with the given key(s) removed.
 
     New dict has d[key] deleted for each supplied key.
     Does not modify the initial dictionary.
@@ -219,8 +217,7 @@ def dissoc(d, *keys):
 
 
 def assoc_in(d, keys, value, factory=dict):
-    """
-    Return a new dict with new, potentially nested, key value pair
+    """ Return a new dict with new, potentially nested, key value pair
 
     >>> purchase = {'name': 'Alice',
     ...             'order': {'items': ['Apple', 'Orange'],
@@ -280,8 +277,7 @@ def update_in(d, keys, func, default=None, factory=dict):
 
 
 def get_in(keys, coll, default=None, no_default=False):
-    """
-    Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
+    """ Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
 
     If coll[i0][i1]...[iX] cannot be found, returns ``default``, unless
     ``no_default`` is specified, then it raises KeyError or IndexError.

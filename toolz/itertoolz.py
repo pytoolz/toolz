@@ -597,7 +597,6 @@ def iterate(func, x):
     4
     >>> next(powers_of_two)
     8
-
     """
     while True:
         yield x
@@ -865,8 +864,7 @@ def diff(*seqs, **kwargs):
 
 
 def topk(k, seq, key=None):
-    """
-    Find the k largest elements of a sequence
+    """ Find the k largest elements of a sequence
 
     Operates lazily in ``n*log(k)`` time
 
@@ -898,7 +896,6 @@ def peek(seq):
     0
     >>> list(seq)
     [0, 1, 2, 3, 4]
-
     """
     iterator = iter(seq)
     item = next(iterator)
@@ -906,8 +903,7 @@ def peek(seq):
 
 
 def random_sample(prob, seq, random_state=None):
-    """
-    Return elements from a sequence with probability of prob
+    """ Return elements from a sequence with probability of prob
 
     Returns a lazy iterator of random items from seq.
 

@@ -11,15 +11,15 @@ modules.  More can be added as requested.  We don't guarantee full coverage.
 
 Everything in this module should be regarded as implementation details.
 Users should try to not use this module directly.
-
 """
 import functools
 import inspect
 import itertools
 import operator
-import sys
 
 from .compatibility import PY3
+from .functoolz import (is_partial_args, is_arity, has_varargs,
+                        has_keywords, num_required_args)
 
 if PY3:  # pragma: py2 no cover
     import builtins
@@ -223,6 +223,11 @@ module_info[builtins] = dict(
         lambda start, stop, step: None],
     zip=[
         lambda *iterables: None],
+    __build_class__=[
+        (2, lambda func, name, *bases, **kwds: None, ('metaclass',))],
+    __import__=[
+        (0, lambda name, globals=None, locals=None, fromlist=None,
+            level=None: None)],
 )
 module_info[builtins]['exec'] = [
     lambda source: None,
@@ -593,15 +598,36 @@ module_info[operator] = dict(
         lambda a, b: None],
 )
 
-if PY3:  # pragma: py2 no cover
-    def num_pos_args(func, sigspec):
-        """Return the number of positional arguments.  ``f(x, y=1)`` has 1."""
-        return sum(1 for x in sigspec.parameters.values()
-                   if x.kind == x.POSITIONAL_OR_KEYWORD and
-                   x.default is x.empty)
+module_info['toolz'] = dict(
+    curry=[
+        (0, lambda *args, **kwargs: None)],
+    excepts=[
+        (0, lambda exc, func, handler=None: None)],
+    flip=[
+        (0, lambda func=None, a=None, b=None: None)],
+    juxt=[
+        (0, lambda *funcs: None)],
+    memoize=[
+        (0, lambda func=None, cache=None, key=None: None)],
+)
 
-    def get_exclude_keywords(func, num_pos_only, sigspec):
-        """Return the names of position-only arguments if func has **kwargs"""
+module_info['toolz.functoolz'] = dict(
+    Compose=[
+        (0, lambda funcs: None)],
+    InstanceProperty=[
+        (0, lambda fget=None, fset=None, fdel=None, doc=None,
+            classval=None: None)],
+)
+
+if PY3:  # pragma: py2 no cover
+    def num_pos_args(sigspec):
+        """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
+        return sum(1 for x in sigspec.parameters.values()
+                   if x.kind == x.POSITIONAL_OR_KEYWORD
+                   and x.default is x.empty)
+
+    def get_exclude_keywords(num_pos_only, sigspec):
+        """ Return the names of position-only arguments if func has **kwargs"""
         if num_pos_only == 0:
             return ()
         has_kwargs = any(x.kind == x.VAR_KEYWORD
@@ -618,14 +644,14 @@ if PY3:  # pragma: py2 no cover
             return e
 
 else:  # pragma: py3 no cover
-    def num_pos_args(func, sigspec):
-        """Return the number of positional arguments.  ``f(x, y=1)`` has 1."""
+    def num_pos_args(sigspec):
+        """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
         if sigspec.defaults:
             return len(sigspec.args) - len(sigspec.defaults)
         return len(sigspec.args)
 
-    def get_exclude_keywords(func, num_pos_only, sigspec):
-        """Return the names of position-only arguments if func has **kwargs"""
+    def get_exclude_keywords(num_pos_only, sigspec):
+        """ Return the names of position-only arguments if func has **kwargs"""
         if num_pos_only == 0:
             return ()
         has_kwargs = sigspec.keywords is not None
@@ -641,7 +667,7 @@ else:  # pragma: py3 no cover
 
 
 def expand_sig(sig):
-    """Convert the signature spec in ``module_info`` to add to ``signatures``.
+    """ Convert the signature spec in ``module_info`` to add to ``signatures``
 
     The input signature spec is one of:
         - ``lambda_func``
@@ -656,7 +682,6 @@ def expand_sig(sig):
     included to support builtins such as ``partial(func, *args, **kwargs)``,
     which allows ``func=`` to be used as a keyword even though it's the name
     of a positional argument.
-
     """
     if isinstance(sig, tuple):
         if len(sig) == 3:
@@ -669,22 +694,30 @@ def expand_sig(sig):
     else:
         func = sig
         sigspec = signature_or_spec(func)
-        num_pos_only = num_pos_args(func, sigspec)
+        num_pos_only = num_pos_args(sigspec)
         keyword_only = ()
-    keyword_exclude = get_exclude_keywords(func, num_pos_only, sigspec)
+    keyword_exclude = get_exclude_keywords(num_pos_only, sigspec)
     return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
 
 
 signatures = {}
-for module, info in module_info.items():
-    for name, sigs in info.items():
-        if hasattr(module, name):
-            new_sigs = tuple(expand_sig(sig) for sig in sigs)
-            signatures[getattr(module, name)] = new_sigs
+
+
+def create_signature_registry(module_info=module_info, signatures=signatures):
+    for module, info in module_info.items():
+        if isinstance(module, str):
+            modnames = module.split('.')
+            module = __import__(module)
+            for attr in modnames[1:]:
+                module = getattr(module, attr)
+        for name, sigs in info.items():
+            if hasattr(module, name):
+                new_sigs = tuple(expand_sig(sig) for sig in sigs)
+                signatures[getattr(module, name)] = new_sigs
 
 
 def check_valid(sig, args, kwargs):
-    """Like ``is_valid_args`` for the given signature spec."""
+    """ Like ``is_valid_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         return False
@@ -699,8 +732,16 @@ def check_valid(sig, args, kwargs):
         return False
 
 
+def _is_valid_args(func, args, kwargs):
+    """ Like ``is_valid_args`` for builtins in our ``signatures`` registry"""
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    return any(check_valid(sig, args, kwargs) for sig in sigs)
+
+
 def check_partial(sig, args, kwargs):
-    """Like ``is_partial_args`` for the given signature spec."""
+    """ Like ``is_partial_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
         pad = (None,) * (num_pos_only - len(args))
@@ -709,66 +750,83 @@ def check_partial(sig, args, kwargs):
         kwargs = dict(kwargs)
         for item in keyword_exclude:
             kwargs.pop(item, None)
-    return is_partial_args(func, args, kwargs, sigspec=sigspec)
+    return is_partial_args(func, args, kwargs, sigspec)
 
 
-def is_builtin_valid_args(func, args, kwargs):
-    """Like ``is_valid_args`` for builtins in our ``signatures`` registry."""
-    if func not in signatures:
-        return None
-    sigs = signatures[func]
-    return any(check_valid(sig, args, kwargs) for sig in sigs)
-
-
-def is_builtin_partial_args(func, args, kwargs):
-    """Like ``is_partial_args`` for builtins in our ``signatures`` registry."""
+def _is_partial_args(func, args, kwargs):
+    """ Like ``is_partial_args`` for builtins in our ``signatures`` registry"""
     if func not in signatures:
         return None
     sigs = signatures[func]
     return any(check_partial(sig, args, kwargs) for sig in sigs)
 
 
-if PY3:  # pragma: py2 no cover
-    def has_unknown_args(func, sigspec=None):
-        """Might ``func`` have ``*args`` that is passed to a wrapped function?
-
-        This is specifically to support ``curry``.
-
-        """
-        if func in signatures:
-            return False
-        if sigspec is None:
-            try:
-                sigspec = inspect.signature(func)
-            except (ValueError, TypeError) as e:
-                sigspec = e
-        if isinstance(sigspec, ValueError):
-            return True
-        elif isinstance(sigspec, TypeError):
-            return False
-        try:
-            return any(x.kind == x.VAR_POSITIONAL
-                       for x in sigspec.parameters.values())
-        except AttributeError:  # pragma: no cover
-            return False
-
-else:  # pragma: py3 no cover
-    def has_unknown_args(func, sigspec=None):
-        """Might ``func`` have ``*args`` that is passed to a wrapped function?
-
-        This is specifically to support ``curry``.
-
-        """
-        if func in signatures:
-            return False
-        if sigspec is None:
-            try:
-                sigspec = inspect.getargspec(func)
-            except TypeError as e:
-                sigspec = e
-        if isinstance(sigspec, TypeError):
-            return callable(func)
-        return sigspec.varargs is not None
+def check_arity(n, sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    if keyword_exclude or num_pos_only > n:
+        return False
+    return is_arity(n, func, sigspec)
 
 
-from .functoolz import is_partial_args
+def _is_arity(n, func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    checks = [check_arity(n, sig) for sig in sigs]
+    if all(checks):
+        return True
+    elif any(checks):
+        return None
+    return False
+
+
+def check_varargs(sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    return has_varargs(func, sigspec)
+
+
+def _has_varargs(func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    checks = [check_varargs(sig) for sig in sigs]
+    if all(checks):
+        return True
+    elif any(checks):  # pragma: py2 no cover
+        return None
+    return False
+
+
+def check_keywords(sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    if keyword_exclude:
+        return True
+    return has_keywords(func, sigspec)
+
+
+def _has_keywords(func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    checks = [check_keywords(sig) for sig in sigs]
+    if all(checks):
+        return True
+    elif any(checks):
+        return None
+    return False
+
+
+def check_required_args(sig):
+    num_pos_only, func, keyword_exclude, sigspec = sig
+    return num_required_args(func, sigspec)
+
+
+def _num_required_args(func):
+    if func not in signatures:
+        return None
+    sigs = signatures[func]
+    vals = [check_required_args(sig) for sig in sigs]
+    val = vals[0]
+    if all(x == val for x in vals):
+        return val
+    return None

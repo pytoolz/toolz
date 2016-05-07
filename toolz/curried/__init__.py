@@ -23,24 +23,18 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
-import inspect
-
 from . import exceptions
 from . import operator
 import toolz
 
 
-def _nargs(f):
-    try:
-        return len(inspect.getargspec(f).args)
-    except TypeError:
-        return 0
-
-
-def _should_curry(f):
-    do_curry = frozenset((toolz.map, toolz.filter, toolz.sorted, toolz.reduce,
-                          toolz.excepts))
-    return (callable(f) and _nargs(f) > 1 or f in do_curry)
+def _should_curry(func):
+    if not callable(func) or isinstance(func, toolz.curry):
+        return False
+    nargs = toolz.functoolz.num_required_args(func)
+    if nargs is None or nargs > 1:
+        return True
+    return nargs == 1 and toolz.functoolz.has_keywords(func)
 
 
 def _curry_namespace(ns):
@@ -56,7 +50,6 @@ locals().update(toolz.merge(
 ))
 
 # Clean up the namespace.
-del _nargs
 del _should_curry
 del exceptions
 del toolz
