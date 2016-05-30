@@ -474,9 +474,6 @@ def test_inspect_signature_property():
 
 
 def test_inspect_wrapped_property():
-    if not PY33:
-        return
-
     class Wrapped(object):
         def __init__(self, func):
             self.func = func
@@ -490,9 +487,10 @@ def test_inspect_wrapped_property():
 
     func = lambda x: x
     wrapped = Wrapped(func)
-    assert inspect.signature(func) == inspect.signature(wrapped)
+    if PY3:
+        assert inspect.signature(func) == inspect.signature(wrapped)
 
-    assert num_required_args(Wrapped) is False
+    assert num_required_args(Wrapped) == (False if PY33 else None)
     _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
     assert num_required_args(Wrapped) == 1
 
