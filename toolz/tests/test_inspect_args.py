@@ -415,7 +415,9 @@ def test_introspect_builtin_modules():
         except TypeError:
             pass
         try:
-            return (callable(func) and modname in func.__module__
+            return (callable(func)
+                    and func.__module__ is not None
+                    and modname in func.__module__
                     and is_partial_args(func, (), {}) is not True
                     and func not in blacklist)
         except AttributeError:
