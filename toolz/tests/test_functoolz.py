@@ -579,10 +579,10 @@ def test_flip():
 def test_excepts():
     # These are descriptors, make sure this works correctly.
     assert excepts.__name__ == 'excepts'
-    assert excepts.__doc__.startswith(
+    assert (
         'A wrapper around a function to catch exceptions and\n'
         '    dispatch to a handler.\n'
-    )
+    ) in excepts.__doc__
 
     def idx(a):
         """idx docstring
