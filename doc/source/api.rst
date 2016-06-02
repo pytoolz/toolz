@@ -40,8 +40,8 @@ Itertoolz
    remove
    second
    sliding_window
-   take
    tail
+   take
    take_nth
    topk
    unique
@@ -62,6 +62,8 @@ Functoolz
    compose
    curry
    do
+   excepts
+   flip
    identity
    juxt
    memoize
