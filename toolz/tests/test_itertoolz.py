@@ -3,6 +3,7 @@ from itertools import starmap
 from toolz.utils import raises
 from functools import partial
 from random import Random
+from pickle import dumps, loads
 from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
@@ -15,6 +16,10 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              diff, topk, peek, random_sample)
 from toolz.compatibility import range, filter
 from operator import add, mul
+
+
+# is comparison will fail between this and no_default
+no_default2 = loads(dumps('__no__default__'))
 
 
 def identity(x):
@@ -181,6 +186,7 @@ def test_get():
     assert raises(KeyError, lambda: get(10, {'a': 1}))
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
     assert raises(TypeError, lambda: get([1, 2, 3], 1, None))
+    assert raises(KeyError, lambda: get('foo', {}, default=no_default2))
 
 
 def test_mapcat():
@@ -248,6 +254,8 @@ def test_reduceby():
 
 def test_reduce_by_init():
     assert reduceby(iseven, add, [1, 2, 3, 4]) == {True: 2 + 4, False: 1 + 3}
+    assert reduceby(iseven, add, [1, 2, 3, 4], no_default2) == {True: 2 + 4,
+                                                                False: 1 + 3}
 
 
 def test_reduce_by_callable_default():
@@ -274,6 +282,7 @@ def test_accumulate():
 
     start = object()
     assert list(accumulate(binop, [], start)) == [start]
+    assert list(accumulate(add, [1, 2, 3], no_default2)) == [1, 3, 6]
 
 
 def test_accumulate_works_on_consumable_iterables():
@@ -328,6 +337,9 @@ def test_pluck():
     assert raises(IndexError, lambda: list(pluck(1, [[0]])))
     assert raises(KeyError, lambda: list(pluck('name', [{'id': 1}])))
 
+    assert list(pluck(0, [[0, 1], [2, 3], [4, 5]], no_default2)) == [0, 2, 4]
+    assert raises(IndexError, lambda: list(pluck(1, [[0]], no_default2)))
+
 
 def test_join():
     names = [(1, 'one'), (2, 'two'), (3, 'three')]
@@ -343,6 +355,11 @@ def test_join():
                     ((2, 'two', 'banana', 2)),
                     ((2, 'two', 'coconut', 2))])
 
+    assert result == expected
+
+    result = set(starmap(add, join(first, names, second, fruit,
+                                   left_default=no_default2,
+                                   right_default=no_default2)))
     assert result == expected
 
 

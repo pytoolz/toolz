@@ -49,7 +49,7 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     chunks = partition_all(chunksize, seq)
 
     # Evaluate sequence in chunks via map
-    if default is no_default:
+    if default == no_default:
         results = map(lambda chunk: reduce(binop, chunk), chunks)
     else:
         results = map(lambda chunk: reduce(binop, chunk, default), chunks)
