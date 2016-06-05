@@ -423,7 +423,7 @@ def concat(seqs):
     An infinite sequence will prevent the rest of the arguments from
     being included.
 
-    We use chain.from_iterable rather than chain(*seqs) so that seqs
+    We use chain.from_iterable rather than ``chain(*seqs)`` so that seqs
     can be a generator.
 
     >>> list(concat([[], [1], [2, 3]]))
