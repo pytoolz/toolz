@@ -114,7 +114,7 @@ def merge_sorted(*seqs, **kwargs):
     [2, 1, 3, 3]
     """
     if len(seqs) == 0:
-        return []
+        return iter([])
     elif len(seqs) == 1:
         return iter(seqs[0])
 
