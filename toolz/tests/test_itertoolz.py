@@ -86,6 +86,13 @@ def test_merge_sorted():
             [(9, 1), (9, 8), (9, 9)]]
     assert list(merge_sorted(*data, key=lambda x: x[1])) == [
         (9, 1), (1, 2), (5, 3), (0, 4), (6, 5), (3, 6), (8, 8), (9, 8), (9, 9)]
+    assert list(merge_sorted()) == []
+    assert list(merge_sorted([1, 2, 3])) == [1, 2, 3]
+    assert list(merge_sorted([1, 4, 5], [2, 3])) == [1, 2, 3, 4, 5]
+    assert list(merge_sorted([1, 4, 5], [2, 3], key=identity)) == [
+        1, 2, 3, 4, 5]
+    assert list(merge_sorted([1, 5], [2], [4, 7], [3, 6], key=identity)) == [
+        1, 2, 3, 4, 5, 6, 7]
 
 
 def test_interleave():
