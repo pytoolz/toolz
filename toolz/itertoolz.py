@@ -113,56 +113,105 @@ def merge_sorted(*seqs, **kwargs):
     >>> list(merge_sorted([2, 3], [1, 3], key=lambda x: x // 3))
     [2, 1, 3, 3]
     """
+    if len(seqs) == 0:
+        return iter([])
+    elif len(seqs) == 1:
+        return iter(seqs[0])
+
     key = kwargs.get('key', None)
     if key is None:
-        # heapq.merge does what we do below except by val instead of key(val)
-        return heapq.merge(*seqs)
+        return _merge_sorted_binary(seqs)
     else:
-        return _merge_sorted_key(seqs, key)
+        return _merge_sorted_binary_key(seqs, key)
 
 
-def _merge_sorted_key(seqs, key):
-    # The commented code below shows an alternative (slower) implementation
-    # to apply a key function for sorting.
-    #
-    # mapper = lambda i, item: (key(item), i, item)
-    # keyiters = [map(partial(mapper, i), itr) for i, itr in
-    #             enumerate(seqs)]
-    # return (item for (item_key, i, item) in heapq.merge(*keyiters))
+def _merge_sorted_binary(seqs):
+    mid = len(seqs) // 2
+    L1 = seqs[:mid]
+    if len(L1) == 1:
+        seq1 = iter(L1[0])
+    else:
+        seq1 = _merge_sorted_binary(L1)
+    L2 = seqs[mid:]
+    if len(L2) == 1:
+        seq2 = iter(L2[0])
+    else:
+        seq2 = _merge_sorted_binary(L2)
 
-    # binary heap as a priority queue
-    pq = []
+    try:
+        val2 = next(seq2)
+    except StopIteration:
+        for val1 in seq1:
+            yield val1
+        return
 
-    # Initial population
-    for itnum, it in enumerate(map(iter, seqs)):
-        try:
-            item = next(it)
-            pq.append([key(item), itnum, item, it])
-        except StopIteration:
-            pass
-    heapq.heapify(pq)
+    for val1 in seq1:
+        if val2 < val1:
+            yield val2
+            for val2 in seq2:
+                if val2 < val1:
+                    yield val2
+                else:
+                    yield val1
+                    break
+            else:
+                break
+        else:
+            yield val1
+    else:
+        yield val2
+        for val2 in seq2:
+            yield val2
+        return
+    yield val1
+    for val1 in seq1:
+        yield val1
 
-    # Repeatedly yield and then repopulate from the same iterator
-    heapreplace = heapq.heapreplace
-    heappop = heapq.heappop
-    while len(pq) > 1:
-        try:
-            while True:
-                # raises IndexError when pq is empty
-                _, itnum, item, it = s = pq[0]
-                yield item
-                item = next(it)  # raises StopIteration when exhausted
-                s[0] = key(item)
-                s[2] = item
-                heapreplace(pq, s)  # restore heap condition
-        except StopIteration:
-            heappop(pq)  # remove empty iterator
-    if pq:
-        # Much faster when only a single iterable remains
-        _, itnum, item, it = pq[0]
-        yield item
-        for item in it:
-            yield item
+
+def _merge_sorted_binary_key(seqs, key):
+    mid = len(seqs) // 2
+    L1 = seqs[:mid]
+    if len(L1) == 1:
+        seq1 = iter(L1[0])
+    else:
+        seq1 = _merge_sorted_binary_key(L1, key)
+    L2 = seqs[mid:]
+    if len(L2) == 1:
+        seq2 = iter(L2[0])
+    else:
+        seq2 = _merge_sorted_binary_key(L2, key)
+
+    try:
+        val2 = next(seq2)
+    except StopIteration:
+        for val1 in seq1:
+            yield val1
+        return
+    key2 = key(val2)
+
+    for val1 in seq1:
+        key1 = key(val1)
+        if key2 < key1:
+            yield val2
+            for val2 in seq2:
+                key2 = key(val2)
+                if key2 < key1:
+                    yield val2
+                else:
+                    yield val1
+                    break
+            else:
+                break
+        else:
+            yield val1
+    else:
+        yield val2
+        for val2 in seq2:
+            yield val2
+        return
+    yield val1
+    for val1 in seq1:
+        yield val1
 
 
 def interleave(seqs, pass_exceptions=()):
