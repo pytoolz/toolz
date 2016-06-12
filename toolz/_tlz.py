@@ -29,7 +29,7 @@ class TlzLoader(object):
         self.exec_module(module)
         return module
 
-    def find_spec(self, fullname, path, target=None):  # pragma: py2 no cover
+    def find_spec(self, fullname, path, target=None):  # pragma: no cover
         package, dot, submodules = fullname.partition('.')
         if package == 'tlz':
             return TlzSpec(fullname, self)
