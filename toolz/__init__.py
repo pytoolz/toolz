@@ -19,4 +19,7 @@ comp = compose
 
 functoolz._sigs.create_signature_registry()
 
+from . import _tlz
+del _tlz
+
 __version__ = '0.8.0'
