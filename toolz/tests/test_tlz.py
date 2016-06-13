@@ -47,3 +47,8 @@ def test_tlz():
         assert cytoolz.functoolz.__name__ == 'cytoolz.functoolz'
     except ImportError:
         pass
+
+    assert tlz.__file__ == toolz.__file__
+    assert tlz.functoolz.__file__ == toolz.functoolz.__file__
+
+    assert tlz.pipe is toolz.pipe

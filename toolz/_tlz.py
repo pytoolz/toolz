@@ -1,19 +1,32 @@
 import sys
 import types
 from importlib import import_module
+import toolz
 
 
 class TlzLoader(object):
     """ Finds and loads modules when added to sys.meta_path"""
+    def __init__(self):
+        self.always_from_toolz = set([
+            toolz.pipe,
+        ])
+
     def _load_toolz(self, fullname):
+        rv = {}
         package, dot, submodules = fullname.partition('.')
-        module_name = ''.join(['cytoolz', dot, submodules])
         try:
-            module = import_module(module_name)
+            module_name = ''.join(['cytoolz', dot, submodules])
+            rv['cytoolz'] = import_module(module_name)
         except ImportError:
+            pass
+        try:
             module_name = ''.join(['toolz', dot, submodules])
-            module = import_module(module_name)
-        return module
+            rv['toolz'] = import_module(module_name)
+        except ImportError:
+            pass
+        if not rv:
+            raise ImportError(fullname)
+        return rv
 
     def find_module(self, fullname, path=None):  # pragma: py3 no cover
         package, dot, submodules = fullname.partition('.')
@@ -39,18 +52,29 @@ class TlzLoader(object):
         return module
 
     def exec_module(self, module):
-        toolz_module = self._load_toolz(module.__name__)
-        d = dict(toolz_module.__dict__, **module.__dict__)
-        module.__dict__.update(d)
-        package = toolz_module.__dict__['__package__']
+        toolz_mods = self._load_toolz(module.__name__)
+        fast_mod = toolz_mods.get('cytoolz') or toolz_mods['toolz']
+        slow_mod = toolz_mods.get('toolz') or toolz_mods['cytoolz']
+        module.__dict__.update(toolz.merge(fast_mod.__dict__, module.__dict__))
+        package = fast_mod.__package__
         if package is not None:
             package, dot, submodules = package.partition('.')
-            module.__dict__['__package__'] = ''.join(['tlz', dot, submodules])
+            module.__package__ = ''.join(['tlz', dot, submodules])
 
-        for k, v in toolz_module.__dict__.items():
-            if (
+        # show file from toolz during introspection
+        module.__file__ = slow_mod.__file__
+
+        for k, v in fast_mod.__dict__.items():
+            tv = slow_mod.__dict__.get(k)
+            try:
+                hash(tv)
+            except TypeError:
+                tv = None
+            if tv in self.always_from_toolz:
+                module.__dict__[k] = tv
+            elif (
                 isinstance(v, types.ModuleType)
-                and v.__package__ == toolz_module.__name__
+                and v.__package__ == fast_mod.__name__
             ):
                 package, dot, submodules = v.__name__.partition('.')
                 module_name = ''.join(['tlz', dot, submodules])
