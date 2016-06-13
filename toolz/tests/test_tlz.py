@@ -61,3 +61,6 @@ def test_tlz():
     assert tlz.functoolz.__file__ == toolz.functoolz.__file__
 
     assert tlz.pipe is toolz.pipe
+
+    assert 'tlz' in tlz.__doc__
+    assert tlz.curried.__doc__ is not None

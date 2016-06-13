@@ -51,8 +51,7 @@ class TlzLoader(object):
             return TlzSpec(fullname, self)
 
     def create_module(self, spec):
-        module = types.ModuleType(spec.name)
-        return module
+        return types.ModuleType(spec.name)
 
     def exec_module(self, module):
         toolz_mods = self._load_toolz(module.__name__)
@@ -63,6 +62,8 @@ class TlzLoader(object):
         if package is not None:
             package, dot, submodules = package.partition('.')
             module.__package__ = ''.join(['tlz', dot, submodules])
+        if not module.__doc__:
+            module.__doc__ = fast_mod.__doc__
 
         # show file from toolz during introspection
         module.__file__ = slow_mod.__file__
