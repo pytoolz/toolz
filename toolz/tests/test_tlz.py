@@ -17,7 +17,6 @@ def test_tlz():
     assert tlz.__package__ == 'tlz'
     assert tlz.__name__ == 'tlz'
     import tlz.curried
-    print(tlz.curried.__package__)
     assert tlz.curried.__package__ == 'tlz.curried'
     assert tlz.curried.__name__ == 'tlz.curried'
     tlz.curried.curry
@@ -51,7 +50,6 @@ def test_tlz():
     try:
         import cytoolz
         assert cytoolz.__package__ == 'cytoolz'
-        #import cytoolz.curried
         assert cytoolz.curried.__package__ == 'cytoolz.curried'
         assert cytoolz.functoolz.__name__ == 'cytoolz.functoolz'
     except ImportError:

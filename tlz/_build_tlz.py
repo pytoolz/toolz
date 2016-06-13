@@ -8,7 +8,7 @@ import toolz
 
 
 class TlzLoader(object):
-    """ Finds and loads modules when added to sys.meta_path"""
+    """ Finds and loads ``tlz`` modules when added to sys.meta_path"""
     def __init__(self):
         self.always_from_toolz = set([
             toolz.pipe,

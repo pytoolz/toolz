@@ -2,8 +2,8 @@
 
 The ``tlz`` package is installed when ``toolz`` is installed.  It provides
 a convenient way to use functions from ``cytoolz``--a faster Cython
-implementation of ``toolz``--if it's installed, otherwise it uses functions
-from ``toolz``.
+implementation of ``toolz``--if it is installed, otherwise it uses
+functions from ``toolz``.
 """
 
 from . import _build_tlz
