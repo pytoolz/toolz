@@ -2,6 +2,15 @@ import toolz
 
 
 def test_tlz():
+    try:
+        import importlib
+    except ImportError:
+        try:
+            import tlz
+            1/0
+        except ImportError as e:
+            assert '"tlz" package is not available in Python 2.6' in str(e)
+        return
     import tlz
     tlz.curry
     tlz.functoolz.curry
