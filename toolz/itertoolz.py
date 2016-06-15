@@ -670,7 +670,7 @@ def sliding_window(n, seq):
     # An efficient FIFO data structure with maximum length
     d = collections.deque(itertools.islice(it, n), n)
     if len(d) != n:
-        raise StopIteration()
+        return
     d_append = d.append
     for item in it:
         yield tuple(d)
@@ -722,7 +722,10 @@ def partition_all(n, seq):
     """
     args = [iter(seq)] * n
     it = zip_longest(*args, fillvalue=no_pad)
-    prev = next(it)
+    try:
+        prev = next(it)
+    except StopIteration:
+        return
     for item in it:
         yield prev
         prev = item
