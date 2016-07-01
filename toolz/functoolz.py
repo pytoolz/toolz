@@ -622,12 +622,12 @@ def flip(func, a, b):
 
 
 def constantly(v):
-    """Create function that always returns `v`, independent of its input.
+    """Create function that always returns ``v``, independent of its input
 
     >>> f = constantly(3)
     >>> f(10)
     3
-    >>> f(obj)
+    >>> f({'any': 'obj'}, 'and', any='amt')
     3
     """
     def inner(*args, **kwargs):
