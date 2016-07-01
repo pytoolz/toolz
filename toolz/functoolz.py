@@ -621,10 +621,21 @@ def flip(func, a, b):
     return func(b, a)
 
 
-def return_none(exc):
-    """ Returns None.
+def constantly(v):
+    """Create function that always returns `v`, independent of its input.
+
+    >>> f = constantly(3)
+    >>> f(10)
+    3
+    >>> f(obj)
+    3
     """
-    return None
+    def inner(*args, **kwargs):
+        return v
+    return inner
+
+
+return_none = constantly(None)
 
 
 class excepts(object):
