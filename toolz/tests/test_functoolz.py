@@ -1,7 +1,8 @@
 import platform
 
-from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt, flip, excepts)
+from toolz.functoolz import (thread_first, thread_last, memoize, curry, compose,
+                             pipe, complement, do, juxt, flip, excepts,
+                             constantly)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -574,6 +575,13 @@ def test_flip():
         return a, b
 
     assert flip(f, 'a', 'b') == ('b', 'a')
+
+
+def test_constantly():
+    f = constantly(42)
+
+    assert f() == 42
+    assert f(2) == 42
 
 
 def test_excepts():
