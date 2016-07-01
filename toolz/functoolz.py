@@ -636,6 +636,8 @@ def constantly(v):
 
 
 return_none = constantly(None)
+return_none.__doc__ = """Returns None.
+    """
 
 
 class excepts(object):
