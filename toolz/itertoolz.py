@@ -666,16 +666,8 @@ def sliding_window(n, seq):
     >>> list(map(mean, sliding_window(2, [1, 2, 3, 4])))
     [1.5, 2.5, 3.5]
     """
-    it = iter(seq)
-    # An efficient FIFO data structure with maximum length
-    d = collections.deque(itertools.islice(it, n), n)
-    if len(d) != n:
-        raise StopIteration()
-    d_append = d.append
-    for item in it:
-        yield tuple(d)
-        d_append(item)
-    yield tuple(d)
+    return zip(*(collections.deque(itertools.islice(it, i), 0) or it
+               for i, it in enumerate(itertools.tee(seq, n))))
 
 
 no_pad = '__no__pad__'
