@@ -214,7 +214,7 @@ def _merge_sorted_binary_key(seqs, key):
         yield val1
 
 
-def interleave(seqs, pass_exceptions=()):
+def interleave(seqs):
     """ Interleave a sequence of sequences
 
     >>> list(interleave([[1, 2], [3, 4]]))
@@ -227,16 +227,15 @@ def interleave(seqs, pass_exceptions=()):
 
     Returns a lazy iterator
     """
-    iters = map(iter, seqs)
-    while iters:
-        newiters = []
-        for itr in iters:
-            try:
+    iters = itertools.cycle(map(iter, seqs))
+    while True:
+        try:
+            for itr in iters:
                 yield next(itr)
-                newiters.append(itr)
-            except (StopIteration,) + tuple(pass_exceptions):
-                pass
-        iters = newiters
+            return
+        except StopIteration:
+            predicate = partial(operator.is_not, itr)
+            iters = itertools.cycle(itertools.takewhile(predicate, iters))
 
 
 def unique(seq, key=None):
