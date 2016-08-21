@@ -323,15 +323,15 @@ class curry(object):
 
     def __reduce__(self):
         func = self.func
-        modname = getattr(self.func, '__module__', None)
-        funcname = getattr(self.func, '__name__', None)
+        modname = getattr(func, '__module__', None)
+        funcname = getattr(func, '__name__', None)
         if modname and funcname:
             from importlib import import_module
             module = import_module(modname)
             obj = getattr(module, funcname, None)
             if obj is self:
                 return funcname
-            elif isinstance(obj, curry) and obj.func is self.func:
+            elif isinstance(obj, curry) and obj.func is func:
                 func = '%s.%s' % (modname, funcname)
 
         # functools.partial objects can't be pickled
