@@ -321,17 +321,36 @@ class curry(object):
             return self
         return curry(self, instance)
 
-    # pickle protocol because functools.partial objects can't be pickled
-    def __getstate__(self):
-        # dictoolz.keyfilter, I miss you!
+    def __reduce__(self):
+        from importlib import import_module
+        modname = getattr(self.func, '__module__', None)
+        funcname = getattr(self.func, '__name__', None)
+        if modname and funcname:
+            module = import_module(modname)
+            func = getattr(module, funcname, None)
+            if func is self:
+                return funcname
+            elif isinstance(func, curry) and func.func is self.func:
+                func = '%s.%s' % (modname, funcname)
+            else:
+                func = self.func
+
+        # functools.partial objects can't be pickled
         userdict = tuple((k, v) for k, v in self.__dict__.items()
                          if k != '_partial')
-        return self.func, self.args, self.keywords, userdict
+        state = (type(self), func, self.args, self.keywords, userdict)
+        return (_restore_curry, state)
 
-    def __setstate__(self, state):
-        func, args, kwargs, userdict = state
-        self.__init__(func, *args, **(kwargs or {}))
-        self.__dict__.update(userdict)
+
+def _restore_curry(cls, func, args, kwargs, userdict):
+    if isinstance(func, str):
+        from importlib import import_module
+        modname, funcname = func.rsplit('.', 1)
+        module = import_module(modname)
+        func = getattr(module, funcname).func
+    obj = cls(func, *args, **(kwargs or {}))
+    obj.__dict__.update(userdict)
+    return obj
 
 
 @curry
