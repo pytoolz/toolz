@@ -4,7 +4,7 @@ import operator
 from operator import attrgetter
 from textwrap import dedent
 
-from .compatibility import PY3, PY33, PY34, PYPY
+from .compatibility import PY3, PY33, PY34, PYPY, import_module
 from .utils import no_default
 
 
@@ -326,7 +326,6 @@ class curry(object):
         modname = getattr(func, '__module__', None)
         funcname = getattr(func, '__name__', None)
         if modname and funcname:
-            from importlib import import_module
             module = import_module(modname)
             obj = getattr(module, funcname, None)
             if obj is self:
@@ -343,7 +342,6 @@ class curry(object):
 
 def _restore_curry(cls, func, args, kwargs, userdict):
     if isinstance(func, str):
-        from importlib import import_module
         modname, funcname = func.rsplit('.', 1)
         module = import_module(modname)
         func = getattr(module, funcname).func
