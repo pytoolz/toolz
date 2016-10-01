@@ -21,12 +21,6 @@ Install
 
     pip install toolz
 
-or
-
-::
-
-    easy_install toolz
-
 Structure and Heritage
 ----------------------
 
