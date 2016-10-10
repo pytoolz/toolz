@@ -5,7 +5,7 @@ Toolz
 
 A set of utility functions for iterators, functions, and dictionaries.
 
-See the PyToolz documentation at http://toolz.readthedocs.org
+See the PyToolz documentation at https://toolz.readthedocs.io
 
 LICENSE
 -------
@@ -48,7 +48,7 @@ These functions come from the legacy of functional languages for list
 processing. They interoperate well to accomplish common complex tasks.
 
 Read our `API
-Documentation <http://toolz.readthedocs.org/en/latest/api.html>`__ for
+Documentation <https://toolz.readthedocs.io/en/latest/api.html>`__ for
 more details.
 
 Example
