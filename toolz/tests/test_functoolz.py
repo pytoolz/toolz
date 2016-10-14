@@ -158,7 +158,11 @@ def test_memoize_wrapped():
         Docstring
         """
         pass
+
     memoized_foo = memoize(foo)
+    assert memoized_foo.__name__ == foo.__name__
+    assert memoized_foo.__doc__ == foo.__doc__
+    assert memoized_foo.__module__ == foo.__module__ == __name__
     assert memoized_foo.__wrapped__ is foo
 
 

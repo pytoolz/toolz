@@ -422,13 +422,7 @@ def memoize(func, cache=None, key=None):
             cache[k] = result = func(*args, **kwargs)
             return result
 
-    try:
-        memof.__name__ = func.__name__
-    except AttributeError:
-        pass
-    memof.__doc__ = func.__doc__
-    memof.__wrapped__ = func
-    return memof
+    return _update_wrapper(memof, func)
 
 
 class Compose(object):
@@ -1055,3 +1049,31 @@ Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?
     """
 
 from . import _signatures as _sigs
+
+
+_assigned = (
+    '__module__',
+    '__name__',
+    '__qualname__',
+    '__doc__',
+    '__annotations__',
+)
+_updated = '__dict__',
+
+
+def _update_wrapper(wrapper, wrapped, assigned=_assigned, updated=_updated):
+    """Update the attributes of a wrapping function.
+
+    Implementation is backported from CPython 3.6
+    """
+    for attr in assigned:
+        try:
+            value = getattr(wrapped, attr)
+        except AttributeError:
+            pass
+        else:
+            setattr(wrapper, attr, value)
+    for attr in updated:
+        getattr(wrapper, attr).update(getattr(wrapped, attr, {}))
+    wrapper.__wrapped__ = wrapped
+    return wrapper
