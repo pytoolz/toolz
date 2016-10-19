@@ -11,10 +11,11 @@ from toolz.utils import no_default
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
-           'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
-           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'first', 'second', 'nth', 'last', 'get', 'cycles', 'concat',
+           'concatv', 'mapcat', 'cons', 'interpose', 'frequencies',
+           'reduceby', 'iterate', 'sliding_window', 'partition',
+           'partition_all', 'count', 'pluck', 'join', 'tail', 'diff',
+           'topk', 'peek', 'random_sample')
 
 
 def remove(predicate, seq):
@@ -493,6 +494,21 @@ def concatv(*seqs):
         itertools.chain
     """
     return concat(seqs)
+
+
+def cycles(n, seq):
+    """ Cycles through the sequence n-times.
+
+    Note: If ``n`` is ``None``, cycle infinitely.
+
+    >>> list(cycles(2, [1, 2, 3]))
+    [1, 2, 3, 1, 2, 3]
+    """
+
+    if n is None:
+        return(itertools.cycle(seq))
+
+    return concat(itertools.tee(seq, n))
 
 
 def mapcat(func, seqs):
