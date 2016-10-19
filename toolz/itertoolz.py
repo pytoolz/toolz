@@ -28,6 +28,7 @@ def empty():
 
     return iter([])
 
+
 def remove(predicate, seq):
     """ Return those items of sequence for which predicate(item) is False
 
