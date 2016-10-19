@@ -9,13 +9,15 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
                              nth, take, tail, drop, interpose, get,
-                             rest, last, cons, frequencies,
+                             cycles, rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
                              diff, topk, peek, random_sample)
 from toolz.compatibility import range, filter
 from operator import add, mul
+import sys
+import warnings
 
 
 # is comparison will fail between this and no_default
@@ -194,6 +196,35 @@ def test_get():
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
     assert raises(TypeError, lambda: get([1, 2, 3], 1, None))
     assert raises(KeyError, lambda: get('foo', {}, default=no_default2))
+
+
+def test_cycles():
+    assert list(cycles(5, [])) == []
+
+    assert list(cycles(5, [1])) == list(itertools.repeat(1, 5))
+
+    assert list(cycles(1, [1, 2, 3])) == [1, 2, 3]
+    assert list(cycles(2, [1, 2, 3])) == [1, 2, 3, 1, 2, 3]
+    assert list(cycles(3, [1, 2, 3])) == [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+    assert list(zip(range(9), cycles(None, [1, 2, 3]))) == [(0, 1),
+                                                            (1, 2),
+                                                            (2, 3),
+                                                            (3, 1),
+                                                            (4, 2),
+                                                            (5, 3),
+                                                            (6, 1),
+                                                            (7, 2),
+                                                            (8, 3)]
+
+    assert raises(ValueError, lambda: list(cycles(-1, [1])))
+
+    if sys.version_info >= (2, 7):
+        assert raises(TypeError, lambda: list(cycles(0.5, [1])))
+    else:
+        with warnings.catch_warnings():
+            warnings.filterwarnings('error')
+            assert raises(DeprecationWarning, lambda: list(cycles(0.5, [1])))
 
 
 def test_mapcat():
