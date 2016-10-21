@@ -9,12 +9,27 @@ from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
 from toolz.utils import no_default
 
 
-__all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
-           'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
-           'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
-           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+__all__ = ('remove', 'accumulate', 'generator', 'groupby', 'merge_sorted',
+           'interleave', 'unique', 'isiterable', 'isdistinct', 'take',
+           'drop', 'take_nth', 'first', 'second', 'nth', 'last', 'get',
+           'concat', 'concatv', 'mapcat', 'cons', 'interpose',
+           'frequencies', 'reduceby', 'iterate', 'sliding_window',
+           'partition', 'partition_all', 'count', 'pluck', 'join', 'tail',
+           'diff', 'topk', 'peek', 'random_sample')
+
+
+def generator(it):
+    """ Creates a generator type from the iterable.
+
+    >>> generator(range(5))  # doctest: +ELLIPSIS
+    <generator object generator at 0x...>
+
+    >>> list(generator(range(5)))
+    [0, 1, 2, 3, 4]
+    """
+
+    for each in it:
+        yield each
 
 
 def remove(predicate, seq):
