@@ -4,7 +4,7 @@ from toolz.utils import raises
 from functools import partial
 from random import Random
 from pickle import dumps, loads
-from toolz.itertoolz import (remove, groupby, merge_sorted,
+from toolz.itertoolz import (remove, groupby, indices, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
@@ -50,6 +50,31 @@ def test_remove():
 
 def test_groupby():
     assert groupby(iseven, [1, 2, 3, 4]) == {True: [2, 4], False: [1, 3]}
+
+
+def test_indices():
+    assert list(indices(0)) == []
+    assert list(indices(0, 5)) == []
+    assert list(indices(5, 0)) == []
+
+    assert list(indices(5)) == [(0,),
+                                (1,),
+                                (2,),
+                                (3,),
+                                (4,)]
+
+    assert list(indices(1, 5)) == [(0, 0,),
+                                   (0, 1,),
+                                   (0, 2,),
+                                   (0, 3,),
+                                   (0, 4,)]
+
+    assert list(indices(3, 2)) == [(0, 0),
+                                   (0, 1),
+                                   (1, 0),
+                                   (1, 1),
+                                   (2, 0),
+                                   (2, 1)]
 
 
 def test_groupby_non_callable():
