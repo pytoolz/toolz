@@ -8,7 +8,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
-                             nth, take, tail, drop, interpose, get,
+                             nth, take, tail, drop, split, interpose, get,
                              rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
@@ -170,6 +170,28 @@ def test_tail():
 def test_drop():
     assert list(drop(3, 'ABCDE')) == list('DE')
     assert list(drop(1, (3, 2, 1))) == list((2, 1))
+
+
+def test_split():
+    l = [10, 20, 30, 40, 50]
+    assert list(map(tuple, split(0, l))) == [tuple(),
+                                             (10,),
+                                             (20, 30, 40, 50)]
+
+    l = [10, 20, 30, 40, 50]
+    assert list(map(tuple, split(4, l))) == [(10, 20, 30, 40,),
+                                             (50,),
+                                             tuple()]
+
+    l = [10, 20, 30, 40, 50]
+    assert list(map(tuple, split(5, l))) == [(10, 20, 30, 40, 50),
+                                             tuple(),
+                                             tuple()]
+
+    l = [10, 20, 30, 40, 50]
+    assert list(map(tuple, split(2, l))) == [(10, 20),
+                                             (30,),
+                                             (40, 50)]
 
 
 def test_take_nth():
