@@ -9,11 +9,12 @@ from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
 from toolz.utils import no_default
 
 
-__all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
-           'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
-           'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
-           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
+__all__ = ('remove', 'accumulate', 'groupby', 'indices', 'merge_sorted',
+           'interleave', 'unique', 'isiterable', 'isdistinct', 'take',
+           'drop', 'take_nth', 'first', 'second', 'nth', 'last', 'get',
+           'concat', 'concatv', 'mapcat', 'cons', 'interpose',
+           'frequencies', 'reduceby', 'iterate', 'sliding_window',
+           'partition', 'partition_all', 'count', 'pluck',
            'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
 
 
@@ -95,6 +96,32 @@ def groupby(key, seq):
     for k, v in iteritems(d):
         rv[k] = v.__self__
     return rv
+
+
+def indices(*sizes):
+    """ Iterates over a length/shape.
+
+    >>> list(indices(3, 2))
+    [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)]
+
+    This can help nicely index an array.
+
+    >>> l = [[1, 2],
+    ...      [3, 4],
+    ...      [5, 6]]
+
+    >>> for i, j in indices(3, 2):
+    ...     print("l[%i][%i] = %i" % (i, j, l[i][j]))
+    l[0][0] = 1
+    l[0][1] = 2
+    l[1][0] = 3
+    l[1][1] = 4
+    l[2][0] = 5
+    l[2][1] = 6
+
+    """
+
+    return itertools.product(*map(range, sizes))
 
 
 def merge_sorted(*seqs, **kwargs):
