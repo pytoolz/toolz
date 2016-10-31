@@ -31,3 +31,10 @@ else:
     iteritems = operator.methodcaller('iteritems')
     iterkeys = operator.methodcaller('iterkeys')
     itervalues = operator.methodcaller('itervalues')
+
+try:
+    from importlib import import_module
+except ImportError:
+    def import_module(name):
+        __import__(name)
+        return sys.modules[name]
