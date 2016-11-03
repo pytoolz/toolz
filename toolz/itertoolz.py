@@ -749,8 +749,7 @@ def pluck(ind, seqs, default=no_default):
 
     This is equivalent to running `map(curried.get(ind), seqs)`
 
-    ``ind`` can be either a single string/index or a sequence of
-    strings/indices.
+    ``ind`` can be either a single string/index or a list of strings/indices.
     ``seqs`` should be sequence containing sequences or dicts.
 
     e.g.
