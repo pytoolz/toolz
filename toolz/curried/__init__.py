@@ -23,33 +23,78 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
-from . import exceptions
-from . import operator
 import toolz
+from . import operator
+from toolz import (
+    comp,
+    complement,
+    compose,
+    concat,
+    concatv,
+    count,
+    curry,
+    diff,
+    dissoc,
+    first,
+    flip,
+    frequencies,
+    identity,
+    interleave,
+    isdistinct,
+    isiterable,
+    juxt,
+    last,
+    memoize,
+    merge_sorted,
+    peek,
+    pipe,
+    second,
+    thread_first,
+    thread_last,
+)
+from .exceptions import merge, merge_with
 
+accumulate = toolz.curry(toolz.accumulate)
+assoc = toolz.curry(toolz.assoc)
+assoc_in = toolz.curry(toolz.assoc_in)
+cons = toolz.curry(toolz.cons)
+countby = toolz.curry(toolz.countby)
+do = toolz.curry(toolz.do)
+drop = toolz.curry(toolz.drop)
+excepts = toolz.curry(toolz.excepts)
+filter = toolz.curry(toolz.filter)
+get = toolz.curry(toolz.get)
+get_in = toolz.curry(toolz.get_in)
+groupby = toolz.curry(toolz.groupby)
+interpose = toolz.curry(toolz.interpose)
+itemfilter = toolz.curry(toolz.itemfilter)
+itemmap = toolz.curry(toolz.itemmap)
+iterate = toolz.curry(toolz.iterate)
+join = toolz.curry(toolz.join)
+keyfilter = toolz.curry(toolz.keyfilter)
+keymap = toolz.curry(toolz.keymap)
+map = toolz.curry(toolz.map)
+mapcat = toolz.curry(toolz.mapcat)
+nth = toolz.curry(toolz.nth)
+partial = toolz.curry(toolz.partial)
+partition = toolz.curry(toolz.partition)
+partition_all = toolz.curry(toolz.partition_all)
+partitionby = toolz.curry(toolz.partitionby)
+pluck = toolz.curry(toolz.pluck)
+random_sample = toolz.curry(toolz.random_sample)
+reduce = toolz.curry(toolz.reduce)
+reduceby = toolz.curry(toolz.reduceby)
+remove = toolz.curry(toolz.remove)
+sliding_window = toolz.curry(toolz.sliding_window)
+sorted = toolz.curry(toolz.sorted)
+tail = toolz.curry(toolz.tail)
+take = toolz.curry(toolz.take)
+take_nth = toolz.curry(toolz.take_nth)
+topk = toolz.curry(toolz.topk)
+unique = toolz.curry(toolz.unique)
+update_in = toolz.curry(toolz.update_in)
+valfilter = toolz.curry(toolz.valfilter)
+valmap = toolz.curry(toolz.valmap)
 
-def _should_curry(func):
-    if not callable(func) or isinstance(func, toolz.curry):
-        return False
-    nargs = toolz.functoolz.num_required_args(func)
-    if nargs is None or nargs > 1:
-        return True
-    return nargs == 1 and toolz.functoolz.has_keywords(func)
-
-
-def _curry_namespace(ns):
-    return dict(
-        (name, toolz.curry(f) if _should_curry(f) else f)
-        for name, f in ns.items() if '__' not in name
-    )
-
-
-locals().update(toolz.merge(
-    _curry_namespace(vars(toolz)),
-    _curry_namespace(vars(exceptions)),
-))
-
-# Clean up the namespace.
-del _should_curry
 del exceptions
 del toolz
