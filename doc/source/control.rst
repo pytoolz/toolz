@@ -8,9 +8,8 @@ need for simultaneous thought is restricted to only a few elements at a time.
 
 All modern languages provide mechanisms to build data into data structures and
 to build functions out of other functions.  The third element of programming,
-besides data and functions is control flow.  Control flow is the third
-element of programming, after data and functions.  Building complex control
-flow out of simple control flow presents deeper challenges.
+besides data and functions, is control flow.  Building complex control flow
+out of simple control flow presents deeper challenges.
 
 
 What?

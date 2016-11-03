@@ -1,1 +1,3 @@
+include LICENSE.txt
+
 include toolz/tests/*.py

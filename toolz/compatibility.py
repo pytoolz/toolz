@@ -7,7 +7,7 @@ PYPY = hasattr(sys, 'pypy_version_info')
 
 __all__ = ('map', 'filter', 'range', 'zip', 'reduce', 'zip_longest',
            'iteritems', 'iterkeys', 'itervalues', 'filterfalse',
-           'PY3', 'PY34', 'PYPY')
+           'PY3', 'PY34', 'PYPY', 'import_module')
 
 if PY3:
     map = map

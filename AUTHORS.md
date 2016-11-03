@@ -29,3 +29,5 @@ Joe Jevnik                                      [@llllllllll](https://github.com
 Rory Kirchner                                      [@roryk](https://github.com/roryk)
 
 [Steven Cutting](http://steven-cutting.github.io) [@steven_cutting](https://github.com/steven-cutting)
+
+Aric Coady                                      [@coady](https://github.com/coady)

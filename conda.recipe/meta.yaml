@@ -22,5 +22,5 @@ test:
       - py.test -x --doctest-modules --pyargs toolz
 
 about:
-    home: http://toolz.readthedocs.org/
+    home: https://toolz.readthedocs.io/
     license: BSD

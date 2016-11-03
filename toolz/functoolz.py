@@ -4,7 +4,7 @@ import operator
 from operator import attrgetter
 from textwrap import dedent
 
-from .compatibility import PY3, PY33, PY34, PYPY
+from .compatibility import PY3, PY33, PY34, PYPY, import_module
 from .utils import no_default
 
 
@@ -169,7 +169,7 @@ class curry(object):
 
     See Also:
         toolz.curried - namespace of curried functions
-                        http://toolz.readthedocs.org/en/latest/curry.html
+                        https://toolz.readthedocs.io/en/latest/curry.html
     """
     def __init__(self, *args, **kwargs):
         if not args:
@@ -321,17 +321,33 @@ class curry(object):
             return self
         return curry(self, instance)
 
-    # pickle protocol because functools.partial objects can't be pickled
-    def __getstate__(self):
-        # dictoolz.keyfilter, I miss you!
+    def __reduce__(self):
+        func = self.func
+        modname = getattr(func, '__module__', None)
+        funcname = getattr(func, '__name__', None)
+        if modname and funcname:
+            module = import_module(modname)
+            obj = getattr(module, funcname, None)
+            if obj is self:
+                return funcname
+            elif isinstance(obj, curry) and obj.func is func:
+                func = '%s.%s' % (modname, funcname)
+
+        # functools.partial objects can't be pickled
         userdict = tuple((k, v) for k, v in self.__dict__.items()
                          if k != '_partial')
-        return self.func, self.args, self.keywords, userdict
+        state = (type(self), func, self.args, self.keywords, userdict)
+        return (_restore_curry, state)
 
-    def __setstate__(self, state):
-        func, args, kwargs, userdict = state
-        self.__init__(func, *args, **(kwargs or {}))
-        self.__dict__.update(userdict)
+
+def _restore_curry(cls, func, args, kwargs, userdict):
+    if isinstance(func, str):
+        modname, funcname = func.rsplit('.', 1)
+        module = import_module(modname)
+        func = getattr(module, funcname).func
+    obj = cls(func, *args, **(kwargs or {}))
+    obj.__dict__.update(userdict)
+    return obj
 
 
 @curry
