@@ -21,7 +21,7 @@ install:
 script:
     - export MAJOR_PYTHON_VERSION=`echo $TRAVIS_PYTHON_VERSION | cut -c 1`
     - coverage run --source=toolz $(which nosetests)
-                   --with-doctest
+                   --with-doctest toolz/
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then coverage report --show-missing --fail-under=100 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py,tests,examples,bench -r --show-source . ; fi
 
