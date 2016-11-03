@@ -214,7 +214,7 @@ def _merge_sorted_binary_key(seqs, key):
         yield val1
 
 
-def interleave(seqs, pass_exceptions=()):
+def interleave(seqs):
     """ Interleave a sequence of sequences
 
     >>> list(interleave([[1, 2], [3, 4]]))
@@ -227,16 +227,15 @@ def interleave(seqs, pass_exceptions=()):
 
     Returns a lazy iterator
     """
-    iters = map(iter, seqs)
-    while iters:
-        newiters = []
-        for itr in iters:
-            try:
+    iters = itertools.cycle(map(iter, seqs))
+    while True:
+        try:
+            for itr in iters:
                 yield next(itr)
-                newiters.append(itr)
-            except (StopIteration,) + tuple(pass_exceptions):
-                pass
-        iters = newiters
+            return
+        except StopIteration:
+            predicate = partial(operator.is_not, itr)
+            iters = itertools.cycle(itertools.takewhile(predicate, iters))
 
 
 def unique(seq, key=None):
@@ -666,16 +665,8 @@ def sliding_window(n, seq):
     >>> list(map(mean, sliding_window(2, [1, 2, 3, 4])))
     [1.5, 2.5, 3.5]
     """
-    it = iter(seq)
-    # An efficient FIFO data structure with maximum length
-    d = collections.deque(itertools.islice(it, n), n)
-    if len(d) != n:
-        raise StopIteration()
-    d_append = d.append
-    for item in it:
-        yield tuple(d)
-        d_append(item)
-    yield tuple(d)
+    return zip(*(collections.deque(itertools.islice(it, i), 0) or it
+               for i, it in enumerate(itertools.tee(seq, n))))
 
 
 no_pad = '__no__pad__'
@@ -722,7 +713,10 @@ def partition_all(n, seq):
     """
     args = [iter(seq)] * n
     it = zip_longest(*args, fillvalue=no_pad)
-    prev = next(it)
+    try:
+        prev = next(it)
+    except StopIteration:
+        return
     for item in it:
         yield prev
         prev = item

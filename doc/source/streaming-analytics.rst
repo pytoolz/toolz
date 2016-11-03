@@ -34,7 +34,7 @@ These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
 .. code::
 
    >>> from toolz.curried import pipe, map, filter, get
-   >>> pipe(accounts, filter(lambda (id, name, balance, gender): balance > 150),
+   >>> pipe(accounts, filter(lambda acc: acc[2] > 150),
    ...                map(get([1, 2])),
    ...                list)
 
@@ -150,9 +150,9 @@ that adds up the balances for each group:
 
 .. code::
 
-   >>> binop = lambda total, (id, name, bal, gend): total + bal
+   >>> binop = lambda total, account: total + account[2]
 
-   >>> reduceby(get(3), binop, accounts)
+   >>> reduceby(get(3), binop, accounts, 0)
    {'F': 400, 'M': 400}
 
 
@@ -307,9 +307,9 @@ composition, ...) users interested in data analytics might be better served by
 using projects specific to data analytics like Pandas_ or SQLAlchemy.
 
 
-.. _groupby: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.groupby
-.. _join: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.join
-.. _reduceby: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.reduceby
-.. _valmap: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.valmap
+.. _groupby: https://toolz.readthedocs.io/en/latest/api.html#toolz.itertoolz.groupby
+.. _join: https://toolz.readthedocs.io/en/latest/api.html#toolz.itertoolz.join
+.. _reduceby: https://toolz.readthedocs.io/en/latest/api.html#toolz.itertoolz.reduceby
+.. _valmap: https://toolz.readthedocs.io/en/latest/api.html#toolz.dicttoolz.valmap
 .. _Pandas: http://pandas.pydata.org/pandas-docs/stable/groupby.html
-.. _curried: http://toolz.readthedocs.org/en/latest/curry.html
+.. _curried: https://toolz.readthedocs.io/en/latest/curry.html
