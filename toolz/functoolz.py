@@ -617,13 +617,13 @@ def flip(func, a, b):
     This function is curried.
 
     >>> def div(a, b):
-    ...     return a / b
+    ...     return a // b
     ...
-    >>> flip(div, 2, 1)
-    0.5
+    >>> flip(div, 2, 6)
+    3
     >>> div_by_two = flip(div, 2)
     >>> div_by_two(4)
-    2.0
+    2
 
     This is particularly useful for built in functions and functions defined
     in C extensions that accept positional only arguments. For example:
