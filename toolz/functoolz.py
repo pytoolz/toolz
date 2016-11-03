@@ -169,7 +169,7 @@ class curry(object):
 
     See Also:
         toolz.curried - namespace of curried functions
-                        http://toolz.readthedocs.org/en/latest/curry.html
+                        https://toolz.readthedocs.io/en/latest/curry.html
     """
     def __init__(self, *args, **kwargs):
         if not args:

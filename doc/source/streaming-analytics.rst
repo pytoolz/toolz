@@ -307,9 +307,9 @@ composition, ...) users interested in data analytics might be better served by
 using projects specific to data analytics like Pandas_ or SQLAlchemy.
 
 
-.. _groupby: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.groupby
-.. _join: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.join
-.. _reduceby: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.reduceby
-.. _valmap: http://toolz.readthedocs.org/en/latest/api.html#toolz.itertoolz.valmap
+.. _groupby: https://toolz.readthedocs.io/en/latest/api.html#toolz.itertoolz.groupby
+.. _join: https://toolz.readthedocs.io/en/latest/api.html#toolz.itertoolz.join
+.. _reduceby: https://toolz.readthedocs.io/en/latest/api.html#toolz.itertoolz.reduceby
+.. _valmap: https://toolz.readthedocs.io/en/latest/api.html#toolz.dicttoolz.valmap
 .. _Pandas: http://pandas.pydata.org/pandas-docs/stable/groupby.html
-.. _curried: http://toolz.readthedocs.org/en/latest/curry.html
+.. _curried: https://toolz.readthedocs.io/en/latest/curry.html
