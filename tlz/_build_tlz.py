@@ -1,10 +1,7 @@
 import sys
 import types
-try:
-    from importlib import import_module
-except ImportError:
-    raise ImportError('"tlz" package is not available in Python 2.6')
 import toolz
+from toolz.compatibility import import_module
 
 
 class TlzLoader(object):
