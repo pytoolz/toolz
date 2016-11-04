@@ -511,9 +511,7 @@ def cons(el, seq):
     >>> list(cons(1, [2, 3]))
     [1, 2, 3]
     """
-    yield el
-    for s in seq:
-        yield s
+    return itertools.chain([el], seq)
 
 
 def interpose(el, seq):
