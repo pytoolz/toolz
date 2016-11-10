@@ -226,7 +226,7 @@ def assoc_in(d, keys, value, factory=dict):
     >>> assoc_in(purchase, ['order', 'costs'], [0.25, 1.00]) # doctest: +SKIP
     {'credit card': '5555-1234-1234-1234',
      'name': 'Alice',
-     'purchase': {'costs': [0.25, 1.00], 'items': ['Apple', 'Orange']}}
+     'order': {'costs': [0.25, 1.00], 'items': ['Apple', 'Orange']}}
     """
     return update_in(d, keys, lambda x: value, value, factory)
 
