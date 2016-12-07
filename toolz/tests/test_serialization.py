@@ -1,5 +1,6 @@
 from toolz import *
 import toolz
+import toolz.curried.exceptions
 import pickle
 
 
@@ -55,3 +56,9 @@ def test_flip():
     g1 = flip(f)(1)
     g2 = pickle.loads(pickle.dumps(g1))
     assert g1(2) == g2(2) == f(2, 1)
+
+
+def test_curried_exceptions():
+    # This tests a global curried object that isn't defined in toolz.functoolz
+    merge = pickle.loads(pickle.dumps(toolz.curried.exceptions.merge))
+    assert merge is toolz.curried.exceptions.merge

@@ -200,6 +200,7 @@ class curry(object):
 
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
+        self.__module__ = getattr(func, '__module__', None)
         self._sigspec = None
         self._has_unknown_args = None
 

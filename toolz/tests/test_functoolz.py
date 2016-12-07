@@ -289,10 +289,17 @@ def test_curry_attributes_writable():
     f = curry(foo, 1, c=2)
     f.__name__ = 'newname'
     f.__doc__ = 'newdoc'
+    f.__module__ = 'newmodule'
     assert f.__name__ == 'newname'
     assert f.__doc__ == 'newdoc'
+    assert f.__module__ == 'newmodule'
     if hasattr(f, 'func_name'):
         assert f.__name__ == f.func_name
+
+
+def test_curry_module():
+    from toolz.curried.exceptions import merge
+    assert merge.__module__ == 'toolz.curried.exceptions'
 
 
 def test_curry_comparable():
