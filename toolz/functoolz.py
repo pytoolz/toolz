@@ -350,7 +350,7 @@ class curry(object):
 
         # functools.partial objects can't be pickled
         userdict = tuple((k, v) for k, v in self.__dict__.items()
-                         if k != '_partial')
+                         if k not in ('_partial', '_sigspec'))
         state = (type(self), func, self.args, self.keywords, userdict,
                  is_decorated)
         return (_restore_curry, state)
