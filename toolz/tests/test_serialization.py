@@ -3,6 +3,7 @@ import toolz
 import toolz.curried.exceptions
 import pickle
 from toolz.compatibility import PY3
+from toolz.utils import raises
 
 
 def test_compose():
@@ -177,3 +178,11 @@ def test_curried_qualname():
     func2 = pickle.loads(pickle.dumps(func1))
     assert func1 is not func2
     assert func1(4) == func2(4) == 10
+
+
+def test_curried_bad_qualname():
+    @toolz.curry
+    class Bad(object):
+        __qualname__ = 'toolz.functoolz.not.a.valid.path'
+
+    assert raises(pickle.PicklingError, lambda: pickle.dumps(Bad))

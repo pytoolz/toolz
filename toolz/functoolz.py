@@ -329,14 +329,14 @@ class curry(object):
         func = self.func
         modname = getattr(func, '__module__', None)
         qualname = getattr(func, '__qualname__', None)
-        if qualname is None:
+        if qualname is None:  # pragma: py3 no cover
             qualname = getattr(func, '__name__', None)
         is_decorated = None
         if modname and qualname:
             attrs = []
             obj = import_module(modname)
             for attr in qualname.split('.'):
-                if isinstance(obj, curry):
+                if isinstance(obj, curry):  # pragma: py2 no cover
                     attrs.append('func')
                     obj = obj.func
                 obj = getattr(obj, attr, None)
@@ -351,7 +351,8 @@ class curry(object):
         # functools.partial objects can't be pickled
         userdict = tuple((k, v) for k, v in self.__dict__.items()
                          if k != '_partial')
-        state = (type(self), func, self.args, self.keywords, userdict, is_decorated)
+        state = (type(self), func, self.args, self.keywords, userdict,
+                 is_decorated)
         return (_restore_curry, state)
 
 
