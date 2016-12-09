@@ -116,6 +116,7 @@ class GlobalCurried(object):
 def test_curried_qualname():
     if not PY3:
         return
+
     def preserves_identity(obj):
         return pickle.loads(pickle.dumps(obj)) is obj
 
@@ -124,22 +125,6 @@ def test_curried_qualname():
     assert preserves_identity(GlobalCurried.func.NestedCurried)
     assert preserves_identity(GlobalCurried.func.NestedCurried.func.f2)
     assert preserves_identity(GlobalCurried.func.Nested.f3)
-    if not PY33 and not PY34:
-        assert preserves_identity(GlobalCurried.func.g1)
-        assert preserves_identity(GlobalCurried.func.NestedCurried.func.g2)
-        assert preserves_identity(GlobalCurried.func.Nested)
-        assert preserves_identity(GlobalCurried.func.Nested.g3)
-
-    # Rely on curry.__getattr__
-    assert preserves_identity(GlobalCurried.f1)
-    assert preserves_identity(GlobalCurried.NestedCurried)
-    assert preserves_identity(GlobalCurried.NestedCurried.f2)
-    assert preserves_identity(GlobalCurried.Nested.f3)
-    if not PY33 and not PY34:
-        assert preserves_identity(GlobalCurried.g1)
-        assert preserves_identity(GlobalCurried.NestedCurried.g2)
-        assert preserves_identity(GlobalCurried.Nested)
-        assert preserves_identity(GlobalCurried.Nested.g3)
 
     global_curried1 = GlobalCurried(1)
     global_curried2 = pickle.loads(pickle.dumps(global_curried1))
@@ -156,31 +141,50 @@ def test_curried_qualname():
     assert func1 is not func2
     assert func1(4) == func2(4) == 10
 
-    nested_curried1 = GlobalCurried.NestedCurried(1)
+    nested_curried1 = GlobalCurried.func.NestedCurried(1)
     nested_curried2 = pickle.loads(pickle.dumps(nested_curried1))
     assert nested_curried1 is not nested_curried2
     assert nested_curried1(2).f2(3, 4) == nested_curried2(2).f2(3, 4) == 10
 
-    nested_curried3 = nested_curried1(2)
-    nested_curried4 = pickle.loads(pickle.dumps(nested_curried3))
-    assert nested_curried3 is not nested_curried4
-    assert nested_curried3.f2(3, 4) == nested_curried4.f2(3, 4) == 10
+    # If we add `curry.__getattr__` forwarding, the following tests will pass
 
-    func1 = nested_curried1(2).f2(3)
-    func2 = pickle.loads(pickle.dumps(func1))
-    assert func1 is not func2
-    assert func1(4) == func2(4) == 10
-
-    if not PY33 and not PY34:
-        nested3 = GlobalCurried.Nested(1, 2)
-        nested4 = pickle.loads(pickle.dumps(nested3))
-        assert nested3 is not nested4
-        assert nested3.f3(3, 4) == nested4.f3(3, 4) == 10
-
-        func1 = nested3.f3(3)
-        func2 = pickle.loads(pickle.dumps(func1))
-        assert func1 is not func2
-        assert func1(4) == func2(4) == 10
+    # if not PY33 and not PY34:
+    #     assert preserves_identity(GlobalCurried.func.g1)
+    #     assert preserves_identity(GlobalCurried.func.NestedCurried.func.g2)
+    #     assert preserves_identity(GlobalCurried.func.Nested)
+    #     assert preserves_identity(GlobalCurried.func.Nested.g3)
+    #
+    # # Rely on curry.__getattr__
+    # assert preserves_identity(GlobalCurried.f1)
+    # assert preserves_identity(GlobalCurried.NestedCurried)
+    # assert preserves_identity(GlobalCurried.NestedCurried.f2)
+    # assert preserves_identity(GlobalCurried.Nested.f3)
+    # if not PY33 and not PY34:
+    #     assert preserves_identity(GlobalCurried.g1)
+    #     assert preserves_identity(GlobalCurried.NestedCurried.g2)
+    #     assert preserves_identity(GlobalCurried.Nested)
+    #     assert preserves_identity(GlobalCurried.Nested.g3)
+    #
+    # nested_curried3 = nested_curried1(2)
+    # nested_curried4 = pickle.loads(pickle.dumps(nested_curried3))
+    # assert nested_curried3 is not nested_curried4
+    # assert nested_curried3.f2(3, 4) == nested_curried4.f2(3, 4) == 10
+    #
+    # func1 = nested_curried1(2).f2(3)
+    # func2 = pickle.loads(pickle.dumps(func1))
+    # assert func1 is not func2
+    # assert func1(4) == func2(4) == 10
+    #
+    # if not PY33 and not PY34:
+    #     nested3 = GlobalCurried.func.Nested(1, 2)
+    #     nested4 = pickle.loads(pickle.dumps(nested3))
+    #     assert nested3 is not nested4
+    #     assert nested3.f3(3, 4) == nested4.f3(3, 4) == 10
+    #
+    #     func1 = nested3.f3(3)
+    #     func2 = pickle.loads(pickle.dumps(func1))
+    #     assert func1 is not func2
+    #     assert func1(4) == func2(4) == 10
 
 
 def test_curried_bad_qualname():

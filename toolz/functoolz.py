@@ -201,6 +201,7 @@ class curry(object):
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
         self.__module__ = getattr(func, '__module__', None)
+        self.__qualname__ = getattr(func, '__qualname__', None)
         self._sigspec = None
         self._has_unknown_args = None
 
@@ -258,9 +259,6 @@ class curry(object):
     @instanceproperty
     def func_name(self):
         return self.__name__
-
-    def __getattr__(self, attr):
-        return getattr(self.func, attr)
 
     def __str__(self):
         return str(self.func)
