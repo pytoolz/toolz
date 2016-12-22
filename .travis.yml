@@ -13,7 +13,7 @@ env:
 
 # command to install dependencies
 install:
-    - pip install coverage pep8
+    - pip install coverage pep8 pytest
 
 # command to run tests
 # require 100% coverage (not including test files) to pass Travis CI test
@@ -24,6 +24,9 @@ script:
                    --with-doctest toolz/
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then coverage report --show-missing --fail-under=100 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py,tests,examples,bench -r --show-source . ; fi
+    # For convenience, make sure simple test commands work
+    - py.test
+    - nosetests
 
 # load coverage status to https://coveralls.io
 after_success:
