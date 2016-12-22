@@ -25,6 +25,7 @@ script:
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then coverage report --show-missing --fail-under=100 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py,tests,examples,bench -r --show-source . ; fi
     # For convenience, make sure simple test commands work
+    - python setup.py install
     - py.test
     - nosetests
 
