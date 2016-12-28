@@ -1,6 +1,6 @@
 from toolz import *
 import toolz
-import toolz.curried.exceptions
+import toolz.curried
 import pickle
 from toolz.compatibility import PY3, PY33, PY34
 from toolz.utils import raises
@@ -62,8 +62,8 @@ def test_flip():
 
 def test_curried_exceptions():
     # This tests a global curried object that isn't defined in toolz.functoolz
-    merge = pickle.loads(pickle.dumps(toolz.curried.exceptions.merge))
-    assert merge is toolz.curried.exceptions.merge
+    merge = pickle.loads(pickle.dumps(toolz.curried.merge))
+    assert merge is toolz.curried.merge
 
 
 @toolz.curry
