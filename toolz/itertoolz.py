@@ -14,7 +14,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample', 'randint_range')
 
 
 def remove(predicate, seq):
@@ -979,3 +979,26 @@ def random_sample(prob, seq, random_state=None):
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+
+def randint_range(sample_size, min, max, random_state=None):
+    """ Generates a random sequence of integers from a specified range
+
+    Returns a lazy iterator of random integers from a range.
+
+    >>> list(randint_range(5, 100, 1000))
+    [157, 196, 781, 882, 905]
+    >>> list(randint_range(5, 100, 1000))
+    [234, 377, 501, 601, 885]
+    >>> list(randint_range(5, 100, 1000))
+    [441, 540, 717, 736, 946]
+    """
+    if not hasattr(random_state, 'random'):
+        random_state = Random(random_state)
+    population_size = max - min
+    for i in range(min, max):
+        if random_state.random() < sample_size / population_size:
+            yield i
+            sample_size -= 1
+        population_size -= 1
+
