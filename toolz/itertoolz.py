@@ -14,7 +14,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample', 'randint_range')
+           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample',
+           'randint_range')
 
 
 def remove(predicate, seq):
@@ -1003,4 +1004,3 @@ def randint_range(sample_size, min, max, random_state=None):
             yield i
             sample_size -= 1
         population_size -= 1
-
