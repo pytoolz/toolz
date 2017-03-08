@@ -999,8 +999,6 @@ def randint_range(sample_size, min, max, random_state=None):
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
     population_size = max - min
-    if hasattr(__builtins__, 'xrange'):
-        range = xrange
     for i in range(min, max):
         if random_state.random() < sample_size / population_size:
             yield i
