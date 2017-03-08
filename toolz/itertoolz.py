@@ -986,12 +986,14 @@ def randint_range(sample_size, min, max, random_state=None):
 
     Returns a lazy iterator of random integers from a range.
 
-    >>> list(randint_range(5, 100, 1000))
+    >>> list(randint_range(5, 100, 1000)) # doctest: +SKIP
     [157, 196, 781, 882, 905]
-    >>> list(randint_range(5, 100, 1000))
+    >>> list(randint_range(5, 100, 1000)) # doctest: +SKIP
     [234, 377, 501, 601, 885]
-    >>> list(randint_range(5, 100, 1000))
-    [441, 540, 717, 736, 946]
+    >>> list(randint_range(5, 100, 1000, random_state=2017))
+    [270, 548, 595, 878, 999]
+    >>> list(randint_range(5, 100, 1000, random_state=2017))
+    [270, 548, 595, 878, 999]
     """
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
