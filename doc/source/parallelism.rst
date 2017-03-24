@@ -6,7 +6,7 @@ by ensuring easy serialization of ``toolz`` functions and providing
 architecture-agnostic parallel algorithms.
 
 In practice ``toolz`` is developed against ``multiprocessing`` and
-``IPython.parallel``.
+``ipyparallel``.
 
 
 Serialization
@@ -28,7 +28,7 @@ Example with parallel map
 
 Most parallel processing tasks may be significantly accelerated using only a
 parallel map operation.  A number of high quality parallel map operations exist
-in other libraries, notably ``multiprocessing``, ``IPython.parallel``, and
+in other libraries, notably ``multiprocessing``, ``ipyparallel``, and
 ``threading`` (if your operation is not processor bound).
 
 In the example below we extend our wordcounting solution with a parallel map.
@@ -66,7 +66,7 @@ multiprocessing, to distributed computation all with the same domain code.
         # pmap = p.map
 
         # Finish with distributed parallel map for big data
-        from IPython.parallel import Client
+        from ipyparallel import Client
         p = Client()[:]
         pmap = p.map_sync
 
@@ -92,4 +92,4 @@ parallel map function.
 
 In particular we provide a parallel ``fold`` in ``toolz.sandbox.parallel.fold``.
 This fold can work equally well with ``multiprocessing.Pool.map``
-``threading.Pool.map`` or ``IPython.parallel``'s ``map_async``.
+``threading.Pool.map`` or ``ipyparallel``'s ``map_async``.
