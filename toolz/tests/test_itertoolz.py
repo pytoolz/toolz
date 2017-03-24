@@ -1,10 +1,11 @@
 import itertools
+import types
 from itertools import starmap
 from toolz.utils import raises
 from functools import partial
 from random import Random
 from pickle import dumps, loads
-from toolz.itertoolz import (remove, groupby, merge_sorted,
+from toolz.itertoolz import (generator, remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
@@ -40,6 +41,14 @@ def inc(x):
 
 def double(x):
     return 2 * x
+
+
+def test_generator():
+    assert list(generator(range(5))) == [0, 1, 2, 3, 4]
+
+    assert isinstance(generator(range(5)), types.GeneratorType)
+    assert issubclass(type(generator(range(5))), types.GeneratorType)
+    assert type(generator(range(5))) is types.GeneratorType
 
 
 def test_remove():
