@@ -4,7 +4,7 @@ from toolz.utils import raises
 from functools import partial
 from random import Random
 from pickle import dumps, loads
-from toolz.itertoolz import (remove, groupby, merge_sorted,
+from toolz.itertoolz import (empty, remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
@@ -40,6 +40,12 @@ def inc(x):
 
 def double(x):
     return 2 * x
+
+
+def test_empty():
+    assert list(empty()) == []
+
+    assert raises(StopIteration, lambda: next(empty()))
 
 
 def test_remove():
