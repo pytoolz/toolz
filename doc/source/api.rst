@@ -60,6 +60,7 @@ Functoolz
 .. autosummary::
    complement
    compose
+   constantly
    curry
    do
    excepts
