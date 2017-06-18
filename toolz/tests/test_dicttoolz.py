@@ -1,7 +1,7 @@
 from collections import defaultdict as _defaultdict
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
-                             itemfilter, assoc_in)
+                             itemfilter, assoc_in, transition)
 from toolz.utils import raises
 from toolz.compatibility import PY3
 
@@ -50,6 +50,30 @@ class TestDict(object):
         assert merge_with(sum, *dicts, **kw) == D({1: 11, 2: 22})
         assert merge_with(sum, dicts, **kw) == D({1: 11, 2: 22})
         assert merge_with(sum, iter(dicts), **kw) == D({1: 11, 2: 22})
+
+    def test_transition(self):
+        D, kw = self.D, self.kw
+
+        dicts = D({}),
+        assert transition(*dicts, **kw) == D({})
+
+        dicts = D({1: 2, 2: 3, 3: 5}),
+        assert transition(*dicts, **kw) == dicts[0]
+
+        dicts = D({1: 6, 2: 6, 3: 7, 4: 8, 5: None}), D({7: 9, 6: 10})
+        assert transition(*dicts, **kw) == D({1: 10, 2: 10, 3: 9})
+
+        dicts = D({1: 1, 2: 2, 3: 3}), D({}), D({1: 4, 2: 5, 3: 6})
+        assert transition(*dicts, **kw) == D({})
+
+        dicts = D({1: 1, 2: 2, 3: 3}), D({})
+        assert transition(*dicts, **kw) == D({})
+
+        dicts = D({1: None, 2: None, 3: None, 4: None}), D({None: 5})
+        assert transition(*dicts, **kw) == D({1: 5, 2: 5, 3: 5, 4: 5})
+
+        dicts = D({1: 4, 2: 5, 3: 5}), D({5: None})
+        assert transition(*dicts, **kw) == D({2: None, 3: None})
 
     def test_valmap(self):
         D, kw = self.D, self.kw
