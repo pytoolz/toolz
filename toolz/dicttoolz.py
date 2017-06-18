@@ -71,7 +71,7 @@ def merge_with(func, *dicts, **kwargs):
 
 
 def transition(*dicts, **kwargs):
-    """ Return a transition map from an ordered collection of ditionaries.
+    """ Return a transition map from an ordered collection of dictionaries.
 
     Transition map is a new dict, constructed by following mappings from
     source dict to sink dict. Does not modify original dictionaries.
