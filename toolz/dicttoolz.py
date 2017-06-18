@@ -99,7 +99,7 @@ def transition(*dicts, **kwargs):
     curr = dicts[-1]
     for prev in dicts[-2::-1]:
         if not curr:
-            return factory()
+            return rv
         rprev = {}
         for k, v in iteritems(prev):
             try:
