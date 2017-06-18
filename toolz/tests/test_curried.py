@@ -1,7 +1,7 @@
 import toolz
 import toolz.curried
 from toolz.curried import (take, first, second, sorted, merge_with, reduce,
-                           merge, operator as cop)
+                           merge, operator as cop, transition)
 from toolz.compatibility import import_module
 from collections import defaultdict
 from operator import add
@@ -23,6 +23,12 @@ def test_merge():
 
 def test_merge_with():
     assert merge_with(sum)({1: 1}, {1: 2}) == {1: 3}
+
+
+def test_transition():
+    assert transition(factory=lambda: defaultdict(int))({1: 1}) == {1: 1}
+    assert transition({1: 1}) == {1: 1}
+    assert transition({1: 1}, factory=lambda: defaultdict(int)) == {1: 1}
 
 
 def test_merge_with_list():
@@ -87,6 +93,7 @@ def test_curried_namespace():
     from_toolz = curry_namespace(vars(toolz))
     from_exceptions = curry_namespace(vars(exceptions))
     namespace.update(toolz.merge(from_toolz, from_exceptions))
+    namespace.update(toolz.transition(from_toolz, from_exceptions))
 
     namespace = toolz.valfilter(callable, namespace)
     curried_namespace = toolz.valfilter(callable, toolz.curried.__dict__)

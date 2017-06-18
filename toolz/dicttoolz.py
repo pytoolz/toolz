@@ -3,7 +3,8 @@ import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
-__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
+__all__ = ('merge', 'merge_with', 'transition',
+           'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
            'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
 
@@ -67,6 +68,54 @@ def merge_with(func, *dicts, **kwargs):
             else:
                 result[k].append(v)
     return valmap(func, result, factory)
+
+
+def transition(*dicts, **kwargs):
+    """ Return a transition map from an ordered collection of ditionaries.
+
+    Transition map is a new dict, constructed by following mappings from
+    source dict to sink dict. Does not modify original dictionaries.
+
+    >>> transition({1: 6, 2: 6, 3: 7, 4: 8, 5: None}, {7: 9, 6: 10})
+    {1: 10, 2: 10, 3: 9}
+
+    >>> transition({1: 1, 2: 2, 3: 3}, {}) # Gaps break the transition
+    {}
+
+    >>> transition({1: 1, 2: 2, 3: 3}, {}, {1: 4, 2: 5, 3: 6})
+    {}
+
+    >>> transition({1: None, 2: None, 3: None, 4: None}, {None: 5})
+    {1: 5, 2: 5, 3: 5, 4: 5}
+
+    >>> transition({1: 4, 2: 5, 3: 5}, {5: None})
+    {2: None, 3: None}
+    """
+    if len(dicts) == 1 and not isinstance(dicts[0], dict):
+        return dicts[0]
+    factory = _get_factory(transition, kwargs)
+
+    rv = factory()
+    curr = dicts[-1]
+    for prev in dicts[-2::-1]:
+        if not curr:
+            return factory()
+        rprev = {}
+        for k, v in iteritems(prev):
+            try:
+                rprev[v].add(k)
+            except KeyError:
+                rprev[v] = set((k,))
+
+        pks = set(iterkeys(prev))
+        cks = set(iterkeys(curr))
+        curr.update({v: curr[k] for (k, vs) in iteritems(rprev) for v in vs
+                    if k in cks})
+        for k in cks:
+            if k not in pks:
+                del curr[k]
+    rv.update(curr)
+    return rv
 
 
 def valmap(func, d, factory=dict):
