@@ -520,8 +520,9 @@ def interpose(el, seq):
     >>> list(interpose("a", [1, 2, 3]))
     [1, 'a', 2, 'a', 3]
     """
-    combined = zip(itertools.repeat(el), seq)
-    return drop(1, concat(combined))
+    inposed = concat(zip(itertools.repeat(el), seq))
+    next(inposed)
+    return inposed
 
 
 def frequencies(seq):
