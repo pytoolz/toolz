@@ -14,7 +14,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample',
+           'dichotomize')
 
 
 def remove(predicate, seq):
@@ -980,3 +981,48 @@ def random_sample(prob, seq, random_state=None):
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+
+def _complement_iterator(it, predicate, our_queue, other_queue):
+    for element in our_queue:
+        yield element
+    our_queue.clear()
+
+    for element in it:
+        if predicate(element):
+            yield element
+        else:
+            other_queue.append(element)
+
+        for element in our_queue:
+            yield element
+        our_queue.clear()
+
+
+def dichotomize(predicate, iterable):
+    """Take a predicate and an iterable and return the pair of iterables of
+    elements which do and do not satisfy the predicate. The resulting iterators
+    are lazy.
+
+    >>> def even(n):
+    ...     return n & 1 == 0
+    ...
+    >>> evens, odds = dichotomize(even, range(10))
+    >>> list(evens)
+    [0, 2, 4, 6, 8]
+    >>> list(odds)
+    [1, 3, 5, 7, 9]
+    """
+    true_queue = collections.deque()
+    false_queue = collections.deque()
+    it = iter(iterable)
+
+    return (
+        _complement_iterator(it, predicate, true_queue, false_queue),
+        _complement_iterator(
+            it,
+            lambda element: not predicate(element),
+            false_queue,
+            true_queue,
+        ),
+    )

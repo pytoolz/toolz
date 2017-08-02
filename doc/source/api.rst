@@ -15,6 +15,7 @@ Itertoolz
    concatv
    cons
    count
+   dichotomize
    diff
    drop
    first

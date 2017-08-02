@@ -13,7 +13,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, random_sample)
+                             diff, topk, peek, random_sample, dichotomize)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -524,3 +524,30 @@ def test_random_sample():
     assert mk_rsample(b"a") == mk_rsample(u"a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
+
+
+def test_dichotimize():
+    evens, odds = dichotomize(iseven, range(10))
+    assert list(evens) == [0, 2, 4, 6, 8]
+    assert list(odds) == [1, 3, 5, 7, 9]
+
+
+def test_dichotimize_interleaved_next_calls():
+    evens, odds = dichotomize(iseven, range(10))
+
+    assert next(evens) == 0
+    assert next(evens) == 2
+
+    assert next(odds) == 1
+    assert next(odds) == 3
+    assert next(odds) == 5
+
+    assert next(evens) == 4
+    assert next(evens) == 6
+    assert next(evens) == 8
+
+    assert next(odds) == 7
+    assert next(odds) == 9
+
+    assert list(evens) == []
+    assert list(odds) == []
