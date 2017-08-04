@@ -8,8 +8,9 @@ from .compatibility import PY3, PY33, PY34, PYPY, import_module
 from .utils import no_default
 
 
-__all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
+__all__ = ('identity', 'thread_first', 'thread_last', 'thread_some', 'memoize',
+           'compose', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip',
+           'excepts')
 
 
 def identity(x):
@@ -92,6 +93,45 @@ def thread_last(val, *forms):
             args = args + (val,)
             return func(*args)
     return reduce(evalform_back, forms, val)
+
+def thread_some(val, *forms):
+    """ Thread value through a sequence of functions/forms
+        with early termination if None occurred
+
+    >>> def double(x): return 2*x
+    >>> def inc(x):    return x + 1
+    >>> thread_some(1, inc, double)
+    4
+
+    If the function expects more than one input you can specify those inputs
+    in a tuple.  The value is used as the first input.
+
+    >>> def add(x, y): return x + y
+    >>> def pow(x, y): return x**y
+    >>> thread_some(1, (add, 4), (pow, 2))  # pow(add(1, 4), 2)
+    25
+
+    If some function return None, all computation will
+    fail, returning None.
+
+    >>> def div(x, y): (x / y) if y != 0 else None
+    >>> def double(x): return 2 * x
+    >>> def inc(x): return x + 1
+    >>> thread_some(-1, inc, (div, 10), double) is None
+    True
+
+    """
+    next_val = val
+    for f in forms:
+        if next_val is None:
+            return None
+        if callable(f):
+            next_val = f(next_val)
+        elif isinstance(f, tuple):
+            func, args = f[0], f[1:]
+            args = (next_val,) + args
+            next_val = func(*args)
+    return next_val
 
 
 def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
