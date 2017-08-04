@@ -94,6 +94,7 @@ def thread_last(val, *forms):
             return func(*args)
     return reduce(evalform_back, forms, val)
 
+
 def thread_some(val, *forms):
     """ Thread value through a sequence of functions/forms
         with early termination if None occurred
