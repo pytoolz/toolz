@@ -13,7 +13,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, random_sample)
+                             diff, topk, peek, peekn, random_sample)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -496,10 +496,21 @@ def test_topk_is_stable():
 def test_peek():
     alist = ["Alice", "Bob", "Carol"]
     element, blist = peek(alist)
-    element == alist[0]
+    assert element == alist[0]
     assert list(blist) == alist
 
     assert raises(StopIteration, lambda: peek([]))
+
+
+def test_peekn():
+    alist = ("Alice", "Bob", "Carol")
+    elements, blist = peekn(2, alist)
+    assert elements == alist[:2]
+    assert tuple(blist) == alist
+
+    elements, blist = peekn(len(alist) * 4, alist)
+    assert elements == alist
+    assert tuple(blist) == alist
 
 
 def test_random_sample():

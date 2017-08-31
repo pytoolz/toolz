@@ -34,6 +34,7 @@ Itertoolz
    partition
    partition_all
    peek
+   peekn
    pluck
    random_sample
    reduceby

@@ -14,7 +14,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
 
 
 def remove(predicate, seq):
@@ -942,7 +942,25 @@ def peek(seq):
     """
     iterator = iter(seq)
     item = next(iterator)
-    return item, itertools.chain([item], iterator)
+    return item, itertools.chain((item,), iterator)
+
+
+def peekn(n, seq):
+    """ Retrieve the next n elements of a sequence
+
+    Returns a tuple of the first n elements and an iterable equivalent
+    to the original, still having the elements retrieved.
+
+    >>> seq = [0, 1, 2, 3, 4]
+    >>> first_two, seq = peekn(2, seq)
+    >>> first_two
+    (0, 1)
+    >>> list(seq)
+    [0, 1, 2, 3, 4]
+    """
+    iterator = iter(seq)
+    peeked = tuple(take(n, iterator))
+    return peeked, itertools.chain(iter(peeked), iterator)
 
 
 def random_sample(prob, seq, random_state=None):
