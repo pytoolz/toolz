@@ -409,6 +409,8 @@ def test_introspect_builtin_modules():
     def is_missing(modname, name, func):
         if name.startswith('_') and not name.startswith('__'):
             return False
+        if name.startswith('__pyx_unpickle_') or name.endswith('_cython__'):
+            return False
         try:
             if issubclass(func, BaseException):
                 return False
