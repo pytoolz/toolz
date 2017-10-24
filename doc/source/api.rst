@@ -90,6 +90,9 @@ Dicttoolz
    update_in
    valfilter
    valmap
+   pick
+   destruct
+   evolve
 
 Sandbox
 -------

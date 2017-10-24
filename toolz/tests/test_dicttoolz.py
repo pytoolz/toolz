@@ -1,7 +1,7 @@
 from collections import defaultdict as _defaultdict
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
-                             itemfilter, assoc_in)
+                             itemfilter, assoc_in, pick, destruct, evolve)
 from toolz.utils import raises
 from toolz.compatibility import PY3
 
@@ -138,6 +138,32 @@ class TestDict(object):
         d = D({'x': 1})
         oldd = d
         update_in(d, ['x'], inc, **kw)
+        assert d is oldd
+
+    def test_pick(self):
+        D, kw = self.D, self.kw
+        d = D({'foo': 1, 'bar': 2, 'baz': 3})
+        oldd = d
+        assert pick(['foo', 'baz'], d) == {'foo': 1, 'baz': 3}
+        # Verify immutability:
+        assert d is oldd
+
+    def test_destruct(self):
+        D, kw = self.D, self.kw
+        d = D({'foo': 1, 'bar': 2, 'baz': 3})
+        oldd = d
+        foo, baz = destruct(['foo', 'baz'], d)
+        assert foo == 1
+        assert baz == 3
+        # Verify immutability:
+        assert d is oldd
+
+    def test_evolve(self):
+        D, kw = self.D, self.kw
+        d = D({'name': 'me', 'age': 10})
+        oldd = d
+        assert evolve({'age': lambda x: 2*x}, d) == { 'name': 'me', 'age': 20 }
+        # Verify immutability:
         assert d is oldd
 
     def test_factory(self):

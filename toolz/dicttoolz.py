@@ -4,8 +4,8 @@ from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
-           'valfilter', 'keyfilter', 'itemfilter',
-           'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
+           'valfilter', 'keyfilter', 'itemfilter', 'assoc', 'dissoc',
+           'assoc_in', 'update_in', 'get_in', 'pick', 'destruct', 'evolve')
 
 
 def _get_factory(f, kwargs):
@@ -313,3 +313,33 @@ def get_in(keys, coll, default=None, no_default=False):
         if no_default:
             raise
         return default
+
+def pick(keys, d):
+    """ Filter a dictionary to certain keys
+
+    >>> dic = pick(['foo', 'baz'], {'foo': 1, 'bar': 2, 'baz': 3})
+    {'foo': 1, 'baz': 3}
+    """
+    return {key: d[key] for key in keys}
+
+def destruct(keys, d):
+    """ Destructure variables from a dictionary
+
+    >>> foo, baz = destruct(['foo', 'baz'], {'foo': 1, 'bar': 2, 'baz': 3})
+    >>> foo
+    1
+    """
+    return (d[key] for key in keys)
+
+def evolve(transformations, d):
+    """ Change part of a dictionary
+
+    >>> evolve({'age': lambda x: 2*x}, {'name': 'me', 'age': 10})
+    {'name': 'me', 'age': 20}
+    """
+    result = {}
+    for key in d:
+        tform = transformations.get(key, None)
+        result[key] = tform(d[key]) if callable(tform) else \
+              evolve(tform, d[key]) if isinstance(tform, dict) else d[key]
+    return result

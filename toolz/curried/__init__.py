@@ -95,6 +95,9 @@ unique = toolz.curry(toolz.unique)
 update_in = toolz.curry(toolz.update_in)
 valfilter = toolz.curry(toolz.valfilter)
 valmap = toolz.curry(toolz.valmap)
+pick = toolz.curry(toolz.pick)
+destruct = toolz.curry(toolz.destruct)
+evolve = toolz.curry(toolz.evolve)
 
 del exceptions
 del toolz
