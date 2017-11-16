@@ -402,6 +402,7 @@ def test_introspect_builtin_modules():
             blacklist.add(getattr(mod, attr))
 
     add_blacklist(builtins, 'basestring')
+    add_blacklist(builtins, 'breakpoint')
     add_blacklist(builtins, 'NoneType')
     add_blacklist(builtins, '__metaclass__')
     add_blacklist(builtins, 'sequenceiterator')
@@ -497,4 +498,3 @@ def test_inspect_wrapped_property():
     assert num_required_args(Wrapped) == (False if PY33 else None)
     _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
     assert num_required_args(Wrapped) == 1
-
