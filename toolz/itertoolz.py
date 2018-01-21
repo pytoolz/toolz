@@ -984,7 +984,7 @@ def random_sample(prob, seq, random_state=None):
   
 def power(iterable, hook=set):
     # the power set of iterable
-    return (hook(a) for a in toolz.concat(itertools.combinations(iterable, r) for r in range(len(iterable)+1)))
+    return (hook(a) for a in concat(itertools.combinations(iterable, r) for r in range(len(iterable)+1)))
 
 
 
