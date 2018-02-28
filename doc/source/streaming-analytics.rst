@@ -97,8 +97,9 @@ Then we chain them together into a single computation
 
 .. code::
 
-   >>> pipe(accounts, groupby(get(3)),
-   ...                valmap(compose(sum, pluck(2))))
+   >>> import toolz.curried as curried
+   >>> pipe(accounts, curried.groupby(get(3)),
+   ...                curried.valmap(compose(sum, pluck(2))))
    {'F': 400, 'M': 400}
 
 
