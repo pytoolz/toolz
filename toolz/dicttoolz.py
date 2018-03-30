@@ -324,7 +324,7 @@ def select_keys(d, keys, factory=dict):
     >>> d = {'a': 1, 'b': 2, 'c': 3}
     >>> select_keys(d, ['a', 'b', 'd'])
     {'a': 1, 'b': 2}
-    >>> select_keys(d, ['c'])
+    >>> select_keys(d, ['d'])
     {}
     """
     rv = factory()
