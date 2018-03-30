@@ -1,7 +1,8 @@
 from collections import defaultdict as _defaultdict
-from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
-                             assoc, dissoc, keyfilter, valfilter, itemmap,
-                             itemfilter, assoc_in)
+from toolz.dicttoolz import (assoc, assoc_in, dissoc, itemfilter,
+                             itemmap, keyfilter, keymap, merge,
+                             merge_with, select_keys, update_in,
+                             valfilter, valmap)
 from toolz.utils import raises
 from toolz.compatibility import PY3
 
@@ -116,6 +117,14 @@ class TestDict(object):
         d2 = assoc_in(d, ['x'], 2, **kw)
         assert d is oldd
         assert d2 is not oldd
+
+    def test_select_keys(self):
+        D, kw = self.D, self.kw
+        assert select_keys(D({}), [], **kw) == D({})
+        assert select_keys(D({"a": 1}), ["a"], **kw) == D({"a": 1})
+        assert select_keys(D({"a": 1}), [], **kw) == D({})
+        assert select_keys(D({"a": 1}), ["b"], **kw) == D({})
+        assert select_keys(D({"a": 1, "b": 2}), ["b"], **kw) == D({"b": 2})
 
     def test_update_in(self):
         D, kw = self.D, self.kw
