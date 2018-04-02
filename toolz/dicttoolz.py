@@ -328,6 +328,7 @@ def select_keys(d, keys, factory=dict):
     {}
     """
     rv = factory()
-    for k in set(keys).intersection(d.keys()):
-        rv[k] = d[k]
+    for k in keys:
+        if k in d:
+            rv[k] = d[k]
     return rv
