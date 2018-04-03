@@ -322,7 +322,7 @@ def select_keys(d, keys, factory=dict):
     dictionary.
 
     >>> d = {'a': 1, 'b': 2, 'c': 3}
-    >>> select_keys(d, ['a', 'b', 'd'])
+    >>> select_keys(d, ['a', 'b', 'd'])  # doctest: +SKIP
     {'a': 1, 'b': 2}
     >>> select_keys(d, ['d'])
     {}
