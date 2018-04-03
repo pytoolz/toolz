@@ -2,7 +2,7 @@ from toolz.curried import *
 import os
 
 if not os.path.exists('bench/shakespeare.txt'):
-    os.system('wget http://www.gutenberg.org/ebooks/100.txt.utf-8'
+    os.system('wget http://www.gutenberg.org/files/100/100-0.txt'
               ' -O bench/shakespeare.txt')
 
 
