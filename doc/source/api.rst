@@ -87,6 +87,7 @@ Dicttoolz
    itemmap
    merge
    merge_with
+   select_keys
    update_in
    valfilter
    valmap
