@@ -120,11 +120,11 @@ class TestDict(object):
 
     def test_select_keys(self):
         D, kw = self.D, self.kw
-        assert select_keys(D({}), [], **kw) == D({})
-        assert select_keys(D({"a": 1}), ["a"], **kw) == D({"a": 1})
-        assert select_keys(D({"a": 1}), [], **kw) == D({})
-        assert select_keys(D({"a": 1}), ["b"], **kw) == D({})
-        assert select_keys(D({"a": 1, "b": 2}), ["b"], **kw) == D({"b": 2})
+        assert select_keys([], D({}), **kw) == D({})
+        assert select_keys(["a"], D({"a": 1}), **kw) == D({"a": 1})
+        assert select_keys([], D({"a": 1}), **kw) == D({})
+        assert select_keys(["b"], D({"a": 1}), **kw) == D({})
+        assert select_keys(["b"], D({"a": 1, "b": 2}), **kw) == D({"b": 2})
 
     def test_update_in(self):
         D, kw = self.D, self.kw

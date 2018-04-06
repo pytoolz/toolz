@@ -315,16 +315,16 @@ def get_in(keys, coll, default=None, no_default=False):
         return default
 
 
-def select_keys(d, keys, factory=dict):
+def select_keys(keys, d, factory=dict):
     """ Select only certain keys from a dictionary
 
     If supplied keys are not found in the dictionary, returns an empty
     dictionary.
 
     >>> d = {'a': 1, 'b': 2, 'c': 3}
-    >>> select_keys(d, ['a', 'b', 'd'])  # doctest: +SKIP
+    >>> select_keys(['a', 'b', 'd'], d)  # doctest: +SKIP
     {'a': 1, 'b': 2}
-    >>> select_keys(d, ['d'])
+    >>> select_keys(['d'], d)
     {}
     """
     rv = factory()
