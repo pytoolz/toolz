@@ -503,6 +503,10 @@ class Compose(object):
         except AttributeError:
             return type(self).__name__
 
+    def __repr__(self):
+        return '{.__class__.__name__}({})'.format(
+            self, ', '.join(map(repr, reversed((self.first, ) + self.funcs))))
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.

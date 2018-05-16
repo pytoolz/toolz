@@ -529,6 +529,8 @@ def test_compose():
     assert composed.__name__ == 'Compose'
     assert composed.__doc__ == 'A composition of functions'
 
+    assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
+
 
 def test_pipe():
     assert pipe(1, inc) == 2
