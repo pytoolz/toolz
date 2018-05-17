@@ -563,6 +563,9 @@ def test_compose():
     assert not composed != compose(f, h)
     assert not composed != AlwaysEquals()
 
+    assert hash(composed) == hash(compose(f, h))
+    assert hash(composed) != hash(compose(h, f))
+
 
 def test_pipe():
     assert pipe(1, inc) == 2

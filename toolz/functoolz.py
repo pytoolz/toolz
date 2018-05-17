@@ -516,6 +516,9 @@ class Compose(object):
         equality = self.__eq__(other)
         return NotImplemented if equality is NotImplemented else not equality
 
+    def __hash__(self):
+        return hash(self.first) ^ hash(self.funcs)
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.
