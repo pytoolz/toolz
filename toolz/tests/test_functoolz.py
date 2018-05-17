@@ -603,6 +603,18 @@ def test_compose():
         assert sig.parameters == inspect.signature(myfunc).parameters
         assert sig.return_annotation == str
 
+        class MyClass:
+            method = composed
+
+        assert len(inspect.signature(MyClass().method).parameters) == 4
+
+        try:
+            inspect.signature(compose(str, myfunc))
+        except ValueError as e:
+            assert 'no signature' in e.args[0]
+        else:
+            raise AssertionError('expected exception was not raised')
+
 
 def test_pipe():
     assert pipe(1, inc) == 2
