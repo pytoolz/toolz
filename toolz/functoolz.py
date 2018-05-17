@@ -507,6 +507,15 @@ class Compose(object):
         return '{.__class__.__name__}({})'.format(
             self, ', '.join(map(repr, reversed((self.first, ) + self.funcs))))
 
+    def __eq__(self, other):
+        if isinstance(other, Compose):
+            return other.first == self.first and other.funcs == self.funcs
+        return NotImplemented
+
+    def __ne__(self, other):
+        equality = self.__eq__(other)
+        return NotImplemented if equality is NotImplemented else not equality
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.

@@ -23,6 +23,26 @@ def double(x):
     return 2 * x
 
 
+class AlwaysEquals(object):
+    """useful to test correct __eq__ implementation of other objects"""
+
+    def __eq__(self, other):
+        return True
+
+    def __ne__(self, other):
+        return False
+
+
+class NeverEquals(object):
+    """useful to test correct __eq__ implementation of other objects"""
+
+    def __eq__(self, other):
+        return False
+
+    def __ne__(self, other):
+        return True
+
+
 def test_thread_first():
     assert thread_first(2) == 2
     assert thread_first(2, inc) == 3
@@ -530,6 +550,18 @@ def test_compose():
     assert composed.__doc__ == 'A composition of functions'
 
     assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
+
+    assert composed == compose(f, h)
+    assert composed == AlwaysEquals()
+    assert not composed == compose(h, f)
+    assert not composed == object()
+    assert not composed == NeverEquals()
+
+    assert composed != compose(h, f)
+    assert composed != NeverEquals()
+    assert composed != object()
+    assert not composed != compose(f, h)
+    assert not composed != AlwaysEquals()
 
 
 def test_pipe():
