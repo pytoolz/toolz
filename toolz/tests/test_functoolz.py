@@ -584,6 +584,9 @@ def test_compose():
     assert MyClass().my_static_method(0) == '0'
     assert MyClass().my_static_method(0, 1) == '2'
 
+    assert compose(f, h).__wrapped__ is h
+    assert compose(f, h).__class__.__wrapped__ is None
+
 
 def test_pipe():
     assert pipe(1, inc) == 2

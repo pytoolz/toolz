@@ -533,6 +533,8 @@ class Compose(object):
         def __get__(self, obj, objtype=None):
             return self if obj is None else MethodType(self, obj, objtype)
 
+    __wrapped__ = instanceproperty(attrgetter('first'))
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.
