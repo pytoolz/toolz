@@ -504,8 +504,8 @@ class Compose(object):
             return type(self).__name__
 
     def __repr__(self):
-        return '{.__class__.__name__}({})'.format(
-            self, ', '.join(map(repr, reversed((self.first, ) + self.funcs))))
+        return '{.__class__.__name__}{!r}'.format(
+            self, tuple(reversed((self.first, ) + self.funcs)))
 
     def __eq__(self, other):
         if isinstance(other, Compose):
