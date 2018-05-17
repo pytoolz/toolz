@@ -3,6 +3,7 @@ import inspect
 import operator
 from operator import attrgetter
 from textwrap import dedent
+from types import MethodType
 
 from .compatibility import PY3, PY33, PY34, PYPY, import_module
 from .utils import no_default
@@ -518,6 +519,19 @@ class Compose(object):
 
     def __hash__(self):
         return hash(self.first) ^ hash(self.funcs)
+
+    # Mimic the descriptor behavior of python functions.
+    # i.e. let Compose be called as a method when bound to a class.
+    if PY3:
+        # adapted from
+        # docs.python.org/3/howto/descriptor.html#functions-and-methods
+        def __get__(self, obj, objtype=None):
+            return self if obj is None else MethodType(self, obj)
+    else:
+        # adapted from
+        # docs.python.org/2/howto/descriptor.html#functions-and-methods
+        def __get__(self, obj, objtype=None):
+            return self if obj is None else MethodType(self, obj, objtype)
 
 
 def compose(*funcs):

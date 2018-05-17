@@ -566,6 +566,24 @@ def test_compose():
     assert hash(composed) == hash(compose(f, h))
     assert hash(composed) != hash(compose(h, f))
 
+    bindable = compose(str, lambda x: x*2, lambda x, y=0: int(x) + y)
+
+    class MyClass:
+
+        def __int__(self):
+            return 8
+
+        my_method = bindable
+        my_static_method = staticmethod(bindable)
+
+    assert MyClass.my_method(3) == '6'
+    assert MyClass.my_method(3, y=2) == '10'
+    assert MyClass.my_static_method(2) == '4'
+    assert MyClass().my_method() == '16'
+    assert MyClass().my_method(y=3) == '22'
+    assert MyClass().my_static_method(0) == '0'
+    assert MyClass().my_static_method(0, 1) == '2'
+
 
 def test_pipe():
     assert pipe(1, inc) == 2
