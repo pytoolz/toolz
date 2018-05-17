@@ -1,7 +1,9 @@
+import inspect
 import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, pipe, complement, do, juxt, flip, excepts)
+from toolz.compatibility import PY3
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -587,6 +589,20 @@ def test_compose():
     assert compose(f, h).__wrapped__ is h
     assert compose(f, h).__class__.__wrapped__ is None
 
+    # __signature__ is python3 only
+    if PY3:
+
+        def myfunc(a: int, b: str, *c: float, d: int=4, **e: bool) -> int:
+            return 4
+
+        def otherfunc(f: int) -> str:
+            return 'result: {}'.format(f)
+
+        composed = compose(otherfunc, myfunc)
+        sig = inspect.signature(composed)
+        assert sig.parameters == inspect.signature(myfunc).parameters
+        assert sig.return_annotation == str
+
 
 def test_pipe():
     assert pipe(1, inc) == 2
@@ -703,4 +719,3 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
-

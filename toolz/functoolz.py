@@ -533,6 +533,13 @@ class Compose(object):
         def __get__(self, obj, objtype=None):
             return self if obj is None else MethodType(self, obj, objtype)
 
+    if PY3:
+        @instanceproperty
+        def __signature__(self):
+            base = inspect.signature(self.first)
+            last = inspect.signature(self.funcs[-1])
+            return base.replace(return_annotation=last.return_annotation)
+
     __wrapped__ = instanceproperty(attrgetter('first'))
 
 
