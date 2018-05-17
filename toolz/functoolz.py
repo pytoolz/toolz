@@ -533,6 +533,7 @@ class Compose(object):
         def __get__(self, obj, objtype=None):
             return self if obj is None else MethodType(self, obj, objtype)
 
+    # introspection with Signature is only possible from py3.3+
     if PY3:
         @instanceproperty
         def __signature__(self):
