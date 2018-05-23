@@ -522,19 +522,19 @@ class Compose(object):
 
     # Mimic the descriptor behavior of python functions.
     # i.e. let Compose be called as a method when bound to a class.
-    if PY3:
+    if PY3:  # pragma: py2 no cover
         # adapted from
         # docs.python.org/3/howto/descriptor.html#functions-and-methods
         def __get__(self, obj, objtype=None):
             return self if obj is None else MethodType(self, obj)
-    else:
+    else:  # pragma: py3 no cover
         # adapted from
         # docs.python.org/2/howto/descriptor.html#functions-and-methods
         def __get__(self, obj, objtype=None):
             return self if obj is None else MethodType(self, obj, objtype)
 
     # introspection with Signature is only possible from py3.3+
-    if PY3:
+    if PY3:  # pragma: py2 no cover
         @instanceproperty
         def __signature__(self):
             base = inspect.signature(self.first)
