@@ -592,11 +592,22 @@ def test_compose():
     # __signature__ is python3 only
     if PY3:
 
-        def myfunc(a: int, b: str, *c: float, d: int=4, **e: bool) -> int:
+        def myfunc(a, b, c, *d, **e):
             return 4
 
-        def otherfunc(f: int) -> str:
+        def otherfunc(f):
             return 'result: {}'.format(f)
+
+        # set annotations compatibly with python2 syntax
+        myfunc.__annotations__ = {
+            'a': int,
+            'b': str,
+            'c': float,
+            'd': int,
+            'e': bool,
+            'return': int,
+        }
+        otherfunc.__annotations__ = {'f': int, 'return': str}
 
         composed = compose(otherfunc, myfunc)
         sig = inspect.signature(composed)
