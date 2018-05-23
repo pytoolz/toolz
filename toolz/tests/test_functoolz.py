@@ -619,13 +619,6 @@ def test_compose():
 
         assert len(inspect.signature(MyClass().method).parameters) == 4
 
-        try:
-            inspect.signature(compose(str, myfunc))
-        except ValueError as e:
-            assert 'no signature' in e.args[0]
-        else:
-            raise AssertionError('expected exception was not raised')
-
 
 def test_pipe():
     assert pipe(1, inc) == 2
