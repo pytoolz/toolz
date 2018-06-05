@@ -728,7 +728,7 @@ def partition_all(n, seq):
             # https://github.com/pytoolz/toolz/issues/387
             # We can employ modified binary search here to speed things up from O(n) to O(log n)
             # Binary search from CPython's bisect module, modified for identity testing.
-            lo, hi = 0, len(prev)
+            lo, hi = 0, n
             while lo < hi:
                 mid = (lo + hi) // 2
                 if prev[mid] is no_pad:
