@@ -720,7 +720,12 @@ def partition_all(n, seq):
         yield prev
         prev = item
     if prev[-1] is no_pad:
-        yield prev[:prev.index(no_pad)]
+        # Get first index of no_pad without using .index()
+        # https://github.com/pytoolz/toolz/issues/387
+        for ind, item in enumerate(reversed(prev)):
+            if item is not no_pad:
+                yield prev[:len(prev)-ind]
+                break
     else:
         yield prev
 
