@@ -721,13 +721,14 @@ def partition_all(n, seq):
         prev = item
     if prev[-1] is no_pad:
         try:
-            # If seq defines __len__, then we can quickly calculate where no_pad starts
+            # If seq defines __len__, then
+            # we can quickly calculate where no_pad starts
             yield prev[:len(seq) % n]
         except TypeError:
             # Get first index of no_pad without using .index()
             # https://github.com/pytoolz/toolz/issues/387
-            # We can employ modified binary search here to speed things up from O(n) to O(log n)
-            # Binary search from CPython's bisect module, modified for identity testing.
+            # Binary search from CPython's bisect module,
+            # modified for identity testing.
             lo, hi = 0, n
             while lo < hi:
                 mid = (lo + hi) // 2
