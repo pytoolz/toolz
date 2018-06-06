@@ -328,7 +328,6 @@ def test_partition_all():
     assert list(partition_all(2, [obj]*3)) == [(obj, obj), (obj,)]
 
 
-
 def test_count():
     assert count((1, 2, 3)) == 3
     assert count([]) == 0
