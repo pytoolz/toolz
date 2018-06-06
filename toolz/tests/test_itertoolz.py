@@ -325,7 +325,9 @@ def test_partition_all():
                 return True
             raise ValueError()
     obj = NoCompare()
-    assert list(partition_all(2, [obj]*3)) == [(obj, obj), (obj,)]
+    result = [(obj, obj, obj, obj), (obj, obj, obj)]
+    assert list(partition_all(4, [obj]*7)) == result
+    assert list(partition_all(4, iter([obj]*7))) == result
 
 
 def test_count():
