@@ -409,11 +409,11 @@ def _get(obj, ind, default=no_default):
             raise
         return default
 
-@_get.register(dict)
-def _get(seq, ind, default=no_default):
+@_get.register(collections.Iterable)
+def _(seq, ind, default=no_default):
     try:
         return seq[ind]
-    except (KeyError, IndexError):
+    except (IndexError, KeyError):
         if default == no_default:
             raise
         return default
@@ -453,9 +453,9 @@ def get(ind, seq, default=no_default):
     ...     def __init__(self, x):
     ...         self.x = x
     >>> a = C(1)
-    >>> get(a, 'x')
+    >>> get('x', a)
     1
-    >>> get(a, 'b', 2)
+    >>> get('b', a, 2)
     2
 
     See Also:

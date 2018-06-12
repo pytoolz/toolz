@@ -1,8 +1,11 @@
 import copy
 import operator
+from functools import partial
+from toolz import utils
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
 from toolz.itertoolz import get
+from toolz.functoolz import flip
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
@@ -310,14 +313,16 @@ def get_in(keys, coll, default=None, no_default=False):
     >>> a = C(C(1))
     >>> get_in(['x', 'x'], a)
     1
+    >>> get_in(['x', 'b'], a, 2)
+    2
 
     See Also:
         itertoolz.get
         operator.getitem
     """
-    try:
-        return reduce(get, keys, coll)
-    except (KeyError, IndexError, TypeError):
-        if no_default:
-            raise
-        return default
+    reducer = flip(partial(get, default=(
+        utils.no_default
+        if no_default
+        else default
+    )))
+    return reduce(reducer, keys, coll)
