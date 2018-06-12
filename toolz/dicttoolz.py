@@ -2,6 +2,7 @@ import copy
 import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
+from toolz.itertoolz import get
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
@@ -303,12 +304,19 @@ def get_in(keys, coll, default=None, no_default=False):
         ...
     KeyError: 'y'
 
+    >>> class C:
+    ...     def __init__(self, x):
+    ...         self.x = x
+    >>> a = C(C(1))
+    >>> get_in(['x', 'x'], a)
+    1
+
     See Also:
         itertoolz.get
         operator.getitem
     """
     try:
-        return reduce(operator.getitem, keys, coll)
+        return reduce(get, keys, coll)
     except (KeyError, IndexError, TypeError):
         if no_default:
             raise

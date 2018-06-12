@@ -5,7 +5,7 @@ import operator
 from functools import partial
 from random import Random
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
-                                 filter)
+                                 filter, singledispatch)
 from toolz.utils import no_default
 
 
@@ -400,11 +400,22 @@ def last(seq):
 
 rest = partial(drop, 1)
 
+@singledispatch
+def _get(obj, ind, default=no_default):
+    try:
+        return getattr(obj, ind)
+    except AttributeError:
+        if default == no_default:
+            raise
+        return default
 
-def _get(ind, seq, default):
+@_get.register(dict)
+def _get(seq, ind, default=no_default):
     try:
         return seq[ind]
     except (KeyError, IndexError):
+        if default == no_default:
+            raise
         return default
 
 
@@ -438,11 +449,20 @@ def get(ind, seq, default=no_default):
     >>> get(['Alice', 'Dennis'], phonebook, None)
     ('555-1234', None)
 
+    >>> class C:
+    ...     def __init__(self, x):
+    ...         self.x = x
+    >>> a = C(1)
+    >>> get(a, 'x')
+    1
+    >>> get(a, 'b', 2)
+    2
+
     See Also:
         pluck
     """
     try:
-        return seq[ind]
+        return _get(seq, ind)
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
             if default == no_default:
@@ -453,12 +473,12 @@ def get(ind, seq, default=no_default):
                 else:
                     return ()
             else:
-                return tuple(_get(i, seq, default) for i in ind)
+                return tuple(_get(seq, i, default) for i in ind)
         elif default != no_default:
             return default
         else:
             raise
-    except (KeyError, IndexError):  # we know `ind` is not a list
+    except (KeyError, IndexError, AttributeError):  # we know `ind` is not a list
         if default == no_default:
             raise
         else:
@@ -767,9 +787,9 @@ def pluck(ind, seqs, default=no_default):
         get = getter(ind)
         return map(get, seqs)
     elif isinstance(ind, list):
-        return (tuple(_get(item, seq, default) for item in ind)
+        return (tuple(_get(seq, item, default) for item in ind)
                 for seq in seqs)
-    return (_get(ind, seq, default) for seq in seqs)
+    return (_get(seq, ind, default) for seq in seqs)
 
 
 def getter(index):
