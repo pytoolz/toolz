@@ -400,11 +400,12 @@ def last(seq):
 
 rest = partial(drop, 1)
 
+
 def _get(seq, ind, default=no_default):
     try:
         return seq[ind]
     except (IndexError, KeyError, AttributeError) as e:
-        if not isinstance(ind, str):
+        if not isinstance(ind, str) or isinstance(seq, dict):
             if default == no_default:
                 raise
             return default
@@ -413,7 +414,7 @@ def _get(seq, ind, default=no_default):
             return getattr(seq, ind)
         except AttributeError:
             if default == no_default:
-                raise e
+                raise
             return default
 
 
@@ -476,7 +477,8 @@ def get(ind, seq, default=no_default):
             return default
         else:
             raise
-    except (KeyError, IndexError, AttributeError):  # we know `ind` is not a list
+    except (KeyError, IndexError, AttributeError):
+        # we know `ind` is not a list
         if default == no_default:
             raise
         else:
