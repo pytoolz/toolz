@@ -5,7 +5,7 @@ import operator
 from functools import partial
 from random import Random
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
-                                 filter, singledispatch)
+                                 filter)
 from toolz.utils import no_default
 
 
@@ -400,23 +400,21 @@ def last(seq):
 
 rest = partial(drop, 1)
 
-@singledispatch
-def _get(obj, ind, default=no_default):
-    try:
-        return getattr(obj, ind)
-    except AttributeError:
-        if default == no_default:
-            raise
-        return default
-
-@_get.register(collections.Iterable)
-def _(seq, ind, default=no_default):
+def _get(seq, ind, default=no_default):
     try:
         return seq[ind]
-    except (IndexError, KeyError):
-        if default == no_default:
-            raise
-        return default
+    except (IndexError, KeyError, AttributeError) as e:
+        if not isinstance(ind, str):
+            if default == no_default:
+                raise
+            return default
+
+        try:
+            return getattr(seq, ind)
+        except AttributeError:
+            if default == no_default:
+                raise e
+            return default
 
 
 def get(ind, seq, default=no_default):
