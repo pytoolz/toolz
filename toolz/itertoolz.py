@@ -404,18 +404,17 @@ rest = partial(drop, 1)
 def _get(seq, ind, default=no_default):
     try:
         return seq[ind]
-    except (IndexError, KeyError, AttributeError) as e:
-        if not isinstance(ind, str) or isinstance(seq, dict):
-            if default == no_default:
-                raise
-            return default
-
+    except TypeError:
         try:
             return getattr(seq, ind)
         except AttributeError:
             if default == no_default:
                 raise
             return default
+    except (IndexError, KeyError) as e:
+        if default == no_default:
+            raise
+        return default
 
 
 def get(ind, seq, default=no_default):
