@@ -7,7 +7,7 @@ PYPY = hasattr(sys, 'pypy_version_info')
 
 __all__ = ('map', 'filter', 'range', 'zip', 'reduce', 'zip_longest',
            'iteritems', 'iterkeys', 'itervalues', 'filterfalse',
-           'PY3', 'PY34', 'PYPY', 'import_module', 'singledispatch')
+           'PY3', 'PY34', 'PYPY', 'import_module')
 
 if PY3:
     map = map
@@ -26,13 +26,11 @@ else:
     from itertools import imap as map
     from itertools import ifilter as filter
     from itertools import ifilterfalse as filterfalse
-
     from itertools import izip as zip
     from itertools import izip_longest as zip_longest
     iteritems = operator.methodcaller('iteritems')
     iterkeys = operator.methodcaller('iterkeys')
     itervalues = operator.methodcaller('itervalues')
-
 
 try:
     from importlib import import_module
