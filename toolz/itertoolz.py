@@ -404,7 +404,7 @@ rest = partial(drop, 1)
 def _get(seq, ind, default=no_default):
     try:
         return seq[ind]
-    except TypeError:
+    except (TypeError, AttributeError):
         try:
             return getattr(seq, ind)
         except AttributeError:
