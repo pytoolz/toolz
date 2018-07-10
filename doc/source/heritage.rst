@@ -41,8 +41,8 @@ also exist within the Python ecosystem, most notably Fn.py_ and Funcy_.
 
 .. [itertools] http://docs.python.org/2/library/itertools.html
 .. [functools] http://docs.python.org/2/library/functools.html
-.. [itertoolz] http://github.com/pytoolz/itertoolz
-.. [functoolz] http://github.com/pytoolz/functoolz
+.. [itertoolz] https://github.com/mrocklin/itertoolz
+.. [functoolz] https://github.com/mrocklin/functoolz
 .. [Underscore.js] http://underscorejs.org
 .. [cheatsheet] http://clojure.org/cheatsheet
 .. [Guido] http://python-history.blogspot.com/2009/04/origins-of-pythons-functional-features.html
