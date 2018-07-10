@@ -39,13 +39,13 @@ philosophy but mimics declarative database languages rather than functional
 ones.  Enumerable_ is is the closest project in Ruby.  Other excellent projects
 also exist within the Python ecosystem, most notably Fn.py_ and Funcy_.
 
-.. [itertools] http://docs.python.org/2/library/itertools.html
-.. [functools] http://docs.python.org/2/library/functools.html
+.. [itertools] https://docs.python.org/2/library/itertools.html
+.. [functools] https://docs.python.org/2/library/functools.html
 .. [itertoolz] https://github.com/mrocklin/itertoolz
 .. [functoolz] https://github.com/mrocklin/functoolz
-.. [Underscore.js] http://underscorejs.org
-.. [cheatsheet] http://clojure.org/cheatsheet
-.. [Guido] http://python-history.blogspot.com/2009/04/origins-of-pythons-functional-features.html
-.. [Enumerable] http://ruby-doc.org/core-2.0.0/Enumerable.html
+.. [Underscore.js] https://underscorejs.org
+.. [cheatsheet] https://clojure.org/cheatsheet
+.. [Guido] https://python-history.blogspot.com/2009/04/origins-of-pythons-functional-features.html
+.. [Enumerable] https://ruby-doc.org/core-2.0.0/Enumerable.html
 .. [funcy] https://github.com/suor/funcy/
 .. [fn.py] https://github.com/kachayev/fn.py
