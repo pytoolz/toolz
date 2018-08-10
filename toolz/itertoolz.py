@@ -374,7 +374,9 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    return next(itertools.islice(seq, 1, None))
+    seq = iter(seq)
+    next(seq)
+    return next(seq)
 
 
 def nth(n, seq):
