@@ -289,6 +289,7 @@ def test_accumulate():
 
     start = object()
     assert list(accumulate(binop, [], start)) == [start]
+    assert list(accumulate(binop, [])) == []
     assert list(accumulate(add, [1, 2, 3], no_default2)) == [1, 3, 6]
 
 
