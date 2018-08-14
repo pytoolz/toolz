@@ -56,7 +56,13 @@ def accumulate(binop, seq, initial=no_default):
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    result = next(seq) if initial == no_default else initial
+    if initial == no_default:
+        try:
+            result = next(seq)
+        except StopIteration:
+            return
+    else:
+        result = initial
     yield result
     for elem in seq:
         result = binop(result, elem)
