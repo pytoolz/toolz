@@ -17,6 +17,8 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
 from toolz.compatibility import range, filter
 from operator import add, mul
 
+import pytest
+
 
 # is comparison will fail between this and no_default
 no_default2 = loads(dumps('__no__default__'))
@@ -143,6 +145,12 @@ def test_second():
     assert second('ABCDE') == 'B'
     assert second((3, 2, 1)) == 2
     assert isinstance(second({0: 'zero', 1: 'one'}), int)
+    assert second(x for x in range(2)) == 1
+
+    # Python 3.7, StopIteration should be raised if iterable too short
+    with pytest.raises(StopIteration):
+        second([])
+        second([0])
 
 
 def test_last():

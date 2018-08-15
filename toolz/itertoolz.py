@@ -375,8 +375,11 @@ def second(seq):
     'B'
     """
     seq = iter(seq)
-    next(seq)
-    return next(seq)
+    try:
+        next(seq)
+        return next(seq)
+    except StopIteration:
+        raise
 
 
 def nth(n, seq):
