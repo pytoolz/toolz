@@ -21,6 +21,19 @@ def identity(x):
     return x
 
 
+def apply(func, *args, **kwargs):
+    """ Applies a function and returns the results
+    >>> def double(x): return 2*x
+    >>> def inc(x):    return x + 1
+    >>> apply(double, 5)
+    10
+
+    >>> tuple(map(apply, [double, inc, double], [10, 500, 8000]))
+    (20, 501, 16000)
+    """
+    return func(*args, **kwargs)
+
+
 def thread_first(val, *forms):
     """ Thread value through a sequence of functions/forms
 
