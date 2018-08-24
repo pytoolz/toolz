@@ -192,8 +192,9 @@ def assoc(d, key, value, factory=dict):
     {'x': 1, 'y': 3}
     """
     d2 = factory()
+    d2.update(d)
     d2[key] = value
-    return merge(d, d2, factory=factory)
+    return d2
 
 
 def dissoc(d, *keys):
