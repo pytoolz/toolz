@@ -6,15 +6,17 @@ from functools import partial
 from random import Random
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
                                  filter)
+from toolz.functoolz import flip
 from toolz.utils import no_default
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
-           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'repeat_each', 'mapcat', 'cons', 'interpose', 'frequencies',
+           'reduceby', 'iterate', 'sliding_window', 'partition',
+           'partition_all', 'count', 'pluck', 'join', 'tail', 'diff',
+           'topk', 'peek', 'random_sample')
 
 
 def remove(predicate, seq):
@@ -501,6 +503,19 @@ def concatv(*seqs):
         itertools.chain
     """
     return concat(seqs)
+
+
+def repeat_each(n, seq):
+    """ Repeats each element multiple times.
+
+    >>> list(repeat_each(2, [1, 2, 3]))
+    [1, 1, 2, 2, 3, 3]
+    """
+
+    if n < 0:
+        raise ValueError('n must be positive, but got %r' % n)
+
+    return concat(map(flip(itertools.repeat, n), seq))
 
 
 def mapcat(func, seqs):

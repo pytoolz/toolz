@@ -9,13 +9,15 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
                              nth, take, tail, drop, interpose, get,
-                             rest, last, cons, frequencies,
+                             repeat_each, rest, last, cons, frequencies,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
                              diff, topk, peek, random_sample)
 from toolz.compatibility import range, filter
 from operator import add, mul
+import sys
+import warnings
 
 
 # is comparison will fail between this and no_default
@@ -194,6 +196,26 @@ def test_get():
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
     assert raises(TypeError, lambda: get([1, 2, 3], 1, None))
     assert raises(KeyError, lambda: get('foo', {}, default=no_default2))
+
+
+def test_repeat_each():
+    assert list(repeat_each(0, [1])) == []
+    assert list(repeat_each(5, [])) == []
+    assert list(repeat_each(1, [1])) == [1]
+
+    assert list(repeat_each(5, [1])) == [1, 1, 1, 1, 1]
+
+    assert list(repeat_each(2, [1, 2, 3])) == [1, 1, 2, 2, 3, 3]
+    assert list(repeat_each(3, [1, 2, 3])) == [1, 1, 1, 2, 2, 2, 3, 3, 3]
+
+    assert raises(ValueError, lambda: list(repeat_each(-1, [1])))
+
+    if sys.version_info >= (2, 7):
+        assert raises(TypeError, lambda: list(repeat_each(0.5, [1])))
+    else:
+        with warnings.catch_warnings():
+            warnings.filterwarnings('error')
+            assert raises(DeprecationWarning, lambda: list(repeat_each(0.5, [1])))
 
 
 def test_mapcat():
