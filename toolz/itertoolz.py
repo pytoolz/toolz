@@ -543,10 +543,7 @@ def frequencies(seq):
         countby
         groupby
     """
-    d = collections.defaultdict(int)
-    for item in seq:
-        d[item] += 1
-    return dict(d)
+    return collections.Counter(seq)
 
 
 def reduceby(key, binop, seq, init=no_default):
