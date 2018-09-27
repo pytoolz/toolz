@@ -495,6 +495,6 @@ def test_inspect_wrapped_property():
     if PY3:
         assert inspect.signature(func) == inspect.signature(wrapped)
 
-    assert num_required_args(Wrapped) == None
+    assert num_required_args(Wrapped) is None
     _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
     assert num_required_args(Wrapped) == 1
