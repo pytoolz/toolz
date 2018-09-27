@@ -698,7 +698,7 @@ def expand_sig(sig):
         num_pos_only = num_pos_args(sigspec)
         keyword_only = ()
     keyword_exclude = get_exclude_keywords(num_pos_only, sigspec)
-    return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
+    return num_pos_only, func, keyword_only + keyword_exclude, sigspec
 
 
 signatures = {}

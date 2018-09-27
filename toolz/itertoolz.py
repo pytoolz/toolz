@@ -457,7 +457,7 @@ def get(ind, seq, default=no_default):
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
                 elif ind:
-                    return (seq[ind[0]],)
+                    return seq[ind[0]],
                 else:
                     return ()
             else:
