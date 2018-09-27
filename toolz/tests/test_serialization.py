@@ -81,7 +81,7 @@ class GlobalCurried(object):
 
     def __reduce__(self):
         """Allow us to serialize instances of GlobalCurried"""
-        return (GlobalCurried, (self.x, self.y))
+        return GlobalCurried, (self.x, self.y)
 
     @toolz.curry
     class NestedCurried(object):
@@ -98,7 +98,7 @@ class GlobalCurried(object):
 
         def __reduce__(self):
             """Allow us to serialize instances of NestedCurried"""
-            return (GlobalCurried.NestedCurried, (self.x, self.y))
+            return GlobalCurried.NestedCurried, (self.x, self.y)
 
     class Nested(object):
         def __init__(self, x, y):

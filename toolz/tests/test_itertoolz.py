@@ -368,10 +368,10 @@ def test_join():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'apple', 1)),
-                    ((1, 'one', 'orange', 1)),
-                    ((2, 'two', 'banana', 2)),
-                    ((2, 'two', 'coconut', 2))])
+    expected = set([(1, 'one', 'apple', 1),
+                    (1, 'one', 'orange', 1),
+                    (2, 'two', 'banana', 2),
+                    (2, 'two', 'coconut', 2)])
 
     assert result == expected
 
@@ -409,14 +409,14 @@ def test_join_double_repeats():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'apple', 1)),
-                    ((1, 'one', 'orange', 1)),
-                    ((2, 'two', 'banana', 2)),
-                    ((2, 'two', 'coconut', 2)),
-                    ((1, 'uno', 'apple', 1)),
-                    ((1, 'uno', 'orange', 1)),
-                    ((2, 'dos', 'banana', 2)),
-                    ((2, 'dos', 'coconut', 2))])
+    expected = set([(1, 'one', 'apple', 1),
+                    (1, 'one', 'orange', 1),
+                    (2, 'two', 'banana', 2),
+                    (2, 'two', 'coconut', 2),
+                    (1, 'uno', 'apple', 1),
+                    (1, 'uno', 'orange', 1),
+                    (2, 'dos', 'banana', 2),
+                    (2, 'dos', 'coconut', 2)])
 
     assert result == expected
 
@@ -427,7 +427,7 @@ def test_join_missing_element():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'orange', 1))])
+    expected = set([(1, 'one', 'orange', 1)])
 
     assert result == expected
 

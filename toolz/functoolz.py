@@ -352,7 +352,7 @@ class curry(object):
                          if k not in ('_partial', '_sigspec'))
         state = (type(self), func, self.args, self.keywords, userdict,
                  is_decorated)
-        return (_restore_curry, state)
+        return _restore_curry, state
 
 
 def _restore_curry(cls, func, args, kwargs, userdict, is_decorated):
