@@ -19,7 +19,7 @@ def make_func(param_string, raise_if_called=True):
     else:
         body = 'return True'
     d = {}
-    exec('def func%s:\n    %s' % (param_string, body), globals(), d)
+    exec('def func{}:\n    {}'.format(param_string, body), globals(), d)
     return d['func']
 
 
@@ -437,7 +437,7 @@ def test_introspect_builtin_modules():
     if missing:
         messages = []
         for modname, names in sorted(missing.items()):
-            msg = '{0}:\n    {1}'.format(modname, '\n    '.join(sorted(names)))
+            msg = '{}:\n    {}'.format(modname, '\n    '.join(sorted(names)))
             messages.append(msg)
         message = 'Missing introspection for the following callables:\n\n'
         raise AssertionError(message + '\n\n'.join(messages))

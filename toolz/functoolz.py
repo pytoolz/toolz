@@ -345,7 +345,7 @@ class curry(object):
             if isinstance(obj, curry) and obj.func is func:
                 is_decorated = obj is self
                 qualname = '.'.join(attrs)
-                func = '%s:%s' % (modname, qualname)
+                func = '{}:{}'.format(modname, qualname)
 
         # functools.partial objects can't be pickled
         userdict = tuple((k, v) for k, v in self.__dict__.items()
@@ -739,7 +739,7 @@ class excepts(object):
                 exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
             else:
                 exc_name = exc.__name__
-            return '%s_excepting_%s' % (self.func.__name__, exc_name)
+            return '{}_excepting_{}'.format(self.func.__name__, exc_name)
         except AttributeError:
             return 'excepting'
 

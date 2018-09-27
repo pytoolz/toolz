@@ -271,7 +271,7 @@ def test_reduce_by_callable_default():
         return s
 
     assert reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2], set) == \
-        {True: set([2, 4]), False: set([1, 3])}
+        {True: {2, 4}, False: {1, 3}}
 
 
 def test_iterate():
@@ -368,10 +368,10 @@ def test_join():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'apple', 1)),
-                    ((1, 'one', 'orange', 1)),
-                    ((2, 'two', 'banana', 2)),
-                    ((2, 'two', 'coconut', 2))])
+    expected = {((1, 'one', 'apple', 1)),
+                ((1, 'one', 'orange', 1)),
+                ((2, 'two', 'banana', 2)),
+                ((2, 'two', 'coconut', 2))}
 
     assert result == expected
 
@@ -409,14 +409,14 @@ def test_join_double_repeats():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'apple', 1)),
-                    ((1, 'one', 'orange', 1)),
-                    ((2, 'two', 'banana', 2)),
-                    ((2, 'two', 'coconut', 2)),
-                    ((1, 'uno', 'apple', 1)),
-                    ((1, 'uno', 'orange', 1)),
-                    ((2, 'dos', 'banana', 2)),
-                    ((2, 'dos', 'coconut', 2))])
+    expected = {((1, 'one', 'apple', 1)),
+                ((1, 'one', 'orange', 1)),
+                ((2, 'two', 'banana', 2)),
+                ((2, 'two', 'coconut', 2)),
+                ((1, 'uno', 'apple', 1)),
+                ((1, 'uno', 'orange', 1)),
+                ((2, 'dos', 'banana', 2)),
+                ((2, 'dos', 'coconut', 2))}
 
     assert result == expected
 
@@ -427,21 +427,21 @@ def test_join_missing_element():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'orange', 1))])
+    expected = {((1, 'one', 'orange', 1))}
 
     assert result == expected
 
 
 def test_left_outer_join():
     result = set(join(identity, [1, 2], identity, [2, 3], left_default=None))
-    expected = set([(2, 2), (None, 3)])
+    expected = {(2, 2), (None, 3)}
 
     assert result == expected
 
 
 def test_right_outer_join():
     result = set(join(identity, [1, 2], identity, [2, 3], right_default=None))
-    expected = set([(2, 2), (1, None)])
+    expected = {(2, 2), (1, None)}
 
     assert result == expected
 
@@ -449,7 +449,7 @@ def test_right_outer_join():
 def test_outer_join():
     result = set(join(identity, [1, 2], identity, [2, 3],
                       left_default=None, right_default=None))
-    expected = set([(2, 2), (1, None), (None, 3)])
+    expected = {(2, 2), (1, None), (None, 3)}
 
     assert result == expected
 

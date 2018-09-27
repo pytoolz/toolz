@@ -17,8 +17,8 @@ def test_fold():
         s.add(item)
         return s
 
-    assert fold(setadd, [1, 2, 3], set()) == set((1, 2, 3))
+    assert fold(setadd, [1, 2, 3], set()) == {1, 2, 3}
     assert (fold(setadd, [1, 2, 3], set(), chunksize=2, combine=set.union)
-            == set((1, 2, 3)))
+            == {1, 2, 3})
 
     assert fold(add, range(10), default=no_default2) == fold(add, range(10))

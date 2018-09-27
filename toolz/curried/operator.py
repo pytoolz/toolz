@@ -11,8 +11,8 @@ def should_curry(f):
 
 
 locals().update(
-    dict((name, curry(f) if should_curry(f) else f)
-         for name, f in vars(operator).items() if callable(f)),
+    {name: curry(f) if should_curry(f) else f
+     for name, f in vars(operator).items() if callable(f)},
 )
 
 # Clean up the namespace.
