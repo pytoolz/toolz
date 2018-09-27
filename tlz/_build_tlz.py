@@ -1,7 +1,7 @@
 import sys
 import types
 import toolz
-from toolz.compatibility import import_module
+from importlib import import_module
 
 
 class TlzLoader(object):

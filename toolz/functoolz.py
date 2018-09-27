@@ -2,9 +2,10 @@ from functools import reduce, partial
 import inspect
 import operator
 from operator import attrgetter
+from importlib import import_module
 from textwrap import dedent
 
-from .compatibility import PY3, PY33, PY34, PYPY, import_module
+from .compatibility import PY3, PY34, PYPY
 from .utils import no_default
 
 
@@ -758,11 +759,6 @@ if PY3:  # pragma: py2 no cover
                 and ((
                     hasattr(func, '__signature__')
                     and hasattr(func.__signature__, '__get__')
-                ) or (
-                    PY33
-                    and hasattr(func, '__wrapped__')
-                    and hasattr(func.__wrapped__, '__get__')
-                    and not callable(func.__wrapped__)
                 ))
             ):  # pragma: no cover (not covered in Python 3.4)
                 val = builtin_func(*builtin_args)

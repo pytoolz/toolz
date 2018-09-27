@@ -2,8 +2,8 @@ import toolz
 import toolz.curried
 from toolz.curried import (take, first, second, sorted, merge_with, reduce,
                            merge, operator as cop)
-from toolz.compatibility import import_module
 from collections import defaultdict
+from importlib import import_module
 from operator import add
 
 

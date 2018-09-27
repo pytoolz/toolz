@@ -11,4 +11,4 @@ three ways:
 
 1.  Toolz is pure Python
 2.  Toolz relies only on the standard library
-3.  Toolz simultaneously supports Python versions 2.6, 2.7, 3.3, 3.4, 3.5, 3.6, PyPy
+3.  Toolz simultaneously supports Python versions 2.7, 3.4+, PyPy
