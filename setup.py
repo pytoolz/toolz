@@ -7,7 +7,7 @@ import toolz
 setup(name='toolz',
       version=toolz.__version__,
       description='List processing tools and functional utilities',
-      url='http://github.com/pytoolz/toolz/',
+      url='https://github.com/pytoolz/toolz/',
       author='https://raw.github.com/pytoolz/toolz/master/AUTHORS.md',
       maintainer='Matthew Rocklin',
       maintainer_email='mrocklin@gmail.com',
@@ -21,6 +21,7 @@ setup(name='toolz',
       long_description=(open('README.rst').read() if exists('README.rst')
                         else ''),
       zip_safe=False,
+      python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
       classifiers=[
           "Development Status :: 5 - Production/Stable",
           "License :: OSI Approved :: BSD License",
