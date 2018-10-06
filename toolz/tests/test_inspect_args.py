@@ -437,7 +437,7 @@ def test_introspect_builtin_modules():
     if missing:
         messages = []
         for modname, names in sorted(missing.items()):
-            msg = '{0}:\n    {1}'.format(modname, '\n    '.join(sorted(names)))
+            msg = '{}:\n    {}'.format(modname, '\n    '.join(sorted(names)))
             messages.append(msg)
         message = 'Missing introspection for the following callables:\n\n'
         raise AssertionError(message + '\n\n'.join(messages))

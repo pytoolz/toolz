@@ -62,7 +62,7 @@ def test_curried_operator():
                 )
 
     # Make sure this isn't totally empty.
-    assert len(set(vars(cop)) & set(['add', 'sub', 'mul'])) == 3
+    assert len(set(vars(cop)) & {'add', 'sub', 'mul'}) == 3
 
 
 def test_curried_namespace():
@@ -79,10 +79,10 @@ def test_curried_namespace():
 
 
     def curry_namespace(ns):
-        return dict(
-            (name, toolz.curry(f) if should_curry(f) else f)
+        return {
+            name: toolz.curry(f) if should_curry(f) else f
             for name, f in ns.items() if '__' not in name
-        )
+        }
 
     from_toolz = curry_namespace(vars(toolz))
     from_exceptions = curry_namespace(vars(exceptions))
