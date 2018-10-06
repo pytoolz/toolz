@@ -11,7 +11,7 @@ from toolz.utils import no_default
 try:
     # Python 3
     from collections.abc import Sequence
-except ImportError:
+except ImportError:  # pragma: no cover
     # Python 2.7
     from collections import Sequence
 
