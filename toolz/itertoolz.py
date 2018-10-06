@@ -8,6 +8,13 @@ from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
                                  filter)
 from toolz.utils import no_default
 
+try:
+    # Python 3
+    from collections.abc import Sequence
+except ImportError:
+    # Python 2.7
+    from collections import Sequence
+
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
@@ -391,7 +398,7 @@ def nth(n, seq):
     >>> nth(1, 'ABC')
     'B'
     """
-    if isinstance(seq, (tuple, list, collections.Sequence)):
+    if isinstance(seq, (tuple, list, Sequence)):
         return seq[n]
     else:
         return next(itertools.islice(seq, n, None))
