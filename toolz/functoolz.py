@@ -345,7 +345,7 @@ class curry(object):
             if isinstance(obj, curry) and obj.func is func:
                 is_decorated = obj is self
                 qualname = '.'.join(attrs)
-                func = '{}:{}'.format(modname, qualname)
+                func = ':'.join((modname, qualname))
 
         # functools.partial objects can't be pickled
         userdict = tuple((k, v) for k, v in self.__dict__.items()
