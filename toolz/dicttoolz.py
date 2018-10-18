@@ -222,7 +222,7 @@ def dissoc(d, *keys, **kwargs):
         remaining.difference_update(keys)
         for k in remaining:
             d2[k] = d[k]
-        return d2
+    return d2
 
 
 def assoc_in(d, keys, value, factory=dict):
