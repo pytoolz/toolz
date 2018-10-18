@@ -1,4 +1,3 @@
-import copy
 import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
                                  reduce)
