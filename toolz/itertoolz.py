@@ -14,7 +14,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample', 'zip_dict')
 
 
 def remove(predicate, seq):
@@ -1004,3 +1004,14 @@ def random_sample(prob, seq, random_state=None):
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+
+def zip_dict(*dicts):
+    if dicts:
+        def is_in_all_others_dict(k):
+            return all(map(lambda d: k in d, dicts[1:]))
+
+        common_keys = filter(is_in_all_others_dict, dicts[0].keys())
+
+        for k in common_keys:
+            yield k, tuple(map(lambda d: d[k], dicts))
