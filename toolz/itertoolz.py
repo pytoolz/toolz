@@ -884,7 +884,7 @@ def join(leftkey, leftseq, rightkey, rightseq,
                 yield (left_default, item)
 
     if right_default != no_default:
-        for key, matches in d.items():
+        for key, matches in iteritems(d):
             if key not in seen_keys:
                 for match in matches:
                     yield (match, right_default)
