@@ -875,13 +875,11 @@ def join(leftkey, leftseq, rightkey, rightseq,
     for item in rightseq:
         key = rightkey(item)
         seen_keys.add(key)
-        try:
-            left_matches = d[key]
-            for match in left_matches:
-                yield (match, item)
-        except KeyError:
-            if not left_default_is_no_default:
-                yield (left_default, item)
+        if key in d:
+            for left_match in d[key]:
+                yield (left_match, item)
+        elif not left_default_is_no_default:
+            yield (left_default, item)
 
     if right_default != no_default:
         for key, matches in d.items():
