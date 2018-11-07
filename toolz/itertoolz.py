@@ -816,6 +816,8 @@ def join(leftkey, leftseq, rightkey, rightseq,
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
     and placed into memory.  The RIGHT sequence is evaluated lazily and so can
     be arbitrarily large.
+    (Note: If right_default is defined, then unique keys of rightseq
+        will also be stored in memory.)
 
     >>> friends = [('Alice', 'Edith'),
     ...            ('Alice', 'Zhao'),
@@ -858,7 +860,9 @@ def join(leftkey, leftseq, rightkey, rightseq,
 
     Usually the key arguments are callables to be applied to the sequences.  If
     the keys are not obviously callable then it is assumed that indexing was
-    intended, e.g. the following is a legal change
+    intended, e.g. the following is a legal change.
+    The join is implemented as a hash join and the keys of leftseq must be hashable.
+    Additionally, if right_default is defined, then keys of rightseq must also be hashable.
 
     >>> # result = join(second, friends, first, cities)
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
@@ -869,19 +873,45 @@ def join(leftkey, leftseq, rightkey, rightseq,
         rightkey = getter(rightkey)
 
     d = groupby(leftkey, leftseq)
-    seen_keys = set()
 
-    left_default_is_no_default = (left_default == no_default)
-    for item in rightseq:
-        key = rightkey(item)
-        seen_keys.add(key)
-        if key in d:
-            for left_match in d[key]:
-                yield (left_match, item)
-        elif not left_default_is_no_default:
-            yield (left_default, item)
+    if (left_default is no_default) and (right_default is no_default):
+        # Inner Join
+        for item in rightseq:
+            key = rightkey(item)
+            if key in d:
+                for left_match in d[key]:
+                    yield (left_match, item)
+    elif (left_default is not no_default) and (right_default is no_default):
+        # Right Join
+        for item in rightseq:
+            key = rightkey(item)
+            if key in d:
+                for left_match in d[key]:
+                    yield (left_match, item)
+            else:
+                yield (left_default, item)
+    elif (right_default is not no_default):
+        seen_keys = set()
 
-    if right_default != no_default:
+        if left_default is no_default:
+            # Left Join
+            for item in rightseq:
+                key = rightkey(item)
+                seen_keys.add(key)
+                if key in d:
+                    for left_match in d[key]:
+                        yield(left_match, item)
+        else:
+            # Full Join
+            for item in rightseq:
+                key = rightkey(item)
+                seen_keys.add(key)
+                if key in d:
+                    for left_match in d[key]:
+                        yield (left_match, item)
+                else:
+                    yield (left_default, item)
+
         for key, matches in iteritems(d):
             if key not in seen_keys:
                 for match in matches:
