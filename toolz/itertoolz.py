@@ -874,14 +874,14 @@ def join(leftkey, leftseq, rightkey, rightseq,
 
     d = groupby(leftkey, leftseq)
 
-    if (left_default is no_default) and (right_default is no_default):
+    if (left_default == no_default) and (right_default == no_default):
         # Inner Join
         for item in rightseq:
             key = rightkey(item)
             if key in d:
                 for left_match in d[key]:
                     yield (left_match, item)
-    elif (left_default is not no_default) and (right_default is no_default):
+    elif (left_default != no_default) and (right_default == no_default):
         # Right Join
         for item in rightseq:
             key = rightkey(item)
@@ -890,17 +890,17 @@ def join(leftkey, leftseq, rightkey, rightseq,
                     yield (left_match, item)
             else:
                 yield (left_default, item)
-    elif (right_default is not no_default):
+    elif (right_default != no_default):
         seen_keys = set()
 
-        if left_default is no_default:
+        if left_default == no_default:
             # Left Join
             for item in rightseq:
                 key = rightkey(item)
                 seen_keys.add(key)
                 if key in d:
                     for left_match in d[key]:
-                        yield(left_match, item)
+                        yield (left_match, item)
         else:
             # Full Join
             for item in rightseq:
