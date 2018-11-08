@@ -861,8 +861,9 @@ def join(leftkey, leftseq, rightkey, rightseq,
     Usually the key arguments are callables to be applied to the sequences.  If
     the keys are not obviously callable then it is assumed that indexing was
     intended, e.g. the following is a legal change.
-    The join is implemented as a hash join and the keys of leftseq must be hashable.
-    Additionally, if right_default is defined, then keys of rightseq must also be hashable.
+    The join is implemented as a hash join and the keys of leftseq must be
+    hashable. Additionally, if right_default is defined, then keys of rightseq
+    must also be hashable.
 
     >>> # result = join(second, friends, first, cities)
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
