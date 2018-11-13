@@ -933,13 +933,14 @@ def join(leftkey, leftseq, rightkey, rightseq,
         return _inner_join(leftkey, leftseq, rightkey, rightseq)
     elif (left_default != no_default) and (right_default == no_default):
         return _right_join(leftkey, leftseq, rightkey, rightseq,
-                    left_default=left_default)
+                           left_default=left_default)
     elif (left_default == no_default) and (right_default != no_default):
         return _left_join(leftkey, leftseq, rightkey, rightseq,
-                    right_default=right_default)
+                          right_default=right_default)
     else:
         return _full_join(leftkey, leftseq, rightkey, rightseq,
-                    left_default=left_default, right_default=right_default)
+                          left_default=left_default,
+                          right_default=right_default)
 
 
 def diff(*seqs, **kwargs):
