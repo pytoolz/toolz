@@ -328,7 +328,7 @@ def test_curry_comparable():
     b1 = curry(bar, 1, c=2)
     assert b1 != f1
 
-    assert set([f1, f2, g1, h1, h2, h3, b1, b1()]) == set([f1, g1, h1, b1])
+    assert {f1, f2, g1, h1, h2, h3, b1, b1()} == {f1, g1, h1, b1}
 
     # test unhashable input
     unhash1 = curry(foo, [])

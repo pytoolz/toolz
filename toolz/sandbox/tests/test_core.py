@@ -20,8 +20,8 @@ def test_EqualityHashKey_default_key():
     data2 = list(map(EqualityHashDefault, [T0, T0, T1, T1, (), (1,)]))
     data2.extend([T0, T1, (), (1,)])
     set3 = set(data2)
-    assert set3 == set([(), (1,), EqualityHashDefault(()),
-                        EqualityHashDefault((1,))])
+    assert set3 == {(), (1,), EqualityHashDefault(()),
+                        EqualityHashDefault((1,))}
     assert len(set3) == 4
     assert EqualityHashDefault(()) in set3
     assert EqualityHashDefault((1,)) in set3

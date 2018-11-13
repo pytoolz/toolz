@@ -2,7 +2,7 @@ from toolz import *
 import toolz
 import toolz.curried
 import pickle
-from toolz.compatibility import PY3, PY33, PY34
+from toolz.compatibility import PY3
 from toolz.utils import raises
 
 
@@ -81,7 +81,7 @@ class GlobalCurried(object):
 
     def __reduce__(self):
         """Allow us to serialize instances of GlobalCurried"""
-        return (GlobalCurried, (self.x, self.y))
+        return GlobalCurried, (self.x, self.y)
 
     @toolz.curry
     class NestedCurried(object):
@@ -98,7 +98,7 @@ class GlobalCurried(object):
 
         def __reduce__(self):
             """Allow us to serialize instances of NestedCurried"""
-            return (GlobalCurried.NestedCurried, (self.x, self.y))
+            return GlobalCurried.NestedCurried, (self.x, self.y)
 
     class Nested(object):
         def __init__(self, x, y):
@@ -148,7 +148,7 @@ def test_curried_qualname():
 
     # If we add `curry.__getattr__` forwarding, the following tests will pass
 
-    # if not PY33 and not PY34:
+    # if not PY34:
     #     assert preserves_identity(GlobalCurried.func.g1)
     #     assert preserves_identity(GlobalCurried.func.NestedCurried.func.g2)
     #     assert preserves_identity(GlobalCurried.func.Nested)
@@ -159,7 +159,7 @@ def test_curried_qualname():
     # assert preserves_identity(GlobalCurried.NestedCurried)
     # assert preserves_identity(GlobalCurried.NestedCurried.f2)
     # assert preserves_identity(GlobalCurried.Nested.f3)
-    # if not PY33 and not PY34:
+    # if not PY34:
     #     assert preserves_identity(GlobalCurried.g1)
     #     assert preserves_identity(GlobalCurried.NestedCurried.g2)
     #     assert preserves_identity(GlobalCurried.Nested)
@@ -175,7 +175,7 @@ def test_curried_qualname():
     # assert func1 is not func2
     # assert func1(4) == func2(4) == 10
     #
-    # if not PY33 and not PY34:
+    # if not PY34:
     #     nested3 = GlobalCurried.func.Nested(1, 2)
     #     nested4 = pickle.loads(pickle.dumps(nested3))
     #     assert nested3 is not nested4

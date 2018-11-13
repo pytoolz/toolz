@@ -16,8 +16,9 @@ import functools
 import inspect
 import itertools
 import operator
+from importlib import import_module
 
-from .compatibility import PY3, import_module
+from .compatibility import PY3
 from .functoolz import (is_partial_args, is_arity, has_varargs,
                         has_keywords, num_required_args)
 
@@ -697,7 +698,7 @@ def expand_sig(sig):
         num_pos_only = num_pos_args(sigspec)
         keyword_only = ()
     keyword_exclude = get_exclude_keywords(num_pos_only, sigspec)
-    return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
+    return num_pos_only, func, keyword_only + keyword_exclude, sigspec
 
 
 signatures = {}

@@ -7,7 +7,7 @@ from toolz.functoolz import (curry, is_valid_args, is_partial_args, is_arity,
                              num_required_args, has_varargs, has_keywords)
 from toolz._signatures import builtins
 import toolz._signatures as _sigs
-from toolz.compatibility import PY3, PY33
+from toolz.compatibility import PY3
 from toolz.utils import raises
 
 
@@ -437,7 +437,7 @@ def test_introspect_builtin_modules():
     if missing:
         messages = []
         for modname, names in sorted(missing.items()):
-            msg = '{0}:\n    {1}'.format(modname, '\n    '.join(sorted(names)))
+            msg = '{}:\n    {}'.format(modname, '\n    '.join(sorted(names)))
             messages.append(msg)
         message = 'Missing introspection for the following callables:\n\n'
         raise AssertionError(message + '\n\n'.join(messages))
@@ -495,6 +495,6 @@ def test_inspect_wrapped_property():
     if PY3:
         assert inspect.signature(func) == inspect.signature(wrapped)
 
-    assert num_required_args(Wrapped) == (False if PY33 else None)
+    assert num_required_args(Wrapped) is None
     _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
     assert num_required_args(Wrapped) == 1

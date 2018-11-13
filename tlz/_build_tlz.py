@@ -1,15 +1,15 @@
 import sys
 import types
 import toolz
-from toolz.compatibility import import_module
+from importlib import import_module
 
 
 class TlzLoader(object):
     """ Finds and loads ``tlz`` modules when added to sys.meta_path"""
     def __init__(self):
-        self.always_from_toolz = set([
+        self.always_from_toolz = {
             toolz.pipe,
-        ])
+        }
 
     def _load_toolz(self, fullname):
         rv = {}
