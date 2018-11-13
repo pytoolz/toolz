@@ -871,8 +871,12 @@ def join(leftkey, leftseq, rightkey, rightseq,
     """ Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
-    and placed into memory.  The RIGHT sequence is evaluated lazily and so can
-    be arbitrarily large.
+    and placed into memory.  The RIGHT sequence is evaluated lazily and unless
+    right_default is defined, it can be arbitrarily large.  If right_default is
+    defined, the unique keys of rightseq will be placed into memory.
+    The join is implemented as a hash join and the keys of leftseq must be
+    hashable. Additionally, if right_default is defined, then keys of rightseq
+    must also be hashable.
 
     >>> friends = [('Alice', 'Edith'),
     ...            ('Alice', 'Zhao'),
