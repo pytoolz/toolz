@@ -5,15 +5,8 @@ import operator
 from functools import partial
 from random import Random
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
-                                 filter)
+                                 filter, Sequence)
 from toolz.utils import no_default
-
-try:
-    # Python 3
-    from collections.abc import Sequence
-except ImportError:  # pragma: no cover
-    # Python 2.7
-    from collections import Sequence
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
