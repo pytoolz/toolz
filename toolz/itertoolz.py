@@ -831,7 +831,7 @@ def _right_join(leftkey, leftseq, rightkey, rightseq,
 
 
 def _left_join(leftkey, leftseq, rightkey, rightseq,
-                right_default=no_default):
+               right_default=no_default):
     d = groupby(leftkey, leftseq)
     seen_keys = set()
     for item in rightseq:
@@ -848,7 +848,7 @@ def _left_join(leftkey, leftseq, rightkey, rightseq,
 
 
 def _full_join(leftkey, leftseq, rightkey, rightseq,
-                left_default=no_default, right_default=no_default):
+               left_default=no_default, right_default=no_default):
     d = groupby(leftkey, leftseq)
     seen_keys = set()
     for item in rightseq:
