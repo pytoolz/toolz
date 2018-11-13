@@ -8,12 +8,15 @@ python:
     - "3.7-dev"
     - "pypy"
 
+# Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
+matrix:
+    include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+
 env:
     - PEP8_IGNORE="E731,W503,E402"
-
-matrix:
-  allow_failures:
-    - python: "3.7-dev"
 
 # command to install dependencies
 install:
