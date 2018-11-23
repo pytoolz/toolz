@@ -8,8 +8,9 @@ from .compatibility import PY3, PY33, PY34, PYPY, import_module
 from .utils import no_default
 
 
-__all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
+__all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
+           'compose', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip',
+           'excepts')
 
 
 def identity(x):
