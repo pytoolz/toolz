@@ -21,7 +21,7 @@ def identity(x):
     return x
 
 
-def apply(func, *args, **kwargs):
+def apply(*func_and_args, **kwargs):
     """ Applies a function and returns the results
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
@@ -31,6 +31,9 @@ def apply(func, *args, **kwargs):
     >>> tuple(map(apply, [double, inc, double], [10, 500, 8000]))
     (20, 501, 16000)
     """
+    if not func_and_args:
+        raise TypeError('func argument is required')
+    func, args = func_and_args[0], func_and_args[1:]
     return func(*args, **kwargs)
 
 
