@@ -55,6 +55,7 @@ from toolz import (
 from .exceptions import merge, merge_with
 
 accumulate = toolz.curry(toolz.accumulate)
+apply = toolz.curry(toolz.apply)
 assoc = toolz.curry(toolz.assoc)
 assoc_in = toolz.curry(toolz.assoc_in)
 cons = toolz.curry(toolz.cons)
