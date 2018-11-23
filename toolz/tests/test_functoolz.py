@@ -26,6 +26,7 @@ def double(x):
 def test_apply():
     assert apply(double, 5) == 10
     assert tuple(map(apply, [double, inc, double], [10, 500, 8000])) == (20, 501, 16000)
+    assert raises(TypeError, apply)
 
 
 def test_thread_first():
