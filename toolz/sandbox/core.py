@@ -105,7 +105,7 @@ def unzip(seq):
     [1, 2]
 
     Unlike the naive implementation ``def unzip(seq): zip(*seq)`` this
-    implementation can handle a finite sequence of infinite sequences.
+    implementation can handle an infinite sequence ``seq``.
 
     Caveats:
 
@@ -113,7 +113,8 @@ def unzip(seq):
       of auxiliary storage if the resulting iterators are consumed at
       different times.
 
-    * The top level sequence cannot be infinite.
+    * The inner sequence cannot be infinite. In Python 3 ``zip(*seq)`` can be
+      used if ``seq`` is a finite sequence of infinite sequences.
 
     """
 
