@@ -5,7 +5,7 @@ import operator
 from functools import partial
 from random import Random
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
-                                 filter)
+                                 filter, Sequence)
 from toolz.utils import no_default
 
 
@@ -391,7 +391,7 @@ def nth(n, seq):
     >>> nth(1, 'ABC')
     'B'
     """
-    if isinstance(seq, (tuple, list, collections.Sequence)):
+    if isinstance(seq, (tuple, list, Sequence)):
         return seq[n]
     else:
         return next(itertools.islice(seq, n, None))
