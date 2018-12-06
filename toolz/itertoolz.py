@@ -893,12 +893,13 @@ def join(leftkey, leftseq, rightkey, rightseq,
                 yield (left_default, item)
     elif right_default != no_default:
         seen_keys = set()
+        seen = seen_keys.add
 
         if left_default == no_default:
             # Left Join
             for item in rightseq:
                 key = rightkey(item)
-                seen_keys.add(key)
+                seen(key)
                 if key in d:
                     for left_match in d[key]:
                         yield (left_match, item)
@@ -906,7 +907,7 @@ def join(leftkey, leftseq, rightkey, rightseq,
             # Full Join
             for item in rightseq:
                 key = rightkey(item)
-                seen_keys.add(key)
+                seen(key)
                 if key in d:
                     for left_match in d[key]:
                         yield (left_match, item)
