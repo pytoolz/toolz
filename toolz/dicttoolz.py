@@ -7,6 +7,7 @@ __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
            'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
 
+
 def _get_factory(f, kwargs):
     factory = kwargs.pop('factory', dict)
     if kwargs:
@@ -287,6 +288,7 @@ def update_in(d, keys, func, default=None, factory=dict):
     else:
         inner[k] = func(default)
     return rv
+
 
 def get_in(keys, coll, default=None, no_default=False):
     """ Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
