@@ -10,6 +10,7 @@ def _reduce(func, seq, initial=None):
     else:
         return functools.reduce(func, seq, initial)
 
+
 def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     """
     Reduce without guarantee of ordered reduction.
@@ -59,9 +60,13 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
 
     # Evaluate sequence in chunks via map
     if default == no_default:
-        results = map(functools.partial(_reduce, binop), chunks)
+        results = map(
+            functools.partial(_reduce, binop),
+            chunks)
     else:
-        results = map(functools.partial(_reduce, binop, initial=default), chunks)
+        results = map(
+            functools.partial(_reduce, binop, initial=default),
+            chunks)
 
     results = list(results)  # TODO: Support complete laziness
 
