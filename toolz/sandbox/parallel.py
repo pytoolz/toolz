@@ -50,6 +50,8 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     >>> fold(add, [1, 2, 3, 4], chunksize=2, map=map)
     10
     """
+    assert chunksize > 1
+
     if combine is None:
         combine = binop
 
