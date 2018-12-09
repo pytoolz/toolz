@@ -1,7 +1,14 @@
+import functools
 from toolz.itertoolz import partition_all
 from toolz.compatibility import reduce, map
 from toolz.utils import no_default
 
+
+def _reduce(func, seq, initial=None):
+    if initial is None:
+        return functools.reduce(func, seq)
+    else:
+        return functools.reduce(func, seq, initial)
 
 def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     """
@@ -50,9 +57,9 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
 
     # Evaluate sequence in chunks via map
     if default == no_default:
-        results = map(lambda chunk: reduce(binop, chunk), chunks)
+        results = map(functools.partial(_reduce, binop), chunks)
     else:
-        results = map(lambda chunk: reduce(binop, chunk, default), chunks)
+        results = map(functools.partial(_reduce, binop, initial=default), chunks)
 
     results = list(results)  # TODO: Support complete laziness
 
