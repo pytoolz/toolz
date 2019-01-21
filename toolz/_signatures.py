@@ -641,8 +641,8 @@ if PY3:  # pragma: py2 no cover
     def signature_or_spec(func):
         try:
             return inspect.signature(func)
-        except (ValueError, TypeError) as e:
-            return e
+        except (ValueError, TypeError):
+            return None
 
 else:  # pragma: py3 no cover
     def num_pos_args(sigspec):
@@ -663,8 +663,8 @@ else:  # pragma: py3 no cover
     def signature_or_spec(func):
         try:
             return inspect.getargspec(func)
-        except TypeError as e:
-            return e
+        except TypeError:
+            return None
 
 
 def expand_sig(sig):
