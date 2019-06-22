@@ -38,7 +38,7 @@ These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
    ...                map(get([1, 2])),
    ...                list)
 
-*note: this uses the curried_ versions of ``map`` and ``filter``.*
+Note: this uses the `curried`_ versions of ``map`` and ``filter``.
 
 Of course, these operations are also well supported with standard
 list/generator comprehension syntax.  This syntax is more often used and
