@@ -89,6 +89,8 @@ def groupby(key, seq):
      'M': [{'gender': 'M', 'name': 'Bob'},
            {'gender': 'M', 'name': 'Charlie'}]}
 
+    Not to be confused with ``itertools.groupby``
+
     See Also:
         countby
     """
