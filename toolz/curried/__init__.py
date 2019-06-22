@@ -51,6 +51,7 @@ from toolz import (
     second,
     thread_first,
     thread_last,
+    thread_some,
 )
 from .exceptions import merge, merge_with
 
