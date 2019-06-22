@@ -266,15 +266,28 @@ def update_in(d, keys, func, default=None, factory=dict):
     >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
     {1: 'foo', 2: {3: {4: 1}}}
     """
-    assert len(keys) > 0
-    k, ks = keys[0], keys[1:]
-    if ks:
-        return assoc(d, k, update_in(d[k] if (k in d) else factory(),
-                                     ks, func, default, factory),
-                     factory)
+    ks = iter(keys)
+    k = next(ks)
+
+    rv = inner = factory()
+    rv.update(d)
+
+    for key in ks:
+        if k in d:
+            d = d[k]
+            dtemp = factory()
+            dtemp.update(d)
+        else:
+            d = dtemp = factory()
+
+        inner[k] = inner = dtemp
+        k = key
+
+    if k in d:
+        inner[k] = func(d[k])
     else:
-        innermost = func(d[k]) if (k in d) else func(default)
-        return assoc(d, k, innermost, factory)
+        inner[k] = func(default)
+    return rv
 
 
 def get_in(keys, coll, default=None, no_default=False):
