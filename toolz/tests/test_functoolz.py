@@ -1,7 +1,7 @@
 import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt, flip, excepts)
+                             compose, pipe, complement, do, juxt, flip, excepts, apply)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -21,6 +21,12 @@ def inc(x):
 
 def double(x):
     return 2 * x
+
+
+def test_apply():
+    assert apply(double, 5) == 10
+    assert tuple(map(apply, [double, inc, double], [10, 500, 8000])) == (20, 501, 16000)
+    assert raises(TypeError, apply)
 
 
 def test_thread_first():

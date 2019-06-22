@@ -9,8 +9,9 @@ from .compatibility import PY3, PY34, PYPY
 from .utils import no_default
 
 
-__all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
+__all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
+           'compose', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip',
+           'excepts')
 
 
 def identity(x):
@@ -20,6 +21,22 @@ def identity(x):
     3
     """
     return x
+
+
+def apply(*func_and_args, **kwargs):
+    """ Applies a function and returns the results
+    >>> def double(x): return 2*x
+    >>> def inc(x):    return x + 1
+    >>> apply(double, 5)
+    10
+
+    >>> tuple(map(apply, [double, inc, double], [10, 500, 8000]))
+    (20, 501, 16000)
+    """
+    if not func_and_args:
+        raise TypeError('func argument is required')
+    func, args = func_and_args[0], func_and_args[1:]
+    return func(*args, **kwargs)
 
 
 def thread_first(val, *forms):

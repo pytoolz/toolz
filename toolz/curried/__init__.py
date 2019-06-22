@@ -26,6 +26,7 @@ See Also:
 import toolz
 from . import operator
 from toolz import (
+    apply,
     comp,
     complement,
     compose,
