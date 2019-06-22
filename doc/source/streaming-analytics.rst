@@ -81,8 +81,8 @@ groups.
 
 .. code::
 
-   >>> from toolz import groupby, valmap, compose
-   >>> from toolz.curried import get, pluck
+   >>> from toolz import compose
+   >>> from toolz.curried import get, pluck, groupby, valmap
 
    >>> groupby(get(3), accounts)
    {'F': [(1, 'Alice', 100, 'F'), (5, 'Edith', 300, 'F')],
