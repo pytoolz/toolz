@@ -13,7 +13,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, random_sample)
+                             diff, topk, peek, random_sample, power, quotient, sortby, repeatby)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -536,3 +536,26 @@ def test_random_sample():
     assert mk_rsample(b"a") == mk_rsample(u"a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
+
+    
+    
+def test_power():
+    assert set(power([1])) == {{1}, set()}
+
+
+def test_quotient():
+    S = [1,2,3,4,5,6]
+    Q = quotient(S, rel=lambda x, y: (x-y) % 3 ==0)
+    assert Q == [[1, 4], [2, 5], [3, 6]]
+    Q1 = quotient(S, key=lambda x: x % 3)
+    assert Q1 == [[1, 4], [2, 5], [3, 6]]
+    
+    assert quotient([], rel=lambda x:1) == []
+
+def test_sortby():
+    S = [1,2,3,4,5,6]
+    Q = sortby(S, rel=lambda x, y: (x-y) % 3 ==0)
+    assert Q == [1, 4, 2, 5, 3, 6]
+
+def test_repeatby():
+    assert repeatby(['w','r','y'], [3,2,1,2]) == ['w', 'w', 'w', 'r', 'r', 'y', 'w', 'w']

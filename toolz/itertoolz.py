@@ -14,7 +14,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample', 'power', 'quotient', 'sortby', 'repeatby')
 
 
 def remove(predicate, seq):
@@ -1036,3 +1036,52 @@ def random_sample(prob, seq, random_state=None):
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+  
+def power(iterable, hook=set):
+    # the power set of iterable
+    return (hook(a) for a in concat(itertools.combinations(iterable, r) for r in range(len(iterable)+1)))
+
+
+
+def quotient(lst, key=None, rel=lambda x, y: x==y):
+    '''rel is an equivalent relation
+    return a partition of X, X/rel
+    also see groupby in toolz
+    Remark: It is named partition at first, but conflits with the original one.
+    quotient is another acceptable name.
+'''
+    if lst==[]:
+        return lst
+    elif len(lst)==1:
+        return [lst]
+    if key:
+        rel = lambda x, y: key(x)==key(y)
+    #~ if rel: key = lambda x: {a for a in lst if rel(x, a)}
+    p = [[lst[0]]]
+    for a in lst[1:]:
+        for cls in p:
+            if rel(a, cls[0]):
+                cls.append(a)
+                break
+        else:
+            p.append([a])
+    return p
+
+def sortby(lst, key=None, rel=lambda x, y: x==y):
+    # see quotient
+    return concat(quotient(lst, key, rel))
+
+def repeatby(lst, nums):
+    '''example:
+>>> repeatby(['w','r','y'],[3,2,1,2])
+['w', 'w', 'w', 'r', 'r', 'y', 'w', 'w']
+'''
+    new = []
+    l = len(lst)
+    for k, n in enumerate(nums):
+        if l>k:
+            new.extend([lst[k]]*n)
+        else:
+            new.extend([lst[k%l]]*n)
+    return new
