@@ -13,8 +13,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'pad', 'sliding_window', 'partition', 'partition_all', 'count',
+           'pluck', 'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
 
 
 def remove(predicate, seq):
@@ -659,6 +659,53 @@ def iterate(func, x):
     while True:
         yield x
         x = func(x)
+
+
+def pad(seq, before=0, after=0, fill=None):
+    """ Pads a sequence by a fill value before and/or after.
+
+    Pads the sequence before and after using the fill value provided
+    by ``fill`` up to the lengths specified by ``before`` and
+    ``after``. If either ``before`` or ``after`` is ``None``, pad
+    the fill value infinitely on the respective end.
+
+    Note:
+        If ``before``is ``None``, the sequence will only be the fill
+        value.
+
+    Args:
+
+        seq(iterable):          Sequence to pad.
+        before(integral):       Amount to pad before.
+        after(integral):        Amount to pad after.
+        fill(any):              Some value to pad with.
+
+    Returns:
+
+        iterable:               A sequence that has been padded.
+
+    Examples:
+
+        >>> list(pad(range(2, 4), before=1, after=2, fill=0))
+        [0, 2, 3, 0, 0]
+
+    """
+
+    all_seqs = []
+
+    if before is None:
+        return itertools.repeat(fill)
+    elif before > 0:
+        all_seqs.append(itertools.repeat(fill, before))
+
+    all_seqs.append(seq)
+
+    if after is None:
+        all_seqs.append(itertools.repeat(fill))
+    elif after > 0:
+        all_seqs.append(itertools.repeat(fill, after))
+
+    return concat(all_seqs)
 
 
 def sliding_window(n, seq):

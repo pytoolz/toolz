@@ -10,7 +10,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              mapcat, isdistinct, first, second,
                              nth, take, tail, drop, interpose, get,
                              rest, last, cons, frequencies,
-                             reduceby, iterate, accumulate,
+                             reduceby, iterate, pad, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
                              diff, topk, peek, random_sample)
@@ -295,6 +295,28 @@ def test_accumulate():
 
 def test_accumulate_works_on_consumable_iterables():
     assert list(accumulate(add, iter((1, 2, 3)))) == [1, 3, 6]
+
+
+def test_pad():
+    assert list(pad([1,2,3])) == [1, 2, 3]
+    assert list(pad([1,2,3], before=1)) == [None, 1, 2, 3]
+    assert list(pad([1,2,3], after=2)) == [1, 2, 3, None, None]
+    assert list(pad([1,2,3], before=1, after=2, fill=0)) == [0, 1, 2, 3,
+                                                             0, 0]
+    assert list(zip(range(3), pad([1,2,3], before=None))) == [(0, None),
+                                                              (1, None),
+                                                              (2, None)]
+    assert list(zip(range(6), pad([1,2,3], after=None))) == [(0, 1),
+                                                             (1, 2),
+                                                             (2, 3),
+                                                             (3, None),
+                                                             (4, None),
+                                                             (5, None)]
+
+    padded = pad([1,2,3], before=None, after=None)
+    assert list(zip(range(3), padded)) == [(0, None),
+                                           (1, None),
+                                           (2, None)]
 
 
 def test_sliding_window():
