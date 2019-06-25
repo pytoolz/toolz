@@ -10,11 +10,12 @@ from toolz.utils import no_default
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
-           'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
-           'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
-           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'split',
+           'take_nth', 'first', 'second', 'nth', 'last', 'get', 'concat',
+           'concatv', 'mapcat', 'cons', 'interpose', 'frequencies',
+           'reduceby', 'iterate', 'sliding_window', 'partition',
+           'partition_all', 'count', 'pluck', 'join', 'tail', 'diff',
+           'topk', 'peek', 'random_sample')
 
 
 def remove(predicate, seq):
@@ -356,6 +357,27 @@ def drop(n, seq):
         tail
     """
     return itertools.islice(seq, n, None)
+
+
+def split(n, seq):
+    """ Splits the sequence around element n.
+
+    >>> list(map(tuple, split(2, [10, 20, 30, 40, 50])))
+    [(10, 20), (30,), (40, 50)]
+
+    See Also:
+        take
+        nth
+        drop
+    """
+
+    front, middle, back = itertools.tee(seq, 3)
+
+    front = itertools.islice(front, 0, n)
+    middle = itertools.islice(middle, n, n + 1)
+    back = itertools.islice(back, n + 1, None)
+
+    return front, middle, back
 
 
 def take_nth(n, seq):
