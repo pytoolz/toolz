@@ -559,7 +559,7 @@ def pipeline(*funcs):
     If no arguments are provided, the identity function (f(x) = x) is returned.
 
     >>> inc = lambda i: i + 1
-    >>> compose(inc, str)(3)
+    >>> pipeline(inc, str)(3)
     '4'
 
     See Also:
