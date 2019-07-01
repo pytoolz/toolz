@@ -554,7 +554,7 @@ def pipeline(*funcs):
     Returns a function that applies other functions in sequence.
 
     Functions are applied from left to right so that
-    ``mkpipe(f, g, h)(x, y)`` is the same as ``h(g(f(x, y)))``.
+    ``pipeline(f, g, h)(x, y)`` is the same as ``h(g(f(x, y)))``.
 
     If no arguments are provided, the identity function (f(x) = x) is returned.
 
