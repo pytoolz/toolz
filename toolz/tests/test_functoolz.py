@@ -1,7 +1,7 @@
 import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipeline, pipe, complement, do, juxt,
+                             compose, compose_left, pipe, complement, do, juxt,
                              flip, excepts, apply)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -574,7 +574,7 @@ def test_compose_metadata():
     assert composed.__doc__ == 'A composition of functions'
 
 
-def generate_pipeline_test_cases():
+def generate_compose_left_test_cases():
     """
     Generate test cases for parametrized tests of the compose function.
 
@@ -588,9 +588,9 @@ def generate_pipeline_test_cases():
     )
 
 
-def test_pipeline():
-    for (pipeline_args, args, kw, expected) in generate_pipeline_test_cases():
-        assert pipeline(*pipeline_args)(*args, **kw) == expected
+def test_compose_left():
+    for (compose_left_args, args, kw, expected) in generate_compose_left_test_cases():
+        assert compose_left(*compose_left_args)(*args, **kw) == expected
 
 
 def test_pipe():
