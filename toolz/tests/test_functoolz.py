@@ -1,7 +1,8 @@
 import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt, flip, excepts, apply)
+                             compose, compose_left, pipe, complement, do, juxt,
+                             flip, excepts, apply)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -505,17 +506,54 @@ def test_curry_subclassable():
     """
 
 
-def test_compose():
-    assert compose()(0) == 0
-    assert compose(inc)(0) == 1
-    assert compose(double, inc)(0) == 2
-    assert compose(str, iseven, inc, double)(3) == "False"
-    assert compose(str, add)(1, 2) == '3'
+def generate_compose_test_cases():
+    """
+    Generate test cases for parametrized tests of the compose function.
+    """
 
-    def f(a, b, c=10):
+    def add_then_multiply(a, b, c=10):
         return (a + b) * c
 
-    assert compose(str, inc, f)(1, 2, c=3) == '10'
+    return (
+        (
+            (),        # arguments to compose()
+            (0,), {},  # positional and keyword args to the Composed object
+            0          # expected result
+        ),
+        (
+            (inc,),
+            (0,), {},
+            1
+        ),
+        (
+            (double, inc),
+            (0,), {},
+            2
+        ),
+        (
+            (str, iseven, inc, double),
+            (3,), {},
+            "False"
+        ),
+        (
+            (str, add),
+            (1, 2), {},
+            '3'
+        ),
+        (
+            (str, inc, add_then_multiply),
+            (1, 2), {"c": 3},
+            '10'
+        ),
+    )
+
+
+def test_compose():
+    for (compose_args, args, kw, expected) in generate_compose_test_cases():
+        assert compose(*compose_args)(*args, **kw) == expected
+
+
+def test_compose_metadata():
 
     # Define two functions with different names
     def f(a):
@@ -534,6 +572,25 @@ def test_compose():
     composed = compose(f, h)
     assert composed.__name__ == 'Compose'
     assert composed.__doc__ == 'A composition of functions'
+
+
+def generate_compose_left_test_cases():
+    """
+    Generate test cases for parametrized tests of the compose function.
+
+    These are based on, and equivalent to, those produced by
+    enerate_compose_test_cases().
+    """
+    return tuple(
+        (tuple(reversed(compose_args)), args, kwargs, expected)
+        for (compose_args, args, kwargs, expected)
+        in generate_compose_test_cases()
+    )
+
+
+def test_compose_left():
+    for (compose_left_args, args, kw, expected) in generate_compose_left_test_cases():
+        assert compose_left(*compose_left_args)(*args, **kw) == expected
 
 
 def test_pipe():

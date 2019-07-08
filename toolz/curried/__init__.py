@@ -30,6 +30,7 @@ from toolz import (
     comp,
     complement,
     compose,
+    compose_left,
     concat,
     concatv,
     count,

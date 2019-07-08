@@ -10,8 +10,8 @@ from .utils import no_default
 
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
-           'compose', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip',
-           'excepts')
+           'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
+           'curry', 'flip', 'excepts')
 
 
 def identity(x):
@@ -537,6 +537,7 @@ def compose(*funcs):
     '4'
 
     See Also:
+        compose_left
         pipe
     """
     if not funcs:
@@ -545,6 +546,27 @@ def compose(*funcs):
         return funcs[0]
     else:
         return Compose(funcs)
+
+
+def compose_left(*funcs):
+    """ Compose functions to operate in series.
+
+    Returns a function that applies other functions in sequence.
+
+    Functions are applied from left to right so that
+    ``compose_left(f, g, h)(x, y)`` is the same as ``h(g(f(x, y)))``.
+
+    If no arguments are provided, the identity function (f(x) = x) is returned.
+
+    >>> inc = lambda i: i + 1
+    >>> compose_left(inc, str)(3)
+    '4'
+
+    See Also:
+        compose
+        pipe
+    """
+    return compose(*reversed(funcs))
 
 
 def pipe(data, *funcs):
