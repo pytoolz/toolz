@@ -13,7 +13,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, random_sample)
+                             diff, topk, peek, random_sample, zip_dict)
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -122,6 +122,21 @@ def test_isdistinct():
     assert isdistinct(iter([1, 2, 3])) is True
     assert isdistinct(iter([1, 2, 1])) is False
 
+
+def test_zip_dict ():
+    assert tuple(zip_dict()) == ()
+    assert tuple(zip_dict({0: 0})) == ((0, (0 ,)),)
+    assert tuple(zip_dict({0: 0}, {1: 1})) == ()
+    assert tuple(zip_dict({0: 0}, {0: 1})) == ((0, (0 , 1 )),)
+    assert tuple(zip_dict({0: 0}, {0: 0, 1: 1})) == ((0, (0 , 0)),)
+    assert tuple(zip_dict({0: 1, 1: 2}, {0: 0, 1: 1})) == ((0, (1 , 0)),
+                                                           (1, (2, 1)))
+
+    assert tuple(zip_dict({-1: 0, 0: 0, 1: 1, 2: 2},
+                          {-2: 0, 0: 1, 1: 2, 2: 3},
+                          {-3: 0, 0: 2, 1: 3, 2: 4})) == ((0, (0 , 1, 2)),
+                                                          (1, (1, 2, 3 )),
+                                                          (2, (2, 3, 4)))
 
 def test_nth():
     assert nth(2, 'ABCDE') == 'C'

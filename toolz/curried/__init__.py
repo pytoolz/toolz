@@ -53,6 +53,7 @@ from toolz import (
     second,
     thread_first,
     thread_last,
+    zip_dict
 )
 from .exceptions import merge, merge_with
 
