@@ -4,3 +4,5 @@ dist/
 *.egg-info/
 bench/shakespeare.txt
 .coverage
+
+\.tox/

@@ -2,6 +2,8 @@ from toolz.sandbox.parallel import fold
 from toolz import reduce
 from operator import add
 from pickle import dumps, loads
+from multiprocessing import Pool
+
 
 # is comparison will fail between this and no_default
 no_default2 = loads(dumps('__no__default__'))
@@ -9,6 +11,7 @@ no_default2 = loads(dumps('__no__default__'))
 
 def test_fold():
     assert fold(add, range(10), 0) == reduce(add, range(10), 0)
+    assert fold(add, range(10), 0, map=Pool().map) == reduce(add, range(10), 0)
     assert fold(add, range(10), 0, chunksize=2) == reduce(add, range(10), 0)
     assert fold(add, range(10)) == fold(add, range(10), 0)
 
