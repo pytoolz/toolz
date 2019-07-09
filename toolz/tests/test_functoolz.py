@@ -1,6 +1,4 @@
 import inspect
-import platform
-
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
                              flip, excepts, apply)
@@ -230,12 +228,10 @@ def test_curry_kwargs():
     def h(x, func=int):
         return func(x)
 
-    if platform.python_implementation() != 'PyPy'\
-            or platform.python_version_tuple()[0] != '3':  # Bug on PyPy3<2.5
-        # __init__ must not pick func as positional arg
-        assert curry(h)(0.0) == 0
-        assert curry(h)(func=str)(0.0) == '0.0'
-        assert curry(h, func=str)(0.0) == '0.0'
+    # __init__ must not pick func as positional arg
+    assert curry(h)(0.0) == 0
+    assert curry(h)(func=str)(0.0) == '0.0'
+    assert curry(h, func=str)(0.0) == '0.0'
 
 
 def test_curry_passes_errors():
