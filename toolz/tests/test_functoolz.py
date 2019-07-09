@@ -1,8 +1,10 @@
+import inspect
 import platform
 
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
                              flip, excepts, apply)
+from toolz.compatibility import PY3
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -22,6 +24,26 @@ def inc(x):
 
 def double(x):
     return 2 * x
+
+
+class AlwaysEquals(object):
+    """useful to test correct __eq__ implementation of other objects"""
+
+    def __eq__(self, other):
+        return True
+
+    def __ne__(self, other):
+        return False
+
+
+class NeverEquals(object):
+    """useful to test correct __eq__ implementation of other objects"""
+
+    def __eq__(self, other):
+        return False
+
+    def __ne__(self, other):
+        return True
 
 
 def test_apply():
@@ -573,6 +595,74 @@ def test_compose_metadata():
     assert composed.__name__ == 'Compose'
     assert composed.__doc__ == 'A composition of functions'
 
+    assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
+
+    assert composed == compose(f, h)
+    assert composed == AlwaysEquals()
+    assert not composed == compose(h, f)
+    assert not composed == object()
+    assert not composed == NeverEquals()
+
+    assert composed != compose(h, f)
+    assert composed != NeverEquals()
+    assert composed != object()
+    assert not composed != compose(f, h)
+    assert not composed != AlwaysEquals()
+
+    assert hash(composed) == hash(compose(f, h))
+    assert hash(composed) != hash(compose(h, f))
+
+    bindable = compose(str, lambda x: x*2, lambda x, y=0: int(x) + y)
+
+    class MyClass:
+
+        def __int__(self):
+            return 8
+
+        my_method = bindable
+        my_static_method = staticmethod(bindable)
+
+    assert MyClass.my_method(3) == '6'
+    assert MyClass.my_method(3, y=2) == '10'
+    assert MyClass.my_static_method(2) == '4'
+    assert MyClass().my_method() == '16'
+    assert MyClass().my_method(y=3) == '22'
+    assert MyClass().my_static_method(0) == '0'
+    assert MyClass().my_static_method(0, 1) == '2'
+
+    assert compose(f, h).__wrapped__ is h
+    assert compose(f, h).__class__.__wrapped__ is None
+
+    # __signature__ is python3 only
+    if PY3:
+
+        def myfunc(a, b, c, *d, **e):
+            return 4
+
+        def otherfunc(f):
+            return 'result: {}'.format(f)
+
+        # set annotations compatibly with python2 syntax
+        myfunc.__annotations__ = {
+            'a': int,
+            'b': str,
+            'c': float,
+            'd': int,
+            'e': bool,
+            'return': int,
+        }
+        otherfunc.__annotations__ = {'f': int, 'return': str}
+
+        composed = compose(otherfunc, myfunc)
+        sig = inspect.signature(composed)
+        assert sig.parameters == inspect.signature(myfunc).parameters
+        assert sig.return_annotation == str
+
+        class MyClass:
+            method = composed
+
+        assert len(inspect.signature(MyClass().method).parameters) == 4
+
 
 def generate_compose_left_test_cases():
     """
@@ -708,4 +798,3 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
-

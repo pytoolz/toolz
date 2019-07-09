@@ -4,6 +4,7 @@ import operator
 from operator import attrgetter
 from importlib import import_module
 from textwrap import dedent
+from types import MethodType
 
 from .compatibility import PY3, PY34, PYPY
 from .utils import no_default
@@ -520,6 +521,45 @@ class Compose(object):
             )
         except AttributeError:
             return type(self).__name__
+
+    def __repr__(self):
+        return '{.__class__.__name__}{!r}'.format(
+            self, tuple(reversed((self.first, ) + self.funcs)))
+
+    def __eq__(self, other):
+        if isinstance(other, Compose):
+            return other.first == self.first and other.funcs == self.funcs
+        return NotImplemented
+
+    def __ne__(self, other):
+        equality = self.__eq__(other)
+        return NotImplemented if equality is NotImplemented else not equality
+
+    def __hash__(self):
+        return hash(self.first) ^ hash(self.funcs)
+
+    # Mimic the descriptor behavior of python functions.
+    # i.e. let Compose be called as a method when bound to a class.
+    if PY3:  # pragma: py2 no cover
+        # adapted from
+        # docs.python.org/3/howto/descriptor.html#functions-and-methods
+        def __get__(self, obj, objtype=None):
+            return self if obj is None else MethodType(self, obj)
+    else:  # pragma: py3 no cover
+        # adapted from
+        # docs.python.org/2/howto/descriptor.html#functions-and-methods
+        def __get__(self, obj, objtype=None):
+            return self if obj is None else MethodType(self, obj, objtype)
+
+    # introspection with Signature is only possible from py3.3+
+    if PY3:  # pragma: py2 no cover
+        @instanceproperty
+        def __signature__(self):
+            base = inspect.signature(self.first)
+            last = inspect.signature(self.funcs[-1])
+            return base.replace(return_annotation=last.return_annotation)
+
+    __wrapped__ = instanceproperty(attrgetter('first'))
 
 
 def compose(*funcs):
