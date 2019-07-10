@@ -26,6 +26,7 @@ def identity(x):
 
 def apply(*func_and_args, **kwargs):
     """ Applies a function and returns the results
+
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
     >>> apply(double, 5)
@@ -625,6 +626,7 @@ def pipe(data, *funcs):
 
     See Also:
         compose
+        compose_left
         thread_first
         thread_last
     """

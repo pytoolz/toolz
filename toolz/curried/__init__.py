@@ -36,7 +36,6 @@ from toolz import (
     count,
     curry,
     diff,
-    dissoc,
     first,
     flip,
     frequencies,
