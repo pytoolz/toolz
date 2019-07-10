@@ -402,7 +402,6 @@ def test_introspect_builtin_modules():
             blacklist.add(getattr(mod, attr))
 
     add_blacklist(builtins, 'basestring')
-    add_blacklist(builtins, 'breakpoint')
     add_blacklist(builtins, 'NoneType')
     add_blacklist(builtins, '__metaclass__')
     add_blacklist(builtins, 'sequenceiterator')

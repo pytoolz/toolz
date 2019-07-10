@@ -237,6 +237,8 @@ module_info[builtins]['exec'] = [
 
 if PY3:  # pragma: py2 no cover
     module_info[builtins].update(
+        breakpoint=[
+            lambda *args, **kws: None],
         bytes=[
             lambda: None,
             lambda int: None,

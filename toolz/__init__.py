@@ -8,14 +8,14 @@ from .recipes import *
 
 from .compatibility import map, filter
 
-from . import sandbox
-
 from functools import partial, reduce
 
 sorted = sorted
 
 # Aliases
 comp = compose
+
+from . import curried, sandbox
 
 functoolz._sigs.create_signature_registry()
 
