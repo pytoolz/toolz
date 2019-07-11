@@ -1,7 +1,9 @@
 from collections import defaultdict as _defaultdict
+import os
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter, assoc_in)
+from toolz.functoolz import identity
 from toolz.utils import raises
 from toolz.compatibility import PY3
 
@@ -250,3 +252,10 @@ class TestCustomMapping(TestDict):
     """
     D = CustomMapping
     kw = {'factory': lambda: CustomMapping()}
+
+
+def test_environ():
+    # See: https://github.com/pytoolz/cytoolz/issues/127
+    assert keymap(identity, os.environ) == os.environ
+    assert valmap(identity, os.environ) == os.environ
+    assert itemmap(identity, os.environ) == os.environ
