@@ -1,4 +1,5 @@
 import operator
+from functools import reduce
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
