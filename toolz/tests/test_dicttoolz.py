@@ -5,7 +5,6 @@ from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              itemfilter, assoc_in)
 from toolz.functoolz import identity
 from toolz.utils import raises
-from toolz.compatibility import PY3
 
 
 def inc(x):
@@ -214,17 +213,6 @@ class CustomMapping(object):
 
     def update(self, *args, **kwargs):
         self._d.update(*args, **kwargs)
-
-    # Should we require these to be defined for Python 2?
-    if not PY3:
-        def iterkeys(self):
-            return self._d.iterkeys()
-
-        def itervalues(self):
-            return self._d.itervalues()
-
-        def iteritems(self):
-            return self._d.iteritems()
 
     # Unused methods that are part of the MutableMapping protocol
     #def get(self, key, *args):
