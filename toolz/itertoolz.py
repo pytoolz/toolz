@@ -4,8 +4,7 @@ import collections
 import operator
 from functools import partial
 from random import Random
-from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
-                                 filter, Sequence)
+from collections.abc import Sequence
 from toolz.utils import no_default
 
 
@@ -25,7 +24,7 @@ def remove(predicate, seq):
     >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
-    return filterfalse(predicate, seq)
+    return itertools.filterfalse(predicate, seq)
 
 
 def accumulate(binop, seq, initial=no_default):
@@ -100,7 +99,7 @@ def groupby(key, seq):
     for item in seq:
         d[key(item)](item)
     rv = {}
-    for k, v in iteritems(d):
+    for k, v in d.items():
         rv[k] = v.__self__
     return rv
 
@@ -703,7 +702,7 @@ def partition(n, seq, pad=no_pad):
     if pad is no_pad:
         return zip(*args)
     else:
-        return zip_longest(*args, fillvalue=pad)
+        return itertools.zip_longest(*args, fillvalue=pad)
 
 
 def partition_all(n, seq):
@@ -721,7 +720,7 @@ def partition_all(n, seq):
         partition
     """
     args = [iter(seq)] * n
-    it = zip_longest(*args, fillvalue=no_pad)
+    it = itertools.zip_longest(*args, fillvalue=no_pad)
     try:
         prev = next(it)
     except StopIteration:
@@ -949,7 +948,7 @@ def diff(*seqs, **kwargs):
     if default == no_default:
         iters = zip(*seqs)
     else:
-        iters = zip_longest(*seqs, fillvalue=default)
+        iters = itertools.zip_longest(*seqs, fillvalue=default)
     key = kwargs.get('key', None)
     if key is None:
         for items in iters:
