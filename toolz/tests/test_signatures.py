@@ -52,8 +52,8 @@ def test_is_valid(check_valid=_is_valid_args, incomplete=False):
     assert check_valid(f, 1, key=None)
     assert check_valid(f, 1, 2, key=None)
     assert check_valid(f, 1, 2, 3, key=None)
-    assert check_valid(f, key=None, default=None) #is (PY3 and incomplete)
-    assert check_valid(f, 1, key=None, default=None) #is PY3
+    assert check_valid(f, key=None, default=None) is incomplete
+    assert check_valid(f, 1, key=None, default=None)
     assert check_valid(f, 1, 2, key=None, default=None) is False
     assert check_valid(f, 1, 2, 3, key=None, default=None) is False
 
