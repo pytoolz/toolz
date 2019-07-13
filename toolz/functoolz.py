@@ -857,6 +857,7 @@ If a callable doesn't have a signature (Python 3) or an argspec (Python 2),
 the signature registry in toolz._signatures is used.
 """
 
+
 def num_required_args(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
                                  func)
