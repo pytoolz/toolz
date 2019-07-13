@@ -6,7 +6,7 @@ from importlib import import_module
 from textwrap import dedent
 from types import MethodType
 
-from .compatibility import  PYPY
+from .compatibility import PYPY
 from .utils import no_default
 
 
@@ -838,6 +838,7 @@ def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
         return None, False
     return sigspec, None
 
+
 if PYPY:  # pragma: no cover
     _check_sigspec_orig = _check_sigspec
 
@@ -848,6 +849,7 @@ if PYPY:  # pragma: no cover
             return None, val
         return _check_sigspec_orig(sigspec, func, builtin_func, *builtin_args)
 
+
 _check_sigspec.__doc__ = """ \
 Private function to aid in introspection compatibly across Python versions.
 
@@ -857,31 +859,34 @@ the signature registry in toolz._signatures is used.
 
 def num_required_args(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
-                                    func)
+                                 func)
     if sigspec is None:
         return rv
     return sum(1 for p in sigspec.parameters.values()
-                if p.default is p.empty
-                and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
+               if p.default is p.empty
+               and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
+
 
 def has_varargs(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
     if sigspec is None:
         return rv
     return any(p.kind == p.VAR_POSITIONAL
-                for p in sigspec.parameters.values())
+               for p in sigspec.parameters.values())
+
 
 def has_keywords(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
     if sigspec is None:
         return rv
     return any(p.default is not p.empty
-                or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD)
-                for p in sigspec.parameters.values())
+               or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD)
+               for p in sigspec.parameters.values())
+
 
 def is_valid_args(func, args, kwargs, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
-                                    func, args, kwargs)
+                                 func, args, kwargs)
     if sigspec is None:
         return rv
     try:
@@ -890,9 +895,10 @@ def is_valid_args(func, args, kwargs, sigspec=None):
         return False
     return True
 
+
 def is_partial_args(func, args, kwargs, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
-                                    func, args, kwargs)
+                                 func, args, kwargs)
     if sigspec is None:
         return rv
     try:
@@ -900,7 +906,6 @@ def is_partial_args(func, args, kwargs, sigspec=None):
     except TypeError:
         return False
     return True
-
 
 
 def is_arity(n, func, sigspec=None):
