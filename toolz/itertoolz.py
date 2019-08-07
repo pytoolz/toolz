@@ -477,6 +477,29 @@ def get(ind, seq, default=no_default):
 
 
 def attr_get(attr, obj, default=no_default):
+    """ Get attribute in an object, namedtuple or dataclass
+
+    Provides attribute name
+
+    >>> class A(object):
+    >>>     pass
+    >>> a = A(); a.id = 1; a.name = "ABC"
+    >>> get("id", 1)       # Same as a.id
+    1
+
+    Pass a list to get multiple values
+
+    >>> get(["id", "name"], a)  # (a.id, a.name)
+    (1, "ABC")
+
+    Provide a default for missing values
+
+    >>> get(['id', val'], a, None)
+    (1, None)
+
+    See Also:
+        attr_pluck
+    """
     try:
         return getattr(obj, attr)
     except TypeError:  # `attr` may be a list
@@ -838,26 +861,28 @@ def getter(index):
 
 
 def attr_pluck(attr, objs, default=no_default):
-    """ plucks an element or several elements from each item in a sequence.
+    """ plucks an attribute or several attributes from each object in a sequence.
 
-    ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
-    elements of each item in the sequence.
+    ``attr_pluck`` maps ``itertoolz.attr_get`` over a sequence and returns one or more
+    attributes of each object in the sequence.
 
-    This is equivalent to running `map(curried.get(ind), seqs)`
+    This is equivalent to running `map(curried.attr_get(attr), objs)`
 
-    ``ind`` can be either a single string/index or a list of strings/indices.
-    ``seqs`` should be sequence containing sequences or dicts.
+    ``attr`` can be either a single string/index or a list of strings.
+    ``objs`` should be sequence containing object.
 
     e.g.
 
-    >>> data = [{'id': 1, 'name': 'Cheese'}, {'id': 2, 'name': 'Pies'}]
-    >>> list(pluck('name', data))
+    >>> class A(object):
+    >>>     pass
+    >>> a1 = A(); a1.id = 1, a1.name = "Cheese"
+    >>> a2 = A(); a2.id = 2, a2.name = "Pies"
+    >>> list(attr_pluck('name', [a1, a2]))
     ['Cheese', 'Pies']
-    >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
-    [(1, 2), (4, 5)]
+
 
     See Also:
-        get
+        attr_get
         map
     """
     if default == no_default:
