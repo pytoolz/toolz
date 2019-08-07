@@ -11,10 +11,11 @@ from toolz.utils import no_default
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
-           'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
-           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+           'first', 'second', 'nth', 'last', 'get', 'attr_get', 'concat',
+           'concatv', 'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby',
+           'iterate', 'sliding_window', 'partition', 'partition_all',
+           'count', 'pluck', 'attr_pluck', 'join', 'tail', 'diff', 'topk',
+           'peek', 'peekn', 'random_sample')
 
 
 def remove(predicate, seq):
@@ -475,6 +476,31 @@ def get(ind, seq, default=no_default):
             return default
 
 
+def attr_get(attr, obj, default=no_default):
+    try:
+        return getattr(obj, attr)
+    except TypeError:  # `attr` may be a list
+        if isinstance(attr, list):
+            if default == no_default:
+                if len(attr) > 1:
+                    return operator.attrgetter(*attr)(obj)
+                elif attr:
+                    return getattr(obj, attr[0]),
+                else:
+                    return ()
+            else:
+                return tuple(getattr(obj, a, default) for a in attr)
+        elif default != no_default:
+            return default
+        else:
+            raise
+    except AttributeError:  # we know `attr` is not a list
+        if default == no_default:
+            raise
+        else:
+            return default
+
+
 def concat(seqs):
     """ Concatenate zero or more iterables, any of which may be infinite.
 
@@ -809,6 +835,51 @@ def getter(index):
             return lambda x: ()
     else:
         return operator.itemgetter(index)
+
+
+def attr_pluck(attr, objs, default=no_default):
+    """ plucks an element or several elements from each item in a sequence.
+
+    ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
+    elements of each item in the sequence.
+
+    This is equivalent to running `map(curried.get(ind), seqs)`
+
+    ``ind`` can be either a single string/index or a list of strings/indices.
+    ``seqs`` should be sequence containing sequences or dicts.
+
+    e.g.
+
+    >>> data = [{'id': 1, 'name': 'Cheese'}, {'id': 2, 'name': 'Pies'}]
+    >>> list(pluck('name', data))
+    ['Cheese', 'Pies']
+    >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
+    [(1, 2), (4, 5)]
+
+    See Also:
+        get
+        map
+    """
+    if default == no_default:
+        get = attr_getter(attr)
+        return map(get, objs)
+    elif isinstance(attr, list):
+        return (tuple(getattr(obj, item, default) for item in attr)
+                for obj in objs)
+    return (getattr(obj, attr, default) for obj in objs)
+
+
+def attr_getter(attr):
+    if isinstance(attr, list):
+        if len(attr) == 1:
+            attr = attr[0]
+            return lambda x: (getattr(x, attr),)
+        elif attr:
+            return operator.attrgetter(*attr)
+        else:
+            return lambda x: ()
+    else:
+        return operator.attrgetter(attr)
 
 
 def join(leftkey, leftseq, rightkey, rightseq,
