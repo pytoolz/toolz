@@ -484,7 +484,7 @@ def attr_get(attr, obj, default=no_default):
     >>> class A(object):
     >>>     pass
     >>> a = A(); a.id = 1; a.name = "ABC"
-    >>> get("id", 1)       # Same as a.id
+    >>> get("id", a)       # Same as a.id
     1
 
     Pass a list to get multiple values
