@@ -484,17 +484,17 @@ def attr_get(attr, obj, default=no_default):
     >>> class A(object):
     >>>     pass
     >>> a = A(); a.id = 1; a.name = "ABC"
-    >>> get("id", a)       # Same as a.id
+    >>> attr_get("id", a)       # Same as a.id
     1
 
     Pass a list to get multiple values
 
-    >>> get(["id", "name"], a)  # (a.id, a.name)
+    >>> attr_get(["id", "name"], a)  # (a.id, a.name)
     (1, "ABC")
 
     Provide a default for missing values
 
-    >>> get(['id', val'], a, None)
+    >>> attr_get(['id', val'], a, None)
     (1, None)
 
     See Also:
