@@ -20,6 +20,7 @@ Itertoolz
    first
    frequencies
    get
+   attr_get
    groupby
    interleave
    interpose
@@ -36,6 +37,7 @@ Itertoolz
    peek
    peekn
    pluck
+   attr_pluck
    random_sample
    reduceby
    remove
