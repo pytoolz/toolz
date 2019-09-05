@@ -710,6 +710,14 @@ def do(func, x):
     return x
 
 
+def just_raise(exception):
+    """ Just raises the exception given. """
+    def inner():
+        raise exception
+
+    return inner
+
+
 @curry
 def flip(func, a, b):
     """ Call the function call with the arguments flipped
