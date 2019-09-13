@@ -71,6 +71,8 @@ Functoolz
    pipe
    thread_first
    thread_last
+   unfold
+   unfold_
 
 Dicttoolz
 ---------
