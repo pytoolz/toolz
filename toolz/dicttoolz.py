@@ -1,6 +1,6 @@
 import operator
 from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
-                                 reduce)
+                                 reduce, Mapping)
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
@@ -29,7 +29,7 @@ def merge(*dicts, **kwargs):
     See Also:
         merge_with
     """
-    if len(dicts) == 1 and not isinstance(dicts[0], dict):
+    if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
         dicts = dicts[0]
     factory = _get_factory(merge, kwargs)
 
