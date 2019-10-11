@@ -47,8 +47,7 @@ multiprocessing, to distributed computation all with the same domain code.
         >>> stem("Hello!")
         'hello'
         """
-        return
-        word.lower().rstrip(",.!)-*_?:;$'-\"").lstrip("-*'\"(_$'")
+        return word.lower().rstrip(",.!)-*_?:;$'-\"").lstrip("-*'\"(_$'")
 
 
     wordcount = compose(frequencies, map(stem), concat, map(str.split), open)
