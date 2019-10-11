@@ -19,7 +19,7 @@ if PY3:
     iteritems = operator.methodcaller('items')
     iterkeys = operator.methodcaller('keys')
     itervalues = operator.methodcaller('values')
-    from collections.abc import Sequence
+    from collections.abc import Sequence, Mapping
 else:
     range = xrange
     reduce = reduce
@@ -31,4 +31,4 @@ else:
     iteritems = operator.methodcaller('iteritems')
     iterkeys = operator.methodcaller('iterkeys')
     itervalues = operator.methodcaller('itervalues')
-    from collections import Sequence
+    from collections import Sequence, Mapping
