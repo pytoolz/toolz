@@ -373,7 +373,9 @@ def first(seq):
     >>> first('ABC')
     'A'
     """
-    return next(iter(seq))
+    for rv in seq:
+        return rv
+    raise RuntimeError
 
 
 def second(seq):
@@ -382,9 +384,9 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    seq = iter(seq)
-    next(seq)
-    return next(seq)
+    for rv in itertools.islice(seq, 1, None):
+        return rv
+    raise RuntimeError
 
 
 def nth(n, seq):
@@ -396,7 +398,7 @@ def nth(n, seq):
     if isinstance(seq, (tuple, list, Sequence)):
         return seq[n]
     else:
-        return next(itertools.islice(seq, n, None))
+        return first(itertools.islice(seq, n, None))
 
 
 def last(seq):
@@ -531,8 +533,12 @@ def interpose(el, seq):
     [1, 'a', 2, 'a', 3]
     """
     inposed = concat(zip(itertools.repeat(el), seq))
-    next(inposed)
-    return inposed
+
+    try:
+        next(inposed)
+        return inposed
+    except StopIteration:
+        raise RuntimeError
 
 
 def frequencies(seq):
@@ -722,13 +728,16 @@ def partition_all(n, seq):
     """
     args = [iter(seq)] * n
     it = zip_longest(*args, fillvalue=no_pad)
+
     try:
         prev = next(it)
     except StopIteration:
         return
+
     for item in it:
         yield prev
         prev = item
+
     if prev[-1] is no_pad:
         try:
             # If seq defines __len__, then
@@ -997,8 +1006,11 @@ def peek(seq):
     [0, 1, 2, 3, 4]
     """
     iterator = iter(seq)
-    item = next(iterator)
-    return item, itertools.chain((item,), iterator)
+    try:
+        item = next(iterator)
+        return item, itertools.chain((item,), iterator)
+    except StopIteration:
+        raise RuntimeError
 
 
 def peekn(n, seq):
