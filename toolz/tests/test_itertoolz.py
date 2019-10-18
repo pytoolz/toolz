@@ -17,7 +17,6 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
 from toolz.compatibility import range, filter
 from operator import add, mul
 
-
 # is comparison will fail between this and no_default
 no_default2 = loads(dumps('__no__default__'))
 
@@ -128,7 +127,7 @@ def test_nth():
     assert nth(2, iter('ABCDE')) == 'C'
     assert nth(1, (3, 2, 1)) == 2
     assert nth(0, {'foo': 'bar'}) == 'foo'
-    assert raises(StopIteration, lambda: nth(10, {10: 'foo'}))
+    assert raises(RuntimeError, lambda: nth(10, {10: 'foo'}))
     assert nth(-2, 'ABCDE') == 'D'
     assert raises(ValueError, lambda: nth(-2, iter('ABCDE')))
 
@@ -137,12 +136,14 @@ def test_first():
     assert first('ABCDE') == 'A'
     assert first((3, 2, 1)) == 3
     assert isinstance(first({0: 'zero', 1: 'one'}), int)
+    assert raises(RuntimeError, lambda: first([]))
 
 
 def test_second():
     assert second('ABCDE') == 'B'
     assert second((3, 2, 1)) == 2
     assert isinstance(second({0: 'zero', 1: 'one'}), int)
+    assert raises(RuntimeError, lambda: second([1]))
 
 
 def test_last():
@@ -229,6 +230,7 @@ def test_interpose():
     assert "tXaXrXzXaXn" == "".join(interpose("X", "tarzan"))
     assert list(interpose(0, itertools.repeat(1, 4))) == [1, 0, 1, 0, 1, 0, 1]
     assert list(interpose('.', ['a', 'b', 'c'])) == ['a', '.', 'b', '.', 'c']
+    assert raises(RuntimeError, lambda: interpose('a', []))
 
 
 def test_frequencies():
@@ -511,8 +513,7 @@ def test_peek():
     element, blist = peek(alist)
     assert element == alist[0]
     assert list(blist) == alist
-
-    assert raises(StopIteration, lambda: peek([]))
+    assert raises(RuntimeError, lambda: peek([]))
 
 
 def test_peekn():
