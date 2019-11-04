@@ -46,8 +46,10 @@ def test_tlz():
     except ImportError:
         pass
 
-    assert tlz.__file__ == toolz.__file__
-    assert tlz.functoolz.__file__ == toolz.functoolz.__file__
+    if hasattr(tlz, '__file__'):
+        assert tlz.__file__ == toolz.__file__
+    if hasattr(tlz.functoolz, '__file__'):
+        assert tlz.functoolz.__file__ == toolz.functoolz.__file__
 
     assert tlz.pipe is toolz.pipe
 
