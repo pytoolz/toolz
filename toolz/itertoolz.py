@@ -7,6 +7,7 @@ from random import Random
 from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
                                  filter, Sequence)
 from toolz.utils import no_default
+from toolz.exceptions import IterationError
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -375,7 +376,7 @@ def first(seq):
     """
     for rv in seq:
         return rv
-    raise RuntimeError
+    raise IterationError("Received empty sequence")
 
 
 def second(seq):
@@ -384,9 +385,7 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    for rv in itertools.islice(seq, 1, None):
-        return rv
-    raise RuntimeError
+    return first(itertools.islice(seq, 1, None))
 
 
 def nth(n, seq):
@@ -533,12 +532,11 @@ def interpose(el, seq):
     [1, 'a', 2, 'a', 3]
     """
     inposed = concat(zip(itertools.repeat(el), seq))
-
     try:
         next(inposed)
         return inposed
     except StopIteration:
-        raise RuntimeError
+        raise IterationError("Received empty sequence")
 
 
 def frequencies(seq):
@@ -1010,7 +1008,7 @@ def peek(seq):
         item = next(iterator)
         return item, itertools.chain((item,), iterator)
     except StopIteration:
-        raise RuntimeError
+        raise IterationError("Received empty sequence")
 
 
 def peekn(n, seq):
