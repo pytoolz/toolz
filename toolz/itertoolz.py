@@ -754,7 +754,7 @@ def partition_all(n, seq):
 def count(seq):
     """ Count the number of items in seq
 
-    Like the builtin ``len`` but works on lazy sequencies.
+    Like the builtin ``len`` but works on lazy sequences.
 
     Not to be confused with ``itertools.count``
 
