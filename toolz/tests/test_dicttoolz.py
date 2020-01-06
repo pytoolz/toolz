@@ -1,10 +1,12 @@
-from collections import defaultdict as _defaultdict, Mapping
+from collections import defaultdict as _defaultdict
 import os
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter, assoc_in)
 from toolz.functoolz import identity
 from toolz.utils import raises
+from toolz.compatibility import PY3, Mapping
+
 
 
 def inc(x):
