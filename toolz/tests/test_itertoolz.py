@@ -13,7 +13,9 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, peekn, random_sample)
+                             diff, topk, peek, peekn, random_sample,
+                             attr_get, attr_pluck
+                             )
 from toolz.compatibility import range, filter
 from operator import add, mul
 
@@ -196,6 +198,29 @@ def test_get():
     assert raises(KeyError, lambda: get('foo', {}, default=no_default2))
 
 
+def test_attr_get():
+    class Obj(object):
+        pass
+
+    o = Obj()
+    o.a = 123
+    o.b = "abc"
+
+    assert attr_get("a", o) == 123
+    assert attr_get(["a", "b"], o) == (123, "abc")
+
+    assert attr_get("c", o, default='bar') == 'bar'
+    assert attr_get(1, o, default='bar') == 'bar'
+    assert attr_get(["c", "d"], o, default='bar') == ('bar', 'bar')
+    assert attr_get(["a", "c"], o, 'C') == (123, 'C')
+
+    assert attr_get(["a"], o) == (123,)
+    assert attr_get([], o) == ()
+
+    assert raises(AttributeError, lambda: attr_get("c", o))
+    assert raises(TypeError, lambda: attr_get(1, o))
+
+
 def test_mapcat():
     assert (list(mapcat(identity, [[1, 2, 3], [4, 5, 6]])) ==
             [1, 2, 3, 4, 5, 6])
@@ -358,6 +383,29 @@ def test_pluck():
 
     assert list(pluck(0, [[0, 1], [2, 3], [4, 5]], no_default2)) == [0, 2, 4]
     assert raises(IndexError, lambda: list(pluck(1, [[0]], no_default2)))
+
+
+def test_attr_pluck():
+    class Obj(object):
+        pass
+
+    o1 = Obj()
+    o1.a = 123
+    o1.b = "abc"
+
+    o2 = Obj()
+    o2.a = 456
+    o2.b = "def"
+    o2.c = 1
+
+    assert list(attr_pluck("a", [o1, o2])) == [123, 456]
+    assert list(attr_pluck([], [o1, o2])) == [(), ()]
+    assert list(attr_pluck(["a"], [o1, o2])) == [(123,), (456,)]
+    assert list(attr_pluck(["a", "b"], [o1, o2])) == [(123, "abc"), (456, "def")]
+    assert list(attr_pluck("c", [o1, o2], None)) == [None, 1]
+    assert list(attr_pluck(["a", "c"], [o1, o2], None)) == [(123, None), (456, 1)]
+
+    assert raises(AttributeError, lambda: list(attr_pluck("x", [o1])))
 
 
 def test_join():
