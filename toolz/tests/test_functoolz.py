@@ -2,7 +2,7 @@ import inspect
 import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
-                             flip, excepts, apply)
+                             flip, excepts, apply, unfold, unfold_)
 from toolz.compatibility import PY3
 from operator import add, mul, itemgetter
 from toolz.utils import raises
@@ -796,3 +796,18 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
+
+
+def test_unfold():
+    expected = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+
+    def doubles(x):
+        if x > 10:
+            return None
+        else:
+            return (x * 2, x + 1)
+    assert list(unfold(doubles, 1)) == expected
+
+    def lte10(x):
+        return x <= 10
+    assert list(unfold_(lte10, double, inc, 1)) == expected

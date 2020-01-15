@@ -12,7 +12,7 @@ from .utils import no_default
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
-           'curry', 'flip', 'excepts')
+           'curry', 'flip', 'excepts', 'unfold', 'unfold_')
 
 
 def identity(x):
@@ -823,6 +823,58 @@ class excepts(object):
             return '%s_excepting_%s' % (self.func.__name__, exc_name)
         except AttributeError:
             return 'excepting'
+
+
+def unfold(func, x):
+    """ Generate values from a seed value
+
+    Each iteration, the generator yields ``func(x)[0]`` and evaluates
+    ``func(x)[1]`` to determine the next ``x`` value.  Iteration proceeds as
+    long as ``func(x)`` is not None.
+
+    >>> def doubles(x):
+    ...     if x > 10:
+    ...         return None
+    ...     else:
+    ...         return (x * 2, x + 1)
+    ...
+    >>> list(unfold(doubles, 1))
+    [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+
+    If ``x`` has type ``A`` and the generator yields values of type ``B``,
+    then ``func`` has type ``Callable[[A], Optional[Tuple[B, A]]]``.
+
+    """
+    while True:
+        t = func(x)
+        if t is None:
+            break
+        else:
+            yield t[0]
+            x = t[1]
+
+
+def unfold_(predicate, func, succ, x):
+    """ Alternative formulation of unfold
+
+    Each iteration, the generator yields ``func(x)`` and evaluates
+    ``succ(x)`` to determine the next ``x`` value.  Iteration proceeds as long
+    as ``predicate(x)`` is True.
+
+    >>> lte10 = lambda x: x <= 10
+    >>> double = lambda x: x * 2
+    >>> inc = lambda x: x + 1
+    >>> list(unfold_(lte10, double, inc, 1))
+    [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+
+    If ``x`` has type ``A`` and the generator yields values of type ``B``,
+    then ``predicate`` has type ``Callable[[A], bool]``, ``func`` has type
+    ``Callable[[A], B]``, and ``succ`` has type ``Callable[[A], A]``.
+
+    """
+    while predicate(x):
+        yield func(x)
+        x = succ(x)
 
 
 if PY3:  # pragma: py2 no cover
