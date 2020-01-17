@@ -385,7 +385,10 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    return first(itertools.islice(seq, 1, None))
+    try:
+        return first(itertools.islice(seq, 1, None))
+    except IterationError:
+        raise IterationError("Lenth of seq is < 2")
 
 
 def nth(n, seq):
@@ -397,7 +400,10 @@ def nth(n, seq):
     if isinstance(seq, (tuple, list, Sequence)):
         return seq[n]
     else:
-        return first(itertools.islice(seq, n, None))
+        try:
+            return first(itertools.islice(seq, n, None))
+        except IterationError:
+            raise IterationError("Length of seq is < %d" % n)
 
 
 def last(seq):
