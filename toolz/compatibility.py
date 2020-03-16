@@ -1,7 +1,7 @@
 import warnings
 warnings.warn("The toolz.compatibility module is no longer "
-              "needed in Python 3.x and has been deprecated. Please "
-              "import these utilities directly from the standard library."
+              "needed in Python 3 and has been deprecated. Please "
+              "import these utilities directly from the standard library. "
               "This module will be removed in a future release.",
               category=DeprecationWarning)
 
