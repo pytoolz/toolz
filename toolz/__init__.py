@@ -8,12 +8,6 @@ from .recipes import *
 
 from functools import partial, reduce
 
-sorted = sorted
-
-map = map
-
-filter = filter
-
 # Aliases
 comp = compose
 
