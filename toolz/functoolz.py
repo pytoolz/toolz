@@ -832,7 +832,7 @@ def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
                 hasattr(func, '__signature__')
                 and hasattr(func.__signature__, '__get__')
             ))
-        ):  # pragma: no cover (not covered in Python 3.4)
+        ):
             val = builtin_func(*builtin_args)
             return None, val
         return None, False
@@ -843,7 +843,7 @@ if PYPY:  # pragma: no cover
     _check_sigspec_orig = _check_sigspec
 
     def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
-        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
+        # PyPy may lie, so use our registry for builtins instead
         if func in _sigs.signatures:
             val = builtin_func(*builtin_args)
             return None, val
