@@ -742,7 +742,7 @@ def _has_varargs(func):
     checks = [check_varargs(sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):  # pragma: py2 no cover
+    elif any(checks):
         return None
     return False
 
