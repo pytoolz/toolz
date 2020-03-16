@@ -1,5 +1,5 @@
 from collections import defaultdict as _defaultdict
-from collections import Mapping
+from collections.abc import Mapping
 import os
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
