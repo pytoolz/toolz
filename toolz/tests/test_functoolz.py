@@ -190,6 +190,23 @@ def test_memoize_wrapped():
     assert memoized_foo.__wrapped__ is foo
 
 
+def test_memoize_cache_clear():
+    fn_calls = [0]  # Storage for side effects
+
+    def f(x, y):
+        """ A docstring """
+        fn_calls[0] += 1
+        return x + y
+    mf = memoize(f)
+
+    mf(2, 3)
+    assert mf._cache == {(2, 3): 5}
+    mf._cache.clear()
+    assert mf._cache == {}
+    mf(2, 3)
+    assert fn_calls == [2]  # function was called a second time after clearing the cache
+
+
 def test_curry_simple():
     cmul = curry(mul)
     double = cmul(2)

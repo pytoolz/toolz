@@ -466,6 +466,7 @@ def memoize(func, cache=None, key=None):
         pass
     memof.__doc__ = func.__doc__
     memof.__wrapped__ = func
+    memof._cache = cache
     return memof
 
 
