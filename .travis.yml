@@ -6,8 +6,8 @@ python:
     - "3.7"
     - "3.8"
     - "3.9-dev"
-    - "pypy3.5-7.0"
-    - "pypy3.6-7.1.1"
+    - "pypy3.5"
+    - "pypy3.6"
 
 env:
     - PEP8_IGNORE="E731,W503,E402"
