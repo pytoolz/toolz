@@ -3,9 +3,9 @@ import heapq
 import collections
 import operator
 from functools import partial
+from itertools import filterfalse, zip_longest
 from random import Random
-from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
-                                 filter, Sequence)
+from collections.abc import Sequence
 from toolz.utils import no_default
 from toolz.exceptions import IterationError
 
@@ -101,7 +101,7 @@ def groupby(key, seq):
     for item in seq:
         d[key(item)](item)
     rv = {}
-    for k, v in iteritems(d):
+    for k, v in d.items():
         rv[k] = v.__self__
     return rv
 
@@ -767,7 +767,7 @@ def partition_all(n, seq):
 def count(seq):
     """ Count the number of items in seq
 
-    Like the builtin ``len`` but works on lazy sequencies.
+    Like the builtin ``len`` but works on lazy sequences.
 
     Not to be confused with ``itertools.count``
 
@@ -929,7 +929,7 @@ def join(leftkey, leftseq, rightkey, rightseq,
                 else:
                     yield (left_default, item)
 
-        for key, matches in iteritems(d):
+        for key, matches in d.items():
             if key not in seen_keys:
                 for match in matches:
                     yield (match, right_default)

@@ -14,8 +14,9 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
                              diff, topk, peek, peekn, random_sample)
+
 from toolz.exceptions import IterationError
-from toolz.compatibility import range, filter
+
 from operator import add, mul
 
 # is comparison will fail between this and no_default

@@ -6,11 +6,13 @@ from .dicttoolz import *
 
 from .recipes import *
 
-from .compatibility import map, filter
-
 from functools import partial, reduce
 
 sorted = sorted
+
+map = map
+
+filter = filter
 
 # Aliases
 comp = compose

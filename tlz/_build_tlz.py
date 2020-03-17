@@ -63,7 +63,10 @@ class TlzLoader(object):
             module.__doc__ = fast_mod.__doc__
 
         # show file from toolz during introspection
-        module.__file__ = slow_mod.__file__
+        try:
+            module.__file__ = slow_mod.__file__
+        except AttributeError:
+            pass
 
         for k, v in fast_mod.__dict__.items():
             tv = slow_mod.__dict__.get(k)

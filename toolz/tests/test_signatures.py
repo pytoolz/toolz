@@ -1,7 +1,6 @@
 import functools
 import toolz._signatures as _sigs
 from toolz._signatures import builtins, _is_valid_args, _is_partial_args
-from toolz.compatibility import PY3
 
 
 def test_is_valid(check_valid=_is_valid_args, incomplete=False):
@@ -53,8 +52,8 @@ def test_is_valid(check_valid=_is_valid_args, incomplete=False):
     assert check_valid(f, 1, key=None)
     assert check_valid(f, 1, 2, key=None)
     assert check_valid(f, 1, 2, 3, key=None)
-    assert check_valid(f, key=None, default=None) is (PY3 and incomplete)
-    assert check_valid(f, 1, key=None, default=None) is PY3
+    assert check_valid(f, key=None, default=None) is incomplete
+    assert check_valid(f, 1, key=None, default=None)
     assert check_valid(f, 1, 2, key=None, default=None) is False
     assert check_valid(f, 1, 2, 3, key=None, default=None) is False
 
@@ -84,4 +83,3 @@ def test_for_coverage():  # :)
     assert _sigs._has_varargs(None) is None
     assert _sigs._has_keywords(None) is None
     assert _sigs._num_required_args(None) is None
-

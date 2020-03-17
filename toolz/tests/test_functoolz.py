@@ -3,7 +3,6 @@ import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
                              flip, excepts, apply)
-from toolz.compatibility import PY3
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -632,34 +631,33 @@ def test_compose_metadata():
         assert compose(f, h).__class__.__wrapped__ is None
 
     # __signature__ is python3 only
-    if PY3:
 
-        def myfunc(a, b, c, *d, **e):
-            return 4
+    def myfunc(a, b, c, *d, **e):
+        return 4
 
-        def otherfunc(f):
-            return 'result: {}'.format(f)
+    def otherfunc(f):
+        return 'result: {}'.format(f)
 
-        # set annotations compatibly with python2 syntax
-        myfunc.__annotations__ = {
-            'a': int,
-            'b': str,
-            'c': float,
-            'd': int,
-            'e': bool,
-            'return': int,
-        }
-        otherfunc.__annotations__ = {'f': int, 'return': str}
+    # set annotations compatibly with python2 syntax
+    myfunc.__annotations__ = {
+        'a': int,
+        'b': str,
+        'c': float,
+        'd': int,
+        'e': bool,
+        'return': int,
+    }
+    otherfunc.__annotations__ = {'f': int, 'return': str}
 
-        composed = compose(otherfunc, myfunc)
-        sig = inspect.signature(composed)
-        assert sig.parameters == inspect.signature(myfunc).parameters
-        assert sig.return_annotation == str
+    composed = compose(otherfunc, myfunc)
+    sig = inspect.signature(composed)
+    assert sig.parameters == inspect.signature(myfunc).parameters
+    assert sig.return_annotation == str
 
-        class MyClass:
-            method = composed
+    class MyClass:
+        method = composed
 
-        assert len(inspect.signature(MyClass().method).parameters) == 4
+    assert len(inspect.signature(MyClass().method).parameters) == 4
 
 
 def generate_compose_left_test_cases():
