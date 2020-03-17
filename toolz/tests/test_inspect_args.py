@@ -7,7 +7,6 @@ from toolz.functoolz import (curry, is_valid_args, is_partial_args, is_arity,
                              num_required_args, has_varargs, has_keywords)
 from toolz._signatures import builtins
 import toolz._signatures as _sigs
-from toolz.compatibility import PY3
 from toolz.utils import raises
 
 
@@ -115,8 +114,6 @@ def test_is_valid(check_valid=is_valid_args, incomplete=False):
 
 
 def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
-    if not PY3:
-        return
     orig_check_valid = check_valid
     check_valid = lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
 
@@ -255,20 +252,19 @@ def test_has_unknown_args():
     assert has_varargs(make_func('x, y, z=1')) is False
     assert has_varargs(make_func('x, y, z=1, **kwargs')) is False
 
-    if PY3:
-        f = make_func('*args')
-        f.__signature__ = 34
-        assert has_varargs(f) is False
+    f = make_func('*args')
+    f.__signature__ = 34
+    assert has_varargs(f) is False
 
-        class RaisesValueError(object):
-            def __call__(self):
-                pass
-            @property
-            def __signature__(self):
-                raise ValueError('Testing Python 3.4')
+    class RaisesValueError(object):
+        def __call__(self):
+            pass
+        @property
+        def __signature__(self):
+            raise ValueError('Testing Python 3.4')
 
-        f = RaisesValueError()
-        assert has_varargs(f) is None
+    f = RaisesValueError()
+    assert has_varargs(f) is None
 
 
 def test_num_required_args():
@@ -298,8 +294,7 @@ def test_has_varargs():
     assert has_varargs(lambda *args: None)
     assert has_varargs(lambda **kwargs: None) is False
     assert has_varargs(map)
-    if PY3:
-        assert has_varargs(max) is None
+    assert has_varargs(max) is None
 
 
 def test_is_arity():
@@ -315,8 +310,6 @@ def test_is_arity():
 
 
 def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete=False):
-    if not PY3:
-        return
     orig_check_valid = check_valid
     check_valid = lambda _func, *args, **kwargs: orig_check_valid(_func, args, kwargs)
 
@@ -361,8 +354,6 @@ def test_introspect_curry_partial_py3():
 
 
 def test_introspect_curry_py3():
-    if not PY3:
-        return
     f = toolz.curry(make_func(''))
     assert num_required_args(f) == 0
     assert is_arity(0, f)
@@ -443,8 +434,6 @@ def test_introspect_builtin_modules():
 
 
 def test_inspect_signature_property():
-    if not PY3:
-        return
 
     # By adding AddX to our signature registry, we can inspect the class
     # itself and objects of the class.  `inspect.signature` doesn't like
@@ -491,8 +480,7 @@ def test_inspect_wrapped_property():
 
     func = lambda x: x
     wrapped = Wrapped(func)
-    if PY3:
-        assert inspect.signature(func) == inspect.signature(wrapped)
+    assert inspect.signature(func) == inspect.signature(wrapped)
 
     assert num_required_args(Wrapped) is None
     _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)

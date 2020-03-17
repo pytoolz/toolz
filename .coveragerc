@@ -7,4 +7,3 @@ omit =
 [report]
 exclude_lines =
     pragma: no cover
-    pragma: py$MAJOR_PYTHON_VERSION no cover

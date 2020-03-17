@@ -1,6 +1,6 @@
 import operator
-from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
-                                 reduce, Mapping)
+from functools import reduce
+from collections.abc import Mapping
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
@@ -60,7 +60,7 @@ def merge_with(func, *dicts, **kwargs):
 
     result = factory()
     for d in dicts:
-        for k, v in iteritems(d):
+        for k, v in d.items():
             if k not in result:
                 result[k] = [v]
             else:
@@ -80,7 +80,7 @@ def valmap(func, d, factory=dict):
         itemmap
     """
     rv = factory()
-    rv.update(zip(iterkeys(d), map(func, itervalues(d))))
+    rv.update(zip(d.keys(), map(func, d.values())))
     return rv
 
 
@@ -96,7 +96,7 @@ def keymap(func, d, factory=dict):
         itemmap
     """
     rv = factory()
-    rv.update(zip(map(func, iterkeys(d)), itervalues(d)))
+    rv.update(zip(map(func, d.keys()), d.values()))
     return rv
 
 
@@ -112,7 +112,7 @@ def itemmap(func, d, factory=dict):
         valmap
     """
     rv = factory()
-    rv.update(map(func, iteritems(d)))
+    rv.update(map(func, d.items()))
     return rv
 
 
@@ -130,7 +130,7 @@ def valfilter(predicate, d, factory=dict):
         valmap
     """
     rv = factory()
-    for k, v in iteritems(d):
+    for k, v in d.items():
         if predicate(v):
             rv[k] = v
     return rv
@@ -150,7 +150,7 @@ def keyfilter(predicate, d, factory=dict):
         keymap
     """
     rv = factory()
-    for k, v in iteritems(d):
+    for k, v in d.items():
         if predicate(k):
             rv[k] = v
     return rv
@@ -173,7 +173,7 @@ def itemfilter(predicate, d, factory=dict):
         itemmap
     """
     rv = factory()
-    for item in iteritems(d):
+    for item in d.items():
         if predicate(item):
             k, v = item
             rv[k] = v

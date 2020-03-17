@@ -1,6 +1,5 @@
 import functools
 from toolz.itertoolz import partition_all
-from toolz.compatibility import reduce, map
 from toolz.utils import no_default
 
 

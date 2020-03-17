@@ -1,8 +1,6 @@
 from toolz import curry, unique, first, take
 from toolz.sandbox.core import EqualityHashKey, unzip
 from itertools import count, repeat
-from toolz.compatibility import map, zip
-
 
 def test_EqualityHashKey_default_key():
     EqualityHashDefault = curry(EqualityHashKey, None)

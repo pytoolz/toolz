@@ -1,6 +1,5 @@
 import itertools
 from .itertoolz import frequencies, pluck, getter
-from .compatibility import map
 
 
 __all__ = ('countby', 'partitionby')

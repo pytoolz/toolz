@@ -2,7 +2,6 @@ from toolz import *
 import toolz
 import toolz.curried
 import pickle
-from toolz.compatibility import PY3
 from toolz.utils import raises
 
 
@@ -114,8 +113,6 @@ class GlobalCurried(object):
 
 
 def test_curried_qualname():
-    if not PY3:
-        return
 
     def preserves_identity(obj):
         return pickle.loads(pickle.dumps(obj)) is obj
