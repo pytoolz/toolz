@@ -387,8 +387,8 @@ def second(seq):
     """
     try:
         return first(itertools.islice(seq, 1, None))
-    except IterationError:
-        raise IterationError("Lenth of seq is < 2")
+    except IterationError as exc:
+        raise IterationError("Lenth of seq is < 2") from exc
 
 
 def nth(n, seq):
@@ -402,8 +402,8 @@ def nth(n, seq):
     else:
         try:
             return first(itertools.islice(seq, n, None))
-        except IterationError:
-            raise IterationError("Length of seq is < %d" % n)
+        except IterationError as exc:
+            raise IterationError("Length of seq is < %d" % n) from exc
 
 
 def last(seq):
