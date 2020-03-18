@@ -385,10 +385,15 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    try:
-        return first(itertools.islice(seq, 1, None))
-    except IterationError as exc:
-        raise IterationError("Lenth of seq is < 2") from exc
+    seq = iter(seq)
+    for item in seq:
+        break
+    else:
+        raise IterationError("Received empty sequence")
+    for item in seq:
+        return item
+    else:
+        raise IterationError("Length of sequence is < 2")
 
 
 def nth(n, seq):
@@ -400,10 +405,9 @@ def nth(n, seq):
     if isinstance(seq, (tuple, list, Sequence)):
         return seq[n]
     else:
-        try:
-            return first(itertools.islice(seq, n, None))
-        except IterationError as exc:
-            raise IterationError("Length of seq is < %d" % n) from exc
+        for rv in itertools.islice(seq, n, None):
+            return rv
+        raise IterationError("Length of seq is < %d" % n)
 
 
 def last(seq):
@@ -538,11 +542,9 @@ def interpose(el, seq):
     [1, 'a', 2, 'a', 3]
     """
     inposed = concat(zip(itertools.repeat(el), seq))
-    try:
-        next(inposed)
+    for _ in inposed:
         return inposed
-    except StopIteration:
-        raise IterationError("Received empty sequence")
+    raise IterationError("Received empty sequence")
 
 
 def frequencies(seq):
@@ -1010,11 +1012,11 @@ def peek(seq):
     [0, 1, 2, 3, 4]
     """
     iterator = iter(seq)
-    try:
-        item = next(iterator)
-        return item, itertools.chain((item,), iterator)
-    except StopIteration:
+    for peeked in iterator:
+        break
+    else:
         raise IterationError("Received empty sequence")
+    return peeked, itertools.chain((peeked,), iterator)
 
 
 def peekn(n, seq):
@@ -1032,7 +1034,7 @@ def peekn(n, seq):
     """
     iterator = iter(seq)
     peeked = tuple(take(n, iterator))
-    return peeked, itertools.chain(iter(peeked), iterator)
+    return peeked, itertools.chain(peeked, iterator)
 
 
 def random_sample(prob, seq, random_state=None):
