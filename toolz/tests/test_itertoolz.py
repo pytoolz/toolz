@@ -146,6 +146,7 @@ def test_second():
     assert second((3, 2, 1)) == 2
     assert isinstance(second({0: 'zero', 1: 'one'}), int)
     assert raises(IterationError, lambda: second([1]))
+    assert raises(IterationError, lambda: second([]))
 
 
 def test_last():
