@@ -281,10 +281,16 @@ def update_in(d, keys, func, default=None, factory=dict):
     rv.update(d)
 
     for key in ks:
-        if k in d:
+        if k in d or isinstance(d, list):
             d = d[k]
-            dtemp = factory()
-            dtemp.update(d)
+            if isinstance(d, dict):
+                dtemp = {}
+                dtemp.update(d)
+            elif isinstance(d, list):
+                dtemp = []
+                dtemp.extend(d)
+            else:
+                dtemp = factory()
         else:
             d = dtemp = factory()
 
