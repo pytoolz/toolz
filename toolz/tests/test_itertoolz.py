@@ -542,8 +542,8 @@ def test_random_sample():
 
     assert rsample1 != rsample2
 
-    assert mk_rsample(object) == mk_rsample(object)
-    assert mk_rsample(object) != mk_rsample(object())
+    assert mk_rsample(hash(object)) == mk_rsample(hash(object))
+    assert mk_rsample(hash(object)) != mk_rsample(hash(object()))
     assert mk_rsample(b"a") == mk_rsample(u"a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
