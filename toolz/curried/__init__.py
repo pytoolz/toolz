@@ -53,7 +53,7 @@ from toolz import (
     thread_first,
     thread_last,
 )
-from .exceptions import merge, merge_with
+from .exceptions import merge, merge_with, intersect
 
 accumulate = toolz.curry(toolz.accumulate)
 assoc = toolz.curry(toolz.assoc)
