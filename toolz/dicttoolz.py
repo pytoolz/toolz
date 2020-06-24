@@ -1,6 +1,8 @@
 import operator
-from functools import reduce
+from functools import reduce, partial
 from collections.abc import Mapping
+
+from .itertoolz import get
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
@@ -353,10 +355,11 @@ def intersect(*dicts, **kwargs):
     factory = _get_factory(merge, kwargs)
 
     dict_keys = map(operator.methodcaller('keys'), sorted(dicts, key=len))
-    intersected_keys = tuple(reduce(operator.and_, dict_keys))
-    items = operator.itemgetter(*intersected_keys)
+    intersected_keys = list(reduce(operator.and_, dict_keys))
 
+    # curry get since we can't use curried.get
+    curried_get = partial(get, intersected_keys)
     rv = factory()
-    for i, values in zip(intersected_keys, zip(*map(items, dicts))):
+    for i, values in zip(intersected_keys, zip(*map(curried_get, dicts))):
         rv[i] = values
     return rv
