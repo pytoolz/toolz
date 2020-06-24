@@ -4,7 +4,8 @@ from collections.abc import Mapping
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
-           'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
+           'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in',
+           'intersect')
 
 
 def _get_factory(f, kwargs):
@@ -335,3 +336,27 @@ def get_in(keys, coll, default=None, no_default=False):
         if no_default:
             raise
         return default
+
+
+def intersect(*dicts, **kwargs):
+    """Compute the intersection of dictionaries based on their keys.
+
+    The return is a mapping where the keys are common to all dictionaries
+    and the values are a tuple of the values from each dictionary in
+    the *given* order.
+
+    >>> intersect({0: 1, 1: 2, 2: 3, 3: 4}, {0:2, 2:10}, {0: 20})
+    {0: (1, 2, 20)}
+    """
+    if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
+        dicts = dicts[0]
+    factory = _get_factory(merge, kwargs)
+
+    dict_keys = map(operator.methodcaller('keys'), sorted(dicts, key=len))
+    intersected_keys = tuple(reduce(operator.and_, dict_keys))
+    items = operator.itemgetter(*intersected_keys)
+
+    rv = factory()
+    for i, values in zip(intersected_keys, zip(*map(items, dicts))):
+        rv[i] = values
+    return rv

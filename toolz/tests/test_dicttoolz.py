@@ -152,6 +152,12 @@ class TestDict(object):
                           factory=lambda: defaultdict(int)) == {1: 2, 2: 3})
         assert raises(TypeError, lambda: merge(D({1: 2}), D({2: 3}), factoryy=dict))
 
+    def test_intersect(self):
+        D, kw = self.D, self.kw
+        assert intersect({0:1, 1:2}, {0:2}) == {0: (1, 2)}
+        assert (intersect(D({'a': 1, 'b': 2, 'c': 3}), D({'b': 'a', 'c': 'z'}), **kw) ==
+                D({'b': (2, 'a'), 'c': (3, 'z')}))
+
 
 class defaultdict(_defaultdict):
     def __eq__(self, other):
