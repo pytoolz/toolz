@@ -36,7 +36,7 @@ Computation
 -----------
 
 We can lazily operate on lazy iterators without doing any actual computation.
-For example lets read the book in upper case
+For example let's read the book in upper case
 
 .. code::
 

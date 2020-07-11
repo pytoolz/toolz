@@ -8,7 +8,7 @@ higher order function from ``functools``.  Currying provides syntactic sugar.
 .. code::
 
     >>> double = partial(mul, 2)    # Partial evaluation
-    >>> doubled = double(2)         # Currying
+    >>> doubled = double(5)         # Currying
 
 This syntactic sugar is valuable when developers chain several higher order
 functions together.
@@ -54,7 +54,7 @@ In general
     >>> def g(z):
     ...     return f(a, b, z)
 
-    >>> # partially evaluate f with known values a and b
+    >>> # alternatively we could use `partial`
     >>> g = partial(f, a, b)
 
 Curry
@@ -74,7 +74,7 @@ compute a result.
 
     >>> double = mul(2)     # mul didn't receive enough arguments to evaluate
     ...                     # so it holds onto the 2 and waits, returning a
-    ...                     # partially evaluated function, double
+    ...                     # partially evaluated function `double`
 
     >>> double(5)
     10

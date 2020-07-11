@@ -2,7 +2,7 @@ Tips and Tricks
 ===============
 
 Toolz functions can be combined to make functions that, while common, aren't
-a part of toolz's standard library. This section presents
+a part of toolz's standard offerings. This section presents
 a few of these recipes.
 
 
