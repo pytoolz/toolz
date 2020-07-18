@@ -130,7 +130,7 @@ The higher order function ``map`` gives us a name to call a particular control
 pattern.  Regardless of whether or not you use a for loop, a list
 comprehension, or ``map`` itself, it is useful to recognize the operation
 and to give it a name.  Naming control patterns lets us tackle
-complex problems a larger scale without burdening our mind with rote details.
+complex problems at larger scale without burdening our mind with rote details.
 It is just as important as bundling data into data structures or building
 complex functions out of simple ones.
 
