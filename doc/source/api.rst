@@ -59,8 +59,10 @@ Functoolz
 .. currentmodule:: toolz.functoolz
 
 .. autosummary::
+   apply
    complement
    compose
+   compose_left
    curry
    do
    excepts
@@ -79,13 +81,13 @@ Dicttoolz
 
 .. autosummary::
    assoc
-   dissoc
    assoc_in
+   dissoc
    get_in
-   keyfilter
-   keymap
    itemfilter
    itemmap
+   keyfilter
+   keymap
    merge
    merge_with
    update_in
