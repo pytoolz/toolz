@@ -11,6 +11,8 @@ python:
 
 env:
     - PEP8_IGNORE="E731,W503,E402"
+    - secure: "B1ICJrU2eswNMjyGdmq9Z6Tbw33fQTqnGAZnNf2JuhEPl5fiI0OiyyL18WqbdwkNan0dIM7muOkCGIecYB+FSjXI/zDIyO0MhdaMDVQUDEbjW7STZZUHNYzcqrrj/isc2YPl/YfrjLKvV0w0AtS1wIq+YR9TjYQp9UxqBpqW770="
+    - secure: "Iv+zVkk/Relq43+QTLHAX8a7jpm/oVXVfJDqBmZjisblO0/toNNnoXI6OEjkd1QwZOUDkJ76rKsht9aeMllndKZ4XotuzxpP1iI6MrX+r9+hzI1xfJs2OqKDnxmtNV4fTlzhGTKXJbkSICjCfvWx20hFlgBB+NghcnQTW5GVw/w="
 
 # command to install dependencies
 install:
@@ -40,8 +42,8 @@ deploy:
   skip_existing: true
   on:
     tags: true
-  user: $PYPI_USER
-  password: $PYPI_PASSWORD
+  user: __token__
+  password: $PYPI_PASSWORD1$PYPI_PASSWORD2
   distributions: "sdist bdist_wheel"
 
 notifications:
