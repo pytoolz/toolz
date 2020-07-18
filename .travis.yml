@@ -34,5 +34,15 @@ script:
 after_success:
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pip install coveralls --use-mirrors ; coveralls ; fi
 
+# publish new version to pypi
+deploy:
+  provider: pypi
+  skip_existing: true
+  on:
+    tags: true
+  user: $PYPI_USER
+  password: $PYPI_PASSWORD
+  distributions: "sdist bdist_wheel"
+
 notifications:
   email: false
