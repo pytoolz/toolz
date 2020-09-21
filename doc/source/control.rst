@@ -38,28 +38,27 @@ Programming is hard when we have to juggle many code elements of each type at
 the same time.  Good programming is about managing these three elements so that
 the developer is only required to think about a handful of them at a time.  For
 example we might collect many integer variables into a list of integers or
-build a big function out of smaller ones.  While we have natural ways to manage
-data and functions, control flow presents more of a challenge.
+build a big function out of smaller ones.
 
 We organize our data into **data structures** like lists, dictionaries, or objects
 in order to group related data together -- this allows us to manipulate large
 collections of related data as if we were only manipulating a single entity.
 
-We **build large functions out of smaller ones**; enabling us to break up a
+We **build large functions out of smaller ones**, enabling us to break up a
 complex task like doing laundry into a sequence of simpler tasks.
 
 .. code::
 
     def do_laundry(clothes):
-        wet_clothes = wash(clothes, coins)
-        dry_clothes = dry(wet_clothes, coins)
+        wet_clothes = wash(clothes)
+        dry_clothes = dry(wet_clothes)
         return fold(dry_clothes)
 
-**Control flow is more challenging**; how do we break down complex control flow
-into simpler pieces that fit in our brain?  How do we encapsulate commonly
-recurring patterns?
+While we have natural ways to manage data and functions, **control flow presents more of a challenge**.
+How do we break down complex control flow into simpler pieces that fit in our brain?
+How do we encapsulate commonly recurring patterns?
 
-Lets motivate this with an example of a common control structure, applying a
+Let's motivate this with an example of a common control structure, applying a
 function to each element in a list.  Imagine we want to download the HTML
 source for a number of webpages.
 
@@ -71,7 +70,6 @@ source for a number of webpages.
     html_texts = []
     for item in urls:
         html_texts.append(urlopen(item))
-    return html_texts
 
 Or maybe we want to compute the Fibonacci numbers on a particular set of
 integers
@@ -82,7 +80,6 @@ integers
     fib_integers = []
     for item in integers:
         fib_integers.append(fib(item))
-    return fib_integers
 
 These two unrelated applications share an identical control flow pattern.  They
 apply a function (``urlopen`` or ``fib``) onto each element of an input list
@@ -156,8 +153,8 @@ Most programmers however don't know about the many cousins of
     >>> groupby(len, names)
     {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
 
-Groupby collects each element of a list into sublists determined by the value
-of a function.  Lets see ``groupby`` in action again, grouping numbers by
+``groupby`` collects each element of a list into sublists determined by the value
+of a function.  Let's see ``groupby`` in action again, grouping numbers by
 evenness.
 
 .. code::
@@ -185,6 +182,9 @@ Most programmers have written code exactly like this over and over again, just
 like they may have repeated the ``map`` control pattern.  When we identify code
 as a ``groupby`` operation we mentally collapse the detailed manipulation into
 a single concept.
+
+Additional Considerations
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Toolz library contains dozens of patterns like ``map`` and ``groupby``.
 Learning a core set (maybe a dozen) covers the vast majority of common
