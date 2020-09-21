@@ -45,9 +45,9 @@ input ``L`` which may have external state.  Consider the following execution:
     >>> data = [1, 2, 3]
     >>> result = powers(data)
 
-    >>> print result
+    >>> print(result)
     [1, 4, 9]
-    >>> print data
+    >>> print(data)
     [1, 4, 9]
 
 We see that ``powers`` affected the variable ``data``.  Users of our function
@@ -59,7 +59,7 @@ Another problem occurs when we run this code in a different context:
 
     >>> data = [1, 2, 3]
     >>> result = powers(data)
-    >>> print result
+    >>> print(result)
     [1, 8, 27]
 
 When we give ``powers`` the same inputs we receive different outputs; how could
