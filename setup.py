@@ -2,15 +2,16 @@
 
 from os.path import exists
 from setuptools import setup
-import toolz
+import versioneer
 
 setup(name='toolz',
-      version=toolz.__version__,
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description='List processing tools and functional utilities',
       url='https://github.com/pytoolz/toolz/',
       author='https://raw.github.com/pytoolz/toolz/master/AUTHORS.md',
-      maintainer='Matthew Rocklin',
-      maintainer_email='mrocklin@gmail.com',
+      maintainer='Erik Welch',
+      maintainer_email='erik.n.welch@gmail.com',
       license='BSD',
       keywords='functional utility itertools functools',
       packages=['toolz',

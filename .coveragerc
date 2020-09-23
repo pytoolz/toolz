@@ -3,6 +3,7 @@ omit =
     toolz/tests/test*
     toolz/*/tests/test*
     toolz/compatibility.py
+    toolz/_version.py
 
 [report]
 exclude_lines =
