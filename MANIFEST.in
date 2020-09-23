@@ -1,3 +1,5 @@
 include LICENSE.txt
 
 include toolz/tests/*.py
+include versioneer.py
+include toolz/_version.py
