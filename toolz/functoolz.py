@@ -1,18 +1,19 @@
 from functools import reduce, partial
 import inspect
-import operator
-from operator import attrgetter
+import sys
+from operator import attrgetter, not_
 from importlib import import_module
 from textwrap import dedent
 from types import MethodType
 
-from .compatibility import PYPY
 from .utils import no_default
 
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
            'curry', 'flip', 'excepts')
+
+PYPY = hasattr(sys, 'pypy_version_info')
 
 
 def identity(x):
@@ -640,7 +641,7 @@ def complement(func):
     >>> isodd(2)
     False
     """
-    return compose(operator.not_, func)
+    return compose(not_, func)
 
 
 class juxt(object):
