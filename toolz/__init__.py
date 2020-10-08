@@ -19,7 +19,7 @@ comp = compose
 
 from . import curried, sandbox
 
-functoolz._sigs.create_signature_registry()
+functoolz._sigs.create_signature_registry()  # type: ignore
 
 from ._version import get_versions
 __version__ = get_versions()['version']

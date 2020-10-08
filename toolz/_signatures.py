@@ -571,7 +571,7 @@ module_info[operator] = dict(
         lambda a, b: None],
 )
 
-module_info['toolz'] = dict(
+module_info['toolz'] = dict(  # type: ignore
     curry=[
         (0, lambda *args, **kwargs: None)],
     excepts=[
@@ -584,7 +584,7 @@ module_info['toolz'] = dict(
         (0, lambda func=None, cache=None, key=None: None)],
 )
 
-module_info['toolz.functoolz'] = dict(
+module_info['toolz.functoolz'] = dict(  # type: ignore
     Compose=[
         (0, lambda funcs: None)],
     InstanceProperty=[
@@ -653,7 +653,7 @@ def expand_sig(sig):
     return num_pos_only, func, keyword_only + keyword_exclude, sigspec
 
 
-signatures = {}
+signatures = {}  # type: ignore
 
 
 def create_signature_registry(module_info=module_info, signatures=signatures):

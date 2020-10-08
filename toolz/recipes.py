@@ -1,11 +1,36 @@
 import itertools
-from .itertoolz import frequencies, pluck, getter
+from typing import TypeVar, Dict, Tuple, Callable, Any, Iterable, Sequence, \
+    overload, List
 
+from .itertoolz import frequencies, pluck, getter
 
 __all__ = ('countby', 'partitionby')
 
+A = TypeVar('A')
+B = TypeVar('B')
+KeyLike = TypeVar('KeyLike', int, Iterable, Callable, Tuple)
 
-def countby(key, seq):
+
+# Case: countby(len, ['cat', 'mouse', 'dog'])
+@overload
+def countby(key: Callable[[A], B], seq: Iterable[A]) -> Dict[B, int]: ...
+
+
+# Case: countby('a', [{'a': 1, 'b': 2}, {'a': 10, 'b': 2}])
+@overload
+def countby(key: A, seq: Iterable[Dict[A, B]]) -> Dict[B, int]: ...
+
+
+# Case: countby(0, [[1, 2], [10, 2]])
+def countby(key: int, seq: Iterable[Iterable[A]]) -> Dict[A, int]: ...
+
+
+# Case: countby([0, 1], [[1, 2], [10, 2]])
+def countby(key: List[int],
+            seq: Iterable[Iterable[A]]) -> Dict[Tuple[A, ...], int]: ...
+
+
+def countby(key: KeyLike, seq: Iterable[Any]) -> Dict[Any, int]:
     """ Count elements of a collection by a key function
 
     >>> countby(len, ['cat', 'mouse', 'dog'])
@@ -20,10 +45,11 @@ def countby(key, seq):
     """
     if not callable(key):
         key = getter(key)
-    return frequencies(map(key, seq))
+    return frequencies(map(key, seq))  # type: ignore
 
 
-def partitionby(func, seq):
+def partitionby(func: Callable[[A], bool],
+                seq: Sequence[A]) -> Iterable[Tuple[A, ...]]:
     """ Partition a sequence according to a function
 
     Partition `s` into a sequence of lists such that, when traversing

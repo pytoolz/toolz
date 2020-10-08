@@ -18,6 +18,7 @@ env:
 # command to install dependencies
 install:
     - pip install coverage pep8 pytest
+    - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pip install 'mypy==0.790' ; fi
 
 # command to run tests
 # require 100% coverage (not including test files) to pass Travis CI test
@@ -32,6 +33,7 @@ script:
     - python setup.py develop
     - py.test
     - nosetests
+    - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then mypy toolz/recipes.py ; fi
 
 # load coverage status to https://coveralls.io
 after_success:
