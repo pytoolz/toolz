@@ -69,7 +69,7 @@ def accumulate(binop, seq, initial=no_default):
         yield result
 
 
-def groupby(key, seq):
+def groupby(key, seq):                             #defining groupy
     """ Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
@@ -134,6 +134,7 @@ def merge_sorted(*seqs, **kwargs):
 
 
 def _merge_sorted_binary(seqs):
+           
     mid = len(seqs) // 2
     L1 = seqs[:mid]
     if len(L1) == 1:
@@ -231,7 +232,7 @@ def interleave(seqs):
     >>> ''.join(interleave(('ABC', 'XY')))
     'AXBYC'
 
-    Both the individual sequences and the sequence of sequences may be infinite
+    Both the individual sequences and also the sequence of sequences may be infinite
 
     Returns a lazy iterator
     """
