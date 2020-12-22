@@ -1,4 +1,7 @@
 sudo: false
+arch:
+  - amd64
+  - ppc64le
 language: python
 python:
     - "3.5"
@@ -8,7 +11,12 @@ python:
     - "3.9-dev"
     - "pypy3.5-7.0"
     - "pypy3.6-7.1.1"
-
+matrix:
+  exclude:
+     - python: "pypy3.5-7.0"
+       arch: ppc64le
+     - python: "pypy3.6-7.1.1" 
+       arch: ppc64le
 env:
   global:
     - PEP8_IGNORE="E731,W503,E402"
