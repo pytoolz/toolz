@@ -10,7 +10,7 @@ from toolz.utils import no_default
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
-           'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
+           'unique', 'nonunique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
@@ -288,13 +288,15 @@ def nonunique(seq, key=None):
         for item in seq:
             if item in seen:
                 yield item
-            seen_add(item)
+            else:
+                seen_add(item)
     else:
         for item in seq:
             val = key(item)
             if val in seen:
                 yield item
-            seen_add(val)
+            else:
+                seen_add(val)
 
 
 def isiterable(x):
