@@ -23,6 +23,7 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
+from toolz.itertoolz import nonunique
 import toolz
 from . import operator
 from toolz import (
@@ -77,6 +78,7 @@ keyfilter = toolz.curry(toolz.keyfilter)
 keymap = toolz.curry(toolz.keymap)
 map = toolz.curry(toolz.map)
 mapcat = toolz.curry(toolz.mapcat)
+nonunique = toolz.curry(toolz.nonunique)
 nth = toolz.curry(toolz.nth)
 partial = toolz.curry(toolz.partial)
 partition = toolz.curry(toolz.partition)
