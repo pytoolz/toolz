@@ -23,7 +23,6 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
-from toolz.itertoolz import nonunique
 import toolz
 from . import operator
 from toolz import (
