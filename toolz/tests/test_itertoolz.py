@@ -4,7 +4,7 @@ from toolz.utils import raises
 from functools import partial
 from random import Random
 from pickle import dumps, loads
-from toolz.itertoolz import (remove, groupby, merge_sorted,
+from toolz.itertoolz import (nonunique, remove, groupby, merge_sorted,
                              concat, concatv, interleave, unique,
                              isiterable, getter,
                              mapcat, isdistinct, first, second,
@@ -104,6 +104,12 @@ def test_unique():
     assert tuple(unique((1, 2, 1, 3))) == (1, 2, 3)
     assert tuple(unique((1, 2, 3), key=iseven)) == (1, 2)
 
+
+def test_nonunique():
+    assert tuple(nonunique((1, 2, 3))) == ()
+    assert tuple(nonunique((1, 2, 1, 3, 1))) == (1, 1)
+    assert tuple(nonunique((1, 2, 3, 4), key=iseven)) == (3, 4)
+    
 
 def test_isiterable():
     assert isiterable([1, 2, 3]) is True

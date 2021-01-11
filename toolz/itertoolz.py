@@ -274,6 +274,30 @@ def unique(seq, key=None):
                 yield item
 
 
+def nonunique(seq, key=None):
+    """Return only nonunique elements of a sequence.
+
+    >>> tuple(nonunique((1, 2, 3, 1)))
+    (1,)
+    >>> tuple(nonunique((1, 2, 3)))
+    ()
+    """
+    seen = set()
+    seen_add = seen.add
+    if key is None:
+        for item in seq:
+            if item in seen:
+                yield item
+            seen_add(item)
+    else:
+        for item in seq:
+            val = key(item)
+            if val in seen:
+                yield item
+            seen_add(val)
+
+
+
 def isiterable(x):
     """ Is x iterable?
 
@@ -305,12 +329,8 @@ def isdistinct(seq):
     True
     """
     if iter(seq) is seq:
-        seen = set()
-        seen_add = seen.add
-        for item in seq:
-            if item in seen:
-                return False
-            seen_add(item)
+        for item in nonunique(seq):
+            return False
         return True
     else:
         return len(seq) == len(set(seq))
