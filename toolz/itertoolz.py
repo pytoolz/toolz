@@ -297,7 +297,6 @@ def nonunique(seq, key=None):
             seen_add(val)
 
 
-
 def isiterable(x):
     """ Is x iterable?
 
