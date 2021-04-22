@@ -45,6 +45,9 @@ module_info[builtins] = dict(
         lambda x: None],
     all=[
         lambda iterable: None],
+    anext=[
+        lambda aiterator: None,
+        lambda aiterator, default: None],
     any=[
         lambda iterable: None],
     apply=[
