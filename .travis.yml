@@ -5,7 +5,8 @@ python:
     - "3.6"
     - "3.7"
     - "3.8"
-    - "3.9-dev"
+    - "3.9"
+    - "nightly"
     - "pypy3.5-7.0"
     - "pypy3.6-7.1.1"
 
@@ -24,14 +25,13 @@ install:
 # To skip pypy: - if [[ $TRAVIS_PYTHON_VERSION != 'pypy' ]]; then DOSTUFF ; fi
 script:
     - export MAJOR_PYTHON_VERSION=`echo $TRAVIS_PYTHON_VERSION | cut -c 1`
-    - coverage run --source=toolz $(which nosetests)
-                   --with-doctest toolz/
+    - coverage run --source=toolz $(which pytest)
+                   --doctest-modules toolz/
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then coverage report --show-missing --fail-under=100 ; fi
     - if [[ $TRAVIS_PYTHON_VERSION != pypy* ]]; then pep8 --ignore=$PEP8_IGNORE --exclude=conf.py,tests,examples,bench -r --show-source . ; fi
     # For convenience, make sure simple test commands work
     - python setup.py develop
-    - py.test
-    - nosetests
+    - pytest
 
 # load coverage status to https://coveralls.io
 after_success:
