@@ -5,6 +5,7 @@ from operator import attrgetter, not_
 from importlib import import_module
 from textwrap import dedent
 from types import MethodType
+from typing import Any, Callable, Generic, TypeVar
 
 from .utils import no_default
 
@@ -14,6 +15,7 @@ __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'curry', 'flip', 'excepts')
 
 PYPY = hasattr(sys, 'pypy_version_info')
+_T = TypeVar("_T")
 
 
 def identity(x):
@@ -164,7 +166,7 @@ class InstanceProperty(property):
         return InstanceProperty, state
 
 
-class curry(object):
+class curry(Generic[_T]):
     """ Curry a callable function
 
     Enables partial application of arguments through calling a function with an
@@ -192,10 +194,7 @@ class curry(object):
         toolz.curried - namespace of curried functions
                         https://toolz.readthedocs.io/en/latest/curry.html
     """
-    def __init__(self, *args, **kwargs):
-        if not args:
-            raise TypeError('__init__() takes at least 2 arguments (1 given)')
-        func, args = args[0], args[1:]
+    def __init__(self, func: Callable[..., _T], *args: Any, **kwargs: Any) -> None:
         if not callable(func):
             raise TypeError("Input must be callable")
 
@@ -298,7 +297,7 @@ class curry(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> _T:
         try:
             return self._partial(*args, **kwargs)
         except TypeError as exc:
