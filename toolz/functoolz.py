@@ -1,3 +1,5 @@
+from __future__  import annotations
+
 from functools import reduce, partial
 import inspect
 import sys
@@ -5,7 +7,7 @@ from operator import attrgetter, not_
 from importlib import import_module
 from textwrap import dedent
 from types import MethodType
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic, TypeVar, Union
 
 from .utils import no_default
 
@@ -297,7 +299,7 @@ class curry(Generic[_T]):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> _T:
+    def __call__(self, *args: Any, **kwargs: Any) -> Union[_T, curry[_T]]:
         try:
             return self._partial(*args, **kwargs)
         except TypeError as exc:
