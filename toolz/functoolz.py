@@ -194,7 +194,7 @@ class curry(Generic[_T]):
         toolz.curried - namespace of curried functions
                         https://toolz.readthedocs.io/en/latest/curry.html
     """
-    def __init__(self, func: Callable[..., _T], *args: Any, **kwargs: Any) -> None:
+    def __init__(self, func: Callable[..., _T], /, *args: Any, **kwargs: Any) -> None:
         if not callable(func):
             raise TypeError("Input must be callable")
 
