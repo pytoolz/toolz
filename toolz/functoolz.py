@@ -1,16 +1,15 @@
-from __future__  import annotations
+from __future__ import annotations
 
-from functools import reduce, partial
 import inspect
 import sys
-from operator import attrgetter, not_
+from functools import partial, reduce
 from importlib import import_module
+from operator import attrgetter, not_
 from textwrap import dedent
 from types import MethodType
-from typing import Any, Callable, Generic, TypeVar, Union
+from typing import Any, Callable, Generic, TypeVar, Union, overload
 
 from .utils import no_default
-
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
@@ -196,7 +195,13 @@ class curry(Generic[_T]):
         toolz.curried - namespace of curried functions
                         https://toolz.readthedocs.io/en/latest/curry.html
     """
-    def __init__(self, func: Callable[..., _T], /, *args: Any, **kwargs: Any) -> None:
+    @overload
+    def __init__(self, func: Callable[..., _T], *args: Any, **kwargs: Any) -> None: ...
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if not args:
+            raise TypeError('__init__() takes at least 2 arguments (1 given)')
+        func, args = args[0], args[1:]
         if not callable(func):
             raise TypeError("Input must be callable")
 
