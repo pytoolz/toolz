@@ -233,7 +233,7 @@ class curry(Generic[_T]):
         self._has_unknown_args = None
 
     @instanceproperty
-    def func(self):
+    def func(self) -> Callable[..., _T]:
         return self._partial.func
 
     @instanceproperty
@@ -338,10 +338,10 @@ class curry(Generic[_T]):
             # There was a genuine TypeError
             return False
 
-    def bind(self, *args, **kwargs):
+    def bind(self, *args, **kwargs) -> curry[_T]:
         return type(self)(self, *args, **kwargs)
 
-    def call(self, *args, **kwargs):
+    def call(self, *args, **kwargs) -> _T:
         return self._partial(*args, **kwargs)
 
     def __get__(self, instance, owner):
