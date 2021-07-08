@@ -7,7 +7,7 @@ from importlib import import_module
 from operator import attrgetter, not_
 from textwrap import dedent
 from types import MethodType
-from typing import Any, Callable, Generic, TypeVar, Union, overload
+from typing import Any, Callable, Dict, Generic, TypeVar, Union, overload
 
 from .utils import no_default
 
@@ -198,6 +198,10 @@ class curry(Generic[_T]):
     @overload
     def __init__(self, func: Callable[..., _T], *args: Any, **kwargs: Any) -> None: ...
 
+    # this overload should never be used, mypy complains if only one overload exists
+    @overload
+    def __init__(self, *args: Union[Callable[..., _T], Any], **kwargs: Any) -> None: ...
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         if not args:
             raise TypeError('__init__() takes at least 2 arguments (1 given)')
@@ -279,29 +283,29 @@ class curry(Generic[_T]):
         return self._partial.args
 
     @instanceproperty
-    def keywords(self):
+    def keywords(self) -> Dict[str, Any]:
         return self._partial.keywords
 
     @instanceproperty
-    def func_name(self):
+    def func_name(self) -> str:
         return self.__name__
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.func)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.func)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.func, self.args,
                      frozenset(self.keywords.items()) if self.keywords
                      else None))
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (isinstance(other, curry) and self.func == other.func and
                 self.args == other.args and self.keywords == other.keywords)
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Union[_T, curry[_T]]:
