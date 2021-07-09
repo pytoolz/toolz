@@ -17,9 +17,10 @@ __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
 
 PYPY = hasattr(sys, 'pypy_version_info')
 _T = TypeVar("_T")
+_T2 = TypeVar("_T2")
 
 
-def identity(x):
+def identity(x: _T) ->_T:
     """ Identity function. Return x
 
     >>> identity(3)
@@ -687,7 +688,7 @@ class juxt(object):
         self.funcs = state
 
 
-def do(func, x):
+def do(func: Callable[[_T], Any], x: _T) -> _T:
     """ Runs ``func`` on ``x``, returns ``x``
 
     Because the results of ``func`` are not returned, only the side
@@ -714,7 +715,7 @@ def do(func, x):
 
 
 @curry
-def flip(func, a, b):
+def flip(func: Callable[[_T, _T], _T2], a: _T, b: _T) -> _T2:
     """ Call the function call with the arguments flipped
 
     This function is curried.
@@ -740,7 +741,7 @@ def flip(func, a, b):
     return func(b, a)
 
 
-def return_none(exc):
+def return_none(exc: Any) -> None:
     """ Returns None.
     """
     return None
