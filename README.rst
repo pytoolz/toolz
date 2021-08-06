@@ -124,8 +124,8 @@ Community
 See our `mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
 We're friendly.
 
-.. |Build Status| image:: https://travis-ci.org/pytoolz/toolz.svg?branch=master
-   :target: https://travis-ci.org/pytoolz/toolz
+.. |Build Status| image:: https://github.com/pytoolz/toolz/workflows/Test/badge.svg
+   :target: https://github.com/pytoolz/toolz/actions
 .. |Coverage Status| image:: https://coveralls.io/repos/pytoolz/toolz/badge.svg?branch=master
    :target: https://coveralls.io/r/pytoolz/toolz
 .. |Version Status| image:: https://badge.fury.io/py/toolz.svg
