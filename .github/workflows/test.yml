@@ -34,13 +34,3 @@ jobs:
         if: (! contains(matrix.python-version, 'pypy'))
         run: |
           coverage report --show-missing --fail-under=100
-
-  finish:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          parallel-finished: true
