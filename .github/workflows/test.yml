@@ -30,6 +30,9 @@ jobs:
           coverage run -m pytest --doctest-modules toolz/
           pytest bench/
           pep8 --ignore="E731,W503,E402" --exclude=conf.py,tests,examples,bench -r --show-source .
+      - name: Coverate
+        if: (! contains(matrix.python-version, 'pypy'))
+        run: |
           coverage report --show-missing --fail-under=100
 
   finish:
