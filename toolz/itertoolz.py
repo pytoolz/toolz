@@ -14,7 +14,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample',
+           'transpose')
 
 
 def remove(predicate, seq):
@@ -1054,3 +1055,29 @@ def random_sample(prob, seq, random_state=None):
     if not hasattr(random_state, 'random'):
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+
+def transpose(iter_of_iters, inner_type=None, fillvalue=None):
+    """Transpose an interable of iterables by switching the rows and columns.
+
+    Returns a generator that transpose an iterable of iterables. If the inner
+    iterable is of shorter length the missing values will be *fillvalue*.
+    If *inner_type* is defined the inner iterable will be made into its type.
+
+    >>> matrix = [[1, 2, 3], [4, 5, 6]]
+    >>> list(transpose(matrix))
+    [(1, 4), (2, 5), (3, 6)]
+    >>> list(transpose(matrix, inner_type=list))
+    [[1, 4], [2, 5], [3, 6]]
+    >>> jagged_matrix = [[1, 2], [3]]
+    >>> list(transpose(jagged_matrix))
+    [(1,3), (2, None)]
+    >>> database = (('Ahmed', 21), ('Sarah', 42))
+    >>> tuple(transpose(database))
+    (('Ahmed', 'Sarah'), (21, 42))
+    """
+    if inner_type:
+        return map(inner_type, zip_longest(*iter_of_iters,
+                                           fillvalue=fillvalue))
+    else:
+        return zip_longest(*iter_of_iters, fillvalue=fillvalue)
