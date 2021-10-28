@@ -62,7 +62,7 @@ This builds a standard wordcount function from pieces within ``toolz``:
     ...     """ Stem word to primitive form """
     ...     return word.lower().rstrip(",.!:;'-\"").lstrip("'\"")
 
-    >>> from toolz import compose, frequencies, partial
+    >>> from toolz import compose, frequencies
     >>> from toolz.curried import map
     >>> wordcount = compose(frequencies, map(stem), str.split)
 
