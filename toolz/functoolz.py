@@ -5,8 +5,11 @@ from operator import attrgetter, not_
 from importlib import import_module
 from textwrap import dedent
 from types import MethodType
+import sys
 
 from .utils import no_default
+
+PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
 
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
