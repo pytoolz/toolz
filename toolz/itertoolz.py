@@ -259,6 +259,9 @@ def unique(seq, key=None):
 
     >>> tuple(unique(['cat', 'mouse', 'dog', 'hen'], key=len))
     ('cat', 'mouse')
+
+    See also:
+        nonunique
     """
     seen = set()
     seen_add = seen.add
@@ -276,12 +279,15 @@ def unique(seq, key=None):
 
 
 def nonunique(seq, key=None):
-    """Return only nonunique elements of a sequence.
+    """Return only the nonunique/duplicated elements of a sequence.
 
     >>> tuple(nonunique((1, 2, 3, 1)))
     (1,)
     >>> tuple(nonunique((1, 2, 3)))
     ()
+
+    See also:
+        unique
     """
     seen = set()
     seen_add = seen.add
