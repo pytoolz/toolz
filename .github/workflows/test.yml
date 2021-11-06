@@ -30,7 +30,24 @@ jobs:
           coverage run -m pytest --doctest-modules toolz/
           pytest bench/
           pep8 --ignore="E731,W503,E402" --exclude=conf.py,tests,examples,bench -r --show-source .
-      - name: Coverate
+      - name: Coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version}}
+          COVERALLS_PARALLEL: true
         if: (! contains(matrix.python-version, 'pypy'))
         run: |
           coverage report --show-missing --fail-under=100
+          pip install coveralls
+          coverage report --show-missing
+          coveralls --service=github
+
+finish:
+  needs: test
+  runs-on: ubuntu-latest
+  steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true

@@ -386,16 +386,16 @@ def test_introspect_builtin_modules():
     mods = [builtins, functools, itertools, operator, toolz,
             toolz.functoolz, toolz.itertoolz, toolz.dicttoolz, toolz.recipes]
 
-    blacklist = set()
+    denylist = set()
 
-    def add_blacklist(mod, attr):
+    def add_denylist(mod, attr):
         if hasattr(mod, attr):
-            blacklist.add(getattr(mod, attr))
+            denylist.add(getattr(mod, attr))
 
-    add_blacklist(builtins, 'basestring')
-    add_blacklist(builtins, 'NoneType')
-    add_blacklist(builtins, '__metaclass__')
-    add_blacklist(builtins, 'sequenceiterator')
+    add_denylist(builtins, 'basestring')
+    add_denylist(builtins, 'NoneType')
+    add_denylist(builtins, '__metaclass__')
+    add_denylist(builtins, 'sequenceiterator')
 
     def is_missing(modname, name, func):
         if name.startswith('_') and not name.startswith('__'):
@@ -412,7 +412,7 @@ def test_introspect_builtin_modules():
                     and func.__module__ is not None
                     and modname in func.__module__
                     and is_partial_args(func, (), {}) is not True
-                    and func not in blacklist)
+                    and func not in denylist)
         except AttributeError:
             return False
 
