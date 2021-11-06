@@ -42,12 +42,12 @@ jobs:
           coverage report --show-missing
           coveralls --service=github
 
-finish:
-  needs: test
-  runs-on: ubuntu-latest
-  steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
