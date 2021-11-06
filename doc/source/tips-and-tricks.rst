@@ -6,17 +6,17 @@ a part of toolz's standard offerings. This section presents
 a few of these recipes.
 
 
-* .. function:: pick(whitelist, dictionary)
+* .. function:: pick(allowlist, dictionary)
 
   Return a subset of the provided dictionary with keys contained in the
-  whitelist.
+  allowlist.
 
   ::
 
     from toolz import keyfilter
 
-    def pick(whitelist, d):
-        return keyfilter(lambda k: k in whitelist, d)
+    def pick(allowlist, d):
+        return keyfilter(lambda k: k in allowlist, d)
 
 
   Example:
@@ -26,17 +26,17 @@ a few of these recipes.
     {'a': 1, 'b': 2}
 
 
-* .. function:: omit(blacklist, dictionary)
+* .. function:: omit(denylist, dictionary)
 
   Return a subset of the provided dictionary with keys *not* contained in the
-  blacklist.
+  denylist.
 
   ::
 
     from toolz import keyfilter
 
-    def omit(blacklist, d):
-        return keyfilter(lambda k: k not in blacklist, d)
+    def omit(denylist, d):
+        return keyfilter(lambda k: k not in denylist, d)
 
 
   Example:
