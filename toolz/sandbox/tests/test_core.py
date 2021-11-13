@@ -91,7 +91,7 @@ def test_unzip():
         == [['a', 'b', 'c'], [1, 2, 3]]
 
     # Can handle a finite number of infinite iterators (the naive unzip
-    # implementation `zip(*args)` impelementation fails on this example).
+    # implementation `zip(*args)` implementation fails on this example).
     a, b, c = unzip(zip(count(1), repeat(0), repeat(1)))
     _assert_initial_matches(a, count(1))
     _assert_initial_matches(b, repeat(0))
