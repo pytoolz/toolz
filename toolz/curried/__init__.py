@@ -29,6 +29,7 @@ from toolz import (
     apply,
     comp,
     complement,
+    composable,
     compose,
     compose_left,
     concat,
