@@ -571,27 +571,6 @@ def test_compose():
         assert compose(*compose_args)(*args, **kw) == expected
 
 
-def test_composable():
-    composable_inc = composable(inc)
-
-    # check direct call
-    assert composable_inc(0) == 1
-
-    # check composition via pipe operator
-    assert (composable_inc | double)(0) == 2
-
-    # check multiple composition via pipe operator
-    assert (composable(double) | inc | iseven | str)(3) == "False"
-
-    # check decorator
-    @composable
-    def dec(i):
-        return i - 1
-
-    composition = dec | str
-    assert composition(3) == "2"
-
-
 def test_compose_metadata():
 
     # Define two functions with different names
@@ -698,6 +677,36 @@ def generate_compose_left_test_cases():
 def test_compose_left():
     for (compose_left_args, args, kw, expected) in generate_compose_left_test_cases():
         assert compose_left(*compose_left_args)(*args, **kw) == expected
+
+
+def test_composable():
+    composable_inc = composable(inc)
+
+    # check direct call
+    assert composable_inc(0) == 1
+
+    # check composition via pipe operator
+    assert (composable_inc | double)(0) == 2
+
+    # check multiple composition via pipe operator
+    assert (composable(double) | inc | iseven | str)(3) == "False"
+
+    # check decorator
+    @composable
+    def dec(i):
+        return i - 1
+
+    composition = dec | str
+    assert composition(3) == "2"
+
+
+def test_composable_compose():
+    # check that functions created via `compose` are composable via `|`
+    composed = compose(double, inc)
+    assert composed(3) == 8
+
+    composed2 = composed | str
+    assert composed2(3) == "8"
 
 
 def test_pipe():

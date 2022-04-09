@@ -471,8 +471,26 @@ def memoize(func, cache=None, key=None):
     return memof
 
 
-class composable:
-    """A composable function using the pipe operator ``|``.
+class _Composable:
+    """ Base class for functions supporting composition via the pipe operator.
+
+    See Also:
+        composable
+        compose
+    """
+    # TODO: when `typing_extensions` becomes a dependency for this toolz or we
+    # decide to support Python 3.10+ only, we can write complete type
+    # annotations here.
+    #
+    # We can make `_Composable` inherit from `Generic[P, T]`, where
+    # `P = (typing/typing_extensions).ParamSpec('P')`. In this case,
+    # `__or__` must accept a `Callable[[T], S]` and return `composable[P, S]`.
+    def __or__(self, other):
+        return compose(other, self)
+
+
+class composable(_Composable):
+    """ A composable function using the pipe operator ``|``.
 
     Can be used as a decorator:
 
@@ -493,33 +511,14 @@ class composable:
     See Also:
         compose
     """
-    __slots__ = ('func',)
-
-    # TODO: when `typing_extensions` becomes a dependency for this toolz or we
-    # decide to support Python 3.10+ only, we can write complete type
-    # annotations here.
-    #
-    # First, we can make `composable` inherit from `Generic[P, T]`, where
-    # `P = (typing/typing_extensions).ParamSpec('P')`.
-    #
-    # Second, the annotation for `call` should be written as
-    # `Callable[P, T]`
-    #
-    # Third, the definition for `__call__` can be written as
-    # `def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:`
-    #
-    # Finally, `__or__` must return `composable[P, S]`.
-    def __init__(self, func):
-        self.func = func
+    def __init__(self, __func):
+        self.__func = __func
 
     def __call__(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
-
-    def __or__(self, other):
-        return composable(compose(other, self))
+        return self.__func(*args, **kwargs)
 
 
-class Compose(object):
+class Compose(_Composable):
     """ A composition of functions
 
     See Also:
