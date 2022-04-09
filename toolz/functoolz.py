@@ -1,11 +1,11 @@
-from functools import reduce, partial
 import inspect
 import sys
-from operator import attrgetter, not_
+from functools import partial, reduce
 from importlib import import_module
+from operator import attrgetter, not_
 from textwrap import dedent
 from types import MethodType
-import sys
+from typing import Callable, Generic, TypeVar
 
 from .utils import no_default
 
@@ -17,6 +17,9 @@ __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'curry', 'flip', 'excepts')
 
 PYPY = hasattr(sys, 'pypy_version_info')
+
+T = TypeVar('T')
+S = TypeVar('S')
 
 
 def identity(x):
@@ -470,6 +473,51 @@ def memoize(func, cache=None, key=None):
     memof.__doc__ = func.__doc__
     memof.__wrapped__ = func
     return memof
+
+
+class composable(Generic[T]):
+    """A composable function using the pipe operator ``|``.
+
+    Can be used as a decorator:
+
+    >>> @composable
+    ... def inc(i):
+    ...     return i + 1
+    >>> composed = inc | str
+    >>> composed(3)
+    '4'
+
+    Or inline:
+
+    >>> inc = composable(lambda i: i + 1)
+    >>> composed = inc | str
+    >>> composed(3)
+    '4'
+
+    See Also:
+        compose
+    """
+
+    # TODO: when `typing_extensions` becomes a dependency for this toolz or we decide
+    # to support Python 3.10+ only, type annotations can be much improved here.
+    #
+    # First, we can make `composable` inherit from `Generic[P, T]`, where
+    # `P = (typing/typing_extensions).ParamSpec('P')`.
+    #
+    # Second, the annotation for `call` should be replaced with `Callable[P, T]`
+    #
+    # Third, the definition for `__call__` can be written as
+    # `def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:`
+    #
+    # Finally, `__or__` must return `composable[P, S]`.
+    def __init__(self, call: Callable[..., T]) -> None:
+        self.call = call
+
+    def __call__(self, *args, **kwargs) -> T:
+        return self.call(*args, **kwargs)
+
+    def __or__(self, other: Callable[[T], S]) -> 'composable[S]':
+        return composable(compose(other, self))
 
 
 class Compose(object):
