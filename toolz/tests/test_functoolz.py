@@ -691,6 +691,9 @@ def test_composable():
     # check multiple composition via pipe operator
     assert (composable(double) | inc | iseven | str)(3) == "False"
 
+    # check right composition
+    assert (double | composable_inc)(2) == 5
+
     # check decorator
     @composable
     def dec(i):

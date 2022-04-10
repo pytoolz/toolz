@@ -488,6 +488,9 @@ class _Composable:
     def __or__(self, other):
         return compose(other, self)
 
+    def __ror__(self, other):
+        return compose(self, other)
+
 
 class composable(_Composable):
     """ A composable function using the pipe operator ``|``.
