@@ -47,12 +47,6 @@ Itertoolz
    topk
    unique
 
-.. currentmodule:: toolz.recipes
-
-.. autosummary::
-   countby
-   partitionby
-
 Functoolz
 ---------
 
@@ -93,6 +87,15 @@ Dicttoolz
    update_in
    valfilter
    valmap
+
+Recipes
+---------
+
+.. currentmodule:: toolz.recipes
+
+.. autosummary::
+   countby
+   partitionby
 
 Sandbox
 -------
