@@ -1,4 +1,5 @@
 import operator
+import collections
 from functools import reduce
 from collections.abc import Mapping
 
@@ -58,14 +59,15 @@ def merge_with(func, *dicts, **kwargs):
         dicts = dicts[0]
     factory = _get_factory(merge_with, kwargs)
 
-    result = factory()
+    values = collections.defaultdict(lambda: [].append)
     for d in dicts:
         for k, v in d.items():
-            if k not in result:
-                result[k] = [v]
-            else:
-                result[k].append(v)
-    return valmap(func, result, factory)
+            values[k](v)
+
+    result = factory()
+    for k, v in values.items():
+        result[k] = func(v.__self__)
+    return result
 
 
 def valmap(func, d, factory=dict):
