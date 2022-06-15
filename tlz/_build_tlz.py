@@ -2,9 +2,10 @@ import sys
 import types
 import toolz
 from importlib import import_module
+from importlib.machinery import ModuleSpec
 
 
-class TlzLoader(object):
+class TlzLoader:
     """ Finds and loads ``tlz`` modules when added to sys.meta_path"""
     def __init__(self):
         self.always_from_toolz = {
@@ -36,7 +37,7 @@ class TlzLoader(object):
     def load_module(self, fullname):  # pragma: py3 no cover
         if fullname in sys.modules:  # pragma: no cover
             return sys.modules[fullname]
-        spec = TlzSpec(fullname, self)
+        spec = ModuleSpec(fullname, self)
         module = self.create_module(spec)
         sys.modules[fullname] = module
         self.exec_module(module)
@@ -45,7 +46,7 @@ class TlzLoader(object):
     def find_spec(self, fullname, path, target=None):  # pragma: no cover
         package, dot, submodules = fullname.partition('.')
         if package == 'tlz':
-            return TlzSpec(fullname, self)
+            return ModuleSpec(fullname, self)
 
     def create_module(self, spec):
         return types.ModuleType(spec.name)
@@ -84,18 +85,6 @@ class TlzLoader(object):
                 module_name = ''.join(['tlz', dot, submodules])
                 submodule = import_module(module_name)
                 module.__dict__[k] = submodule
-
-
-class TlzSpec(object):
-    def __init__(self, name, loader):
-        self.name = name
-        self.loader = loader
-        self.origin = None
-        self.submodule_search_locations = []
-        self.loader_state = None
-        self.cached = None
-        self.parent = None
-        self.has_location = False
 
 
 tlz_loader = TlzLoader()
