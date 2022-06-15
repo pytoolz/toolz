@@ -96,6 +96,8 @@ class TlzSpec(object):
         self.cached = None
         self.parent = None
         self.has_location = False
+        # Added in Python 3.11 (to improve circular imports or their errors?)
+        self._uninitialized_submodules = []
 
 
 tlz_loader = TlzLoader()
