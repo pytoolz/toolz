@@ -34,6 +34,7 @@ Itertoolz
    partition
    partition_all
    peek
+   peekn
    pluck
    random_sample
    reduceby
@@ -46,20 +47,16 @@ Itertoolz
    topk
    unique
 
-.. currentmodule:: toolz.recipes
-
-.. autosummary::
-   countby
-   partitionby
-
 Functoolz
 ---------
 
 .. currentmodule:: toolz.functoolz
 
 .. autosummary::
+   apply
    complement
    compose
+   compose_left
    curry
    do
    excepts
@@ -78,19 +75,28 @@ Dicttoolz
 
 .. autosummary::
    assoc
-   dissoc
    assoc_in
+   dissoc
    get_in
-   keyfilter
-   keymap
    itemfilter
    itemmap
+   keyfilter
+   keymap
    merge
    merge_with
    select_keys
    update_in
    valfilter
    valmap
+
+Recipes
+---------
+
+.. currentmodule:: toolz.recipes
+
+.. autosummary::
+   countby
+   partitionby
 
 Sandbox
 -------

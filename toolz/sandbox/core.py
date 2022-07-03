@@ -40,7 +40,7 @@ class EqualityHashKey(object):
     [[], (), [1], [2], {}]
 
     **Warning:** don't change the equality value of an item already in a hash
-    containter.  Unhashable types are unhashable for a reason.  For example:
+    container.  Unhashable types are unhashable for a reason.  For example:
 
     >>> L1 = [1] ; L2 = [2]
     >>> s = set(map(EqualityHashDefault, [L1, L2]))
@@ -105,7 +105,7 @@ def unzip(seq):
     [1, 2]
 
     Unlike the naive implementation ``def unzip(seq): zip(*seq)`` this
-    implementation can handle a finite sequence of infinite sequences.
+    implementation can handle an infinite sequence ``seq``.
 
     Caveats:
 
@@ -113,7 +113,8 @@ def unzip(seq):
       of auxiliary storage if the resulting iterators are consumed at
       different times.
 
-    * The top level sequence cannot be infinite.
+    * The inner sequence cannot be infinite. In Python 3 ``zip(*seq)`` can be
+      used if ``seq`` is a finite sequence of infinite sequences.
 
     """
 

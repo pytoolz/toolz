@@ -1,18 +1,10 @@
-from toolz.compatibility import map, filter, iteritems, iterkeys, itervalues
 
+import pytest
+import importlib
 
-def test_map_filter_are_lazy():
-    def bad(x):
-        raise Exception()
-    map(bad, [1, 2, 3])
-    filter(bad, [1, 2, 3])
-
-
-def test_dict_iteration():
-    d = {'a': 1, 'b': 2, 'c': 3}
-    assert not isinstance(iteritems(d), list)
-    assert not isinstance(iterkeys(d), list)
-    assert not isinstance(itervalues(d), list)
-    assert set(iteritems(d)) == set(d.items())
-    assert set(iterkeys(d)) == set(d.keys())
-    assert set(itervalues(d)) == set(d.values())
+def test_compat_warn():
+    with pytest.warns(DeprecationWarning):
+        # something else is importing this,
+        import toolz.compatibility
+        # reload to be sure we warn
+        importlib.reload(toolz.compatibility)

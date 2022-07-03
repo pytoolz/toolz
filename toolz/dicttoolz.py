@@ -1,7 +1,7 @@
-import copy
 import operator
-from toolz.compatibility import (map, zip, iteritems, iterkeys, itervalues,
-                                 reduce)
+import collections
+from functools import reduce
+from collections.abc import Mapping
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
@@ -11,8 +11,8 @@ __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
 def _get_factory(f, kwargs):
     factory = kwargs.pop('factory', dict)
     if kwargs:
-        raise TypeError("{0}() got an unexpected keyword argument "
-                        "'{1}'".format(f.__name__, kwargs.popitem()[0]))
+        raise TypeError("{}() got an unexpected keyword argument "
+                        "'{}'".format(f.__name__, kwargs.popitem()[0]))
     return factory
 
 
@@ -30,7 +30,7 @@ def merge(*dicts, **kwargs):
     See Also:
         merge_with
     """
-    if len(dicts) == 1 and not isinstance(dicts[0], dict):
+    if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
         dicts = dicts[0]
     factory = _get_factory(merge, kwargs)
 
@@ -55,18 +55,19 @@ def merge_with(func, *dicts, **kwargs):
     See Also:
         merge
     """
-    if len(dicts) == 1 and not isinstance(dicts[0], dict):
+    if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
         dicts = dicts[0]
     factory = _get_factory(merge_with, kwargs)
 
-    result = factory()
+    values = collections.defaultdict(lambda: [].append)
     for d in dicts:
-        for k, v in iteritems(d):
-            if k not in result:
-                result[k] = [v]
-            else:
-                result[k].append(v)
-    return valmap(func, result, factory)
+        for k, v in d.items():
+            values[k](v)
+
+    result = factory()
+    for k, v in values.items():
+        result[k] = func(v.__self__)
+    return result
 
 
 def valmap(func, d, factory=dict):
@@ -81,7 +82,7 @@ def valmap(func, d, factory=dict):
         itemmap
     """
     rv = factory()
-    rv.update(zip(iterkeys(d), map(func, itervalues(d))))
+    rv.update(zip(d.keys(), map(func, d.values())))
     return rv
 
 
@@ -97,7 +98,7 @@ def keymap(func, d, factory=dict):
         itemmap
     """
     rv = factory()
-    rv.update(zip(map(func, iterkeys(d)), itervalues(d)))
+    rv.update(zip(map(func, d.keys()), d.values()))
     return rv
 
 
@@ -113,7 +114,7 @@ def itemmap(func, d, factory=dict):
         valmap
     """
     rv = factory()
-    rv.update(map(func, iteritems(d)))
+    rv.update(map(func, d.items()))
     return rv
 
 
@@ -131,7 +132,7 @@ def valfilter(predicate, d, factory=dict):
         valmap
     """
     rv = factory()
-    for k, v in iteritems(d):
+    for k, v in d.items():
         if predicate(v):
             rv[k] = v
     return rv
@@ -151,7 +152,7 @@ def keyfilter(predicate, d, factory=dict):
         keymap
     """
     rv = factory()
-    for k, v in iteritems(d):
+    for k, v in d.items():
         if predicate(k):
             rv[k] = v
     return rv
@@ -174,7 +175,7 @@ def itemfilter(predicate, d, factory=dict):
         itemmap
     """
     rv = factory()
-    for item in iteritems(d):
+    for item in d.items():
         if predicate(item):
             k, v = item
             rv[k] = v
@@ -192,11 +193,12 @@ def assoc(d, key, value, factory=dict):
     {'x': 1, 'y': 3}
     """
     d2 = factory()
+    d2.update(d)
     d2[key] = value
-    return merge(d, d2, factory=factory)
+    return d2
 
 
-def dissoc(d, *keys):
+def dissoc(d, *keys, **kwargs):
     """ Return a new dict with the given key(s) removed.
 
     New dict has d[key] deleted for each supplied key.
@@ -209,10 +211,19 @@ def dissoc(d, *keys):
     >>> dissoc({'x': 1}, 'y') # Ignores missing keys
     {'x': 1}
     """
-    d2 = copy.copy(d)
-    for key in keys:
-        if key in d2:
-            del d2[key]
+    factory = _get_factory(dissoc, kwargs)
+    d2 = factory()
+
+    if len(keys) < len(d) * .6:
+        d2.update(d)
+        for key in keys:
+            if key in d2:
+                del d2[key]
+    else:
+        remaining = set(d)
+        remaining.difference_update(keys)
+        for k in remaining:
+            d2[k] = d[k]
     return d2
 
 
@@ -265,15 +276,28 @@ def update_in(d, keys, func, default=None, factory=dict):
     >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
     {1: 'foo', 2: {3: {4: 1}}}
     """
-    assert len(keys) > 0
-    k, ks = keys[0], keys[1:]
-    if ks:
-        return assoc(d, k, update_in(d[k] if (k in d) else factory(),
-                                     ks, func, default, factory),
-                     factory)
+    ks = iter(keys)
+    k = next(ks)
+
+    rv = inner = factory()
+    rv.update(d)
+
+    for key in ks:
+        if k in d:
+            d = d[k]
+            dtemp = factory()
+            dtemp.update(d)
+        else:
+            d = dtemp = factory()
+
+        inner[k] = inner = dtemp
+        k = key
+
+    if k in d:
+        inner[k] = func(d[k])
     else:
-        innermost = func(d[k]) if (k in d) else func(default)
-        return assoc(d, k, innermost, factory)
+        inner[k] = func(default)
+    return rv
 
 
 def get_in(keys, coll, default=None, no_default=False):

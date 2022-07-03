@@ -1,7 +1,7 @@
 Toolz
 =====
 
-|Build Status| |Coverage Status| |Version Status| |Downloads|
+|Build Status| |Coverage Status| |Version Status|
 
 A set of utility functions for iterators, functions, and dictionaries.
 
@@ -30,7 +30,7 @@ Structure and Heritage
 ``unique``, ``interpose``,
 
 |literal functoolz|_, for higher-order functions. Examples: ``memoize``,
-``curry``, ``compose``
+``curry``, ``compose``,
 
 |literal dicttoolz|_, for operations on dictionaries. Examples: ``assoc``,
 ``update-in``, ``merge``.
@@ -62,7 +62,7 @@ This builds a standard wordcount function from pieces within ``toolz``:
     ...     """ Stem word to primitive form """
     ...     return word.lower().rstrip(",.!:;'-\"").lstrip("'\"")
 
-    >>> from toolz import compose, frequencies, partial
+    >>> from toolz import compose, frequencies
     >>> from toolz.curried import map
     >>> wordcount = compose(frequencies, map(stem), str.split)
 
@@ -73,11 +73,11 @@ This builds a standard wordcount function from pieces within ``toolz``:
 Dependencies
 ------------
 
-``toolz`` supports Python 2.6+ and Python 3.3+ with a common codebase.
+``toolz`` supports Python 3.5+ with a common codebase.
 It is pure Python and requires no dependencies beyond the standard
 library.
 
-It is, in short, a light weight dependency.
+It is, in short, a lightweight dependency.
 
 
 CyToolz
@@ -86,21 +86,21 @@ CyToolz
 The ``toolz`` project has been reimplemented in `Cython <http://cython.org>`__.
 The ``cytoolz`` project is a drop-in replacement for the Pure Python
 implementation.
-See `CyToolz Github Page <https://github.com/pytoolz/cytoolz/>`__ for more
+See `CyToolz GitHub Page <https://github.com/pytoolz/cytoolz/>`__ for more
 details.
 
 See Also
 --------
 
--  `Underscore.js <http://underscorejs.org>`__: A similar library for
+-  `Underscore.js <https://underscorejs.org/>`__: A similar library for
    JavaScript
--  `Enumerable <http://ruby-doc.org/core-2.0.0/Enumerable.html>`__: A
+-  `Enumerable <https://ruby-doc.org/core-2.0.0/Enumerable.html>`__: A
    similar library for Ruby
--  `Clojure <http://clojure.org>`__: A functional language whose
+-  `Clojure <https://clojure.org/>`__: A functional language whose
    standard library has several counterparts in ``toolz``
--  `itertools <http://docs.python.org/2/library/itertools.html>`__: The
+-  `itertools <https://docs.python.org/2/library/itertools.html>`__: The
    Python standard library for iterator tools
--  `functools <http://docs.python.org/2/library/functools.html>`__: The
+-  `functools <https://docs.python.org/2/library/functools.html>`__: The
    Python standard library for function tools
 
 Contributions Welcome
@@ -124,11 +124,9 @@ Community
 See our `mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
 We're friendly.
 
-.. |Build Status| image:: https://travis-ci.org/pytoolz/toolz.svg?branch=master
-   :target: https://travis-ci.org/pytoolz/toolz
+.. |Build Status| image:: https://github.com/pytoolz/toolz/workflows/Test/badge.svg
+   :target: https://github.com/pytoolz/toolz/actions
 .. |Coverage Status| image:: https://coveralls.io/repos/pytoolz/toolz/badge.svg?branch=master
    :target: https://coveralls.io/r/pytoolz/toolz
 .. |Version Status| image:: https://badge.fury.io/py/toolz.svg
-   :target: http://badge.fury.io/py/toolz
-.. |Downloads| image:: https://img.shields.io/pypi/dm/toolz.svg
-   :target: https://pypi.python.org/pypi/toolz/
+   :target: https://badge.fury.io/py/toolz

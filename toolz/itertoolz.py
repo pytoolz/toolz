@@ -3,9 +3,9 @@ import heapq
 import collections
 import operator
 from functools import partial
+from itertools import filterfalse, zip_longest
 from random import Random
-from toolz.compatibility import (map, filterfalse, zip, zip_longest, iteritems,
-                                 filter)
+from collections.abc import Sequence
 from toolz.utils import no_default
 
 
@@ -14,7 +14,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
 
 
 def remove(predicate, seq):
@@ -56,7 +56,13 @@ def accumulate(binop, seq, initial=no_default):
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    result = next(seq) if initial == no_default else initial
+    if initial == no_default:
+        try:
+            result = next(seq)
+        except StopIteration:
+            return
+    else:
+        result = initial
     yield result
     for elem in seq:
         result = binop(result, elem)
@@ -83,6 +89,8 @@ def groupby(key, seq):
      'M': [{'gender': 'M', 'name': 'Bob'},
            {'gender': 'M', 'name': 'Charlie'}]}
 
+    Not to be confused with ``itertools.groupby``
+
     See Also:
         countby
     """
@@ -92,7 +100,7 @@ def groupby(key, seq):
     for item in seq:
         d[key(item)](item)
     rv = {}
-    for k, v in iteritems(d):
+    for k, v in d.items():
         rv[k] = v.__self__
     return rv
 
@@ -374,7 +382,9 @@ def second(seq):
     >>> second('ABC')
     'B'
     """
-    return next(itertools.islice(seq, 1, None))
+    seq = iter(seq)
+    next(seq)
+    return next(seq)
 
 
 def nth(n, seq):
@@ -383,7 +393,7 @@ def nth(n, seq):
     >>> nth(1, 'ABC')
     'B'
     """
-    if isinstance(seq, (tuple, list, collections.Sequence)):
+    if isinstance(seq, (tuple, list, Sequence)):
         return seq[n]
     else:
         return next(itertools.islice(seq, n, None))
@@ -449,7 +459,7 @@ def get(ind, seq, default=no_default):
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
                 elif ind:
-                    return (seq[ind[0]],)
+                    return seq[ind[0]],
                 else:
                     return ()
             else:
@@ -720,7 +730,23 @@ def partition_all(n, seq):
         yield prev
         prev = item
     if prev[-1] is no_pad:
-        yield prev[:prev.index(no_pad)]
+        try:
+            # If seq defines __len__, then
+            # we can quickly calculate where no_pad starts
+            yield prev[:len(seq) % n]
+        except TypeError:
+            # Get first index of no_pad without using .index()
+            # https://github.com/pytoolz/toolz/issues/387
+            # Binary search from CPython's bisect module,
+            # modified for identity testing.
+            lo, hi = 0, n
+            while lo < hi:
+                mid = (lo + hi) // 2
+                if prev[mid] is no_pad:
+                    hi = mid
+                else:
+                    lo = mid + 1
+            yield prev[:lo]
     else:
         yield prev
 
@@ -728,7 +754,7 @@ def partition_all(n, seq):
 def count(seq):
     """ Count the number of items in seq
 
-    Like the builtin ``len`` but works on lazy sequencies.
+    Like the builtin ``len`` but works on lazy sequences.
 
     Not to be confused with ``itertools.count``
 
@@ -792,6 +818,8 @@ def join(leftkey, leftseq, rightkey, rightseq,
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
     and placed into memory.  The RIGHT sequence is evaluated lazily and so can
     be arbitrarily large.
+    (Note: If right_default is defined, then unique keys of rightseq
+        will also be stored in memory.)
 
     >>> friends = [('Alice', 'Edith'),
     ...            ('Alice', 'Zhao'),
@@ -834,7 +862,10 @@ def join(leftkey, leftseq, rightkey, rightseq,
 
     Usually the key arguments are callables to be applied to the sequences.  If
     the keys are not obviously callable then it is assumed that indexing was
-    intended, e.g. the following is a legal change
+    intended, e.g. the following is a legal change.
+    The join is implemented as a hash join and the keys of leftseq must be
+    hashable. Additionally, if right_default is defined, then keys of rightseq
+    must also be hashable.
 
     >>> # result = join(second, friends, first, cities)
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
@@ -845,21 +876,46 @@ def join(leftkey, leftseq, rightkey, rightseq,
         rightkey = getter(rightkey)
 
     d = groupby(leftkey, leftseq)
-    seen_keys = set()
 
-    left_default_is_no_default = (left_default == no_default)
-    for item in rightseq:
-        key = rightkey(item)
-        seen_keys.add(key)
-        try:
-            left_matches = d[key]
-            for match in left_matches:
-                yield (match, item)
-        except KeyError:
-            if not left_default_is_no_default:
+    if left_default == no_default and right_default == no_default:
+        # Inner Join
+        for item in rightseq:
+            key = rightkey(item)
+            if key in d:
+                for left_match in d[key]:
+                    yield (left_match, item)
+    elif left_default != no_default and right_default == no_default:
+        # Right Join
+        for item in rightseq:
+            key = rightkey(item)
+            if key in d:
+                for left_match in d[key]:
+                    yield (left_match, item)
+            else:
                 yield (left_default, item)
+    elif right_default != no_default:
+        seen_keys = set()
+        seen = seen_keys.add
 
-    if right_default != no_default:
+        if left_default == no_default:
+            # Left Join
+            for item in rightseq:
+                key = rightkey(item)
+                seen(key)
+                if key in d:
+                    for left_match in d[key]:
+                        yield (left_match, item)
+        else:
+            # Full Join
+            for item in rightseq:
+                key = rightkey(item)
+                seen(key)
+                if key in d:
+                    for left_match in d[key]:
+                        yield (left_match, item)
+                else:
+                    yield (left_default, item)
+
         for key, matches in d.items():
             if key not in seen_keys:
                 for match in matches:
@@ -942,7 +998,25 @@ def peek(seq):
     """
     iterator = iter(seq)
     item = next(iterator)
-    return item, itertools.chain([item], iterator)
+    return item, itertools.chain((item,), iterator)
+
+
+def peekn(n, seq):
+    """ Retrieve the next n elements of a sequence
+
+    Returns a tuple of the first n elements and an iterable equivalent
+    to the original, still having the elements retrieved.
+
+    >>> seq = [0, 1, 2, 3, 4]
+    >>> first_two, seq = peekn(2, seq)
+    >>> first_two
+    (0, 1)
+    >>> list(seq)
+    [0, 1, 2, 3, 4]
+    """
+    iterator = iter(seq)
+    peeked = tuple(take(n, iterator))
+    return peeked, itertools.chain(iter(peeked), iterator)
 
 
 def random_sample(prob, seq, random_state=None):

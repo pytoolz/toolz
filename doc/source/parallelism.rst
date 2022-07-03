@@ -47,8 +47,7 @@ multiprocessing, to distributed computation all with the same domain code.
         >>> stem("Hello!")
         'hello'
         """
-        return
-        word.lower().rstrip(",.!)-*_?:;$'-\"").lstrip("-*'\"(_$'")
+        return word.lower().rstrip(",.!)-*_?:;$'-\"").lstrip("-*'\"(_$'")
 
 
     wordcount = compose(frequencies, map(stem), concat, map(str.split), open)
@@ -75,8 +74,8 @@ multiprocessing, to distributed computation all with the same domain code.
 This smooth transition is possible because
 
 1.  The ``map`` abstraction is a simple function call and so can be replaced.
-    This transformation would be difficult if we had written our code with a
-    for loop or list comprehension
+    By contrast, this transformation would be difficult if we had written our code with a
+    for loop or list comprehension.
 2.  The operation ``wordcount`` is separate from the parallel solution.
 3.  The task is embarrassingly parallel, needing only a very simple parallel
     strategy.  Fortunately this is the common case.
@@ -91,5 +90,5 @@ general solution is to build algorithms that operate around a user-supplied
 parallel map function.
 
 In particular we provide a parallel ``fold`` in ``toolz.sandbox.parallel.fold``.
-This fold can work equally well with ``multiprocessing.Pool.map``
-``threading.Pool.map`` or ``ipyparallel``'s ``map_async``.
+This fold can work equally well with ``multiprocessing.Pool.map``,
+``threading.Pool.map``, or ``ipyparallel``'s ``map_async``.

@@ -16,15 +16,12 @@ import functools
 import inspect
 import itertools
 import operator
+from importlib import import_module
 
-from .compatibility import PY3, import_module
 from .functoolz import (is_partial_args, is_arity, has_varargs,
                         has_keywords, num_required_args)
 
-if PY3:  # pragma: py2 no cover
-    import builtins
-else:  # pragma: py3 no cover
-    import __builtin__ as builtins
+import builtins
 
 # We mock builtin callables using lists of tuples with lambda functions.
 #
@@ -48,6 +45,9 @@ module_info[builtins] = dict(
         lambda x: None],
     all=[
         lambda iterable: None],
+    anext=[
+        lambda aiterator: None,
+        lambda aiterator, default: None],
     any=[
         lambda iterable: None],
     apply=[
@@ -234,52 +234,33 @@ module_info[builtins]['exec'] = [
     lambda source, globals: None,
     lambda source, globals, locals: None]
 
-if PY3:  # pragma: py2 no cover
-    module_info[builtins].update(
-        bytes=[
-            lambda: None,
-            lambda int: None,
-            lambda string, encoding='utf8', errors='strict': None],
-        compile=[
-            (0, lambda source, filename, mode, flags=0,
-                dont_inherit=False, optimize=-1: None)],
-        max=[
-            (1, lambda iterable: None, ('default', 'key',)),
-            (1, lambda arg1, arg2, *args: None, ('key',))],
-        min=[
-            (1, lambda iterable: None, ('default', 'key',)),
-            (1, lambda arg1, arg2, *args: None, ('key',))],
-        open=[
-            (0, lambda file, mode='r', buffering=-1, encoding=None,
-                errors=None, newline=None, closefd=True, opener=None: None)],
-        sorted=[
-            (1, lambda iterable: None, ('key', 'reverse'))],
-        str=[
-            lambda object='', encoding='utf', errors='strict': None],
-    )
-    module_info[builtins]['print'] = [
-        (0, lambda *args: None, ('sep', 'end', 'file', 'flush',))]
+module_info[builtins].update(
+    breakpoint=[
+        lambda *args, **kws: None],
+    bytes=[
+        lambda: None,
+        lambda int: None,
+        lambda string, encoding='utf8', errors='strict': None],
+    compile=[
+        (0, lambda source, filename, mode, flags=0,
+            dont_inherit=False, optimize=-1: None)],
+    max=[
+        (1, lambda iterable: None, ('default', 'key',)),
+        (1, lambda arg1, arg2, *args: None, ('key',))],
+    min=[
+        (1, lambda iterable: None, ('default', 'key',)),
+        (1, lambda arg1, arg2, *args: None, ('key',))],
+    open=[
+        (0, lambda file, mode='r', buffering=-1, encoding=None,
+            errors=None, newline=None, closefd=True, opener=None: None)],
+    sorted=[
+        (1, lambda iterable: None, ('key', 'reverse'))],
+    str=[
+        lambda object='', encoding='utf', errors='strict': None],
+)
+module_info[builtins]['print'] = [
+    (0, lambda *args: None, ('sep', 'end', 'file', 'flush',))]
 
-else:  # pragma: py3 no cover
-    module_info[builtins].update(
-        bytes=[
-            lambda object='': None],
-        compile=[
-            (0, lambda source, filename, mode, flags=0,
-                dont_inherit=False: None)],
-        max=[
-            (1, lambda iterable, *args: None, ('key',))],
-        min=[
-            (1, lambda iterable, *args: None, ('key',))],
-        open=[
-            (0, lambda file, mode='r', buffering=-1: None)],
-        sorted=[
-            lambda iterable, cmp=None, key=None, reverse=False: None],
-        str=[
-            lambda object='': None],
-    )
-    module_info[builtins]['print'] = [
-        (0, lambda *args: None, ('sep', 'end', 'file',))]
 
 module_info[functools] = dict(
     cmp_to_key=[
@@ -343,16 +324,11 @@ module_info[itertools] = dict(
         (0, lambda *iterables: None, ('fillvalue',))],
 )
 
-if PY3:  # pragma: py2 no cover
-    module_info[itertools].update(
-        product=[
-            (0, lambda *iterables: None, ('repeat',))],
-    )
-else:  # pragma: py3 no cover
-    module_info[itertools].update(
-        product=[
-            lambda *iterables: None],
-    )
+module_info[itertools].update(
+    product=[
+        (0, lambda *iterables: None, ('repeat',))],
+)
+
 
 module_info[operator] = dict(
     __abs__=[
@@ -619,51 +595,31 @@ module_info['toolz.functoolz'] = dict(
             classval=None: None)],
 )
 
-if PY3:  # pragma: py2 no cover
-    def num_pos_args(sigspec):
-        """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
-        return sum(1 for x in sigspec.parameters.values()
-                   if x.kind == x.POSITIONAL_OR_KEYWORD
-                   and x.default is x.empty)
 
-    def get_exclude_keywords(num_pos_only, sigspec):
-        """ Return the names of position-only arguments if func has **kwargs"""
-        if num_pos_only == 0:
-            return ()
-        has_kwargs = any(x.kind == x.VAR_KEYWORD
-                         for x in sigspec.parameters.values())
-        if not has_kwargs:
-            return ()
-        pos_args = list(sigspec.parameters.values())[:num_pos_only]
-        return tuple(x.name for x in pos_args)
+def num_pos_args(sigspec):
+    """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
+    return sum(1 for x in sigspec.parameters.values()
+               if x.kind == x.POSITIONAL_OR_KEYWORD
+               and x.default is x.empty)
 
-    def signature_or_spec(func):
-        try:
-            return inspect.signature(func)
-        except (ValueError, TypeError) as e:
-            return e
 
-else:  # pragma: py3 no cover
-    def num_pos_args(sigspec):
-        """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
-        if sigspec.defaults:
-            return len(sigspec.args) - len(sigspec.defaults)
-        return len(sigspec.args)
+def get_exclude_keywords(num_pos_only, sigspec):
+    """ Return the names of position-only arguments if func has **kwargs"""
+    if num_pos_only == 0:
+        return ()
+    has_kwargs = any(x.kind == x.VAR_KEYWORD
+                     for x in sigspec.parameters.values())
+    if not has_kwargs:
+        return ()
+    pos_args = list(sigspec.parameters.values())[:num_pos_only]
+    return tuple(x.name for x in pos_args)
 
-    def get_exclude_keywords(num_pos_only, sigspec):
-        """ Return the names of position-only arguments if func has **kwargs"""
-        if num_pos_only == 0:
-            return ()
-        has_kwargs = sigspec.keywords is not None
-        if not has_kwargs:
-            return ()
-        return tuple(sigspec.args[:num_pos_only])
 
-    def signature_or_spec(func):
-        try:
-            return inspect.getargspec(func)
-        except TypeError as e:
-            return e
+def signature_or_spec(func):
+    try:
+        return inspect.signature(func)
+    except (ValueError, TypeError):
+        return None
 
 
 def expand_sig(sig):
@@ -697,7 +653,7 @@ def expand_sig(sig):
         num_pos_only = num_pos_args(sigspec)
         keyword_only = ()
     keyword_exclude = get_exclude_keywords(num_pos_only, sigspec)
-    return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
+    return num_pos_only, func, keyword_only + keyword_exclude, sigspec
 
 
 signatures = {}
@@ -789,7 +745,7 @@ def _has_varargs(func):
     checks = [check_varargs(sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):  # pragma: py2 no cover
+    elif any(checks):
         return None
     return False
 

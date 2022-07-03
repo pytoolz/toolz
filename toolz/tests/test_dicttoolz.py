@@ -1,10 +1,12 @@
+import os
 from collections import defaultdict as _defaultdict
+from collections.abc import Mapping
+from toolz.functoolz import identity
 from toolz.dicttoolz import (assoc, assoc_in, dissoc, itemfilter,
                              itemmap, keyfilter, keymap, merge,
                              merge_with, select_keys, update_in,
                              valfilter, valmap)
 from toolz.utils import raises
-from toolz.compatibility import PY3
 
 
 def inc(x):
@@ -91,16 +93,16 @@ class TestDict(object):
 
     def test_dissoc(self):
         D, kw = self.D, self.kw
-        assert dissoc(D({"a": 1}), "a") == D({})
-        assert dissoc(D({"a": 1, "b": 2}), "a") == D({"b": 2})
-        assert dissoc(D({"a": 1, "b": 2}), "b") == D({"a": 1})
-        assert dissoc(D({"a": 1, "b": 2}), "a", "b") == D({})
-        assert dissoc(D({"a": 1}), "a") == dissoc(dissoc(D({"a": 1}), "a"), "a")
+        assert dissoc(D({"a": 1}), "a", **kw) == D({})
+        assert dissoc(D({"a": 1, "b": 2}), "a", **kw) == D({"b": 2})
+        assert dissoc(D({"a": 1, "b": 2}), "b", **kw) == D({"a": 1})
+        assert dissoc(D({"a": 1, "b": 2}), "a", "b", **kw) == D({})
+        assert dissoc(D({"a": 1}), "a", **kw) == dissoc(dissoc(D({"a": 1}), "a", **kw), "a", **kw)
 
         # Verify immutability:
         d = D({'x': 1})
         oldd = d
-        d2 = dissoc(d, 'x')
+        d2 = dissoc(d, 'x', **kw)
         assert d is oldd
         assert d2 is not oldd
 
@@ -222,17 +224,6 @@ class CustomMapping(object):
     def update(self, *args, **kwargs):
         self._d.update(*args, **kwargs)
 
-    # Should we require these to be defined for Python 2?
-    if not PY3:
-        def iterkeys(self):
-            return self._d.iterkeys()
-
-        def itervalues(self):
-            return self._d.itervalues()
-
-        def iteritems(self):
-            return self._d.iteritems()
-
     # Unused methods that are part of the MutableMapping protocol
     #def get(self, key, *args):
     #    return self._d.get(key, *args)
@@ -259,3 +250,30 @@ class TestCustomMapping(TestDict):
     """
     D = CustomMapping
     kw = {'factory': lambda: CustomMapping()}
+
+
+def test_environ():
+    # See: https://github.com/pytoolz/cytoolz/issues/127
+    assert keymap(identity, os.environ) == os.environ
+    assert valmap(identity, os.environ) == os.environ
+    assert itemmap(identity, os.environ) == os.environ
+
+
+def test_merge_with_non_dict_mappings():
+    class Foo(Mapping):
+        def __init__(self, d):
+            self.d = d
+
+        def __iter__(self):
+            return iter(self.d)
+
+        def __getitem__(self, key):
+            return self.d[key]
+
+        def __len__(self):
+            return len(self.d)
+
+    d = Foo({1: 1})
+
+    assert merge(d) is d or merge(d) == {1: 1}
+    assert merge_with(sum, d) == {1: 1}

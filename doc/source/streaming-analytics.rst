@@ -38,7 +38,7 @@ These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
    ...                map(get([1, 2])),
    ...                list)
 
-*note: this uses the curried_ versions of ``map`` and ``filter``.*
+Note: this uses the `curried`` versions of ``map`` and ``filter``.
 
 Of course, these operations are also well supported with standard
 list/generator comprehension syntax.  This syntax is more often used and
@@ -81,15 +81,15 @@ groups.
 
 .. code::
 
-   >>> from toolz import groupby, valmap, compose
-   >>> from toolz.curried import get, pluck
+   >>> from toolz import compose
+   >>> from toolz.curried import get, pluck, groupby, valmap
 
    >>> groupby(get(3), accounts)
    {'F': [(1, 'Alice', 100, 'F'), (5, 'Edith', 300, 'F')],
     'M': [(2, 'Bob', 200, 'M'), (3, 'Charlie', 150, 'M'), (4, 'Dennis', 50, 'M')]}
 
    >>> valmap(compose(sum, pluck(2)),
-   ...        _)
+   ...        _)  # The underscore captures results from the previous prompt
    {'F': 400, 'M': 400}
 
 
@@ -116,8 +116,8 @@ understand this section you should first be familiar with the builtin function
 
 The ``reduceby`` operation takes a key function, like ``get(3)`` or ``lambda x:
 x[3]``, and a binary operator like ``add`` or ``lesser = lambda acc, x: acc if
-acc < x else x``.  It successively applies the key function to each item in
-succession, accumulating running totals for each key by combining each new
+acc < x else x``.  It applies the key function to each item in succession,
+accumulating running totals for each key by combining each new
 value with the previous using the binary operator.  It can't accept full
 reduction operations like ``sum`` or ``min`` as these require access to the
 entire group at once.  Here is a simple example:
@@ -180,8 +180,9 @@ common first column, id.
 .. code::
 
    SELECT accounts.name, addresses.address
-   FROM accounts, addresses
-   WHERE accounts.id = addresses.id;
+   FROM accounts
+   JOIN addresses
+   ON accounts.id = addresses.id;
 
 
 .. code::

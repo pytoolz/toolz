@@ -1,7 +1,8 @@
-import platform
-
+import inspect
+import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, pipe, complement, do, juxt, flip, excepts)
+                             compose, compose_left, pipe, complement, do, juxt,
+                             flip, excepts, apply)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -21,6 +22,32 @@ def inc(x):
 
 def double(x):
     return 2 * x
+
+
+class AlwaysEquals(object):
+    """useful to test correct __eq__ implementation of other objects"""
+
+    def __eq__(self, other):
+        return True
+
+    def __ne__(self, other):
+        return False
+
+
+class NeverEquals(object):
+    """useful to test correct __eq__ implementation of other objects"""
+
+    def __eq__(self, other):
+        return False
+
+    def __ne__(self, other):
+        return True
+
+
+def test_apply():
+    assert apply(double, 5) == 10
+    assert tuple(map(apply, [double, inc, double], [10, 500, 8000])) == (20, 501, 16000)
+    assert raises(TypeError, apply)
 
 
 def test_thread_first():
@@ -201,12 +228,10 @@ def test_curry_kwargs():
     def h(x, func=int):
         return func(x)
 
-    if platform.python_implementation() != 'PyPy'\
-            or platform.python_version_tuple()[0] != '3':  # Bug on PyPy3<2.5
-        # __init__ must not pick func as positional arg
-        assert curry(h)(0.0) == 0
-        assert curry(h)(func=str)(0.0) == '0.0'
-        assert curry(h, func=str)(0.0) == '0.0'
+    # __init__ must not pick func as positional arg
+    assert curry(h)(0.0) == 0
+    assert curry(h)(func=str)(0.0) == '0.0'
+    assert curry(h, func=str)(0.0) == '0.0'
 
 
 def test_curry_passes_errors():
@@ -328,7 +353,7 @@ def test_curry_comparable():
     b1 = curry(bar, 1, c=2)
     assert b1 != f1
 
-    assert set([f1, f2, g1, h1, h2, h3, b1, b1()]) == set([f1, g1, h1, b1])
+    assert {f1, f2, g1, h1, h2, h3, b1, b1()} == {f1, g1, h1, b1}
 
     # test unhashable input
     unhash1 = curry(foo, [])
@@ -499,17 +524,54 @@ def test_curry_subclassable():
     """
 
 
-def test_compose():
-    assert compose()(0) == 0
-    assert compose(inc)(0) == 1
-    assert compose(double, inc)(0) == 2
-    assert compose(str, iseven, inc, double)(3) == "False"
-    assert compose(str, add)(1, 2) == '3'
+def generate_compose_test_cases():
+    """
+    Generate test cases for parametrized tests of the compose function.
+    """
 
-    def f(a, b, c=10):
+    def add_then_multiply(a, b, c=10):
         return (a + b) * c
 
-    assert compose(str, inc, f)(1, 2, c=3) == '10'
+    return (
+        (
+            (),        # arguments to compose()
+            (0,), {},  # positional and keyword args to the Composed object
+            0          # expected result
+        ),
+        (
+            (inc,),
+            (0,), {},
+            1
+        ),
+        (
+            (double, inc),
+            (0,), {},
+            2
+        ),
+        (
+            (str, iseven, inc, double),
+            (3,), {},
+            "False"
+        ),
+        (
+            (str, add),
+            (1, 2), {},
+            '3'
+        ),
+        (
+            (str, inc, add_then_multiply),
+            (1, 2), {"c": 3},
+            '10'
+        ),
+    )
+
+
+def test_compose():
+    for (compose_args, args, kw, expected) in generate_compose_test_cases():
+        assert compose(*compose_args)(*args, **kw) == expected
+
+
+def test_compose_metadata():
 
     # Define two functions with different names
     def f(a):
@@ -528,6 +590,93 @@ def test_compose():
     composed = compose(f, h)
     assert composed.__name__ == 'Compose'
     assert composed.__doc__ == 'A composition of functions'
+
+    assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
+
+    assert composed == compose(f, h)
+    assert composed == AlwaysEquals()
+    assert not composed == compose(h, f)
+    assert not composed == object()
+    assert not composed == NeverEquals()
+
+    assert composed != compose(h, f)
+    assert composed != NeverEquals()
+    assert composed != object()
+    assert not composed != compose(f, h)
+    assert not composed != AlwaysEquals()
+
+    assert hash(composed) == hash(compose(f, h))
+    assert hash(composed) != hash(compose(h, f))
+
+    bindable = compose(str, lambda x: x*2, lambda x, y=0: int(x) + y)
+
+    class MyClass:
+
+        def __int__(self):
+            return 8
+
+        my_method = bindable
+        my_static_method = staticmethod(bindable)
+
+    assert MyClass.my_method(3) == '6'
+    assert MyClass.my_method(3, y=2) == '10'
+    assert MyClass.my_static_method(2) == '4'
+    assert MyClass().my_method() == '16'
+    assert MyClass().my_method(y=3) == '22'
+    assert MyClass().my_static_method(0) == '0'
+    assert MyClass().my_static_method(0, 1) == '2'
+
+    assert compose(f, h).__wrapped__ is h
+    if hasattr(toolz, 'sandbox'):  # only test this with Python version (i.e., not Cython)
+        assert compose(f, h).__class__.__wrapped__ is None
+
+    # __signature__ is python3 only
+
+    def myfunc(a, b, c, *d, **e):
+        return 4
+
+    def otherfunc(f):
+        return 'result: {}'.format(f)
+
+    # set annotations compatibly with python2 syntax
+    myfunc.__annotations__ = {
+        'a': int,
+        'b': str,
+        'c': float,
+        'd': int,
+        'e': bool,
+        'return': int,
+    }
+    otherfunc.__annotations__ = {'f': int, 'return': str}
+
+    composed = compose(otherfunc, myfunc)
+    sig = inspect.signature(composed)
+    assert sig.parameters == inspect.signature(myfunc).parameters
+    assert sig.return_annotation == str
+
+    class MyClass:
+        method = composed
+
+    assert len(inspect.signature(MyClass().method).parameters) == 4
+
+
+def generate_compose_left_test_cases():
+    """
+    Generate test cases for parametrized tests of the compose function.
+
+    These are based on, and equivalent to, those produced by
+    enerate_compose_test_cases().
+    """
+    return tuple(
+        (tuple(reversed(compose_args)), args, kwargs, expected)
+        for (compose_args, args, kwargs, expected)
+        in generate_compose_test_cases()
+    )
+
+
+def test_compose_left():
+    for (compose_left_args, args, kw, expected) in generate_compose_left_test_cases():
+        assert compose_left(*compose_left_args)(*args, **kw) == expected
 
 
 def test_pipe():
@@ -645,4 +794,3 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
-

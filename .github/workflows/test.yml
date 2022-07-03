@@ -1,0 +1,64 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version:
+          - "3.5"
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11.0-alpha - 3.11.0"
+          - "pypy-3.6"
+          - "pypy-3.7"
+          - "pypy-3.8"
+          - "pypy-3.9"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install coverage pep8 pytest
+          pip install -e .
+      - name: PyTest
+        run: |
+          coverage run -m pytest --doctest-modules toolz/
+          pytest bench/
+          pep8 --ignore="E731,W503,E402" --exclude=conf.py,tests,examples,bench -r --show-source .
+      - name: Coverage
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version}}
+          COVERALLS_PARALLEL: true
+        if: (! contains(matrix.python-version, 'pypy'))
+        run: |
+          coverage report --show-missing --fail-under=100
+          pip install coveralls
+          coverage report --show-missing
+          coveralls --service=github
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true

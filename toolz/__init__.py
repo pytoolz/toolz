@@ -6,17 +6,21 @@ from .dicttoolz import *
 
 from .recipes import *
 
-from .compatibility import map, filter
-
-from . import sandbox
-
 from functools import partial, reduce
 
 sorted = sorted
 
+map = map
+
+filter = filter
+
 # Aliases
 comp = compose
 
+from . import curried, sandbox
+
 functoolz._sigs.create_signature_registry()
 
-__version__ = '0.9.0'
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions

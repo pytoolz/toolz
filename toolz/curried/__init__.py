@@ -26,15 +26,16 @@ See Also:
 import toolz
 from . import operator
 from toolz import (
+    apply,
     comp,
     complement,
     compose,
+    compose_left,
     concat,
     concatv,
     count,
     curry,
     diff,
-    dissoc,
     first,
     flip,
     frequencies,
@@ -59,6 +60,7 @@ assoc = toolz.curry(toolz.assoc)
 assoc_in = toolz.curry(toolz.assoc_in)
 cons = toolz.curry(toolz.cons)
 countby = toolz.curry(toolz.countby)
+dissoc = toolz.curry(toolz.dissoc)
 do = toolz.curry(toolz.do)
 drop = toolz.curry(toolz.drop)
 excepts = toolz.curry(toolz.excepts)
@@ -80,6 +82,7 @@ partial = toolz.curry(toolz.partial)
 partition = toolz.curry(toolz.partition)
 partition_all = toolz.curry(toolz.partition_all)
 partitionby = toolz.curry(toolz.partitionby)
+peekn = toolz.curry(toolz.peekn)
 pluck = toolz.curry(toolz.pluck)
 random_sample = toolz.curry(toolz.random_sample)
 reduce = toolz.curry(toolz.reduce)

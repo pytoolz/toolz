@@ -1,15 +1,16 @@
 import sys
 import types
 import toolz
-from toolz.compatibility import import_module
+from importlib import import_module
+from importlib.machinery import ModuleSpec
 
 
-class TlzLoader(object):
+class TlzLoader:
     """ Finds and loads ``tlz`` modules when added to sys.meta_path"""
     def __init__(self):
-        self.always_from_toolz = set([
+        self.always_from_toolz = {
             toolz.pipe,
-        ])
+        }
 
     def _load_toolz(self, fullname):
         rv = {}
@@ -36,7 +37,7 @@ class TlzLoader(object):
     def load_module(self, fullname):  # pragma: py3 no cover
         if fullname in sys.modules:  # pragma: no cover
             return sys.modules[fullname]
-        spec = TlzSpec(fullname, self)
+        spec = ModuleSpec(fullname, self)
         module = self.create_module(spec)
         sys.modules[fullname] = module
         self.exec_module(module)
@@ -45,7 +46,7 @@ class TlzLoader(object):
     def find_spec(self, fullname, path, target=None):  # pragma: no cover
         package, dot, submodules = fullname.partition('.')
         if package == 'tlz':
-            return TlzSpec(fullname, self)
+            return ModuleSpec(fullname, self)
 
     def create_module(self, spec):
         return types.ModuleType(spec.name)
@@ -63,7 +64,10 @@ class TlzLoader(object):
             module.__doc__ = fast_mod.__doc__
 
         # show file from toolz during introspection
-        module.__file__ = slow_mod.__file__
+        try:
+            module.__file__ = slow_mod.__file__
+        except AttributeError:
+            pass
 
         for k, v in fast_mod.__dict__.items():
             tv = slow_mod.__dict__.get(k)
@@ -81,18 +85,6 @@ class TlzLoader(object):
                 module_name = ''.join(['tlz', dot, submodules])
                 submodule = import_module(module_name)
                 module.__dict__[k] = submodule
-
-
-class TlzSpec(object):
-    def __init__(self, name, loader):
-        self.name = name
-        self.loader = loader
-        self.origin = None
-        self.submodule_search_locations = []
-        self.loader_state = None
-        self.cached = None
-        self.parent = None
-        self.has_location = False
 
 
 tlz_loader = TlzLoader()

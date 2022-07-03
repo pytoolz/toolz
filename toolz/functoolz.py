@@ -1,15 +1,22 @@
 from functools import reduce, partial
 import inspect
-import operator
-from operator import attrgetter
+import sys
+from operator import attrgetter, not_
+from importlib import import_module
 from textwrap import dedent
+from types import MethodType
+import sys
 
-from .compatibility import PY3, PY33, PY34, PYPY, import_module
 from .utils import no_default
 
+PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
 
-__all__ = ('identity', 'thread_first', 'thread_last', 'memoize', 'compose',
-           'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
+
+__all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
+           'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
+           'curry', 'flip', 'excepts')
+
+PYPY = hasattr(sys, 'pypy_version_info')
 
 
 def identity(x):
@@ -19,6 +26,23 @@ def identity(x):
     3
     """
     return x
+
+
+def apply(*func_and_args, **kwargs):
+    """ Applies a function and returns the results
+
+    >>> def double(x): return 2*x
+    >>> def inc(x):    return x + 1
+    >>> apply(double, 5)
+    10
+
+    >>> tuple(map(apply, [double, inc, double], [10, 500, 8000]))
+    (20, 501, 16000)
+    """
+    if not func_and_args:
+        raise TypeError('func argument is required')
+    func, args = func_and_args[0], func_and_args[1:]
+    return func(*args, **kwargs)
 
 
 def thread_first(val, *forms):
@@ -209,44 +233,43 @@ class curry(object):
     def func(self):
         return self._partial.func
 
-    if PY3:  # pragma: py2 no cover
-        @instanceproperty
-        def __signature__(self):
-            sig = inspect.signature(self.func)
-            args = self.args or ()
-            keywords = self.keywords or {}
-            if is_partial_args(self.func, args, keywords, sig) is False:
-                raise TypeError('curry object has incorrect arguments')
+    @instanceproperty
+    def __signature__(self):
+        sig = inspect.signature(self.func)
+        args = self.args or ()
+        keywords = self.keywords or {}
+        if is_partial_args(self.func, args, keywords, sig) is False:
+            raise TypeError('curry object has incorrect arguments')
 
-            params = list(sig.parameters.values())
-            skip = 0
-            for param in params[:len(args)]:
-                if param.kind == param.VAR_POSITIONAL:
-                    break
-                skip += 1
+        params = list(sig.parameters.values())
+        skip = 0
+        for param in params[:len(args)]:
+            if param.kind == param.VAR_POSITIONAL:
+                break
+            skip += 1
 
-            kwonly = False
-            newparams = []
-            for param in params[skip:]:
-                kind = param.kind
-                default = param.default
-                if kind == param.VAR_KEYWORD:
-                    pass
-                elif kind == param.VAR_POSITIONAL:
-                    if kwonly:
-                        continue
-                elif param.name in keywords:
-                    default = keywords[param.name]
+        kwonly = False
+        newparams = []
+        for param in params[skip:]:
+            kind = param.kind
+            default = param.default
+            if kind == param.VAR_KEYWORD:
+                pass
+            elif kind == param.VAR_POSITIONAL:
+                if kwonly:
+                    continue
+            elif param.name in keywords:
+                default = keywords[param.name]
+                kind = param.KEYWORD_ONLY
+                kwonly = True
+            else:
+                if kwonly:
                     kind = param.KEYWORD_ONLY
-                    kwonly = True
-                else:
-                    if kwonly:
-                        kind = param.KEYWORD_ONLY
-                    if default is param.empty:
-                        default = no_default
-                newparams.append(param.replace(default=default, kind=kind))
+                if default is param.empty:
+                    default = no_default
+            newparams.append(param.replace(default=default, kind=kind))
 
-            return sig.replace(parameters=newparams)
+        return sig.replace(parameters=newparams)
 
     @instanceproperty
     def args(self):
@@ -327,14 +350,14 @@ class curry(object):
         func = self.func
         modname = getattr(func, '__module__', None)
         qualname = getattr(func, '__qualname__', None)
-        if qualname is None:  # pragma: py3 no cover
+        if qualname is None:  # pragma: no cover
             qualname = getattr(func, '__name__', None)
         is_decorated = None
         if modname and qualname:
             attrs = []
             obj = import_module(modname)
             for attr in qualname.split('.'):
-                if isinstance(obj, curry):  # pragma: py2 no cover
+                if isinstance(obj, curry):
                     attrs.append('func')
                     obj = obj.func
                 obj = getattr(obj, attr, None)
@@ -351,7 +374,7 @@ class curry(object):
                          if k not in ('_partial', '_sigspec'))
         state = (type(self), func, self.args, self.keywords, userdict,
                  is_decorated)
-        return (_restore_curry, state)
+        return _restore_curry, state
 
 
 def _restore_curry(cls, func, args, kwargs, userdict, is_decorated):
@@ -498,10 +521,42 @@ class Compose(object):
     def __name__(self):
         try:
             return '_of_'.join(
-                f.__name__ for f in reversed((self.first,) + self.funcs)
+                (f.__name__ for f in reversed((self.first,) + self.funcs))
             )
         except AttributeError:
             return type(self).__name__
+
+    def __repr__(self):
+        return '{.__class__.__name__}{!r}'.format(
+            self, tuple(reversed((self.first, ) + self.funcs)))
+
+    def __eq__(self, other):
+        if isinstance(other, Compose):
+            return other.first == self.first and other.funcs == self.funcs
+        return NotImplemented
+
+    def __ne__(self, other):
+        equality = self.__eq__(other)
+        return NotImplemented if equality is NotImplemented else not equality
+
+    def __hash__(self):
+        return hash(self.first) ^ hash(self.funcs)
+
+    # Mimic the descriptor behavior of python functions.
+    # i.e. let Compose be called as a method when bound to a class.
+    # adapted from
+    # docs.python.org/3/howto/descriptor.html#functions-and-methods
+    def __get__(self, obj, objtype=None):
+        return self if obj is None else MethodType(self, obj)
+
+    # introspection with Signature is only possible from py3.3+
+    @instanceproperty
+    def __signature__(self):
+        base = inspect.signature(self.first)
+        last = inspect.signature(self.funcs[-1])
+        return base.replace(return_annotation=last.return_annotation)
+
+    __wrapped__ = instanceproperty(attrgetter('first'))
 
 
 def compose(*funcs):
@@ -519,6 +574,7 @@ def compose(*funcs):
     '4'
 
     See Also:
+        compose_left
         pipe
     """
     if not funcs:
@@ -527,6 +583,27 @@ def compose(*funcs):
         return funcs[0]
     else:
         return Compose(funcs)
+
+
+def compose_left(*funcs):
+    """ Compose functions to operate in series.
+
+    Returns a function that applies other functions in sequence.
+
+    Functions are applied from left to right so that
+    ``compose_left(f, g, h)(x, y)`` is the same as ``h(g(f(x, y)))``.
+
+    If no arguments are provided, the identity function (f(x) = x) is returned.
+
+    >>> inc = lambda i: i + 1
+    >>> compose_left(inc, str)(3)
+    '4'
+
+    See Also:
+        compose
+        pipe
+    """
+    return compose(*reversed(funcs))
 
 
 def pipe(data, *funcs):
@@ -545,6 +622,7 @@ def pipe(data, *funcs):
 
     See Also:
         compose
+        compose_left
         thread_first
         thread_last
     """
@@ -566,7 +644,7 @@ def complement(func):
     >>> isodd(2)
     False
     """
-    return compose(operator.not_, func)
+    return compose(not_, func)
 
 
 class juxt(object):
@@ -743,56 +821,38 @@ class excepts(object):
             return 'excepting'
 
 
-if PY3:  # pragma: py2 no cover
-    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
-        if sigspec is None:
-            try:
-                sigspec = inspect.signature(func)
-            except (ValueError, TypeError) as e:
-                sigspec = e
-        if isinstance(sigspec, ValueError):
-            return None, builtin_func(*builtin_args)
-        elif not isinstance(sigspec, inspect.Signature):
-            if (
-                func in _sigs.signatures
-                and ((
-                    hasattr(func, '__signature__')
-                    and hasattr(func.__signature__, '__get__')
-                ) or (
-                    PY33
-                    and hasattr(func, '__wrapped__')
-                    and hasattr(func.__wrapped__, '__get__')
-                    and not callable(func.__wrapped__)
-                ))
-            ):  # pragma: no cover (not covered in Python 3.4)
-                val = builtin_func(*builtin_args)
-                return None, val
-            return None, False
-        return sigspec, None
-
-else:  # pragma: py3 no cover
-    def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
-        if sigspec is None:
-            try:
-                sigspec = inspect.getargspec(func)
-            except TypeError as e:
-                sigspec = e
-        if isinstance(sigspec, TypeError):
-            if not callable(func):
-                return None, False
-            return None, builtin_func(*builtin_args)
-        return sigspec, None
+def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
+    if sigspec is None:
+        try:
+            sigspec = inspect.signature(func)
+        except (ValueError, TypeError) as e:
+            sigspec = e
+    if isinstance(sigspec, ValueError):
+        return None, builtin_func(*builtin_args)
+    elif not isinstance(sigspec, inspect.Signature):
+        if (
+            func in _sigs.signatures
+            and ((
+                hasattr(func, '__signature__')
+                and hasattr(func.__signature__, '__get__')
+            ))
+        ):
+            val = builtin_func(*builtin_args)
+            return None, val
+        return None, False
+    return sigspec, None
 
 
-if PY34 or PYPY:  # pragma: no cover
+if PYPY:  # pragma: no cover
     _check_sigspec_orig = _check_sigspec
 
     def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
-        # Python 3.4 and PyPy may lie, so use our registry for builtins instead
+        # PyPy may lie, so use our registry for builtins instead
         if func in _sigs.signatures:
             val = builtin_func(*builtin_args)
             return None, val
         return _check_sigspec_orig(sigspec, func, builtin_func, *builtin_args)
+
 
 _check_sigspec.__doc__ = """ \
 Private function to aid in introspection compatibly across Python versions.
@@ -801,143 +861,56 @@ If a callable doesn't have a signature (Python 3) or an argspec (Python 2),
 the signature registry in toolz._signatures is used.
 """
 
-if PY3:  # pragma: py2 no cover
-    def num_required_args(func, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
-                                     func)
-        if sigspec is None:
-            return rv
-        return sum(1 for p in sigspec.parameters.values()
-                   if p.default is p.empty
-                   and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
 
-    def has_varargs(func, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
-        if sigspec is None:
-            return rv
-        return any(p.kind == p.VAR_POSITIONAL
-                   for p in sigspec.parameters.values())
+def num_required_args(func, sigspec=None):
+    sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
+                                 func)
+    if sigspec is None:
+        return rv
+    return sum(1 for p in sigspec.parameters.values()
+               if p.default is p.empty
+               and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
 
-    def has_keywords(func, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
-        if sigspec is None:
-            return rv
-        return any(p.default is not p.empty
-                   or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD)
-                   for p in sigspec.parameters.values())
 
-    def is_valid_args(func, args, kwargs, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
-                                     func, args, kwargs)
-        if sigspec is None:
-            return rv
-        try:
-            sigspec.bind(*args, **kwargs)
-        except TypeError:
-            return False
-        return True
+def has_varargs(func, sigspec=None):
+    sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
+    if sigspec is None:
+        return rv
+    return any(p.kind == p.VAR_POSITIONAL
+               for p in sigspec.parameters.values())
 
-    def is_partial_args(func, args, kwargs, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
-                                     func, args, kwargs)
-        if sigspec is None:
-            return rv
-        try:
-            sigspec.bind_partial(*args, **kwargs)
-        except TypeError:
-            return False
-        return True
 
-else:  # pragma: py3 no cover
-    def num_required_args(func, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args,
-                                     func)
-        if sigspec is None:
-            return rv
-        num_defaults = len(sigspec.defaults) if sigspec.defaults else 0
-        return len(sigspec.args) - num_defaults
+def has_keywords(func, sigspec=None):
+    sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
+    if sigspec is None:
+        return rv
+    return any(p.default is not p.empty
+               or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD)
+               for p in sigspec.parameters.values())
 
-    def has_varargs(func, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
-        if sigspec is None:
-            return rv
-        return sigspec.varargs is not None
 
-    def has_keywords(func, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
-        if sigspec is None:
-            return rv
-        return sigspec.defaults is not None or sigspec.keywords is not None
+def is_valid_args(func, args, kwargs, sigspec=None):
+    sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
+                                 func, args, kwargs)
+    if sigspec is None:
+        return rv
+    try:
+        sigspec.bind(*args, **kwargs)
+    except TypeError:
+        return False
+    return True
 
-    def is_valid_args(func, args, kwargs, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args,
-                                     func, args, kwargs)
-        if sigspec is None:
-            return rv
-        spec = sigspec
-        defaults = spec.defaults or ()
-        num_pos = len(spec.args) - len(defaults)
-        missing_pos = spec.args[len(args):num_pos]
-        if any(arg not in kwargs for arg in missing_pos):
-            return False
 
-        if spec.varargs is None:
-            num_extra_pos = max(0, len(args) - num_pos)
-        else:
-            num_extra_pos = 0
-
-        kwargs = dict(kwargs)
-
-        # Add missing keyword arguments (unless already included in `args`)
-        missing_kwargs = spec.args[num_pos + num_extra_pos:]
-        kwargs.update(zip(missing_kwargs, defaults[num_extra_pos:]))
-
-        # Convert call to use positional arguments
-        args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
-
-        if (
-            not spec.keywords and kwargs
-            or not spec.varargs and len(args) > len(spec.args)
-            or set(spec.args[:len(args)]) & set(kwargs)
-        ):
-            return False
-        else:
-            return True
-
-    def is_partial_args(func, args, kwargs, sigspec=None):
-        sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
-                                     func, args, kwargs)
-        if sigspec is None:
-            return rv
-        spec = sigspec
-        defaults = spec.defaults or ()
-        num_pos = len(spec.args) - len(defaults)
-        if spec.varargs is None:
-            num_extra_pos = max(0, len(args) - num_pos)
-        else:
-            num_extra_pos = 0
-
-        kwargs = dict(kwargs)
-
-        # Add missing keyword arguments (unless already included in `args`)
-        missing_kwargs = spec.args[num_pos + num_extra_pos:]
-        kwargs.update(zip(missing_kwargs, defaults[num_extra_pos:]))
-
-        # Add missing position arguments as keywords (may already be in kwargs)
-        missing_args = spec.args[len(args):num_pos + num_extra_pos]
-        kwargs.update((x, None) for x in missing_args)
-
-        # Convert call to use positional arguments
-        args = args + tuple(kwargs.pop(key) for key in spec.args[len(args):])
-
-        if (
-            not spec.keywords and kwargs
-            or not spec.varargs and len(args) > len(spec.args)
-            or set(spec.args[:len(args)]) & set(kwargs)
-        ):
-            return False
-        else:
-            return True
+def is_partial_args(func, args, kwargs, sigspec=None):
+    sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_partial_args,
+                                 func, args, kwargs)
+    if sigspec is None:
+        return rv
+    try:
+        sigspec.bind_partial(*args, **kwargs)
+    except TypeError:
+        return False
+    return True
 
 
 def is_arity(n, func, sigspec=None):

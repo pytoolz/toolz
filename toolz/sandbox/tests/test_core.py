@@ -1,8 +1,6 @@
 from toolz import curry, unique, first, take
 from toolz.sandbox.core import EqualityHashKey, unzip
 from itertools import count, repeat
-from toolz.compatibility import map, zip
-
 
 def test_EqualityHashKey_default_key():
     EqualityHashDefault = curry(EqualityHashKey, None)
@@ -20,8 +18,8 @@ def test_EqualityHashKey_default_key():
     data2 = list(map(EqualityHashDefault, [T0, T0, T1, T1, (), (1,)]))
     data2.extend([T0, T1, (), (1,)])
     set3 = set(data2)
-    assert set3 == set([(), (1,), EqualityHashDefault(()),
-                        EqualityHashDefault((1,))])
+    assert set3 == {(), (1,), EqualityHashDefault(()),
+                        EqualityHashDefault((1,))}
     assert len(set3) == 4
     assert EqualityHashDefault(()) in set3
     assert EqualityHashDefault((1,)) in set3
@@ -93,7 +91,7 @@ def test_unzip():
         == [['a', 'b', 'c'], [1, 2, 3]]
 
     # Can handle a finite number of infinite iterators (the naive unzip
-    # implementation `zip(*args)` impelementation fails on this example).
+    # implementation `zip(*args)` implementation fails on this example).
     a, b, c = unzip(zip(count(1), repeat(0), repeat(1)))
     _assert_initial_matches(a, count(1))
     _assert_initial_matches(b, repeat(0))

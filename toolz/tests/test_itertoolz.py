@@ -13,8 +13,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, random_sample)
-from toolz.compatibility import range, filter
+                             diff, topk, peek, peekn, random_sample)
 from operator import add, mul
 
 
@@ -271,7 +270,7 @@ def test_reduce_by_callable_default():
         return s
 
     assert reduceby(iseven, set_add, [1, 2, 3, 4, 1, 2], set) == \
-        {True: set([2, 4]), False: set([1, 3])}
+        {True: {2, 4}, False: {1, 3}}
 
 
 def test_iterate():
@@ -289,6 +288,7 @@ def test_accumulate():
 
     start = object()
     assert list(accumulate(binop, [], start)) == [start]
+    assert list(accumulate(binop, [])) == []
     assert list(accumulate(add, [1, 2, 3], no_default2)) == [1, 3, 6]
 
 
@@ -303,6 +303,7 @@ def test_sliding_window():
 
 def test_sliding_window_of_short_iterator():
     assert list(sliding_window(3, [1, 2])) == []
+    assert list(sliding_window(7, [1, 2])) == []
 
 
 def test_partition():
@@ -317,6 +318,17 @@ def test_partition_all():
     assert list(partition_all(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
     assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
     assert list(partition_all(2, [])) == []
+
+    # Regression test: https://github.com/pytoolz/toolz/issues/387
+    class NoCompare(object):
+        def __eq__(self, other):
+            if self.__class__ == other.__class__:
+                return True
+            raise ValueError()
+    obj = NoCompare()
+    result = [(obj, obj, obj, obj), (obj, obj, obj)]
+    assert list(partition_all(4, [obj]*7)) == result
+    assert list(partition_all(4, iter([obj]*7))) == result
 
 
 def test_count():
@@ -356,10 +368,10 @@ def test_join():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'apple', 1)),
-                    ((1, 'one', 'orange', 1)),
-                    ((2, 'two', 'banana', 2)),
-                    ((2, 'two', 'coconut', 2))])
+    expected = {(1, 'one', 'apple', 1),
+                    (1, 'one', 'orange', 1),
+                    (2, 'two', 'banana', 2),
+                    (2, 'two', 'coconut', 2)}
 
     assert result == expected
 
@@ -397,14 +409,14 @@ def test_join_double_repeats():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'apple', 1)),
-                    ((1, 'one', 'orange', 1)),
-                    ((2, 'two', 'banana', 2)),
-                    ((2, 'two', 'coconut', 2)),
-                    ((1, 'uno', 'apple', 1)),
-                    ((1, 'uno', 'orange', 1)),
-                    ((2, 'dos', 'banana', 2)),
-                    ((2, 'dos', 'coconut', 2))])
+    expected = {(1, 'one', 'apple', 1),
+                    (1, 'one', 'orange', 1),
+                    (2, 'two', 'banana', 2),
+                    (2, 'two', 'coconut', 2),
+                    (1, 'uno', 'apple', 1),
+                    (1, 'uno', 'orange', 1),
+                    (2, 'dos', 'banana', 2),
+                    (2, 'dos', 'coconut', 2)}
 
     assert result == expected
 
@@ -415,21 +427,21 @@ def test_join_missing_element():
 
     result = set(starmap(add, join(first, names, second, fruit)))
 
-    expected = set([((1, 'one', 'orange', 1))])
+    expected = {(1, 'one', 'orange', 1)}
 
     assert result == expected
 
 
 def test_left_outer_join():
     result = set(join(identity, [1, 2], identity, [2, 3], left_default=None))
-    expected = set([(2, 2), (None, 3)])
+    expected = {(2, 2), (None, 3)}
 
     assert result == expected
 
 
 def test_right_outer_join():
     result = set(join(identity, [1, 2], identity, [2, 3], right_default=None))
-    expected = set([(2, 2), (1, None)])
+    expected = {(2, 2), (1, None)}
 
     assert result == expected
 
@@ -437,7 +449,7 @@ def test_right_outer_join():
 def test_outer_join():
     result = set(join(identity, [1, 2], identity, [2, 3],
                       left_default=None, right_default=None))
-    expected = set([(2, 2), (1, None), (None, 3)])
+    expected = {(2, 2), (1, None), (None, 3)}
 
     assert result == expected
 
@@ -496,10 +508,21 @@ def test_topk_is_stable():
 def test_peek():
     alist = ["Alice", "Bob", "Carol"]
     element, blist = peek(alist)
-    element == alist[0]
+    assert element == alist[0]
     assert list(blist) == alist
 
     assert raises(StopIteration, lambda: peek([]))
+
+
+def test_peekn():
+    alist = ("Alice", "Bob", "Carol")
+    elements, blist = peekn(2, alist)
+    assert elements == alist[:2]
+    assert tuple(blist) == alist
+
+    elements, blist = peekn(len(alist) * 4, alist)
+    assert elements == alist
+    assert tuple(blist) == alist
 
 
 def test_random_sample():
@@ -519,8 +542,8 @@ def test_random_sample():
 
     assert rsample1 != rsample2
 
-    assert mk_rsample(object) == mk_rsample(object)
-    assert mk_rsample(object) != mk_rsample(object())
+    assert mk_rsample(hash(object)) == mk_rsample(hash(object))
+    assert mk_rsample(hash(object)) != mk_rsample(hash(object()))
     assert mk_rsample(b"a") == mk_rsample(u"a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
