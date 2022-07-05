@@ -2,22 +2,21 @@ from __future__ import absolute_import
 
 import operator
 
-from toolz.functoolz import curry, num_required_args, has_keywords
+from toolz.functoolz import curry
 
 
-def should_curry(f):
-    num = num_required_args(f)
-    return num is None or num > 1 or num == 1 and has_keywords(f) is not False
-
-
+# Tests will catch if/when this needs updated
+IGNORE = {
+    "__abs__", "__index__", "__inv__", "__invert__", "__neg__", "__not__",
+    "__pos__", "_abs", "abs", "attrgetter", "index", "inv", "invert",
+    "itemgetter", "neg", "not_", "pos", "truth"
+}
 locals().update(
-    {name: curry(f) if should_curry(f) else f
-     for name, f in vars(operator).items() if callable(f)},
+    {name: f if name in IGNORE else curry(f)
+     for name, f in vars(operator).items() if callable(f)}
 )
 
 # Clean up the namespace.
+del IGNORE
 del curry
-del num_required_args
-del has_keywords
 del operator
-del should_curry

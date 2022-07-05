@@ -3,9 +3,7 @@ import inspect
 import sys
 from operator import attrgetter, not_
 from importlib import import_module
-from textwrap import dedent
 from types import MethodType
-import sys
 
 from .utils import no_default
 
@@ -780,6 +778,8 @@ class excepts(object):
 
     @instanceproperty(classval=__doc__)
     def __doc__(self):
+        from textwrap import dedent
+
         exc = self.exc
         try:
             if isinstance(exc, tuple):
