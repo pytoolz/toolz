@@ -41,7 +41,18 @@ def test_module_name():
     assert toolz.curried.__name__ == 'toolz.curried'
 
 
+def should_curry(func):
+    if not callable(func) or isinstance(func, toolz.curry):
+        return False
+    nargs = toolz.functoolz.num_required_args(func)
+    if nargs is None or nargs > 1:
+        return True
+    return nargs == 1 and toolz.functoolz.has_keywords(func)
+
+
 def test_curried_operator():
+    import operator
+
     for k, v in vars(cop).items():
         if not callable(v):
             continue
@@ -60,6 +71,7 @@ def test_curried_operator():
                 raise AssertionError(
                     'toolz.curried.operator.%s is not curried!' % k,
                 )
+        assert should_curry(getattr(operator, k)) == isinstance(v, toolz.curry), k
 
     # Make sure this isn't totally empty.
     assert len(set(vars(cop)) & {'add', 'sub', 'mul'}) == 3
@@ -68,14 +80,6 @@ def test_curried_operator():
 def test_curried_namespace():
     exceptions = import_module('toolz.curried.exceptions')
     namespace = {}
-
-    def should_curry(func):
-        if not callable(func) or isinstance(func, toolz.curry):
-            return False
-        nargs = toolz.functoolz.num_required_args(func)
-        if nargs is None or nargs > 1:
-            return True
-        return nargs == 1 and toolz.functoolz.has_keywords(func)
 
 
     def curry_namespace(ns):

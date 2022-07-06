@@ -4,7 +4,6 @@ import collections
 import operator
 from functools import partial
 from itertools import filterfalse, zip_longest
-from random import Random
 from collections.abc import Sequence
 from toolz.utils import no_default
 
@@ -1052,5 +1051,7 @@ def random_sample(prob, seq, random_state=None):
     [7, 9, 19, 25, 30, 32, 34, 48, 59, 60, 81, 98]
     """
     if not hasattr(random_state, 'random'):
+        from random import Random
+
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
