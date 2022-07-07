@@ -13,7 +13,8 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, peekn, random_sample)
+                             diff, topk, peek, peekn, random_sample,
+                             interpose_computed)
 from operator import add, mul
 
 
@@ -547,3 +548,9 @@ def test_random_sample():
     assert mk_rsample(b"a") == mk_rsample(u"a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
+
+
+def test_interpose_computed():
+    assert list(interpose_computed(lambda x: x * 2, range(10))) == [0, 0, 1, 2, 2, 4, 3, 6, 4, 8, 5, 10, 6, 12, 7, 14, 8, 16, 9]
+    assert list(interpose_computed(lambda x: x * x, range(1, 6))) == [1, 1, 2, 4, 3, 9, 4, 16, 5]
+    

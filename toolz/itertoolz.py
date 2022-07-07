@@ -13,7 +13,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample',
+           'interpose_computed')
 
 
 def remove(predicate, seq):
@@ -1055,3 +1056,13 @@ def random_sample(prob, seq, random_state=None):
 
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+
+def interpose_computed(func, seq):
+    """ Introduce element computed by func between each pair of elements in seq
+
+    >>> list(interpose_computed(lambda x: x * x, range(1, 6)))
+    [1, 1, 2, 4, 3, 9, 4, 16, 5]
+    """
+    to_interpose = [func(e) for e in seq[:-1]]
+    return itertools.chain(*zip(seq, to_interpose), [seq[-1]])
