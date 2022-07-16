@@ -36,7 +36,7 @@ import builtins
 #         not include keyword-only arguments.
 #
 #   keyword_only_args: (optional)
-#       - Tuple of keyword-only argumemts.
+#       - Tuple of keyword-only arguments.
 
 module_info = {}
 
