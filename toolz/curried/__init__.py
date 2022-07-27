@@ -50,6 +50,7 @@ from toolz import (
     peek,
     pipe,
     second,
+    thread_as,
     thread_first,
     thread_last,
 )
