@@ -13,7 +13,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, peekn, random_sample)
+                             diff, topk, peek, peekn, random_sample, flat)
 from operator import add, mul
 
 
@@ -547,3 +547,14 @@ def test_random_sample():
     assert mk_rsample(b"a") == mk_rsample(u"a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
+
+
+def test_flat():
+    seq = [1, 2, 3, 4]
+    assert list(flat(0, seq)) == seq
+    assert list(flat(1, seq)) == seq
+
+    seq = [1, [2, [3]]]
+    assert list(flat(0, seq)) == seq
+    assert list(flat(1, seq)) == [1, 2, [3]]
+    assert list(flat(2, seq)) == [1, 2, 3]
