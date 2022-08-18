@@ -1058,7 +1058,9 @@ def random_sample(prob, seq, random_state=None):
 
 
 def flat(level, seq):
-    """ Flatten a sequence by n levels """
+    """ Flatten a possible nested sequence by n levels """
+    if level < 0:
+        raise ValueError("level must be >= 0")
     for item in seq:
         if level == 0 or not hasattr(item, '__iter__'):
             yield item
