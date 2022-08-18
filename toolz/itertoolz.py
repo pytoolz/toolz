@@ -13,7 +13,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample', 'flat')
 
 
 def remove(predicate, seq):
@@ -1055,3 +1055,12 @@ def random_sample(prob, seq, random_state=None):
 
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+
+def flat(level, seq):
+    """ Flatten a sequence by n levels """
+    for item in seq:
+        if level == 0 or not hasattr(item, '__iter__'):
+            yield item
+        else:
+            yield from flat(level - 1, item)
