@@ -756,7 +756,6 @@ def reorder_args(func, old_args, new_args):
     return wrapper
 
 
-
 def return_none(exc):
     """ Returns None.
     """
