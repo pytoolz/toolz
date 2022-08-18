@@ -1,3 +1,4 @@
+import pytest
 import itertools
 from itertools import starmap
 from toolz.utils import raises
@@ -558,3 +559,6 @@ def test_flat():
     assert list(flat(0, seq)) == seq
     assert list(flat(1, seq)) == [1, 2, [3]]
     assert list(flat(2, seq)) == [1, 2, 3]
+
+    with pytest.raises(ValueError):
+        list(flat(-1, seq))
