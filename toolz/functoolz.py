@@ -1,7 +1,7 @@
-from functools import reduce, partial
+from functools import reduce, partial, wraps
 import inspect
 import sys
-from operator import attrgetter, not_
+from operator import itemgetter, attrgetter, not_
 from importlib import import_module
 from types import MethodType
 
@@ -12,7 +12,7 @@ PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
-           'curry', 'flip', 'excepts')
+           'curry', 'flip', 'excepts', 'reorder_args')
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -729,6 +729,32 @@ def flip(func, a, b):
     [1, 2, 3]
     """
     return func(b, a)
+
+
+def reorder_args(func, old_args, new_args):
+    """ Returns a new function with a desired argument order.
+
+    >>> def op(a, b, c):
+    ...    return a // (b - c)
+    ...
+    >>> new_op = reorder_args(op, ('a', 'b', 'c'), ('c', 'a', 'b'))
+    >>> new_op(1, 2, 3) == op(2, 3, 1)
+    True
+    """
+    assert len(old_args) == num_required_args(func)
+    assert set(old_args) == set(new_args)
+    arg_map = itemgetter(*(new_args.index(v) for v in old_args))
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*arg_map(args), **kwargs)
+
+    wrapper.__code__ = wrapper.__code__.replace(
+        co_name=f"{func.__name__}{tuple(old_args)}->{tuple(new_args)}"
+    )
+    wrapper.__dict__['argorder'] = tuple(new_args)
+    return wrapper
+
 
 
 def return_none(exc):
