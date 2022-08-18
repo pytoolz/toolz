@@ -284,11 +284,7 @@ def isiterable(x):
     >>> isiterable(5)
     False
     """
-    try:
-        iter(x)
-        return True
-    except TypeError:
-        return False
+    return hasattr(x, "__iter__")
 
 
 def isdistinct(seq):
