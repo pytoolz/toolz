@@ -3,7 +3,7 @@ import inspect
 import sys
 from operator import itemgetter, attrgetter, not_
 from importlib import import_module
-from types import MethodType
+from types import MethodType, CodeType
 
 from .utils import no_default
 
