@@ -749,9 +749,35 @@ def reorder_args(func, old_args, new_args):
     def wrapper(*args, **kwargs):
         return func(*arg_map(args), **kwargs)
 
-    wrapper.__code__ = wrapper.__code__.replace(
-        co_name=f"{func.__name__}{tuple(old_args)}->{tuple(new_args)}"
-    )
+    def replace_co(co, **kwargs):
+
+        arglist = ['co_argcount',
+                    'co_kwonlyargcount',
+                    'co_nlocals',
+                    'co_stacksize',
+                    'co_flags',
+                    'co_code',
+                    'co_consts',
+                    'co_names',
+                    'co_varnames',
+                    'co_filename',
+                    'co_name',
+                    'co_firstlineno',
+                    'co_lnotab',
+                    'co_freevars',
+                    'co_cellvars']
+
+        co_args = []
+        for attr in arglist:
+            if attr in kwargs:
+                co_args.append(kwargs[attr])
+            else:
+                co_args.append(getattr(co, attr))
+
+        return CodeType(*co_args)
+
+    new_co_name = "{}{}->{}".format(func.__name__, tuple(old_args), tuple(new_args))
+    wrapper.__code__ = replace_co(wrapper.__code__, co_name=new_co_name)
     wrapper.__dict__['argorder'] = tuple(new_args)
     return wrapper
 
