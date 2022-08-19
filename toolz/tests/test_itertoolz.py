@@ -576,3 +576,9 @@ def test_flat():
         return False
     seq = ["asdf", [1, 2, 3]]
     assert list(flatten(1, seq, descend=descend)) == ["a", "s", "d", "f", [1, 2, 3]]
+
+    with pytest.raises(ValueError):
+        list(flatten(0, [1, 2], descend=True))
+
+    with pytest.raises(ValueError):
+        list(flatten(-2, [1, 2]))
