@@ -14,7 +14,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, peekn, random_sample, flat)
+                             diff, topk, peek, peekn, random_sample, flatten)
 from operator import add, mul
 
 
@@ -552,13 +552,27 @@ def test_random_sample():
 
 def test_flat():
     seq = [1, 2, 3, 4]
-    assert list(flat(0, seq)) == seq
-    assert list(flat(1, seq)) == seq
+    assert list(flatten(0, seq)) == seq
+    assert list(flatten(1, seq)) == seq
 
     seq = [1, [2, [3]]]
-    assert list(flat(0, seq)) == seq
-    assert list(flat(1, seq)) == [1, 2, [3]]
-    assert list(flat(2, seq)) == [1, 2, 3]
+    assert list(flatten(0, seq)) == seq
+    assert list(flatten(1, seq)) == [1, 2, [3]]
+    assert list(flatten(2, seq)) == [1, 2, 3]
 
-    with pytest.raises(ValueError):
-        list(flat(-1, seq))
+    # Test mappings
+    seq = [{'a': 1}, [1, 2, 3]]
+    assert list(flatten(0, seq)) == seq
+    assert list(flatten(1, seq)) == [{'a': 1}, 1, 2, 3]
+
+    # Test stringsj
+    seq = ["asgf", b"abcd"]
+    assert list(flatten(-1, seq)) == seq
+
+    # Test custom descend function
+    def descend(x):
+        if isinstance(x, str):
+            return len(x) != 1
+        return False
+    seq = ["asdf", [1, 2, 3]]
+    assert list(flatten(1, seq, descend=descend)) == ["a", "s", "d", "f", [1, 2, 3]]
