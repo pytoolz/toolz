@@ -4,7 +4,7 @@ import collections
 import operator
 from functools import partial
 from itertools import filterfalse, zip_longest
-from collections.abc import Sequence
+from collections.abc import Sequence, Mapping
 from toolz.utils import no_default
 
 
@@ -14,7 +14,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
            'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample',
-           'flat')
+           'flatten')
 
 
 def remove(predicate, seq):
@@ -1054,12 +1054,25 @@ def random_sample(prob, seq, random_state=None):
     return filter(lambda _: random_state.random() < prob, seq)
 
 
-def flat(level, seq):
+def _default_descend(x):
+    return not isinstance(x, (str, bytes, Mapping))
+
+def flatten(level, seq, descend=_default_descend):
     """ Flatten a possible nested sequence by n levels """
-    if level < 0:
-        raise ValueError("level must be >= 0")
-    for item in seq:
-        if level == 0 or not hasattr(item, '__iter__'):
-            yield item
-        else:
-            yield from flat(level - 1, item)
+    if level < -1:
+        raise ValueError("Level must be >= -1")
+    if not callable(descend):
+        raise ValueError("descend must be a callable  boolean function")
+
+    def flat(level, seq):
+        if level == 0:
+            yield from seq
+            return
+
+        for item in seq:
+            if isiterable(item) and descend(item):
+                yield from flat(level - 1, item)
+            else:
+                yield item
+
+    yield from flat(level, seq)
