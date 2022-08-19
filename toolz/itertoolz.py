@@ -1057,6 +1057,7 @@ def random_sample(prob, seq, random_state=None):
 def _default_descend(x):
     return not isinstance(x, (str, bytes, Mapping))
 
+
 def flatten(level, seq, descend=_default_descend):
     """ Flatten a possible nested sequence by n levels """
     if level < -1:
