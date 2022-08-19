@@ -1063,7 +1063,7 @@ def flatten(level, seq, descend=_default_descend):
     if level < -1:
         raise ValueError("Level must be >= -1")
     if not callable(descend):
-        raise ValueError("descend must be a callable  boolean function")
+        raise ValueError("descend must be a callable boolean function")
 
     def flat(level, seq):
         if level == 0:
