@@ -1062,7 +1062,8 @@ def _default_descend(x):
 def flatten(level, seq, descend=_default_descend):
     """ Flatten a possibly nested sequence
 
-    The flattening is depth limited. A level 0 flattening will
+    Inspired by Javascript's Array.flat(), this is a recursive,
+    depth limited flattening generator. A level 0 flattening will
     yield the input sequence unchanged. A level -1 flattening
     will flatten all possible levels of nesting.
 
