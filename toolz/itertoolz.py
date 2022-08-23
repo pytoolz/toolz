@@ -1080,7 +1080,7 @@ def flatten(level, seq, descend=_default_descend):
     to determine which iterable objects to recurse into. This function
     should return a boolean with True meaning it is permissible to descend
     another level of recursion. The recursion limit of the Python interpreter
-    is the ultimate bounding factor on depth. By default, stings, bytes, 
+    is the ultimate bounding factor on depth. By default, stings, bytes,
     and mappings are exempted.
 
     >>> list(flatten(-1, ['abc', [{'a': 2}, [b'123']]]))
