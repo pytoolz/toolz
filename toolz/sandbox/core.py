@@ -74,7 +74,7 @@ class EqualityHashKey(object):
         if self.key == self._default_hashkey:
             val = self.key
         else:
-            val = self.key(self.item)
+            val = self.key(self.item)  # pyright: ignore
         return hash(val)
 
     def __eq__(self, other):

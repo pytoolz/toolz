@@ -241,7 +241,7 @@ def interleave(seqs):
                 yield next(itr)
             return
         except StopIteration:
-            predicate = partial(operator.is_not, itr)
+            predicate = partial(operator.is_not, itr)  # pyright: ignore
             iters = itertools.cycle(itertools.takewhile(predicate, iters))
 
 
@@ -625,7 +625,7 @@ def reduceby(key, binop, seq, init=no_default):
                 d[k] = item
                 continue
             else:
-                d[k] = init()
+                d[k] = init()  # pyright: ignore
         d[k] = binop(d[k], item)
     return d
 
@@ -1054,4 +1054,7 @@ def random_sample(prob, seq, random_state=None):
         from random import Random
 
         random_state = Random(random_state)
-    return filter(lambda _: random_state.random() < prob, seq)
+    return filter(
+        lambda _: random_state.random() < prob,  # pyright: ignore
+        seq,
+    )

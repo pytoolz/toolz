@@ -222,7 +222,7 @@ class curry(object):
 
         self.__doc__ = getattr(func, '__doc__', None)
         self.__name__ = getattr(func, '__name__', '<curry>')
-        self.__module__ = getattr(func, '__module__', None)
+        self.__module__ = getattr(func, '__module__', None)  # pyright: ignore
         self.__qualname__ = getattr(func, '__qualname__', None)
         self._sigspec = None
         self._has_unknown_args = None
@@ -241,7 +241,7 @@ class curry(object):
 
         params = list(sig.parameters.values())
         skip = 0
-        for param in params[:len(args)]:
+        for param in params[:len(args)]:  # pyright: ignore
             if param.kind == param.VAR_POSITIONAL:
                 break
             skip += 1
@@ -256,8 +256,8 @@ class curry(object):
             elif kind == param.VAR_POSITIONAL:
                 if kwonly:
                     continue
-            elif param.name in keywords:
-                default = keywords[param.name]
+            elif param.name in keywords:  # pyright: ignore
+                default = keywords[param.name]  # pyright: ignore
                 kind = param.KEYWORD_ONLY
                 kwonly = True
             else:
@@ -311,7 +311,7 @@ class curry(object):
         func = self.func
         args = self.args + args
         if self.keywords:
-            kwargs = dict(self.keywords, **kwargs)
+            kwargs = dict(self.keywords, **kwargs)  # pyright: ignore
         if self._sigspec is None:
             sigspec = self._sigspec = _sigs.signature_or_spec(func)
             self._has_unknown_args = has_varargs(func, sigspec) is not False
@@ -390,7 +390,7 @@ def _restore_curry(cls, func, args, kwargs, userdict, is_decorated):
 
 
 @curry
-def memoize(func, cache=None, key=None):
+def memoize(func, cache=None, key=None):  # pyright: ignore
     """ Cache a function's result for speedy future evaluation
 
     Considerations:
@@ -442,7 +442,7 @@ def memoize(func, cache=None, key=None):
             def key(args, kwargs):
                 return args[0]
         elif may_have_kwargs:
-            def key(args, kwargs):
+            def key(args, kwargs):  # pyright: ignore
                 return (
                     args or None,
                     frozenset(kwargs.items()) if kwargs else None,
@@ -495,7 +495,7 @@ class Compose(object):
     def __setstate__(self, state):
         self.first, self.funcs = state
 
-    @instanceproperty(classval=__doc__)
+    @instanceproperty(classval=__doc__)  # pyright: ignore
     def __doc__(self):
         def composed_doc(*fs):
             """Generate a docstring for the composition of fs.
@@ -776,7 +776,7 @@ class excepts(object):
         except self.exc as e:
             return self.handler(e)
 
-    @instanceproperty(classval=__doc__)
+    @instanceproperty(classval=__doc__)  # pyright: ignore
     def __doc__(self):
         from textwrap import dedent
 
