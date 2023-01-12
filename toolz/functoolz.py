@@ -495,6 +495,10 @@ class Compose(object):
     def __setstate__(self, state):
         self.first, self.funcs = state
 
+    def __iter__(self):
+        yield self.first
+        for f in self.funcs: yield f
+
     @instanceproperty(classval=__doc__)
     def __doc__(self):
         def composed_doc(*fs):
