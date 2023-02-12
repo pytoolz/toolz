@@ -2,7 +2,7 @@ import inspect
 import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
-                             flip, excepts, apply)
+                             flip, excepts, apply, composed)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -677,6 +677,40 @@ def generate_compose_left_test_cases():
 def test_compose_left():
     for (compose_left_args, args, kw, expected) in generate_compose_left_test_cases():
         assert compose_left(*compose_left_args)(*args, **kw) == expected
+
+
+def test_composed():
+    for (compose_left_args, args, kw, expected) in generate_compose_left_test_cases():
+        if len(compose_left_args) == 2:
+            func, dec = compose_left_args
+            assert composed(dec)(func)(*args, **kw) == expected
+
+    @composed(dict)
+    def f(n):
+        for i in range(n):
+            yield i, i + 1
+
+    assert f(4) == {0: 1, 1: 2, 2: 3, 3: 4}
+
+    @composed(', '.join)
+    def g(n):
+        for i in range(n):
+            yield str(i)
+
+    assert g(3) == '0, 1, 2'
+
+    # additional args
+    @composed(add, 1)
+    def h():
+        return 2
+
+    assert h() == 3
+
+    @composed(pow, 2)
+    def p():
+        return 5
+
+    assert p() == 25
 
 
 def test_pipe():

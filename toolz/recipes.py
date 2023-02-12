@@ -1,8 +1,8 @@
 import itertools
 from .itertoolz import frequencies, pluck, getter
+from .functoolz import composed
 
-
-__all__ = ('countby', 'partitionby')
+__all__ = ('countby', 'partitionby', 'collect')
 
 
 def countby(key, seq):
@@ -44,3 +44,19 @@ def partitionby(func, seq):
         itertools.groupby
     """
     return map(tuple, pluck(1, itertools.groupby(seq, key=func)))
+
+
+def collect(func):
+    """ Decorate a generator and return a function, that returns a list instead.
+
+    >>> @collect
+    ... def odd_numbers(n):
+    ...     for i in range(n):
+    ...         yield 2 * i + 1
+    >>> odd_numbers(3) # not a generator anymore
+    [1, 3, 5]
+
+    See also:
+        composed
+    """
+    return composed(list)(func)

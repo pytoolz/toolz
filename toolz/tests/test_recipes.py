@@ -1,4 +1,4 @@
-from toolz import first, identity, countby, partitionby
+from toolz import first, identity, countby, partitionby, collect
 
 
 def iseven(x):
@@ -25,3 +25,13 @@ def test_partitionby():
 
     assert ''.join(map(first,
                        partitionby(identity, "Khhhaaaaannnnn!!!!"))) == 'Khan!'
+
+
+def test_collect():
+    @collect
+    def f(n):
+        for i in range(n):
+            if i != 3:
+                yield i ** 2
+
+    assert f(5) == [0, 1, 4, 16]

@@ -12,7 +12,7 @@ PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
-           'curry', 'flip', 'excepts')
+           'curry', 'flip', 'excepts', 'composed')
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -602,6 +602,49 @@ def compose_left(*funcs):
         pipe
     """
     return compose(*reversed(funcs))
+
+
+def composed(*func_and_args, **kwargs):
+    """ Decorate a function to create a composition.
+
+    Returns a function that applies the decorated function and then the decorator's argument in a sequence.
+
+    >>> @composed(list)
+    ... def squares(n):
+    ...     for i in range(n):
+    ...         yield i ** 2
+    >>> squares(4) # not a generator anymore
+    [0, 1, 4, 9]
+    >>> @composed(dict)
+    ... def vals_to_squares(values):
+    ...     for v in values:
+    ...         yield v, v ** 2
+    >>> vals_to_squares([3, 2, 8]) # the pairs are gathered in a dict
+    {3: 9, 2: 4, 8: 64}
+    >>> @composed(numpy.stack, axis=-1)  # pass additional arguments
+    ... def animate_noise(n_frames):
+    ...     for i in range(n_frames):
+    ...         noise = numpy.random.uniform if i % 2 else numpy.random.normal
+    ...         yield noise(size=(10, 10))
+    >>> animate_noise(7).shape # stacked along the last axis (axis=-1)
+    (10, 10, 7)
+
+    See Also:
+        compose_left
+    """
+
+    if not func_and_args:
+        raise TypeError('func argument is required')
+    func, *args = func_and_args
+
+    # `compose` can only apply functions with a single argument
+    def final(x):
+        return func(x, *args, **kwargs)
+
+    def decorator(fn):
+        return compose_left(fn, final)
+
+    return decorator
 
 
 def pipe(data, *funcs):
