@@ -735,6 +735,13 @@ def test_flip():
     assert flip(f, 'a', 'b') == ('b', 'a')
 
 
+def test_flip_args_kwargs():
+    def g(a, b, c, *, d, e):
+        return a, b, c, d, e
+
+    assert flip(g, 3, 2, 1, d=4, e=5) == (1, 2, 3, 4, 5)
+
+
 def test_excepts():
     # These are descriptors, make sure this works correctly.
     assert excepts.__name__ == 'excepts'
