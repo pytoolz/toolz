@@ -828,7 +828,7 @@ def join(leftkey, leftseq, rightkey, rightseq,
 
     >>> cities = [('Alice', 'NYC'),
     ...           ('Alice', 'Chicago'),
-    ...           ('Dan', 'Syndey'),
+    ...           ('Dan', 'Sydney'),
     ...           ('Edith', 'Paris'),
     ...           ('Edith', 'Berlin'),
     ...           ('Zhao', 'Shanghai')]
