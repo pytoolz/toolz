@@ -737,25 +737,33 @@ def reorder_args(func, new_args):
     >>> def op(a, b, c):
     ...    return a // (b - c)
     ...
-    >>> new_op = reorder_args(op, ('a', 'b', 'c'), ('c', 'a', 'b'))
+    >>> new_op = reorder_args(op, ('c', 'a', 'b'))
     >>> new_op(1, 2, 3) == op(2, 3, 1)
     True
     """
-    arg_map = []
     func_sig = inspect.signature(func)
-    for arg in func_sig.parameters.values():
-        try:
-            new_ind = new_args.index(arg.name)
-            arg_map.append(new_ind)
-        except ValueError:
-            raise ValueError(f"Unable to find argument `{arg.name}` in signature for `{func.__name__}`")
+    arg_map = []
+    parameters = [None] * len(func_sig.parameters)
+    for i, arg in enumerate(func_sig.parameters.values()):
+        if (arg.kind in {inspect.Parameter.POSITIONAL_ONLY, 
+                         inspect.Parameter.VAR_POSITIONAL, 
+                         inspect.Parameter.POSITIONAL_OR_KEYWORD}
+                and arg.default is inspect._empty):
+            try:
+                new_ind = new_args.index(arg.name)
+                arg_map.append(new_ind)
+                parameters[new_ind] = arg
+            except ValueError:
+                raise ValueError(f"Unable to find positional argument `{arg.name}` in signature for `{func.__name__}`")
+        else:
+            parameters[i] = arg
 
     _mapper = itemgetter(*arg_map)
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*_mapper(args), **kwargs)
 
-    wrapper.__signature__ = func_sig.replace(parameters=_mapper(list(func_sig.parameters.values())))
+    wrapper.__signature__ = func_sig.replace(parameters=parameters)
     return wrapper
 
 
