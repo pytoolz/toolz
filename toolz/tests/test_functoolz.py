@@ -800,11 +800,11 @@ def test_reorder_args():
     def op(a, b, c, d=1):
         return a // (b - c) + d
 
-    new_op = reorder_args(op, ('a', 'b', 'c'), ('c', 'a', 'b'))
+    new_op = reorder_args(op, ('c', 'a', 'b'))
     assert new_op(1, 2, 3, d=1) == op(2, 3, 1, d=1)
 
     # test builtin functions (ie C functions)
-    getflip = reorder_args(getitem, ('a', 'b'), ('b', 'a'))
+    getflip = reorder_args(getitem, ('b', 'a'))
     get1 = curry(getflip, 1)
     assert get1([1, 2, 3, 1, 1]) == 2
     
