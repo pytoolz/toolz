@@ -731,7 +731,7 @@ def flip(func, a, b):
     return func(b, a)
 
 
-def reorder_args(func, old_args, new_args):
+def reorder_args(func, new_args):
     """ Returns a new function with a desired argument order.
 
     >>> def op(a, b, c):
@@ -741,44 +741,21 @@ def reorder_args(func, old_args, new_args):
     >>> new_op(1, 2, 3) == op(2, 3, 1)
     True
     """
-    assert len(old_args) == num_required_args(func)
-    assert set(old_args) == set(new_args)
-    arg_map = itemgetter(*(new_args.index(v) for v in old_args))
+    arg_map = []
+    func_sig = inspect.signature(func)
+    for arg in func_sig.parameters.values():
+        try:
+            new_ind = new_args.index(arg.name)
+            arg_map.append(new_ind)
+        except ValueError:
+            raise ValueError(f"Unable to find argument `{arg.name}` in signature for `{func.__name__}`")
 
+    _mapper = itemgetter(*arg_map)
     @wraps(func)
     def wrapper(*args, **kwargs):
-        return func(*arg_map(args), **kwargs)
+        return func(*_mapper(args), **kwargs)
 
-    def replace_co(co, **kwargs):
-
-        arglist = ['co_argcount',
-                    'co_kwonlyargcount',
-                    'co_nlocals',
-                    'co_stacksize',
-                    'co_flags',
-                    'co_code',
-                    'co_consts',
-                    'co_names',
-                    'co_varnames',
-                    'co_filename',
-                    'co_name',
-                    'co_firstlineno',
-                    'co_lnotab',
-                    'co_freevars',
-                    'co_cellvars']
-
-        co_args = []
-        for attr in arglist:
-            if attr in kwargs:
-                co_args.append(kwargs[attr])
-            else:
-                co_args.append(getattr(co, attr))
-
-        return CodeType(*co_args)
-
-    new_co_name = "{}{}->{}".format(func.__name__, tuple(old_args), tuple(new_args))
-    wrapper.__code__ = replace_co(wrapper.__code__, co_name=new_co_name)
-    wrapper.__dict__['argorder'] = tuple(new_args)
+    wrapper.__signature__ = func_sig.replace(parameters=_mapper(list(func_sig.parameters.values())))
     return wrapper
 
 
