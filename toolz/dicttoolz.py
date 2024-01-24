@@ -337,3 +337,22 @@ def get_in(keys, coll, default=None, no_default=False):
         if no_default:
             raise
         return default
+
+
+def select_keys(keys, d, factory=dict):
+    """ Select only certain keys from a dictionary
+
+    If supplied keys are not found in the dictionary, returns an empty
+    dictionary.
+
+    >>> d = {'a': 1, 'b': 2, 'c': 3}
+    >>> select_keys(['a', 'b', 'd'], d)  # doctest: +SKIP
+    {'a': 1, 'b': 2}
+    >>> select_keys(['d'], d)
+    {}
+    """
+    rv = factory()
+    for k in keys:
+        if k in d:
+            rv[k] = d[k]
+    return rv
