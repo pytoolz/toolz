@@ -1,5 +1,4 @@
 from toolz.curried import *
-import random
 
 try:
     xrange
