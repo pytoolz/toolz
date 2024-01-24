@@ -17,7 +17,7 @@ filter = filter
 # Aliases
 comp = compose
 
-from . import curried, sandbox
+from . import curried, exceptions, sandbox
 
 functoolz._sigs.create_signature_registry()
 
