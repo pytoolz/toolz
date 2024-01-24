@@ -309,8 +309,12 @@ module_info[itertools] = dict(
         lambda *iterables: None],
     izip_longest=[
         (0, lambda *iterables: None, ('fillvalue',))],
+    pairwise=[
+        lambda iterable: None],
     permutations=[
         (0, lambda iterable, r=0: None)],
+    product=[
+        (0, lambda *iterables: None, ('repeat',))],
     repeat=[
         (0, lambda object, times=0: None)],
     starmap=[
@@ -322,11 +326,6 @@ module_info[itertools] = dict(
         lambda iterable, n: None],
     zip_longest=[
         (0, lambda *iterables: None, ('fillvalue',))],
-)
-
-module_info[itertools].update(
-    product=[
-        (0, lambda *iterables: None, ('repeat',))],
 )
 
 
