@@ -13,23 +13,21 @@ jobs:
       matrix:
         os: ["ubuntu-latest"]
         python-version:
-          - "3.5"
-          - "3.6"
           - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
-          - "pypy-3.6"
           - "pypy-3.7"
           - "pypy-3.8"
           - "pypy-3.9"
+          - "pypy-3.10"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -44,23 +42,12 @@ jobs:
           pytest bench/
           pep8 --ignore="E731,W503,E402" --exclude=conf.py,tests,examples,bench -r --show-source .
       - name: Coverage
-        env:
-          GITHUB_TOKEN: ${{ secrets.github_token }}
-          COVERALLS_FLAG_NAME: ${{ matrix.python-version}}
-          COVERALLS_PARALLEL: true
         if: (! contains(matrix.python-version, 'pypy'))
         run: |
+          coverage xml
           coverage report --show-missing --fail-under=100
-          pip install coveralls
-          coverage report --show-missing
-          coveralls --service=github
-
-  finish:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          parallel-finished: true
+      - name: codecov
+        if: (! contains(matrix.python-version, 'pypy'))
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
