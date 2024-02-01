@@ -19,7 +19,7 @@ test:
     imports:
       - toolz
     commands:
-      - py.test -x --doctest-modules --pyargs toolz
+      - pytest -x --doctest-modules --pyargs toolz
 
 about:
     home: https://toolz.readthedocs.io/
