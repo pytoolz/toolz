@@ -1,20 +1,29 @@
+from __future__ import annotations
+
+import contextlib
 import sys
-import types
-import toolz
 from importlib import import_module
+from importlib.abc import Loader
 from importlib.machinery import ModuleSpec
+from types import ModuleType
+from typing import TYPE_CHECKING
+
+import toolz
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
-class TlzLoader:
+class TlzLoader(Loader):
     """ Finds and loads ``tlz`` modules when added to sys.meta_path"""
-    def __init__(self):
+    def __init__(self) -> None:
         self.always_from_toolz = {
             toolz.pipe,
         }
 
-    def _load_toolz(self, fullname):
+    def _load_toolz(self, fullname: str) -> dict[str, ModuleType]:
         rv = {}
-        package, dot, submodules = fullname.partition('.')
+        _, dot, submodules = fullname.partition('.')
         try:
             module_name = ''.join(['cytoolz', dot, submodules])
             rv['cytoolz'] = import_module(module_name)
@@ -29,12 +38,17 @@ class TlzLoader:
             raise ImportError(fullname)
         return rv
 
-    def find_module(self, fullname, path=None):  # pragma: py3 no cover
-        package, dot, submodules = fullname.partition('.')
+    def find_module(
+        self,
+        fullname: str,
+        path: Sequence[str] | None = None,  # noqa: ARG002
+    ) -> TlzLoader | None:  # pragma: py3 no cover
+        package, _, __ = fullname.partition('.')
         if package == 'tlz':
             return self
+        return None
 
-    def load_module(self, fullname):  # pragma: py3 no cover
+    def load_module(self, fullname: str) -> ModuleType:  # pragma: py3 no cover
         if fullname in sys.modules:  # pragma: no cover
             return sys.modules[fullname]
         spec = ModuleSpec(fullname, self)
@@ -43,15 +57,21 @@ class TlzLoader:
         self.exec_module(module)
         return module
 
-    def find_spec(self, fullname, path, target=None):  # pragma: no cover
-        package, dot, submodules = fullname.partition('.')
+    def find_spec(
+        self,
+        fullname: str,
+        path: Sequence[str] | None,  # noqa: ARG002
+        target: ModuleType | None = None,  # noqa: ARG002
+    ) -> ModuleSpec | None:  # pragma: no cover
+        package, _, __ = fullname.partition('.')
         if package == 'tlz':
             return ModuleSpec(fullname, self)
+        return None
 
-    def create_module(self, spec):
-        return types.ModuleType(spec.name)
+    def create_module(self, spec: ModuleSpec) -> ModuleType:
+        return ModuleType(spec.name)
 
-    def exec_module(self, module):
+    def exec_module(self, module: ModuleType) -> None:
         toolz_mods = self._load_toolz(module.__name__)
         fast_mod = toolz_mods.get('cytoolz') or toolz_mods['toolz']
         slow_mod = toolz_mods.get('toolz') or toolz_mods['cytoolz']
@@ -64,10 +84,8 @@ class TlzLoader:
             module.__doc__ = fast_mod.__doc__
 
         # show file from toolz during introspection
-        try:
+        with contextlib.suppress(AttributeError):
             module.__file__ = slow_mod.__file__
-        except AttributeError:
-            pass
 
         for k, v in fast_mod.__dict__.items():
             tv = slow_mod.__dict__.get(k)
@@ -78,7 +96,7 @@ class TlzLoader:
             if tv in self.always_from_toolz:
                 module.__dict__[k] = tv
             elif (
-                isinstance(v, types.ModuleType)
+                isinstance(v, ModuleType)
                 and v.__package__ == fast_mod.__name__
             ):
                 package, dot, submodules = v.__name__.partition('.')

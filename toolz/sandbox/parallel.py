@@ -1,16 +1,36 @@
+from __future__ import annotations
+
 import functools
+from typing import TYPE_CHECKING, Callable, Iterable, Sequence, TypeVar, cast
+
 from toolz.itertoolz import partition_all
 from toolz.utils import no_default
 
+if TYPE_CHECKING:
+    from toolz.itertoolz import BinaryOp
+    from toolz.utils import NoDefaultType
 
-def _reduce(func, seq, initial=None):
+_T = TypeVar('_T')
+
+
+def _reduce(
+    func: BinaryOp[_T],
+    seq: Iterable[_T],
+    initial: _T | None = None,
+) -> _T:
     if initial is None:
         return functools.reduce(func, seq)
-    else:
-        return functools.reduce(func, seq, initial)
+    return functools.reduce(func, seq, initial)
 
 
-def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
+def fold(
+    binop: BinaryOp[_T],
+    seq: Sequence[_T],
+    default: _T | NoDefaultType = no_default,
+    map: Callable = map,
+    chunksize: int = 128,
+    combine: BinaryOp[_T] | None = None,
+) -> _T:
     """
     Reduce without guarantee of ordered reduction.
 
@@ -50,7 +70,8 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     >>> fold(add, [1, 2, 3, 4], chunksize=2, map=map)
     10
     """
-    assert chunksize > 1
+    # assert chunksize > 1
+    chunksize = max(chunksize, 1)
 
     if combine is None:
         combine = binop
@@ -59,17 +80,17 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
 
     # Evaluate sequence in chunks via map
     if default == no_default:
-        results = map(
-            functools.partial(_reduce, binop),
-            chunks)
+        results = map(functools.partial(_reduce, binop), chunks)
     else:
         results = map(
             functools.partial(_reduce, binop, initial=default),
-            chunks)
+            chunks,
+        )
 
     results = list(results)  # TODO: Support complete laziness
 
     if len(results) == 1:    # Return completed result
-        return results[0]
+        res = results[0]
     else:                    # Recurse to reaggregate intermediate results
-        return fold(combine, results, map=map, chunksize=chunksize)
+        res = fold(combine, results, map=map, chunksize=chunksize)
+    return cast(_T, res)

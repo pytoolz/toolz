@@ -23,10 +23,9 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
+
 import toolz
-from . import operator
 from toolz import (
-    apply,
     comp,
     complement,
     compose,
@@ -36,6 +35,7 @@ from toolz import (
     count,
     curry,
     diff,
+    excepts,
     first,
     flip,
     frequencies,
@@ -53,9 +53,12 @@ from toolz import (
     thread_first,
     thread_last,
 )
+
+from . import operator
 from .exceptions import merge, merge_with
 
 accumulate = toolz.curry(toolz.accumulate)
+apply = toolz.curry(toolz.apply)
 assoc = toolz.curry(toolz.assoc)
 assoc_in = toolz.curry(toolz.assoc_in)
 cons = toolz.curry(toolz.cons)
@@ -63,8 +66,7 @@ countby = toolz.curry(toolz.countby)
 dissoc = toolz.curry(toolz.dissoc)
 do = toolz.curry(toolz.do)
 drop = toolz.curry(toolz.drop)
-excepts = toolz.curry(toolz.excepts)
-filter = toolz.curry(toolz.filter)
+filter: toolz.curry = toolz.curry(toolz.filter)
 get = toolz.curry(toolz.get)
 get_in = toolz.curry(toolz.get_in)
 groupby = toolz.curry(toolz.groupby)
@@ -78,14 +80,14 @@ keymap = toolz.curry(toolz.keymap)
 map = toolz.curry(toolz.map)
 mapcat = toolz.curry(toolz.mapcat)
 nth = toolz.curry(toolz.nth)
-partial = toolz.curry(toolz.partial)
+partial = toolz.curry(toolz.partial)  # type: ignore[attr-defined]
 partition = toolz.curry(toolz.partition)
 partition_all = toolz.curry(toolz.partition_all)
 partitionby = toolz.curry(toolz.partitionby)
 peekn = toolz.curry(toolz.peekn)
 pluck = toolz.curry(toolz.pluck)
 random_sample = toolz.curry(toolz.random_sample)
-reduce = toolz.curry(toolz.reduce)
+reduce = toolz.curry(toolz.reduce)  # type: ignore[attr-defined]
 reduceby = toolz.curry(toolz.reduceby)
 remove = toolz.curry(toolz.remove)
 sliding_window = toolz.curry(toolz.sliding_window)
@@ -99,5 +101,4 @@ update_in = toolz.curry(toolz.update_in)
 valfilter = toolz.curry(toolz.valfilter)
 valmap = toolz.curry(toolz.valmap)
 
-del exceptions
 del toolz

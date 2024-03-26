@@ -1,4 +1,4 @@
-from toolz import first, identity, countby, partitionby
+from toolz import countby, first, identity, partitionby
 
 
 def iseven(x):

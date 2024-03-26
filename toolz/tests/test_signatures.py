@@ -1,13 +1,16 @@
 import functools
+
 import toolz._signatures as _sigs
-from toolz._signatures import builtins, _is_valid_args, _is_partial_args
+from toolz._signatures import _is_partial_args, _is_valid_args, builtins
 
 
 def test_is_valid(check_valid=_is_valid_args, incomplete=False):
     orig_check_valid = check_valid
-    check_valid = lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
+    check_valid = (  # noqa: E731
+        lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
+    )
 
-    assert check_valid(lambda x: None) is None
+    assert check_valid(lambda _: None) is None
 
     f = builtins.abs
     assert check_valid(f) is incomplete

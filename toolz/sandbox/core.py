@@ -1,10 +1,17 @@
-from toolz.itertoolz import getter, cons, pluck
-from itertools import tee, starmap
+from __future__ import annotations
+
+from itertools import starmap, tee
+from typing import Any, Callable, Generic, Iterable, TypeVar
+
+from toolz.itertoolz import cons, getter, pluck
+
+_S = TypeVar('_S')
+_T = TypeVar('_T')
 
 
 # See #166: https://github.com/pytoolz/toolz/issues/166
 # See #173: https://github.com/pytoolz/toolz/pull/173
-class EqualityHashKey(object):
+class EqualityHashKey(Generic[_S, _T]):
     """ Create a hash key that uses equality comparisons between items.
 
     This may be used to create hash keys for otherwise unhashable types:
@@ -58,44 +65,47 @@ class EqualityHashKey(object):
     See Also:
         identity
     """
-    __slots__ = ['item', 'key']
-    _default_hashkey = '__default__hashkey__'
 
-    def __init__(self, key, item):
+    __slots__ = ['item', 'key']
+    _default_hashkey: str = '__default__hashkey__'
+
+    def __init__(self, key: _S, item: _T) -> None:
         if key is None:
-            self.key = self._default_hashkey
+            self.key: str | Callable = self._default_hashkey
         elif not callable(key):
             self.key = getter(key)
         else:
             self.key = key
         self.item = item
 
-    def __hash__(self):
-        if self.key == self._default_hashkey:
-            val = self.key
+    def __hash__(self) -> int:
+        if not callable(self.key):
+            val = self._default_hashkey
         else:
             val = self.key(self.item)
         return hash(val)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         try:
-            return (self._default_hashkey == other._default_hashkey and
-                    self.item == other.item)
+            return bool(
+                self._default_hashkey == other._default_hashkey
+                and self.item == other.item
+            )
         except AttributeError:
             return False
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         return not self.__eq__(other)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '=%s=' % str(self.item)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '=%s=' % repr(self.item)
 
 
 # See issue #293: https://github.com/pytoolz/toolz/issues/239
-def unzip(seq):
+def unzip(seq: Iterable[Any]) -> tuple[Any, ...]:
     """Inverse of ``zip``
 
     >>> a, b = unzip([('a', 1), ('b', 2)])
@@ -124,7 +134,7 @@ def unzip(seq):
     try:
         first = tuple(next(seq))
     except StopIteration:
-        return tuple()
+        return ()
 
     # and create them
     niters = len(first)
