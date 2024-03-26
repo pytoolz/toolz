@@ -139,6 +139,7 @@ exclude = [
 # https://mypy.readthedocs.io/en/stable/config_file.html
 [tool.mypy]
 files = "toolz/**/*.py"
+exclude = ["/tests/"]
 strict = true
 disallow_any_generics = false
 disallow_subclassing_any = false

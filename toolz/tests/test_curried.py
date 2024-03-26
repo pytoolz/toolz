@@ -107,12 +107,11 @@ def test_curried_namespace():
         unequal = toolz.merge_with(list, namespace, curried_namespace)
         unequal = toolz.valfilter(lambda x: x[0] != x[1], unequal)
         messages = []
-        print(unequal)
         for name, (orig_func, auto_func) in sorted(unequal.items()):
             if name in from_exceptions:
-                messages.append('%s should come from toolz.curried.exceptions: %s != %s' % (name, orig_func, auto_func))
+                messages.append('%s should come from toolz.curried.exceptions' % name)
             elif should_curry(getattr(toolz, name)):
-                messages.append('%s should be curried from toolz: %s != %s' % (name, orig_func, auto_func))
+                messages.append('%s should be curried from toolz' % name)
             else:
-                messages.append('%s should come from toolz and NOT be curried: %s != %s' % (name, orig_func, auto_func))
+                messages.append('%s should come from toolz and NOT be curried' % name)
         raise AssertionError('\n'.join(messages))

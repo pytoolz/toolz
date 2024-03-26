@@ -336,7 +336,6 @@ def update_in(
     ks = iter(keys)
     k = next(ks)
 
-    # dd: _DictType | dict = dict(d)
     rv = inner = dict_factory()
     rv.update(d)
 

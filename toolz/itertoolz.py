@@ -775,44 +775,6 @@ def partition(
     return zip_longest(*args, fillvalue=pad)
 
 
-def _partition_all(n: int, seq: Sequence[_T]) -> Iterator[tuple[object, ...]]:
-    """Partition all elements of sequence into tuples of length at most n.
-
-    Without type checked.
-    """
-    args = [iter(seq)] * n
-    it = zip_longest(*args, fillvalue=no_pad)
-    try:
-        # Trick for type-checkers, prev can contain `no_pad` but the return no
-        prev = next(it)
-    except StopIteration:
-        return
-    for item in it:
-        yield prev
-        prev = item
-    if prev[-1] is no_pad:
-        try:
-            # If seq defines __len__, then
-            # we can quickly calculate where no_pad starts
-            ret = prev[: len(seq) % n]
-            yield ret
-        except TypeError:
-            # Get first index of no_pad without using .index()
-            # https://github.com/pytoolz/toolz/issues/387
-            # Binary search from CPython's bisect module,
-            # modified for identity testing.
-            lo, hi = 0, n
-            while lo < hi:
-                mid = (lo + hi) // 2
-                if prev[mid] is no_pad:
-                    hi = mid
-                else:
-                    lo = mid + 1
-            yield prev[:lo]
-    else:
-        yield prev
-
-
 def partition_all(n: int, seq: Sequence[_T]) -> Iterator[tuple[_T, ...]]:
     """ Partition all elements of sequence into tuples of length at most n
 
@@ -827,8 +789,41 @@ def partition_all(n: int, seq: Sequence[_T]) -> Iterator[tuple[_T, ...]]:
     See Also:
         partition
     """
-    for item in _partition_all(n, seq):
-        yield cast("tuple[_T, ...]", item)
+
+    def cast_out(val: tuple) -> tuple[_T, ...]:
+        # Trick for type-checkers, `prev` type can contain `no_pad`
+        # so cast to a type without `no_pad`
+        return cast('tuple[_T, ...]', val)
+
+    args = [iter(seq)] * n
+    it = zip_longest(*args, fillvalue=no_pad)
+    try:
+        prev = next(it)
+    except StopIteration:
+        return
+    for item in it:
+        yield cast_out(prev)
+        prev = item
+    if prev[-1] is no_pad:
+        try:
+            # If seq defines __len__, then
+            # we can quickly calculate where no_pad starts
+            yield cast_out(prev[: len(seq) % n])
+        except TypeError:
+            # Get first index of no_pad without using .index()
+            # https://github.com/pytoolz/toolz/issues/387
+            # Binary search from CPython's bisect module,
+            # modified for identity testing.
+            lo, hi = 0, n
+            while lo < hi:
+                mid = (lo + hi) // 2
+                if prev[mid] is no_pad:
+                    hi = mid
+                else:
+                    lo = mid + 1
+            yield cast_out(prev[:lo])
+    else:
+        yield cast_out(prev)
 
 
 def count(seq: Iterable) -> int:
