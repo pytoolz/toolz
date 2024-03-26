@@ -1,0 +1,179 @@
+# https://peps.python.org/pep-0517/
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+# https://peps.python.org/pep-0621/
+[project]
+name = "toolz"
+description = "List processing tools and functional utilities"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = { text = "BSD 3-Clause License" }
+maintainers = [{ name = "Erik Welch", email = "erik.n.welch@gmail.com" }]
+authors = [
+    { name = "Matthew Rocklin"},
+    { name = "John Jacobsen"},
+    { name = "Erik Welch"},
+    { name = "John Crichton"},
+    { name = "Han Semaj"},
+    { name = "Graeme Coupar"},
+    { name = "Leonid Shvechikov"},
+    { name = "Lars Buitinck"},
+    { name = "José Ricardo"},
+    { name = "Tom Prince"},
+    { name = "Bart van Merriënboer"},
+    { name = "Nikolaos-Digenis Karagiannis"},
+    { name = "Antonio Lima"},
+    { name = "Joe Jevnik"},
+    { name = "Rory Kirchner"},
+    { name = "Steven Cutting"},
+    { name = "Aric Coady"},
+]
+keywords = ["functional", "utility", "itertools", "functools"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Typing :: Typed",
+]
+dynamic = ["version"]
+dependencies = ["typing_extensions"]
+
+# extras
+# https://peps.python.org/pep-0621/#dependencies-optional-dependencies
+[project.optional-dependencies]
+docs = [
+    "sphinx-build",
+]
+test = [
+    "pytest>=6.0",
+    "pytest-cov",
+]
+
+[project.urls]
+homepage = "https://github.com/pytoolz/toolz/"
+repository = "https://github.com/pytoolz/toolz/"
+documentation = "https://toolz.readthedocs.io/"
+
+
+[tool.setuptools]
+packages = [
+    "toolz",
+    "toolz.sandbox",
+    "toolz.curried",
+    "tlz",
+]
+include-package-data = true
+
+[tool.setuptools.package-data]
+toolz = [
+    "py.typed",
+    "tests",
+]
+
+
+# https://docs.astral.sh/ruff/
+[tool.ruff]
+line-length = 80
+src = ["toolz", "tlz"]
+extend-exclude = [
+    "examples",
+    "doc",
+    "bench",
+]
+
+[tool.ruff.lint]
+pydocstyle = { convention = "numpy" }
+select = [
+    "E",    # style errors
+    "F",    # flakes
+    "W",    # warnings
+    "D417", # Missing argument descriptions in Docstrings
+    "I",    # isort
+    "UP",   # pyupgrade
+    "S",    # bandit
+    "C4",   # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "A001", # flake8-builtins
+    "ARG",  # flake8-unused-arguments
+    "RET",  # flake8-return
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-typecheck
+    "TID",  # flake8-tidy-imports
+    "RUF",  # ruff-specific rules
+]
+exclude = [
+    "toolz/__init__.py",
+    "toolz/compatibility.py",
+    "**/tests/*",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"toolz/tests/*.py" = ["B", "S", "F401", "RUF012"]
+"toolz/sandbox/tests/*.py" = ["S", "SIM", "RUF012"]
+"examples/*.py" = ["S", "RUF012"]
+"bench/*.py" = ["RUF012"]
+"toolz/_signatures.py" = ["ARG005", "C408"]
+"toolz/curried/*.py" = ["F401", "A001"]
+
+# https://docs.astral.sh/ruff/formatter/
+[tool.ruff.format]
+docstring-code-format = false
+quote-style = "preserve"
+exclude = [
+    "toolz/__init__.py",
+    "toolz/compatibility.py",
+    "**/tests/*",
+]
+
+# https://mypy.readthedocs.io/en/stable/config_file.html
+[tool.mypy]
+files = "toolz/**/*.py"
+strict = true
+disallow_any_generics = false
+disallow_subclassing_any = false
+show_error_codes = true
+pretty = true
+
+# https://docs.pytest.org/en/6.2.x/customize.html
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "toolz/tests",
+    "toolz/sandbox/tests",
+]
+
+# https://coverage.readthedocs.io/en/6.4/config.html
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "@overload",
+    "except ImportError",
+    "\\.\\.\\.",
+    "raise NotImplementedError()",
+]
+show_missing = true
+[tool.coverage.run]
+source = ["toolz"]
+omit = [
+    "toolz/tests/test*",
+    "toolz/*/tests/test*",
+    "toolz/compatibility.py",
+    "toolz/_version.py",
+]
+
+[tool.setuptools_scm]
+version_file = "toolz/_version.py"
+version_scheme = "post-release"
+local_scheme = "dirty-tag"

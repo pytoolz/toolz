@@ -1,9 +1,13 @@
 import warnings
-warnings.warn("The toolz.compatibility module is no longer "
-              "needed in Python 3 and has been deprecated. Please "
-              "import these utilities directly from the standard library. "
-              "This module will be removed in a future release.",
-              category=DeprecationWarning, stacklevel=2)
+
+warnings.warn(
+    "The toolz.compatibility module is no longer "
+    "needed in Python 3 and has been deprecated. Please "
+    "import these utilities directly from the standard library. "
+    "This module will be removed in a future release.",
+    category=DeprecationWarning,
+    stacklevel=2,
+)
 
 import operator
 import sys
@@ -22,9 +26,8 @@ filter = filter
 range = range
 zip = zip
 from functools import reduce
-from itertools import zip_longest
-from itertools import filterfalse
+from itertools import filterfalse, zip_longest
+
 iteritems = operator.methodcaller('items')
 iterkeys = operator.methodcaller('keys')
 itervalues = operator.methodcaller('values')
-from collections.abc import Sequence

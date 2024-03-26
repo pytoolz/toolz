@@ -1,12 +1,14 @@
-from toolz.sandbox.parallel import fold
-from toolz import reduce
+from multiprocessing import Pool
 from operator import add
 from pickle import dumps, loads
-from multiprocessing import Pool
 
+from toolz import reduce
+from toolz.sandbox.parallel import fold
+
+from toolz.utils import no_default
 
 # is comparison will fail between this and no_default
-no_default2 = loads(dumps('__no__default__'))
+no_default2 = loads(dumps(no_default))
 
 
 def test_fold():

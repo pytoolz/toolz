@@ -1,24 +1,27 @@
 import itertools
-from itertools import starmap
-from toolz.utils import raises
 from functools import partial
-from random import Random
-from pickle import dumps, loads
-from toolz.itertoolz import (remove, groupby, merge_sorted,
-                             concat, concatv, interleave, unique,
-                             isiterable, getter,
-                             mapcat, isdistinct, first, second,
-                             nth, take, tail, drop, interpose, get,
-                             rest, last, cons, frequencies,
-                             reduceby, iterate, accumulate,
-                             sliding_window, count, partition,
-                             partition_all, take_nth, pluck, join,
-                             diff, topk, peek, peekn, random_sample)
+from itertools import starmap
 from operator import add, mul
+from pickle import dumps, loads
+from random import Random
+
+from toolz.itertoolz import (
+    remove, groupby, merge_sorted,
+    concat, concatv, interleave, unique,
+    isiterable, getter,
+    mapcat, isdistinct, first, second,
+    nth, take, tail, drop, interpose, get,
+    rest, last, cons, frequencies,
+    reduceby, iterate, accumulate,
+    sliding_window, count, partition,
+    partition_all, take_nth, pluck, join,
+    diff, topk, peek, peekn, random_sample
+)
+from toolz.utils import raises, no_default
 
 
 # is comparison will fail between this and no_default
-no_default2 = loads(dumps('__no__default__'))
+no_default2 = loads(dumps(no_default))
 
 
 def identity(x):
@@ -555,9 +558,9 @@ def test_random_sample():
 
     assert list(random_sample(prob=1, seq=alist, random_state=2016)) == alist
 
-    mk_rsample = lambda rs=1: list(random_sample(prob=0.1,
-                                                 seq=alist,
-                                                 random_state=rs))
+    def mk_rsample(rs=1):
+        return list(random_sample(prob=0.1, seq=alist, random_state=rs))
+
     rsample1 = mk_rsample()
     assert rsample1 == mk_rsample()
 
@@ -569,6 +572,6 @@ def test_random_sample():
 
     assert mk_rsample(hash(object)) == mk_rsample(hash(object))
     assert mk_rsample(hash(object)) != mk_rsample(hash(object()))
-    assert mk_rsample(b"a") == mk_rsample(u"a")
+    assert mk_rsample(b"a") == mk_rsample("a")
 
     assert raises(TypeError, lambda: mk_rsample([]))

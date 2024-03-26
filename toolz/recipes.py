@@ -1,11 +1,23 @@
+from __future__ import annotations
+
 import itertools
-from .itertoolz import frequencies, pluck, getter
+from typing import TYPE_CHECKING, Any
+
+from .itertoolz import frequencies, getter, pluck
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from typing import TypeVar
+
+    from .itertoolz import TransformOp
+
+    _T = TypeVar('_T')
 
 
 __all__ = ('countby', 'partitionby')
 
 
-def countby(key, seq):
+def countby(key: Any, seq: Iterable[_T]) -> dict[_T, int]:
     """ Count elements of a collection by a key function
 
     >>> countby(len, ['cat', 'mouse', 'dog'])
@@ -23,7 +35,9 @@ def countby(key, seq):
     return frequencies(map(key, seq))
 
 
-def partitionby(func, seq):
+def partitionby(
+    func: TransformOp[_T, Any], seq: Iterable[_T]
+) -> Iterator[tuple[_T, ...]]:
     """ Partition a sequence according to a function
 
     Partition `s` into a sequence of lists such that, when traversing

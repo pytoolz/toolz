@@ -1,22 +1,32 @@
+from __future__ import annotations
+
 import operator
-import collections
+from collections import defaultdict
+from collections.abc import Callable, Mapping, MutableMapping
 from functools import reduce
-from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Sequence
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
            'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
 
+if TYPE_CHECKING:
+    from typing import TypeVar
 
-def _get_factory(f, kwargs):
-    factory = kwargs.pop('factory', dict)
-    if kwargs:
-        raise TypeError("{}() got an unexpected keyword argument "
-                        "'{}'".format(f.__name__, kwargs.popitem()[0]))
-    return factory
+    _S = TypeVar('_S')
+    _T = TypeVar('_T')
+    _U = TypeVar('_U')
+    _V = TypeVar('_V')
+    _DictType = MutableMapping[_S, _T]
+    Predicate = Callable[[_T], Any]
+    TransformOp = Callable[[_T], _S]
+    Filter = Callable[[_T], bool]
 
 
-def merge(*dicts, **kwargs):
+def merge(
+    *dicts: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _T]:
     """ Merge a collection of dictionaries
 
     >>> merge({1: 'one'}, {2: 'two'})
@@ -32,7 +42,6 @@ def merge(*dicts, **kwargs):
     """
     if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
         dicts = dicts[0]
-    factory = _get_factory(merge, kwargs)
 
     rv = factory()
     for d in dicts:
@@ -40,7 +49,11 @@ def merge(*dicts, **kwargs):
     return rv
 
 
-def merge_with(func, *dicts, **kwargs):
+def merge_with(
+    func: Callable[[Sequence[_T]], _U],
+    *dicts: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _U]:
     """ Merge dictionaries and apply function to combined values
 
     A key may occur in more than one dict, and all values mapped from the key
@@ -57,20 +70,23 @@ def merge_with(func, *dicts, **kwargs):
     """
     if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
         dicts = dicts[0]
-    factory = _get_factory(merge_with, kwargs)
 
-    values = collections.defaultdict(lambda: [].append)
+    values = defaultdict(list)
     for d in dicts:
         for k, v in d.items():
-            values[k](v)
+            values[k].append(v)
 
     result = factory()
-    for k, v in values.items():
-        result[k] = func(v.__self__)
+    for k, list_v in values.items():
+        result[k] = func(list_v)
     return result
 
 
-def valmap(func, d, factory=dict):
+def valmap(
+    func: TransformOp[_T, _U],
+    d: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _U]:
     """ Apply function to values of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
@@ -86,7 +102,11 @@ def valmap(func, d, factory=dict):
     return rv
 
 
-def keymap(func, d, factory=dict):
+def keymap(
+    func: TransformOp[_S, _U],
+    d: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_U, _T]:
     """ Apply function to keys of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
@@ -102,7 +122,11 @@ def keymap(func, d, factory=dict):
     return rv
 
 
-def itemmap(func, d, factory=dict):
+def itemmap(
+    func: Callable[[tuple[_S, _T]], tuple[_U, _V]],
+    d: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_U, _V]:
     """ Apply function to items of dictionary
 
     >>> accountids = {"Alice": 10, "Bob": 20}
@@ -118,7 +142,11 @@ def itemmap(func, d, factory=dict):
     return rv
 
 
-def valfilter(predicate, d, factory=dict):
+def valfilter(
+    predicate: Filter[_T],
+    d: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _T]:
     """ Filter items in dictionary by value
 
     >>> iseven = lambda x: x % 2 == 0
@@ -138,7 +166,11 @@ def valfilter(predicate, d, factory=dict):
     return rv
 
 
-def keyfilter(predicate, d, factory=dict):
+def keyfilter(
+    predicate: Filter[_S],
+    d: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _T]:
     """ Filter items in dictionary by key
 
     >>> iseven = lambda x: x % 2 == 0
@@ -158,7 +190,11 @@ def keyfilter(predicate, d, factory=dict):
     return rv
 
 
-def itemfilter(predicate, d, factory=dict):
+def itemfilter(
+    predicate: Filter[tuple[_S, _T]],
+    d: Mapping[_S, _T],
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _T]:
     """ Filter items in dictionary by item
 
     >>> def isvalid(item):
@@ -182,7 +218,12 @@ def itemfilter(predicate, d, factory=dict):
     return rv
 
 
-def assoc(d, key, value, factory=dict):
+def assoc(
+    d: Mapping[_S, _T],
+    key: _S,
+    value: _T,
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _T]:
     """ Return a new dict with new key value pair
 
     New dict has d[key] set to value. Does not modify the initial dictionary.
@@ -198,7 +239,12 @@ def assoc(d, key, value, factory=dict):
     return d2
 
 
-def dissoc(d, *keys, **kwargs):
+def dissoc(
+    d: Mapping[_S, _T],
+    *keys: _S,
+    factory: type[_DictType] = dict,
+) -> _DictType[_S, _T]:
+
     """ Return a new dict with the given key(s) removed.
 
     New dict has d[key] deleted for each supplied key.
@@ -211,10 +257,9 @@ def dissoc(d, *keys, **kwargs):
     >>> dissoc({'x': 1}, 'y') # Ignores missing keys
     {'x': 1}
     """
-    factory = _get_factory(dissoc, kwargs)
     d2 = factory()
 
-    if len(keys) < len(d) * .6:
+    if len(keys) < len(d) * 0.6:
         d2.update(d)
         for key in keys:
             if key in d2:
@@ -227,7 +272,12 @@ def dissoc(d, *keys, **kwargs):
     return d2
 
 
-def assoc_in(d, keys, value, factory=dict):
+def assoc_in(
+    d: Mapping[_S, _T],
+    keys: Sequence,
+    value: Any,
+    factory: type[_DictType] | None = None,
+) -> _DictType[_S, _T]:
     """ Return a new dict with new, potentially nested, key value pair
 
     >>> purchase = {'name': 'Alice',
@@ -239,10 +289,16 @@ def assoc_in(d, keys, value, factory=dict):
      'name': 'Alice',
      'order': {'costs': [0.25, 1.00], 'items': ['Apple', 'Orange']}}
     """
-    return update_in(d, keys, lambda x: value, value, factory)
+    return update_in(d, keys, lambda _: value, value, factory)
 
 
-def update_in(d, keys, func, default=None, factory=dict):
+def update_in(
+    d: Mapping[_S, _T],
+    keys: Sequence,
+    func: Callable,
+    default: Any = None,
+    factory: type[_DictType] | None = None,
+) -> _DictType[_S, _T]:
     """ Update value in a (potentially) nested dictionary
 
     inputs:
@@ -276,19 +332,21 @@ def update_in(d, keys, func, default=None, factory=dict):
     >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
     {1: 'foo', 2: {3: {4: 1}}}
     """
+    dict_factory = factory or dict
     ks = iter(keys)
     k = next(ks)
 
-    rv = inner = factory()
+    # dd: _DictType | dict = dict(d)
+    rv = inner = dict_factory()
     rv.update(d)
 
     for key in ks:
         if k in d:
-            d = d[k]
-            dtemp = factory()
+            d = d[k]  # type: ignore[assignment]
+            dtemp: _DictType = dict_factory()
             dtemp.update(d)
         else:
-            d = dtemp = factory()
+            d = dtemp = dict_factory()
 
         inner[k] = inner = dtemp
         k = key
@@ -300,7 +358,12 @@ def update_in(d, keys, func, default=None, factory=dict):
     return rv
 
 
-def get_in(keys, coll, default=None, no_default=False):
+def get_in(
+    keys: Sequence,
+    coll: Mapping,
+    default: Any = None,
+    no_default: bool = False,
+) -> Any:
     """ Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
 
     If coll[i0][i1]...[iX] cannot be found, returns ``default``, unless

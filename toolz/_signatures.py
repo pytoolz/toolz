@@ -12,16 +12,38 @@ modules.  More can be added as requested.  We don't guarantee full coverage.
 Everything in this module should be regarded as implementation details.
 Users should try to not use this module directly.
 """
+
+from __future__ import annotations
+
+import builtins
 import functools
 import inspect
 import itertools
 import operator
 from importlib import import_module
+from typing import TYPE_CHECKING, Any, Callable, Mapping
 
-from .functoolz import (is_partial_args, is_arity, has_varargs,
-                        has_keywords, num_required_args)
+from .functoolz import (
+    has_keywords,
+    has_varargs,
+    is_arity,
+    is_partial_args,
+    num_required_args,
+)
 
-import builtins
+if TYPE_CHECKING:
+    from types import ModuleType
+
+    ExpandSignatureTuple = tuple[
+        int,
+        Callable,
+        tuple[str, ...],
+        inspect.Signature | None,
+    ]
+    ExpandSignatureInput = (
+        Callable | tuple[int, Callable] | tuple[int, Callable, tuple[str, ...]]
+    )
+
 
 # We mock builtin callables using lists of tuples with lambda functions.
 #
@@ -38,7 +60,7 @@ import builtins
 #   keyword_only_args: (optional)
 #       - Tuple of keyword-only arguments.
 
-module_info = {}
+module_info: dict[str | ModuleType, Any] = {}
 
 module_info[builtins] = dict(
     abs=[
@@ -595,33 +617,43 @@ module_info['toolz.functoolz'] = dict(
 )
 
 
-def num_pos_args(sigspec):
+def num_pos_args(sigspec: inspect.Signature | None) -> int:
     """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
-    return sum(1 for x in sigspec.parameters.values()
-               if x.kind == x.POSITIONAL_OR_KEYWORD
-               and x.default is x.empty)
+    if sigspec is None:
+        return -1
+    return sum(
+        1
+        for x in sigspec.parameters.values()
+        if x.kind == x.POSITIONAL_OR_KEYWORD and x.default is x.empty
+    )
 
 
-def get_exclude_keywords(num_pos_only, sigspec):
+def get_exclude_keywords(
+    num_pos_only: int,
+    sigspec: inspect.Signature | None,
+) -> tuple[str, ...]:
     """ Return the names of position-only arguments if func has **kwargs"""
-    if num_pos_only == 0:
+    if num_pos_only == 0 or sigspec is None:
         return ()
-    has_kwargs = any(x.kind == x.VAR_KEYWORD
-                     for x in sigspec.parameters.values())
+    has_kwargs = any(
+        x.kind == x.VAR_KEYWORD for x in sigspec.parameters.values()
+    )
     if not has_kwargs:
         return ()
     pos_args = list(sigspec.parameters.values())[:num_pos_only]
     return tuple(x.name for x in pos_args)
 
 
-def signature_or_spec(func):
+def signature_or_spec(func: Callable) -> inspect.Signature | None:
     try:
         return inspect.signature(func)
     except (ValueError, TypeError):
         return None
 
 
-def expand_sig(sig):
+def expand_sig(
+    sig: ExpandSignatureInput,
+) -> ExpandSignatureTuple:
     """ Convert the signature spec in ``module_info`` to add to ``signatures``
 
     The input signature spec is one of:
@@ -641,7 +673,7 @@ def expand_sig(sig):
     if isinstance(sig, tuple):
         if len(sig) == 3:
             num_pos_only, func, keyword_only = sig
-            assert isinstance(sig[-1], tuple)
+            # assert isinstance(sig[-1], tuple)
         else:
             num_pos_only, func = sig
             keyword_only = ()
@@ -655,10 +687,13 @@ def expand_sig(sig):
     return num_pos_only, func, keyword_only + keyword_exclude, sigspec
 
 
-signatures = {}
+signatures: dict[Callable, tuple[ExpandSignatureTuple, ...]] = {}
 
 
-def create_signature_registry(module_info=module_info, signatures=signatures):
+def create_signature_registry(
+    module_info: dict = module_info,
+    signatures: dict[Callable, tuple[ExpandSignatureTuple, ...]] = signatures,
+) -> None:
     for module, info in module_info.items():
         if isinstance(module, str):
             module = import_module(module)
@@ -668,7 +703,11 @@ def create_signature_registry(module_info=module_info, signatures=signatures):
                 signatures[getattr(module, name)] = new_sigs
 
 
-def check_valid(sig, args, kwargs):
+def check_valid(
+    sig: ExpandSignatureTuple,
+    args: tuple[Any, ...],
+    kwargs: Mapping[str, Any],
+) -> bool | None:
     """ Like ``is_valid_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
@@ -684,7 +723,11 @@ def check_valid(sig, args, kwargs):
         return False
 
 
-def _is_valid_args(func, args, kwargs):
+def _is_valid_args(
+    func: Callable,
+    args: tuple[Any, ...],
+    kwargs: Mapping[str, Any],
+) -> bool | None:
     """ Like ``is_valid_args`` for builtins in our ``signatures`` registry"""
     if func not in signatures:
         return None
@@ -692,7 +735,11 @@ def _is_valid_args(func, args, kwargs):
     return any(check_valid(sig, args, kwargs) for sig in sigs)
 
 
-def check_partial(sig, args, kwargs):
+def check_partial(
+    sig: ExpandSignatureTuple,
+    args: tuple[Any, ...],
+    kwargs: Mapping[str, Any],
+) -> bool | None:
     """ Like ``is_partial_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
@@ -705,7 +752,11 @@ def check_partial(sig, args, kwargs):
     return is_partial_args(func, args, kwargs, sigspec)
 
 
-def _is_partial_args(func, args, kwargs):
+def _is_partial_args(
+    func: Callable,
+    args: tuple[Any, ...],
+    kwargs: Mapping[str, Any],
+) -> bool | None:
     """ Like ``is_partial_args`` for builtins in our ``signatures`` registry"""
     if func not in signatures:
         return None
@@ -713,67 +764,67 @@ def _is_partial_args(func, args, kwargs):
     return any(check_partial(sig, args, kwargs) for sig in sigs)
 
 
-def check_arity(n, sig):
+def check_arity(n: int, sig: ExpandSignatureTuple) -> bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     if keyword_exclude or num_pos_only > n:
         return False
     return is_arity(n, func, sigspec)
 
 
-def _is_arity(n, func):
+def _is_arity(n: int, func: Callable) -> bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]
     checks = [check_arity(n, sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):
+    if any(checks):
         return None
     return False
 
 
-def check_varargs(sig):
+def check_varargs(sig: ExpandSignatureTuple) -> bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     return has_varargs(func, sigspec)
 
 
-def _has_varargs(func):
+def _has_varargs(func: Callable) -> bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]
     checks = [check_varargs(sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):
+    if any(checks):
         return None
     return False
 
 
-def check_keywords(sig):
+def check_keywords(sig: ExpandSignatureTuple) -> bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     if keyword_exclude:
         return True
     return has_keywords(func, sigspec)
 
 
-def _has_keywords(func):
+def _has_keywords(func: Callable) -> bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]
     checks = [check_keywords(sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):
+    if any(checks):
         return None
     return False
 
 
-def check_required_args(sig):
+def check_required_args(sig: ExpandSignatureTuple) -> int | bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     return num_required_args(func, sigspec)
 
 
-def _num_required_args(func):
+def _num_required_args(func: Callable) -> int | bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]
