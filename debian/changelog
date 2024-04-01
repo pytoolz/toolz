@@ -1,0 +1,5 @@
+toolz (0.7.1-1) UNRELEASED; urgency=medium
+
+  * Initial release. (closes: #260)
+
+ -- blake griffith <bgriffith@continuum.io>  Sun, 02 Aug 2015 15:02:57 -0500
