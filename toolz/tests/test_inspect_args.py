@@ -482,6 +482,8 @@ def test_inspect_wrapped_property():
     wrapped = Wrapped(func)
     assert inspect.signature(func) == inspect.signature(wrapped)
 
-    assert num_required_args(Wrapped) is None
+    # Python 3.11.9/3.12.3/3.13.0 added inspect.signature support for custom
+    # callables; before then, this returned None.
+    assert num_required_args(Wrapped) in (None, 1)
     _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
     assert num_required_args(Wrapped) == 1
