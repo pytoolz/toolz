@@ -47,5 +47,5 @@ jobs:
       - name: codecov
         if: (! contains(matrix.python-version, 'pypy'))
         uses: codecov/codecov-action@v3
-        env:
+        with:
           token: ${{ secrets.CODECOV_TOKEN }}
