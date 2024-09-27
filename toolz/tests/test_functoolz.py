@@ -738,10 +738,13 @@ def test_flip():
 def test_excepts():
     # These are descriptors, make sure this works correctly.
     assert excepts.__name__ == 'excepts'
+    # in Python < 3.13 the second line is indented, in 3.13+
+    # it is not, strip all lines to fudge it
+    testlines = "\n".join((line.strip() for line in excepts.__doc__.splitlines()))
     assert (
         'A wrapper around a function to catch exceptions and\n'
-        '    dispatch to a handler.\n'
-    ) in excepts.__doc__
+        'dispatch to a handler.\n'
+    ) in testlines
 
     def idx(a):
         """idx docstring
