@@ -48,4 +48,4 @@ jobs:
         if: (! contains(matrix.python-version, 'pypy'))
         uses: codecov/codecov-action@v3
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
