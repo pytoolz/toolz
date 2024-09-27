@@ -46,6 +46,6 @@ jobs:
           # coverage report --show-missing --fail-under=100
       - name: codecov
         if: (! contains(matrix.python-version, 'pypy'))
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
