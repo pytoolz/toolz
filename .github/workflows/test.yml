@@ -43,7 +43,6 @@ jobs:
         if: (! contains(matrix.python-version, 'pypy'))
         run: |
           coverage xml
-          # coverage report --show-missing --fail-under=100
       - name: codecov
         if: (! contains(matrix.python-version, 'pypy'))
         uses: codecov/codecov-action@v4
