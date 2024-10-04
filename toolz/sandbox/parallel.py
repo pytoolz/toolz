@@ -14,10 +14,18 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     """
     Reduce without guarantee of ordered reduction.
 
+    Parameters
+    ----------
+    binops
+        Associative operator. The associative property allows us to
+        leverage a parallel map to perform reductions in parallel.
+
+
     inputs:
 
     ``binop``     - associative operator. The associative property allows us to
                     leverage a parallel map to perform reductions in parallel.
+
     ``seq``       - a sequence to be aggregated
     ``default``   - an identity element like 0 for ``add`` or 1 for mul
 
