@@ -9,8 +9,9 @@ memory.  They act like lists but don't take up space.
 Example - A Tale of Two Cities
 ------------------------------
 
-We open a file containing the text of the classic text "A Tale of Two Cities"
-by Charles Dickens[1_].
+We open `a file <http://www.gutenberg.org/cache/epub/98/pg98.txt>`_ containing
+the text of the classic text "A Tale of Two Cities"
+by Charles Dickens.
 
 .. code::
 
@@ -99,5 +100,3 @@ a few hundred bytes of Tale of Two Cities necessarily in memory.  We could just
 have easily done this computation on the entire Gutenberg collection or on
 Wikipedia.  In this case we are limited by the size and speed of our hard drive
 and not by the capacity of our memory.
-
-.. [1] http://www.gutenberg.org/cache/epub/98/pg98.txt

@@ -817,6 +817,7 @@ def join(leftkey, leftseq, rightkey, rightseq,
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
     and placed into memory.  The RIGHT sequence is evaluated lazily and so can
     be arbitrarily large.
+
     (Note: If right_default is defined, then unique keys of rightseq
         will also be stored in memory.)
 
