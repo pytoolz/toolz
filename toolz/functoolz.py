@@ -705,7 +705,7 @@ def do(func, x):
 
 
 @curry
-def flip(func, a, b):
+def flip(func, *args, **kwargs):
     """ Call the function call with the arguments flipped
 
     This function is curried.
@@ -728,7 +728,7 @@ def flip(func, a, b):
     >>> only_ints
     [1, 2, 3]
     """
-    return func(b, a)
+    return func(*reversed(args), **kwargs)
 
 
 def return_none(exc):

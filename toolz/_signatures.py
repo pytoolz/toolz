@@ -579,7 +579,7 @@ module_info['toolz'] = dict(
     excepts=[
         (0, lambda exc, func, handler=None: None)],
     flip=[
-        (0, lambda func=None, a=None, b=None: None)],
+        (0, lambda func=None, *args, **kwargs: None)],
     juxt=[
         (0, lambda *funcs: None)],
     memoize=[
