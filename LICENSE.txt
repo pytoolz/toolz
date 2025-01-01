@@ -1,4 +1,4 @@
-Copyright (c) 2013 Matthew Rocklin
+Copyright (c) 2025 Matthew Rocklin
 
 All rights reserved.
 
