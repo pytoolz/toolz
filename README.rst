@@ -103,26 +103,18 @@ See Also
 -  `functools <https://docs.python.org/2/library/functools.html>`__: The
    Python standard library for function tools
 
-Contributions Welcome
----------------------
+Project Status
+--------------
 
-``toolz`` aims to be a repository for utility functions, particularly
-those that come from the functional programming and list processing
-traditions. We welcome contributions that fall within this scope.
+**This project is alive but inactive.**
 
-We also try to keep the API small to keep ``toolz`` manageable.  The ideal
-contribution is significantly different from existing functions and has
-precedent in a few other functional systems.
+The original maintainers have mostly moved on to other endeavors.  We're still
+around for critical bug fixes, Python version bumps, and security issues and
+will commit to keeping the project alive (it's highly depended upon).
+However, beyond that we don't plan to spend much time reviewing contributions.
+We view Toolz as mostly complete.
 
-Please take a look at our
-`issue page <https://github.com/pytoolz/toolz/issues>`__
-for contribution ideas.
-
-Community
----------
-
-See our `mailing list <https://groups.google.com/forum/#!forum/pytoolz>`__.
-We're friendly.
+We encourage enthusiasts to innovate in new and wonderful places 🚀
 
 .. |Build Status| image:: https://github.com/pytoolz/toolz/actions/workflows/test.yml/badge.svg?branch=master
    :target: https://github.com/pytoolz/toolz/actions
