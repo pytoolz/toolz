@@ -1,8 +1,8 @@
 import inspect
 import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
-                             compose, compose_left, pipe, complement, do, juxt,
-                             flip, excepts, apply)
+    compose, compose_left, pipe, complement, do, juxt,
+    flip, excepts, apply, uncurry)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -797,3 +797,20 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
+
+
+def test_uncurry():
+    assert uncurry(lambda x, y: 2 * x + y)((2, 1)) == 5
+    assert uncurry(lambda foo, bar: 2 * foo + bar)({'foo': 2, 'bar': 1}) == 5
+
+    def test_args(*args):
+        if len(args) == 0:
+            return 0
+        else:
+            return args[-1] + 2 * test_args(*args[:-1])
+    assert uncurry(test_args)((3, 2, 1)) == 17
+
+    def test_kwargs(**kwargs):
+        return ", ".join(f"{k}={v}" for k, v in kwargs.items())
+
+    assert uncurry(test_kwargs)({"a": 1, "b": 2, "c": 3}) == "a=1, b=2, c=3"

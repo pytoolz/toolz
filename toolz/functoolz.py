@@ -821,6 +821,36 @@ class excepts(object):
         except AttributeError:
             return 'excepting'
 
+@curry
+def uncurry(func, arg):
+    """ Call the function unpacking the argument tuple / dict provided.
+
+    This function is curried.
+
+    >>> def f(a, b, c):
+    ...     return a + b + c
+    ...
+    >>> f(1, 2, 3)
+    6
+    >>> f(1, 2, 3) == uncurry(f, (1, 2, 3))
+    True
+    >>> def g(foo, bar):
+    ...     return foo + bar
+    ...
+    >>> g(1, 2)
+    3
+    >>> g(1, 2) == uncurry(g, {'foo': 1, 'bar': 2})
+    True
+    """
+    if (
+        hasattr(arg, 'keys')
+        and callable(arg.keys)
+        and hasattr(arg, '__getitem__')
+        and callable(arg.__getitem__)
+    ):
+        return func(**arg)
+    else:
+        return func(*arg)
 
 def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
     if sigspec is None:
