@@ -25,18 +25,18 @@ standard functions ``map`` and ``filter``.
 
 .. code::
 
-   SELECT name, balance
-   FROM accounts
-   WHERE balance > 150;
+   >>> from toolz.curried import pipe, map, filter, get
+   >>> pipe(accounts, filter(lambda acc: acc[2] > 150),
+   ...                map(get([1, 2])),
+   ...                list)
 
 These functions correspond to the SQL commands ``SELECT`` and ``WHERE``.
 
 .. code::
 
-   >>> from toolz.curried import pipe, map, filter, get
-   >>> pipe(accounts, filter(lambda acc: acc[2] > 150),
-   ...                map(get([1, 2])),
-   ...                list)
+   SELECT name, balance
+   FROM accounts
+   WHERE balance > 150;
 
 Note: this uses the `curried`` versions of ``map`` and ``filter``.
 
