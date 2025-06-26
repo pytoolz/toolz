@@ -37,7 +37,7 @@ class TlzLoader:
     def load_module(self, fullname):  # pragma: py3 no cover
         if fullname in sys.modules:  # pragma: no cover
             return sys.modules[fullname]
-        spec = ModuleSpec(fullname, self)
+        spec = ModuleSpec(fullname, self)  # pyright: ignore
         module = self.create_module(spec)
         sys.modules[fullname] = module
         self.exec_module(module)
@@ -46,7 +46,7 @@ class TlzLoader:
     def find_spec(self, fullname, path, target=None):  # pragma: no cover
         package, dot, submodules = fullname.partition('.')
         if package == 'tlz':
-            return ModuleSpec(fullname, self)
+            return ModuleSpec(fullname, self)  # pyright: ignore
 
     def create_module(self, spec):
         return types.ModuleType(spec.name)
