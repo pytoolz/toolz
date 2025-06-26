@@ -9,11 +9,12 @@ from toolz.utils import no_default
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
-           'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth',
-           'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
-           'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
-           'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+           'unique', 'nonunique', 'isiterable', 'isdistinct', 'take', 'drop',
+           'take_nth', 'first', 'second', 'nth', 'last', 'get', 'concat',
+           'concatv', 'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby',
+           'iterate', 'sliding_window', 'partition', 'partition_all', 'count',
+           'pluck', 'join', 'tail', 'diff', 'topk', 'peek', 'peekn',
+           'random_sample')
 
 
 def remove(predicate, seq):
@@ -257,6 +258,9 @@ def unique(seq, key=None):
 
     >>> tuple(unique(['cat', 'mouse', 'dog', 'hen'], key=len))
     ('cat', 'mouse')
+
+    See also:
+        nonunique
     """
     seen = set()
     seen_add = seen.add
@@ -271,6 +275,34 @@ def unique(seq, key=None):
             if val not in seen:
                 seen_add(val)
                 yield item
+
+
+def nonunique(seq, key=None):
+    """Return only the nonunique/duplicated elements of a sequence.
+
+    >>> tuple(nonunique((1, 2, 3, 1)))
+    (1,)
+    >>> tuple(nonunique((1, 2, 3)))
+    ()
+
+    See also:
+        unique
+    """
+    seen = set()
+    seen_add = seen.add
+    if key is None:
+        for item in seq:
+            if item in seen:
+                yield item
+            else:
+                seen_add(item)
+    else:
+        for item in seq:
+            val = key(item)
+            if val in seen:
+                yield item
+            else:
+                seen_add(val)
 
 
 def isiterable(x):
@@ -304,12 +336,8 @@ def isdistinct(seq):
     True
     """
     if iter(seq) is seq:
-        seen = set()
-        seen_add = seen.add
-        for item in seq:
-            if item in seen:
-                return False
-            seen_add(item)
+        for item in nonunique(seq):
+            return False
         return True
     else:
         return len(seq) == len(set(seq))
