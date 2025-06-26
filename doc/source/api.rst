@@ -65,6 +65,7 @@ Functoolz
    juxt
    memoize
    pipe
+   thread_as
    thread_first
    thread_last
 
