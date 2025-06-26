@@ -1,10 +1,11 @@
+import os
 from collections import defaultdict as _defaultdict
 from collections.abc import Mapping
-import os
-from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
-                             assoc, dissoc, keyfilter, valfilter, itemmap,
-                             itemfilter, assoc_in)
 from toolz.functoolz import identity
+from toolz.dicttoolz import (assoc, assoc_in, dissoc, itemfilter,
+                             itemmap, keyfilter, keymap, merge,
+                             merge_with, select_keys, update_in,
+                             valfilter, valmap)
 from toolz.utils import raises
 
 
@@ -118,6 +119,14 @@ class TestDict(object):
         d2 = assoc_in(d, ['x'], 2, **kw)
         assert d is oldd
         assert d2 is not oldd
+
+    def test_select_keys(self):
+        D, kw = self.D, self.kw
+        assert select_keys([], D({}), **kw) == D({})
+        assert select_keys(["a"], D({"a": 1}), **kw) == D({"a": 1})
+        assert select_keys([], D({"a": 1}), **kw) == D({})
+        assert select_keys(["b"], D({"a": 1}), **kw) == D({})
+        assert select_keys(["b"], D({"a": 1, "b": 2}), **kw) == D({"b": 2})
 
     def test_update_in(self):
         D, kw = self.D, self.kw
