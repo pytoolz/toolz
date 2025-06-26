@@ -495,6 +495,10 @@ class Compose(object):
     def __setstate__(self, state):
         self.first, self.funcs = state
 
+    def __iter__(self):
+        for f in reversed(self.funcs): yield f
+        yield self.first
+
     @instanceproperty(classval=__doc__)
     def __doc__(self):
         def composed_doc(*fs):
@@ -509,7 +513,7 @@ class Compose(object):
         try:
             return (
                 'lambda *args, **kwargs: ' +
-                composed_doc(*reversed((self.first,) + self.funcs))
+                composed_doc(*self)
             )
         except AttributeError:
             # One of our callables does not have a `__name__`, whatever.
@@ -519,14 +523,14 @@ class Compose(object):
     def __name__(self):
         try:
             return '_of_'.join(
-                (f.__name__ for f in reversed((self.first,) + self.funcs))
+                (f.__name__ for f in self)
             )
         except AttributeError:
             return type(self).__name__
 
     def __repr__(self):
         return '{.__class__.__name__}{!r}'.format(
-            self, tuple(reversed((self.first, ) + self.funcs)))
+            self, tuple(self))
 
     def __eq__(self, other):
         if isinstance(other, Compose):
