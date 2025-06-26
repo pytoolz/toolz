@@ -476,12 +476,13 @@ class Compose(object):
     See Also:
         compose
     """
-    __slots__ = 'first', 'funcs'
+    __slots__ = 'first', 'funcs', '__custom_doc'
 
     def __init__(self, funcs):
         funcs = tuple(reversed(funcs))
         self.first = funcs[0]
         self.funcs = funcs[1:]
+        self.__custom_doc = None
 
     def __call__(self, *args, **kwargs):
         ret = self.first(*args, **kwargs)
@@ -497,14 +498,19 @@ class Compose(object):
 
     @instanceproperty(classval=__doc__)
     def __doc__(self):
-        def composed_doc(*fs):
-            """Generate a docstring for the composition of fs.
-            """
-            if not fs:
-                # Argument name for the docstring.
-                return '*args, **kwargs'
+        if self.__custom_doc is not None:
+            return self.__custom_doc
+        else:
+            def composed_doc(*fs):
+                """Generate a docstring for the composition of fs.
+                """
+                if not fs:
+                    # Argument name for the docstring.
+                    return '*args, **kwargs'
 
-            return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+                return '{f}({g})'.format(
+                    f=fs[0].__name__, g=composed_doc(*fs[1:])
+                )
 
         try:
             return (
@@ -514,6 +520,10 @@ class Compose(object):
         except AttributeError:
             # One of our callables does not have a `__name__`, whatever.
             return 'A composition of functions'
+
+    @__doc__.setter
+    def __doc__(self, doc):
+        self.__custom_doc = doc
 
     @property
     def __name__(self):

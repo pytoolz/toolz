@@ -584,6 +584,10 @@ def test_compose_metadata():
     assert composed.__name__ == 'f_of_g'
     assert composed.__doc__ == 'lambda *args, **kwargs: f(g(*args, **kwargs))'
 
+    # Mutate composition docstring; testing the setter for Compose.__doc__
+    composed.__doc__ = "My composition description"
+    assert composed.__doc__ == "My composition description"
+
     # Create an object with no __name__.
     h = object()
 
