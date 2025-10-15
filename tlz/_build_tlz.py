@@ -7,6 +7,7 @@ from importlib.machinery import ModuleSpec
 
 class TlzLoader:
     """ Finds and loads ``tlz`` modules when added to sys.meta_path"""
+
     def __init__(self):
         self.always_from_toolz = {
             toolz.pipe,

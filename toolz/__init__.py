@@ -21,6 +21,7 @@ from . import curried, sandbox
 
 functoolz._sigs.create_signature_registry()
 
+
 def __getattr__(name):
     if name == "__version__":
         from importlib.metadata import version

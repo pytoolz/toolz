@@ -68,3 +68,6 @@ omit = [
 exclude_lines = [
     "pragma: no cover",
 ]
+
+[tool.codespell]
+ignore-words-list = "juxt,lamda"

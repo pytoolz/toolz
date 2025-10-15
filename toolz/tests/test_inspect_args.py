@@ -490,13 +490,12 @@ def test_inspect_wrapped_property():
     inspectbroken = True
     if sys.version_info.major > 3:
         inspectbroken = False
-    if sys.version_info.major == 3:
-        if sys.version_info.minor == 11 and sys.version_info.micro > 8:
-            inspectbroken = False
-        if sys.version_info.minor == 12 and sys.version_info.micro > 2:
-            inspectbroken = False
-        if sys.version_info.minor > 12:
-            inspectbroken = False
+    if sys.version_info.minor == 11 and sys.version_info.micro > 8:
+        inspectbroken = False
+    if sys.version_info.minor == 12 and sys.version_info.micro > 2:
+        inspectbroken = False
+    if sys.version_info.minor > 12:
+        inspectbroken = False
 
     if inspectbroken:
         assert num_required_args(Wrapped) is None

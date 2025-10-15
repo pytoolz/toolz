@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 
 jobs:
@@ -37,13 +37,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install coverage pep8 pytest
+          pip install coverage pycodestyle pytest
           pip install -e .
-      - name: PyTest
+      - name: Pytest
         run: |
           coverage run -m pytest --doctest-modules toolz/
           pytest bench/
-          pep8 --ignore="E731,W503,E402" --exclude=conf.py,tests,examples,bench -r --show-source .
+          pycodestyle --ignore="E731,W503,W504,E402" --exclude=conf.py,tests,examples,bench -r --show-source .
       - name: Coverage
         if: (! contains(matrix.python-version, 'pypy'))
         run: |
