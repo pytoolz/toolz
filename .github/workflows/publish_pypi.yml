@@ -1,7 +1,10 @@
 name: Publish to PyPI
 
 on:
+  pull_request:  # Uncomment to debug wheel building in a PR
   push:
+    branches:
+      - master
     tags:
       - '[0-9]+.[0-9]+.[0-9]+*'
 
@@ -13,19 +16,30 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.8"
+          python-version: "3.9"
       - name: Install build dependencies
-        run: python -m pip install setuptools wheel
-      - name: Build wheel
-        run: python setup.py sdist bdist_wheel
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+      - name: Build wheel and sdist
+        run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: releases
+          path: dist
+          if-no-files-found: error
+      - name: Check with twine
+        run: python -m twine check --strict dist/*
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.11
+        uses: pypa/gh-action-pypi-publish@v1.13.0
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'pytoolz/toolz'
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}

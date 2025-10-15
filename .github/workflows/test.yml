@@ -13,22 +13,25 @@ jobs:
       matrix:
         os: ["ubuntu-latest"]
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
-          - "3.14-dev"
-          - "pypy-3.8"
+          - "3.13t"
+          - "3.14"
+          - "3.14t"
           - "pypy-3.9"
           - "pypy-3.10"
           - "pypy-3.11"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies

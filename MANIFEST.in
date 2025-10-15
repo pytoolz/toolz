@@ -1,5 +1,8 @@
+recursive-include toolz *
+recursive-include tlz *
+include AUTHORS.md
 include LICENSE.txt
-
-include toolz/tests/*.py
-include versioneer.py
-include toolz/_version.py
+include MANIFEST.in
+include README.rst
+include pyproject.toml
+global-exclude *.pyc *~ *.bak *.swp *.swo *.pyo *.so

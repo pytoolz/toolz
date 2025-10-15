@@ -19,7 +19,7 @@ def make_func(param_string, raise_if_called=True):
     else:
         body = 'return True'
     d = {}
-    exec('def func%s:\n    %s' % (param_string, body), globals(), d)
+    exec(f'def func{param_string}:\n    {body}', globals(), d)
     return d['func']
 
 
@@ -189,7 +189,7 @@ def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
     f.__signature__ = 34
     assert check_valid(f) is False
 
-    class RaisesValueError(object):
+    class RaisesValueError:
         def __call__(self):
             pass
         @property
@@ -257,7 +257,7 @@ def test_has_unknown_args():
     f.__signature__ = 34
     assert has_varargs(f) is False
 
-    class RaisesValueError(object):
+    class RaisesValueError:
         def __call__(self):
             pass
         @property
@@ -440,7 +440,7 @@ def test_inspect_signature_property():
     # By adding AddX to our signature registry, we can inspect the class
     # itself and objects of the class.  `inspect.signature` doesn't like
     # it when `obj.__signature__` is a property.
-    class AddX(object):
+    class AddX:
         def __init__(self, func):
             self.func = func
 
@@ -469,7 +469,7 @@ def test_inspect_signature_property():
 
 
 def test_inspect_wrapped_property():
-    class Wrapped(object):
+    class Wrapped:
         def __init__(self, func):
             self.func = func
 

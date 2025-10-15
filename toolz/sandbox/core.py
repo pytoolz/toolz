@@ -4,7 +4,7 @@ from itertools import tee, starmap
 
 # See #166: https://github.com/pytoolz/toolz/issues/166
 # See #173: https://github.com/pytoolz/toolz/pull/173
-class EqualityHashKey(object):
+class EqualityHashKey:
     """ Create a hash key that uses equality comparisons between items.
 
     This may be used to create hash keys for otherwise unhashable types:

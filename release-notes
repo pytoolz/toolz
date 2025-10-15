@@ -23,7 +23,7 @@ New in 0.6.0
 
 *   memoize is curried by default
 *   memoize support `key` keyword argument
-*   Cleaned up issues in curried namespace 
+*   Cleaned up issues in curried namespace
 *   Unary functions memoize with just the single argument, not a tuple
 *   Flattened directory structure
 *   Add `pluck` function from underscore.js
