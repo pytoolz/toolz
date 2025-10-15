@@ -57,7 +57,7 @@ packages = [
 ]
 
 [tool.coverage.run]
-source = "toolz"
+source = ["toolz"]
 omit = [
   "toolz/tests/test*",
   "toolz/*/tests/test*",
