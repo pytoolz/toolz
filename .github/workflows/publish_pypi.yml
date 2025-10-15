@@ -1,7 +1,7 @@
 name: Publish to PyPI
 
 on:
-  pull_request:  # Uncomment to debug wheel building in a PR
+  pull_request:
   push:
     branches:
       - master
