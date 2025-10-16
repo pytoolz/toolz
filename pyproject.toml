@@ -67,6 +67,21 @@ omit = [
   "toolz/compatibility.py",
 ]
 
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["toolz"]
+xfail_strict = true
+addopts = [
+  "--strict-config",  # Force error if config is mispelled
+  "--strict-markers", # Force error if marker is mispelled (must be defined in config)
+  "-ra",              # Print summary of all fails/errors
+]
+log_cli_level = "info"
+filterwarnings = [
+  "error",
+  "ignore:The toolz.compatibility module is no longer needed:DeprecationWarning:",
+]
+
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
