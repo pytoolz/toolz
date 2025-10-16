@@ -1,0 +1,76 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools >=77",
+  "setuptools-git-versioning >=2.0",
+]
+
+[project]
+name = "toolz"
+dynamic = ["version"]
+description = "List processing tools and functional utilities"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.txt"]
+authors = [
+  { name = "PyToolz Contributors" },
+]
+maintainers = [
+  { name = "Erik Welch", email = "erik.n.welch@gmail.com" },
+]
+keywords = [
+  "functional",
+  "utility",
+  "itertools",
+  "functools",
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+homepage = "https://github.com/pytoolz/toolz"
+repository = "https://github.com/pytoolz/toolz"
+documentation = "https://toolz.readthedocs.io/en/latest/"
+changelog = "https://github.com/pytoolz/toolz/releases"
+
+[tool.setuptools-git-versioning]
+enabled = true
+dev_template = "{tag}+{ccount}.g{sha}"
+dirty_template = "{tag}+{ccount}.g{sha}.dirty"
+
+[tool.setuptools]
+packages = [
+  "toolz",
+  "toolz.curried",
+  "toolz.sandbox",
+  "toolz.tests",
+  "tlz",
+]
+
+[tool.coverage.run]
+source = ["toolz"]
+omit = [
+  "toolz/tests/test*",
+  "toolz/*/tests/test*",
+  "toolz/compatibility.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+]
+
+[tool.codespell]
+ignore-words-list = "juxt,lamda"

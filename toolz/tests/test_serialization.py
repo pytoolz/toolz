@@ -66,7 +66,7 @@ def test_curried_exceptions():
 
 
 @toolz.curry
-class GlobalCurried(object):
+class GlobalCurried:
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -83,7 +83,7 @@ class GlobalCurried(object):
         return GlobalCurried, (self.x, self.y)
 
     @toolz.curry
-    class NestedCurried(object):
+    class NestedCurried:
         def __init__(self, x, y):
             self.x = x
             self.y = y
@@ -99,7 +99,7 @@ class GlobalCurried(object):
             """Allow us to serialize instances of NestedCurried"""
             return GlobalCurried.NestedCurried, (self.x, self.y)
 
-    class Nested(object):
+    class Nested:
         def __init__(self, x, y):
             self.x = x
             self.y = y
@@ -186,7 +186,7 @@ def test_curried_qualname():
 
 def test_curried_bad_qualname():
     @toolz.curry
-    class Bad(object):
+    class Bad:
         __qualname__ = 'toolz.functoolz.not.a.valid.path'
 
     assert raises(pickle.PicklingError, lambda: pickle.dumps(Bad))

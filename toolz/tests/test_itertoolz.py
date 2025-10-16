@@ -345,7 +345,7 @@ def test_partition_all():
     assert list(partition_all(2, [])) == []
 
     # Regression test: https://github.com/pytoolz/toolz/issues/387
-    class NoCompare(object):
+    class NoCompare:
         def __eq__(self, other):
             if self.__class__ == other.__class__:
                 return True
@@ -569,6 +569,6 @@ def test_random_sample():
 
     assert mk_rsample(hash(object)) == mk_rsample(hash(object))
     assert mk_rsample(hash(object)) != mk_rsample(hash(object()))
-    assert mk_rsample(b"a") == mk_rsample(u"a")
+    assert mk_rsample(b"a") == mk_rsample("a")
 
     assert raises(TypeError, lambda: mk_rsample([]))

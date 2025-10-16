@@ -165,7 +165,7 @@ class InstanceProperty(property):
         return InstanceProperty, state
 
 
-class curry(object):
+class curry:
     """ Curry a callable function
 
     Enables partial application of arguments through calling a function with an
@@ -365,7 +365,7 @@ class curry(object):
             if isinstance(obj, curry) and obj.func is func:
                 is_decorated = obj is self
                 qualname = '.'.join(attrs)
-                func = '%s:%s' % (modname, qualname)
+                func = f'{modname}:{qualname}'
 
         # functools.partial objects can't be pickled
         userdict = tuple((k, v) for k, v in self.__dict__.items()
@@ -470,7 +470,7 @@ def memoize(func, cache=None, key=None):
     return memof
 
 
-class Compose(object):
+class Compose:
     """ A composition of functions
 
     See Also:
@@ -504,7 +504,7 @@ class Compose(object):
                 # Argument name for the docstring.
                 return '*args, **kwargs'
 
-            return '{f}({g})'.format(f=fs[0].__name__, g=composed_doc(*fs[1:]))
+            return f'{fs[0].__name__}({composed_doc(*fs[1:])})'
 
         try:
             return (
@@ -519,7 +519,7 @@ class Compose(object):
     def __name__(self):
         try:
             return '_of_'.join(
-                (f.__name__ for f in reversed((self.first,) + self.funcs))
+                f.__name__ for f in reversed((self.first,) + self.funcs)
             )
         except AttributeError:
             return type(self).__name__
@@ -645,7 +645,7 @@ def complement(func):
     return compose(not_, func)
 
 
-class juxt(object):
+class juxt:
     """ Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
@@ -737,7 +737,7 @@ def return_none(exc):
     return None
 
 
-class excepts(object):
+class excepts:
     """A wrapper around a function to catch exceptions and
     dispatch to a handler.
 
@@ -817,7 +817,7 @@ class excepts(object):
                 exc_name = '_or_'.join(map(attrgetter('__name__'), exc))
             else:
                 exc_name = exc.__name__
-            return '%s_excepting_%s' % (self.func.__name__, exc_name)
+            return f'{self.func.__name__}_excepting_{exc_name}'
         except AttributeError:
             return 'excepting'
 
@@ -833,10 +833,10 @@ def _check_sigspec(sigspec, func, builtin_func, *builtin_args):
     elif not isinstance(sigspec, inspect.Signature):
         if (
             func in _sigs.signatures
-            and ((
+            and (
                 hasattr(func, '__signature__')
                 and hasattr(func.__signature__, '__get__')
-            ))
+            )
         ):
             val = builtin_func(*builtin_args)
             return None, val

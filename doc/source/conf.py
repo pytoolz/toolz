@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Toolz documentation build configuration file, created by
 # sphinx-quickstart on Sun Sep 22 18:06:00 2013.
 #
@@ -41,8 +39,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Toolz'
-copyright = u'2013, Matthew Rocklin, John Jacobsen'
+project = 'Toolz'
+copyright = '2013, Matthew Rocklin, John Jacobsen'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,8 +183,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Toolz.tex', u'Toolz Documentation',
-   u'Matthew Rocklin, John Jacobsen', 'manual'),
+  ('index', 'Toolz.tex', 'Toolz Documentation',
+   'Matthew Rocklin, John Jacobsen', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,8 +213,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'toolz', u'Toolz Documentation',
-     [u'Matthew Rocklin, John Jacobsen'], 1)
+    ('index', 'toolz', 'Toolz Documentation',
+     ['Matthew Rocklin, John Jacobsen'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -229,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Toolz', u'Toolz Documentation',
-   u'Matthew Rocklin, John Jacobsen', 'Toolz', 'One line description of project.',
+  ('index', 'Toolz', 'Toolz Documentation',
+   'Matthew Rocklin, John Jacobsen', 'Toolz', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -247,10 +245,10 @@ texinfo_documents = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'Toolz'
-epub_author = u'Matthew Rocklin, John Jacobsen'
-epub_publisher = u'Matthew Rocklin, John Jacobsen'
-epub_copyright = u'2013, Matthew Rocklin, John Jacobsen'
+epub_title = 'Toolz'
+epub_author = 'Matthew Rocklin, John Jacobsen'
+epub_publisher = 'Matthew Rocklin, John Jacobsen'
+epub_copyright = '2013, Matthew Rocklin, John Jacobsen'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
@@ -273,7 +271,7 @@ epub_copyright = u'2013, Matthew Rocklin, John Jacobsen'
 # The format is a list of tuples containing the path and title.
 #epub_pre_files = []
 
-# HTML files shat should be inserted after the pages created by sphinx.
+# HTML files that should be inserted after the pages created by sphinx.
 # The format is a list of tuples containing the path and title.
 #epub_post_files = []
 
