@@ -13,6 +13,9 @@ readme = "README.rst"
 requires-python = ">=3.9"
 license = "BSD-3-Clause"
 license-files = ["LICENSE.txt"]
+authors = [
+  { name = "PyToolz Contributors" },
+]
 maintainers = [
   { name = "Erik Welch", email = "erik.n.welch@gmail.com" },
 ]
