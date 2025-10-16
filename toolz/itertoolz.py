@@ -6,6 +6,7 @@ from functools import partial
 from itertools import filterfalse, zip_longest
 from collections.abc import Sequence
 from toolz.utils import no_default
+from toolz.exceptions import IterationError
 
 
 __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
@@ -366,7 +367,9 @@ def first(seq):
     >>> first('ABC')
     'A'
     """
-    return next(iter(seq))
+    for rv in seq:
+        return rv
+    raise IterationError("Received empty sequence")
 
 
 def second(seq):
@@ -376,8 +379,14 @@ def second(seq):
     'B'
     """
     seq = iter(seq)
-    next(seq)
-    return next(seq)
+    for item in seq:
+        break
+    else:
+        raise IterationError("Received empty sequence")
+    for item in seq:
+        return item
+    else:
+        raise IterationError("Length of sequence is < 2")
 
 
 def nth(n, seq):
@@ -389,7 +398,9 @@ def nth(n, seq):
     if isinstance(seq, (tuple, list, Sequence)):
         return seq[n]
     else:
-        return next(itertools.islice(seq, n, None))
+        for rv in itertools.islice(seq, n, None):
+            return rv
+        raise IterationError("Length of seq is < %d" % n)
 
 
 def last(seq):
@@ -524,8 +535,9 @@ def interpose(el, seq):
     [1, 'a', 2, 'a', 3]
     """
     inposed = concat(zip(itertools.repeat(el), seq))
-    next(inposed)
-    return inposed
+    for _ in inposed:
+        return inposed
+    raise IterationError("Received empty sequence")
 
 
 def frequencies(seq):
@@ -715,13 +727,16 @@ def partition_all(n, seq):
     """
     args = [iter(seq)] * n
     it = zip_longest(*args, fillvalue=no_pad)
+
     try:
         prev = next(it)
     except StopIteration:
         return
+
     for item in it:
         yield prev
         prev = item
+
     if prev[-1] is no_pad:
         try:
             # If seq defines __len__, then
@@ -996,8 +1011,11 @@ def peek(seq):
     [0, 1, 2, 3, 4]
     """
     iterator = iter(seq)
-    item = next(iterator)
-    return item, itertools.chain((item,), iterator)
+    for peeked in iterator:
+        break
+    else:
+        raise IterationError("Received empty sequence")
+    return peeked, itertools.chain((peeked,), iterator)
 
 
 def peekn(n, seq):
@@ -1015,7 +1033,7 @@ def peekn(n, seq):
     """
     iterator = iter(seq)
     peeked = tuple(take(n, iterator))
-    return peeked, itertools.chain(iter(peeked), iterator)
+    return peeked, itertools.chain(peeked, iterator)
 
 
 def random_sample(prob, seq, random_state=None):
