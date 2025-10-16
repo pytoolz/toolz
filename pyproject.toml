@@ -79,6 +79,7 @@ addopts = [
 log_cli_level = "info"
 filterwarnings = [
   "error",
+  "ignore:The toolz.compatibility module is no longer needed:DeprecationWarning:",
 ]
 
 [tool.coverage.report]
