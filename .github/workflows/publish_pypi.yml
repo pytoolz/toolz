@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: Builid Wheel and Release
 
 on:
   pull_request:
@@ -17,24 +17,23 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+*'
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   build-artifacts:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     defaults:
       run:
         shell: bash -l {0}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c  # v6.0.0
         with:
           python-version: "3.9"
       - name: Install build dependencies
@@ -43,7 +42,7 @@ jobs:
           python -m pip install build twine
       - name: Build wheel and sdist
         run: python -m build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: releases
           path: dist
@@ -60,16 +59,15 @@ jobs:
       name: test-pypi
       url: https://test.pypi.org/p/toolz
     permissions:
-      contents: read
       id-token: write
 
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: releases
           path: dist
       - name: Publish to Test-PyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
         with:
           repository-url: https://test.pypi.org/legacy/
           print-hash: true
@@ -84,16 +82,23 @@ jobs:
       name: pypi
       url: https://pypi.org/p/toolz
     permissions:
-      contents: read
       id-token: write
+      attestations: write
 
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5.0.0
         with:
           name: releases
           path: dist
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0
+
+      - name: Generate artifact attestation for sdist and wheel
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a  # v3.0.0
         with:
+          subject-path: "dist/toolz-*"
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e  # v1.13.0
+        with:
+          attestations: true
           print-hash: true
           verbose: true
