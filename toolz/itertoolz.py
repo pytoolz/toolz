@@ -732,7 +732,12 @@ def partition_all(n, seq):
         try:
             # If seq defines __len__, then
             # we can quickly calculate where no_pad starts
-            yield prev[:len(seq) % n]
+            end = len(seq) % n
+            if prev[end - 1] is no_pad or prev[end] is not no_pad:
+                raise LookupError(
+                    'The sequence passed to `parition_all` has invalid length'
+                )
+            yield prev[:end]
         except TypeError:
             # Get first index of no_pad without using .index()
             # https://github.com/pytoolz/toolz/issues/387
