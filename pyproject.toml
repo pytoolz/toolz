@@ -55,6 +55,7 @@ packages = [
   "toolz",
   "toolz.curried",
   "toolz.sandbox",
+  "toolz.sandbox.tests",
   "toolz.tests",
   "tlz",
 ]
