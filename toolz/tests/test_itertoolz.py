@@ -1,3 +1,4 @@
+import pytest
 import itertools
 from itertools import starmap
 from toolz.utils import raises
@@ -13,7 +14,7 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, peekn, random_sample)
+                             diff, topk, peek, peekn, random_sample, flatten)
 from operator import add, mul
 
 
@@ -586,3 +587,37 @@ def test_random_sample():
     assert mk_rsample(b"a") == mk_rsample("a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
+
+
+def test_flat():
+    seq = [1, 2, 3, 4]
+    assert list(flatten(0, seq)) == seq
+    assert list(flatten(1, seq)) == seq
+
+    seq = [1, [2, [3]]]
+    assert list(flatten(0, seq)) == seq
+    assert list(flatten(1, seq)) == [1, 2, [3]]
+    assert list(flatten(2, seq)) == [1, 2, 3]
+
+    # Test mappings
+    seq = [{'a': 1}, [1, 2, 3]]
+    assert list(flatten(0, seq)) == seq
+    assert list(flatten(1, seq)) == [{'a': 1}, 1, 2, 3]
+
+    # Test stringsj
+    seq = ["asgf", b"abcd"]
+    assert list(flatten(-1, seq)) == seq
+
+    # Test custom descend function
+    def descend(x):
+        if isinstance(x, str):
+            return len(x) != 1
+        return False
+    seq = ["asdf", [1, 2, 3]]
+    assert list(flatten(1, seq, descend=descend)) == ["a", "s", "d", "f", [1, 2, 3]]
+
+    with pytest.raises(ValueError):
+        list(flatten(0, [1, 2], descend=True))
+
+    with pytest.raises(ValueError):
+        list(flatten(-2, [1, 2]))
