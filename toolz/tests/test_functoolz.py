@@ -2,8 +2,8 @@ import inspect
 import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
-                             flip, excepts, apply)
-from operator import add, mul, itemgetter
+                             flip, excepts, apply, thread_as)
+from operator import add, mul, itemgetter, pow
 from toolz.utils import raises
 from functools import partial
 
@@ -62,6 +62,18 @@ def test_thread_last():
     assert list(thread_last([1, 2, 3], (map, inc), (filter, iseven))) == [2, 4]
     assert list(thread_last([1, 2, 3], (map, inc), (filter, isodd))) == [3]
     assert thread_last(2, (add, 5), double) == 14
+
+
+def test_thread_as():
+    name = "somevalname"
+    assert thread_as(2, name) == 2
+    assert thread_as(2, name, (inc, name)) == 3
+    assert thread_as(2, name, (inc, name), (inc, name)) == 4
+    assert thread_as(2, name, (double, name), (inc, name)) == 5
+    assert thread_as(2, name, (add, name, 5), (double, name)) == 14
+    assert list(thread_as([1, 2, 3], name, (map, inc, name), (filter, iseven, name))) == [2, 4]
+    assert list(thread_as([1, 2, 3], name, (map, inc, name), (filter, isodd, name))) == [3]
+    assert thread_as(1, name, (add, 4, name), (pow, name, 3)) == 5**3
 
 
 def test_memoize():

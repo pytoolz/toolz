@@ -10,9 +10,9 @@ from .utils import no_default
 PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
 
 
-__all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
-           'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
-           'curry', 'flip', 'excepts')
+__all__ = ('identity', 'apply', 'thread_as', 'thread_first', 'thread_last',
+           'memoize', 'compose', 'compose_left', 'pipe', 'complement', 'juxt',
+           'do', 'curry', 'flip', 'excepts')
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -65,6 +65,7 @@ def thread_first(val, *forms):
         g(f(x), y, z)
 
     See Also:
+        thread_as
         thread_last
     """
     def evalform_front(val, form):
@@ -104,6 +105,7 @@ def thread_last(val, *forms):
     [2, 4]
 
     See Also:
+        thread_as
         thread_first
     """
     def evalform_back(val, form):
@@ -114,6 +116,45 @@ def thread_last(val, *forms):
             args = args + (val,)
             return func(*args)
     return reduce(evalform_back, forms, val)
+
+
+def thread_as(val, name, *forms):
+    """ Thread named value through a sequence of functions/forms
+
+    The function, and its inputs, should be specified in a tuple.
+    The given value name is replaced with the actual value, wherever present.
+
+    >>> def double(x): return 2*x
+    >>> def inc(x):    return x + 1
+    >>> v = "somevalname"
+    >>> thread_as(1, v, (inc, v), (double, v))
+    4
+
+    >>> def add(x, y): return x + y
+    >>> def pow(x, y): return x**y
+    >>> v = "someothervalname"
+    >>> thread_as(1, v, (add, 4, v), (pow, v, 3))
+    125
+
+    So in general
+        thread_as(x, v, (f, v), (g, y, v, z))
+    expands to
+        g(y, f(x), z)
+
+    See Also:
+        thread_first
+        thread_last
+    """
+    def arg_val(val, arg):
+        return val if arg == name else arg
+
+    def evalform_as(val, form):
+        if isinstance(form, tuple):
+            func, args = \
+                form[0],\
+                map(partial(arg_val, val), form[1:])
+            return func(*args)
+    return reduce(evalform_as, forms, val)
 
 
 def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
@@ -621,6 +662,7 @@ def pipe(data, *funcs):
     See Also:
         compose
         compose_left
+        thread_as
         thread_first
         thread_last
     """

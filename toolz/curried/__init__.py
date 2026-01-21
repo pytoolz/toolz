@@ -50,6 +50,7 @@ from toolz import (
     peek,
     pipe,
     second,
+    thread_as,
     thread_first,
     thread_last,
 )
@@ -98,6 +99,7 @@ unique = toolz.curry(toolz.unique)
 update_in = toolz.curry(toolz.update_in)
 valfilter = toolz.curry(toolz.valfilter)
 valmap = toolz.curry(toolz.valmap)
+thread_as = toolz.curry(toolz.thread_as)
 
 del exceptions
 del toolz
