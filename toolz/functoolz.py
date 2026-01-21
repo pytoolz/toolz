@@ -1,7 +1,7 @@
-from functools import reduce, partial
+from functools import reduce, partial, wraps
 import inspect
 import sys
-from operator import attrgetter, not_
+from operator import itemgetter, attrgetter, not_
 from importlib import import_module
 from types import MethodType
 
@@ -12,7 +12,7 @@ PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',
-           'curry', 'flip', 'excepts')
+           'curry', 'flip', 'excepts', 'reorder_args')
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -729,6 +729,42 @@ def flip(func, a, b):
     [1, 2, 3]
     """
     return func(b, a)
+
+
+def reorder_args(func, new_args):
+    """ Returns a new function with a desired argument order.
+
+    >>> def op(a, b, c):
+    ...    return a // (b - c)
+    ...
+    >>> new_op = reorder_args(op, ('c', 'a', 'b'))
+    >>> new_op(1, 2, 3) == op(2, 3, 1)
+    True
+    """
+    func_sig = inspect.signature(func)
+    arg_map = []
+    parameters = [None] * len(func_sig.parameters)
+    for i, arg in enumerate(func_sig.parameters.values()):
+        if (arg.kind in {inspect.Parameter.POSITIONAL_ONLY, 
+                         inspect.Parameter.VAR_POSITIONAL, 
+                         inspect.Parameter.POSITIONAL_OR_KEYWORD}
+                and arg.default is inspect._empty):
+            try:
+                new_ind = new_args.index(arg.name)
+                arg_map.append(new_ind)
+                parameters[new_ind] = arg
+            except ValueError:
+                raise ValueError(f"Unable to find positional argument `{arg.name}` in signature for `{func.__name__}`")
+        else:
+            parameters[i] = arg
+
+    _mapper = itemgetter(*arg_map)
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*_mapper(args), **kwargs)
+
+    wrapper.__signature__ = func_sig.replace(parameters=parameters)
+    return wrapper
 
 
 def return_none(exc):

@@ -2,8 +2,8 @@ import inspect
 import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
-                             flip, excepts, apply)
-from operator import add, mul, itemgetter
+                             flip, excepts, apply, reorder_args)
+from operator import add, mul, getitem, itemgetter
 from toolz.utils import raises
 from functools import partial
 
@@ -797,3 +797,17 @@ def test_excepts():
     excepting = excepts(object(), object(), object())
     assert excepting.__name__ == 'excepting'
     assert excepting.__doc__ == excepts.__doc__
+
+
+def test_reorder_args():
+    def op(a, b, c, d=1):
+        return a // (b - c) + d
+
+    new_op = reorder_args(op, ('c', 'a', 'b'))
+    assert new_op(1, 2, 3, d=1) == op(2, 3, 1, d=1)
+
+    # test builtin functions (ie C functions)
+    getflip = reorder_args(getitem, ('b', 'a'))
+    get1 = curry(getflip, 1)
+    assert get1([1, 2, 3, 1, 1]) == 2
+    
