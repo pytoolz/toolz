@@ -55,7 +55,7 @@ def accumulate(binop, seq, initial=no_default):
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    if initial == no_default:
+    if initial is no_default:
         try:
             result = next(seq)
         except StopIteration:
@@ -448,7 +448,7 @@ def get(ind, seq, default=no_default):
         return seq[ind]
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
-            if default == no_default:
+            if default is no_default:
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
                 elif ind:
@@ -457,12 +457,12 @@ def get(ind, seq, default=no_default):
                     return ()
             else:
                 return tuple(_get(i, seq, default) for i in ind)
-        elif default != no_default:
+        elif default is not no_default:
             return default
         else:
             raise
     except (KeyError, IndexError):  # we know `ind` is not a list
-        if default == no_default:
+        if default is no_default:
             raise
         else:
             return default
@@ -605,7 +605,7 @@ def reduceby(key, binop, seq, init=no_default):
     {True:  set([2, 4]),
      False: set([1, 3])}
     """
-    is_no_default = init == no_default
+    is_no_default = init is no_default
     if not is_no_default and not callable(init):
         _init = init
         init = lambda: _init
@@ -787,7 +787,7 @@ def pluck(ind, seqs, default=no_default):
         get
         map
     """
-    if default == no_default:
+    if default is no_default:
         get = getter(ind)
         return map(get, seqs)
     elif isinstance(ind, list):
@@ -876,14 +876,14 @@ def join(leftkey, leftseq, rightkey, rightseq,
 
     d = groupby(leftkey, leftseq)
 
-    if left_default == no_default and right_default == no_default:
+    if left_default is no_default and right_default is no_default:
         # Inner Join
         for item in rightseq:
             key = rightkey(item)
             if key in d:
                 for left_match in d[key]:
                     yield (left_match, item)
-    elif left_default != no_default and right_default == no_default:
+    elif left_default is not no_default and right_default is no_default:
         # Right Join
         for item in rightseq:
             key = rightkey(item)
@@ -892,11 +892,11 @@ def join(leftkey, leftseq, rightkey, rightseq,
                     yield (left_match, item)
             else:
                 yield (left_default, item)
-    elif right_default != no_default:
+    elif right_default is not no_default:
         seen_keys = set()
         seen = seen_keys.add
 
-        if left_default == no_default:
+        if left_default is no_default:
             # Left Join
             for item in rightseq:
                 key = rightkey(item)
@@ -945,7 +945,7 @@ def diff(*seqs, **kwargs):
     if N < 2:
         raise TypeError('Too few sequences given (min 2 required)')
     default = kwargs.get('default', no_default)
-    if default == no_default:
+    if default is no_default:
         iters = zip(*seqs)
     else:
         iters = zip_longest(*seqs, fillvalue=default)

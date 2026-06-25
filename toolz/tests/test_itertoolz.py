@@ -17,7 +17,8 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
 from operator import add, mul
 
 
-# is comparison will fail between this and no_default
+# A string equal to (but not identical to) the no_default sentinel.
+# Identity-based ('is') comparisons correctly treat this as a real value.
 no_default2 = loads(dumps('__no__default__'))
 
 
@@ -217,7 +218,9 @@ def test_get():
     assert raises(KeyError, lambda: get(10, {'a': 1}))
     assert raises(TypeError, lambda: get({}, [1, 2, 3]))
     assert raises(TypeError, lambda: get([1, 2, 3], 1, None))
-    assert raises(KeyError, lambda: get('foo', {}, default=no_default2))
+    # no_default2 is equal to but not identical to the sentinel, so it is used
+    # as a real default value (identity comparison means no false collision).
+    assert get('foo', {}, default=no_default2) == no_default2
 
 
 def test_mapcat():
@@ -285,8 +288,11 @@ def test_reduceby():
 
 def test_reduce_by_init():
     assert reduceby(iseven, add, [1, 2, 3, 4]) == {True: 2 + 4, False: 1 + 3}
-    assert reduceby(iseven, add, [1, 2, 3, 4], no_default2) == {True: 2 + 4,
-                                                                False: 1 + 3}
+    # no_default2 is a real value (not the sentinel), so it is used as the
+    # literal init; confirm it is passed through, not silently ignored.
+    assert reduceby(iseven, lambda acc, x: acc, [1, 2, 3, 4], no_default2) == {
+        True: no_default2, False: no_default2
+    }
 
 
 def test_reduce_by_callable_default():
@@ -314,7 +320,11 @@ def test_accumulate():
     start = object()
     assert list(accumulate(binop, [], start)) == [start]
     assert list(accumulate(binop, [])) == []
-    assert list(accumulate(add, [1, 2, 3], no_default2)) == [1, 3, 6]
+    # no_default2 is a real value (not the sentinel), so accumulate uses it as
+    # the actual initial value; confirm it appears first in the output.
+    assert list(accumulate(lambda a, b: b, [1, 2, 3], no_default2)) == [
+        no_default2, 1, 2, 3
+    ]
 
 
 def test_accumulate_works_on_consumable_iterables():
@@ -394,8 +404,10 @@ def test_pluck():
     assert raises(IndexError, lambda: list(pluck(1, [[0]])))
     assert raises(KeyError, lambda: list(pluck('name', [{'id': 1}])))
 
+    # no_default2 is a real value (not the sentinel), so it is used as the
+    # fallback for missing items rather than triggering "no default" semantics.
     assert list(pluck(0, [[0, 1], [2, 3], [4, 5]], no_default2)) == [0, 2, 4]
-    assert raises(IndexError, lambda: list(pluck(1, [[0]], no_default2)))
+    assert list(pluck(1, [[0]], no_default2)) == [no_default2]
 
 
 def test_join():
@@ -414,10 +426,19 @@ def test_join():
 
     assert result == expected
 
-    result = set(starmap(add, join(first, names, second, fruit,
-                                   left_default=no_default2,
-                                   right_default=no_default2)))
-    assert result == expected
+    # no_default2 is a real value (not the sentinel), so passing it as
+    # left_default/right_default activates outer-join semantics.
+    # Items with key 3 in names have no match in fruit → paired with no_default2.
+    result_outer = list(join(first, names, second, fruit,
+                             left_default=no_default2,
+                             right_default=no_default2))
+    matched = {pair for pair in result_outer if pair[0] != no_default2 and pair[1] != no_default2}
+    assert matched == {((1, 'one'), ('apple', 1)),
+                       ((1, 'one'), ('orange', 1)),
+                       ((2, 'two'), ('banana', 2)),
+                       ((2, 'two'), ('coconut', 2))}
+    # Unmatched left item (3, 'three') should appear paired with no_default2
+    assert ((3, 'three'), no_default2) in result_outer
 
 
 def test_getter():
