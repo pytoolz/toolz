@@ -196,6 +196,15 @@ def test_drop():
     assert list(drop(1, (3, 2, 1))) == list((2, 1))
 
 
+def test_drop_negative_n():
+    try:
+        list(drop(-1, [1, 2, 3]))
+        assert False, 'expected ValueError'
+    except ValueError as e:
+        assert 'non-negative' in str(e)
+    assert list(drop(0, [1, 2, 3])) == [1, 2, 3]
+
+
 def test_take_nth():
     assert list(take_nth(2, 'ABCDE')) == list('ACE')
 

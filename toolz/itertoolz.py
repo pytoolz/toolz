@@ -348,6 +348,8 @@ def drop(n, seq):
         take
         tail
     """
+    if n < 0:
+        raise ValueError('drop: n must be a non-negative integer, got %r' % (n,))
     return itertools.islice(seq, n, None)
 
 
