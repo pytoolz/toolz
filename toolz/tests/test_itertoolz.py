@@ -185,6 +185,15 @@ def test_take():
     assert list(take(2, (3, 2, 1))) == list((3, 2))
 
 
+def test_take_negative_n():
+    try:
+        list(take(-1, [1, 2, 3]))
+        assert False, 'expected ValueError'
+    except ValueError as e:
+        assert 'non-negative' in str(e)
+    assert list(take(0, [1, 2, 3])) == []   # n == 0 boundary still returns, not rejected
+
+
 def test_tail():
     assert list(tail(3, 'ABCDE')) == list('CDE')
     assert list(tail(3, iter('ABCDE'))) == list('CDE')
