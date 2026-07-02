@@ -332,6 +332,8 @@ def tail(n, seq):
         drop
         take
     """
+    if n <= 0:
+        return ()
     try:
         return seq[-n:]
     except (TypeError, KeyError):

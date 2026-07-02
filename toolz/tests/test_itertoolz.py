@@ -189,6 +189,15 @@ def test_tail():
     assert list(tail(3, 'ABCDE')) == list('CDE')
     assert list(tail(3, iter('ABCDE'))) == list('CDE')
     assert list(tail(2, (3, 2, 1))) == list((2, 1))
+    # tail(n, seq) for n <= 0 is the last zero (or fewer) elements: empty.
+    # Regression for gh #626: seq[-0:] == seq[0:] wrongly returned the whole
+    # sequence for sliceable inputs, while the deque fallback returned empty,
+    # so the two input paths disagreed. Both must now be empty and consistent.
+    assert list(tail(0, 'ABCDE')) == []
+    assert list(tail(0, iter('ABCDE'))) == []
+    assert list(tail(0, (3, 2, 1))) == []
+    assert list(tail(-2, 'ABCDE')) == []
+    assert list(tail(-2, iter('ABCDE'))) == []
 
 
 def test_drop():
