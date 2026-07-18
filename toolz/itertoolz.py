@@ -525,12 +525,7 @@ def interpose(el, seq):
     >>> list(interpose("a", []))
     []
     """
-    inposed = concat(zip(itertools.repeat(el), seq))
-    try:
-        next(inposed)
-    except StopIteration:
-        return iter([])
-    return inposed
+    return drop(1, concat(zip(itertools.repeat(el), seq)))
 
 
 def frequencies(seq):
