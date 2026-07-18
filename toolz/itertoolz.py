@@ -522,9 +522,14 @@ def interpose(el, seq):
 
     >>> list(interpose("a", [1, 2, 3]))
     [1, 'a', 2, 'a', 3]
+    >>> list(interpose("a", []))
+    []
     """
     inposed = concat(zip(itertools.repeat(el), seq))
-    next(inposed)
+    try:
+        next(inposed)
+    except StopIteration:
+        return iter([])
     return inposed
 
 

@@ -253,6 +253,8 @@ def test_interpose():
     assert "tXaXrXzXaXn" == "".join(interpose("X", "tarzan"))
     assert list(interpose(0, itertools.repeat(1, 4))) == [1, 0, 1, 0, 1, 0, 1]
     assert list(interpose('.', ['a', 'b', 'c'])) == ['a', '.', 'b', '.', 'c']
+    assert list(interpose("a", [])) == []
+    assert list(interpose("a", [1])) == [1]
 
 
 def test_frequencies():
