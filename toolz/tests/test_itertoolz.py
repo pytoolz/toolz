@@ -13,7 +13,8 @@ from toolz.itertoolz import (remove, groupby, merge_sorted,
                              reduceby, iterate, accumulate,
                              sliding_window, count, partition,
                              partition_all, take_nth, pluck, join,
-                             diff, topk, peek, peekn, random_sample)
+                             diff, topk, peek, peekn, random_sample,
+                             mapacc)
 from operator import add, mul
 
 
@@ -586,3 +587,24 @@ def test_random_sample():
     assert mk_rsample(b"a") == mk_rsample("a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
+
+
+def test_mapacc():
+    # running difference against a budget, from issue #529
+    result, accs = mapacc(
+        mapper=lambda acc, x: x - acc,
+        accumulator=lambda acc, x: acc + x,
+        sequence=[1, 2, 3],
+        accumulator_init=0)
+    assert result == (1, 1, 0)
+    assert accs == (1, 3, 6)
+
+    # empty sequence
+    result, accs = mapacc(lambda a, x: x, lambda a, x: a, [], 0)
+    assert result == ()
+    assert accs == ()
+
+    # accumulator values are the post-element states, in order
+    _, accs = mapacc(lambda a, x: x, lambda a, x: a + 1,
+                     "abc", 0)
+    assert accs == (1, 2, 3)
