@@ -556,6 +556,26 @@ class Compose:
 
     __wrapped__ = instanceproperty(attrgetter('first'))
 
+    @instanceproperty
+    def __annotations__(self):
+        """ Combined type annotations for the composed callable.
+
+        Parameter annotations come from the first function applied in the
+        composition, and the return annotation comes from the last function
+        applied.  This allows tools like ``mypy`` and ``inspect`` to get a
+        reasonable view of the composed callable's type signature.
+        """
+        annotations = {}
+        first_annotations = getattr(self.first, '__annotations__', None) or {}
+        annotations.update(
+            (k, v) for k, v in first_annotations.items() if k != 'return'
+        )
+        last_func = self.funcs[-1] if self.funcs else self.first
+        last_annotations = getattr(last_func, '__annotations__', None) or {}
+        if 'return' in last_annotations:
+            annotations['return'] = last_annotations['return']
+        return annotations
+
 
 def compose(*funcs):
     """ Compose functions to operate in series.

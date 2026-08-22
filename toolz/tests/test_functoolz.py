@@ -660,6 +660,38 @@ def test_compose_metadata():
     assert len(inspect.signature(MyClass().method).parameters) == 4
 
 
+def test_compose_annotations():
+    # Parameter annotations come from the first function applied,
+    # the return annotation from the last one -- the same view that
+    # __signature__ already gives, now also via __annotations__ so
+    # typing.get_type_hints() and friends see it.
+    def f(x: int) -> str:
+        return str(x)
+
+    def g(y: str) -> float:
+        return float(len(y))
+
+    def h(z):
+        return z
+
+    assert compose(g, f).__annotations__ == {'x': int, 'return': float}
+    assert compose(f).__annotations__ == {'x': int, 'return': str}
+    assert compose(h, f).__annotations__ == {'x': int}
+    assert compose(f, h).__annotations__ == {'return': str}
+    assert compose(h, h).__annotations__ == {}
+    # callables without __annotations__ at all contribute nothing
+    assert compose(str, object()).__annotations__ == {}
+
+    import typing
+    assert typing.get_type_hints(compose(g, f)) == {'x': int,
+                                                    'return': float}
+
+    # consistent with the synthesized signature
+    sig = inspect.signature(compose(g, f))
+    assert sig.parameters['x'].annotation is int
+    assert sig.return_annotation is float
+
+
 def generate_compose_left_test_cases():
     """
     Generate test cases for parametrized tests of the compose function.
