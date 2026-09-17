@@ -7,6 +7,9 @@ from types import MethodType
 
 from .utils import no_default
 
+if sys.version_info >= (3, 14):
+    import annotationlib  # already imported by inspect
+
 PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
 
 
@@ -470,6 +473,22 @@ def memoize(func, cache=None, key=None):
     return memof
 
 
+class _InstanceAnnotations(dict):
+    """ Descriptor for an ``__annotations__`` computed by ``fget`` on instances
+
+    Accessed on the class, this is an empty dict, because ``typing`` and
+    ``inspect`` require a class's ``__annotations__`` to be a dict (before
+    Python 3.14 they read it directly from the class ``__dict__``).
+    """
+    __slots__ = ('fget',)
+
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, obj, type=None):
+        return self if obj is None else self.fget(obj)
+
+
 class Compose:
     """ A composition of functions
 
@@ -555,6 +574,81 @@ class Compose:
         return base.replace(return_annotation=last.return_annotation)
 
     __wrapped__ = instanceproperty(attrgetter('first'))
+
+    def _combined_annotations(self, annotation_format=None):
+        """ Combined type annotations for the composed callable.
+
+        Parameter annotations come from the first function applied in the
+        composition, and the return annotation comes from the last function
+        applied, as ``inspect.signature`` reports them (so this agrees with
+        ``__signature__``).  Functions without a signature contribute nothing.
+
+        ``annotation_format`` (Python 3.14+) is passed to
+        ``inspect.signature``.  With ``FORWARDREF`` or ``STRING``, which must
+        not raise ``NameError``, a function whose ``__signature__`` evaluates
+        annotations eagerly (e.g. ``curry``) and fails also contributes
+        nothing.
+
+        String annotations are returned as-is; ``typing.get_type_hints``
+        evaluates them in the namespace of the first function.
+        """
+        if annotation_format is None:
+            kwargs = {}
+            lazy = False
+        else:
+            kwargs = {'annotation_format': annotation_format}
+            lazy = annotation_format != annotationlib.Format.VALUE
+
+        def annotations_of(func):
+            if isinstance(func, Compose):
+                return func._combined_annotations(annotation_format)
+            try:
+                sig = inspect.signature(func, **kwargs)
+            except (TypeError, ValueError):
+                return {}
+            except NameError:
+                if not lazy:
+                    raise
+                return {}
+            rv = {name: param.annotation
+                  for name, param in sig.parameters.items()
+                  if param.annotation is not param.empty}
+            if sig.return_annotation is not sig.empty:
+                rv['return'] = sig.return_annotation
+            return rv
+
+        annotations = annotations_of(self.first)
+        annotations.pop('return', None)
+        last = self.funcs[-1] if self.funcs else self.first
+        last_annotations = annotations_of(last)
+        if 'return' in last_annotations:
+            annotations['return'] = last_annotations['return']
+        return annotations
+
+    # Lets ``typing.get_type_hints`` and ``inspect.get_annotations`` see the
+    # same types as ``__signature__``.
+    __annotations__ = _InstanceAnnotations(_combined_annotations)
+
+    if sys.version_info >= (3, 14):
+        def _get_annotate(self):
+            def annotate(format):
+                Format = annotationlib.Format
+                if format == Format.STRING:
+                    # Some ``__signature__`` (e.g. ``curry``) ignore the
+                    # format and give values, so stringify what we got.
+                    return annotationlib.annotations_to_string(
+                        self._combined_annotations(format)
+                    )
+                if format in (Format.VALUE, Format.FORWARDREF):
+                    return self._combined_annotations(format)
+                raise NotImplementedError(format)
+            return annotate
+
+        # PEP 649/749: support the other annotation formats (``FORWARDREF``,
+        # ``STRING``) and let ``functools.wraps`` copy the annotations.
+        # Not ``def __annotate__``: coverage.py never traces functions with
+        # that name, since it assumes they are compiler-generated.
+        __annotate__ = instanceproperty(_get_annotate)
 
 
 def compose(*funcs):
