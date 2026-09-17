@@ -3,7 +3,7 @@ from collections.abc import Mapping
 import os
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
-                             itemfilter, assoc_in)
+                             itemfilter, assoc_in, get_in)
 from toolz.functoolz import identity
 from toolz.utils import raises
 
@@ -268,3 +268,32 @@ def test_merge_with_non_dict_mappings():
 
     assert merge(d) is d or merge(d) == {1: 1}
     assert merge_with(sum, d) == {1: 1}
+
+
+def test_merge_kwarg_error_names_the_offending_keyword():
+    """The TypeError must name the keyword the caller actually passed."""
+    try:
+        merge({1: 2}, factoryy=dict)
+        raise AssertionError("expected TypeError")
+    except TypeError as e:
+        assert "factoryy" in str(e)
+
+
+def test_get_in_returns_default_for_a_missing_path():
+    assert get_in(["a", "b"], {"a": {"b": 7}}) == 7
+    assert get_in(["a", "z"], {"a": {"b": 7}}) is None
+    assert get_in(["a", "z"], {"a": {"b": 7}}, default=-1) == -1
+    assert get_in(["a", "b", "c"], {"a": {"b": 7}}, default=-1) == -1
+
+
+def test_get_in_raises_when_no_default_is_set():
+    assert raises(KeyError, lambda: get_in(["a", "z"], {"a": {"b": 7}}, no_default=True))
+    assert raises(TypeError, lambda: get_in(["a", "b", "c"], {"a": {"b": 7}}, no_default=True))
+
+
+def test_dissoc_agrees_on_both_sides_of_its_size_heuristic():
+    """dissoc picks between two strategies on len(keys) vs len(d); both must agree."""
+    d = {str(i): i for i in range(10)}
+    assert dissoc(d, "1", "2") == {k: v for k, v in d.items() if k not in ("1", "2")}
+    assert dissoc(d, *[str(i) for i in range(9)]) == {"9": 9}
+    assert dissoc(d) == d
