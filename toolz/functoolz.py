@@ -630,10 +630,7 @@ class Compose:
     __annotations__ = _InstanceAnnotations(_combined_annotations)
 
     if sys.version_info >= (3, 14):
-        # PEP 649/749: support the other annotation formats (``FORWARDREF``,
-        # ``STRING``) and let ``functools.wraps`` copy the annotations.
-        @instanceproperty
-        def __annotate__(self):
+        def _get_annotate(self):
             def annotate(format):
                 Format = annotationlib.Format
                 if format == Format.STRING:
@@ -646,6 +643,12 @@ class Compose:
                     return self._combined_annotations(format)
                 raise NotImplementedError(format)
             return annotate
+
+        # PEP 649/749: support the other annotation formats (``FORWARDREF``,
+        # ``STRING``) and let ``functools.wraps`` copy the annotations.
+        # Not ``def __annotate__``: coverage.py never traces functions with
+        # that name, since it assumes they are compiler-generated.
+        __annotate__ = instanceproperty(_get_annotate)
 
 
 def compose(*funcs):
