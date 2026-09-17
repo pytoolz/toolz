@@ -1,8 +1,12 @@
+import functools
 import inspect
+import sys
+import typing
+import pytest
 import toolz
 from toolz.functoolz import (thread_first, thread_last, memoize, curry,
                              compose, compose_left, pipe, complement, do, juxt,
-                             flip, excepts, apply)
+                             flip, excepts, apply, Compose)
 from operator import add, mul, itemgetter
 from toolz.utils import raises
 from functools import partial
@@ -661,10 +665,8 @@ def test_compose_metadata():
 
 
 def test_compose_annotations():
-    # Parameter annotations come from the first function applied,
-    # the return annotation from the last one -- the same view that
-    # __signature__ already gives, now also via __annotations__ so
-    # typing.get_type_hints() and friends see it.
+    # Parameter annotations come from the first function applied and the
+    # return annotation from the last one: the same view as __signature__.
     def f(x: int) -> str:
         return str(x)
 
@@ -674,22 +676,114 @@ def test_compose_annotations():
     def h(z):
         return z
 
+    class A:
+        attr: bytes  # class annotations are not part of the signature
+
+        def __init__(self, a: int):
+            pass
+
+        def method(self, m: int) -> str:
+            return str(m)
+
     assert compose(g, f).__annotations__ == {'x': int, 'return': float}
-    assert compose(f).__annotations__ == {'x': int, 'return': str}
     assert compose(h, f).__annotations__ == {'x': int}
     assert compose(f, h).__annotations__ == {'return': str}
     assert compose(h, h).__annotations__ == {}
-    # callables without __annotations__ at all contribute nothing
+    assert compose(h, g, f).__annotations__ == {'x': int}
+    assert compose(g, f, h).__annotations__ == {'return': float}
+    # callables without a signature contribute nothing
     assert compose(str, object()).__annotations__ == {}
-
-    import typing
-    assert typing.get_type_hints(compose(g, f)) == {'x': int,
-                                                    'return': float}
+    assert compose(str, f).__annotations__ == {'x': int}
+    assert compose(g, len).__annotations__ == {'return': float}
 
     # consistent with the synthesized signature
-    sig = inspect.signature(compose(g, f))
-    assert sig.parameters['x'].annotation is int
-    assert sig.return_annotation is float
+    for c in [compose(g, f), compose(g, partial(f)), compose(g, curry(f)),
+              compose(g, A(0).method), compose(g, A), compose(f, A),
+              compose(compose(g, f), compose(f, h))]:
+        sig = inspect.signature(c)
+        expected = {k: p.annotation for k, p in sig.parameters.items()
+                    if p.annotation is not p.empty}
+        if sig.return_annotation is not sig.empty:
+            expected['return'] = sig.return_annotation
+        assert c.__annotations__ == expected
+        assert typing.get_type_hints(c) == expected
+
+    assert compose(g, A).__annotations__ == {'a': int, 'return': float}
+    assert compose(g, A(0).method).__annotations__ == {
+        'm': int, 'return': float}
+
+    # the class itself still has ordinary (empty) annotations
+    assert typing.get_type_hints(Compose) == {}
+    if hasattr(inspect, 'get_annotations'):  # Python >= 3.10
+        assert inspect.get_annotations(Compose) == {}
+
+    # functools.wraps copies the annotations
+    def wrapper(*args, **kwargs):
+        pass
+
+    wrapped = functools.wraps(compose(g, f))(wrapper)
+    assert wrapped.__annotations__ == {'x': int, 'return': float}
+
+    # string annotations (PEP 563) are kept as-is and resolved by typing
+    ns = {}
+    exec('from __future__ import annotations\n'
+         'def s(x: int) -> str: return str(x)', ns)
+    assert compose(g, ns['s']).__annotations__ == {'x': 'int', 'return': float}
+    assert compose(ns['s'], f).__annotations__ == {'x': int, 'return': 'str'}
+    assert typing.get_type_hints(compose(g, ns['s'])) == {'x': int,
+                                                          'return': float}
+
+
+@pytest.mark.skipif(sys.version_info < (3, 14),
+                    reason='annotationlib is new in Python 3.14')
+def test_compose_annotations_formats():
+    import annotationlib
+    Format = annotationlib.Format
+
+    ns = {}
+    # PEP 649: annotations are evaluated lazily, so this may be undefined
+    exec('def f(x: Undefined) -> int: return 1', ns)
+    f = ns['f']
+
+    def g(y: int) -> str:
+        return str(y)
+
+    c = compose(g, f)
+    ref = annotationlib.get_annotations(f, format=Format.FORWARDREF)['x']
+    assert annotationlib.get_annotations(c, format=Format.FORWARDREF) == {
+        'x': ref, 'return': str}
+    assert annotationlib.get_annotations(c, format=Format.STRING) == {
+        'x': 'Undefined', 'return': 'str'}
+    assert raises(NameError, lambda: c.__annotations__)
+    assert annotationlib.get_annotations(compose(g, c),
+                                         format=Format.FORWARDREF) == {
+        'x': ref, 'return': str}
+    # curry.__signature__ ignores the format; still must not raise NameError
+    cc = compose(g, curry(f))
+    assert raises(NameError, lambda: cc.__annotations__)
+    assert annotationlib.get_annotations(cc, format=Format.FORWARDREF) == {
+        'return': str}
+    assert annotationlib.get_annotations(cc, format=Format.STRING) == {
+        'return': 'str'}
+    # ... and STRING gives strings even though curry's signature has values
+    assert annotationlib.get_annotations(compose(g, curry(g)),
+                                         format=Format.STRING) == {
+        'y': 'int', 'return': 'str'}
+
+    # PEP 649: unsupported formats must raise NotImplementedError
+    assert compose(g, g).__annotate__(Format.VALUE) == {
+        'y': int, 'return': str}
+    assert raises(NotImplementedError,
+                  lambda: c.__annotate__(Format.VALUE_WITH_FAKE_GLOBALS))
+    assert raises(NotImplementedError, lambda: c.__annotate__(99))
+
+    # functools.wraps copies __annotate__ on 3.14+
+    wrapped = functools.wraps(c)(lambda *args, **kwargs: None)
+    assert annotationlib.get_annotations(wrapped, format=Format.STRING) == {
+        'x': 'Undefined', 'return': 'str'}
+
+    assert annotationlib.get_annotations(Compose) == {}
+    assert annotationlib.get_annotations(Compose, format=Format.STRING) == {}
 
 
 def generate_compose_left_test_cases():
