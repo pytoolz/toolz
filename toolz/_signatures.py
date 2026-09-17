@@ -109,6 +109,9 @@ module_info[builtins] = dict(
     format=[
         lambda value: None,
         lambda value, format_spec: None],
+    frozendict=[
+        lambda **kwargs: None,
+        lambda mapping, **kwargs: None],
     frozenset=[
         lambda: None,
         lambda iterable: None],
