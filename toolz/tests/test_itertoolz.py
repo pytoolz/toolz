@@ -255,9 +255,9 @@ def test_interpose():
     assert list(interpose('.', ['a', 'b', 'c'])) == ['a', '.', 'b', '.', 'c']
 
 
-
 def test_interpose_empty():
     assert list(interpose("a", [])) == []
+
 
 def test_frequencies():
     assert (frequencies(["cat", "pig", "cat", "eel",
