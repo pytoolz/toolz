@@ -797,6 +797,32 @@ def pluck(ind, seqs, default=no_default):
 
 
 def getter(index):
+    """
+    Return a callable object that fetch item from its operand using the
+    operand's __getitem__() method.
+    If list of items are specified, returns a tuple of lookup values.
+
+    Let r be an object then the following are equivalent:
+        1. getter(i)(r) == r[i]
+        2. getter([i])(r) == (r[i], )
+        3. getter([i, j]) == (r[i], r[j])
+        4. getter([])(r) == ()
+
+    e.g:
+
+    >>> getter(0)('Alice')
+    'A'
+
+    >>> getter([0])('Alice')
+    ('A',)
+
+    >>> getter('a')(dict(a='A', l='l', i='i', c='c', e='e'))
+    'A'
+
+    >>> getter(['a', 'l'])(dict(a='A', l='l', i='i', c='c', e='e'))
+    ('A', 'l')
+
+    """
     if isinstance(index, list):
         if len(index) == 1:
             index = index[0]
