@@ -31,34 +31,34 @@ repos:
       - id: name-tests-test
         args: ["--pytest-test-first"]
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: "0.26"
     hooks:
       - id: validate-pyproject
         name: Validate pyproject.toml
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [--py39-plus]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.3
     hooks:
       - id: codespell
         types_or: [python, markdown, rst, toml, yaml]
         additional_dependencies:
           - tomli; python_version<'3.11'
-        files: ^(toolz|tlz|docs)/
+        files: ^(toolz|tlz|doc)/
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.8
+    rev: v1.7.12
     hooks:
       - id: actionlint
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.37.1
+    rev: v1.38.0
     hooks:
       - id: yamllint
         args: [-d, "{extends: default, rules: {line-length: disable}}"]
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.15.2
+    rev: v1.30.1
     hooks:
       - id: zizmor
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -72,7 +72,7 @@ repos:
       - id: python-no-log-warn
       - id: text-unicode-replacement-char
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.34.1
+    rev: 0.38.0
     hooks:
       - id: check-dependabot
       - id: check-github-workflows
