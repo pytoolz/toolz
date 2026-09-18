@@ -189,6 +189,20 @@ def test_tail():
     assert list(tail(3, 'ABCDE')) == list('CDE')
     assert list(tail(3, iter('ABCDE'))) == list('CDE')
     assert list(tail(2, (3, 2, 1))) == list((2, 1))
+    # n larger than the sequence returns the whole sequence.
+    assert list(tail(10, 'ABC')) == list('ABC')
+    assert list(tail(10, iter('ABC'))) == list('ABC')
+    # tail(0, seq) is the last zero elements: empty, consistently for any
+    # iterable. Regression for gh #626: seq[-0:] == seq[0:] wrongly returned
+    # the whole sequence for sliceable inputs, while the deque fallback
+    # returned empty, so the two input paths disagreed.
+    assert list(tail(0, 'ABCDE')) == []
+    assert list(tail(0, iter('ABCDE'))) == []
+    assert list(tail(0, (3, 2, 1))) == []
+    # A negative n is a programming error (a masked upstream bug), so it
+    # raises rather than silently returning empty, matching nth's contract.
+    assert raises(ValueError, lambda: tail(-2, 'ABCDE'))
+    assert raises(ValueError, lambda: tail(-2, iter('ABCDE')))
 
 
 def test_drop():

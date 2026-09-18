@@ -328,12 +328,20 @@ def tail(n, seq):
     >>> tail(2, [10, 20, 30, 40, 50])
     [40, 50]
 
+    ``n`` must be non-negative; a negative ``n`` raises ``ValueError`` rather
+    than silently masking an upstream bug in the caller.
+
     See Also:
         drop
         take
     """
+    if n < 0:
+        raise ValueError("n must be non-negative")
     try:
-        return seq[-n:]
+        # seq[len(seq) - n:] is correct for 0 <= n <= len(seq); clamp the
+        # lower bound so n > len(seq) returns the whole sequence instead of
+        # wrapping to a negative index, and n == 0 returns the empty tail.
+        return seq[max(len(seq) - n, 0):]
     except (TypeError, KeyError):
         return tuple(collections.deque(seq, n))
 
