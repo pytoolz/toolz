@@ -4,7 +4,7 @@ import collections
 import operator
 from functools import partial
 from itertools import filterfalse, zip_longest
-from collections.abc import Sequence
+from collections.abc import Sequence, Mapping
 from toolz.utils import no_default
 
 
@@ -13,7 +13,8 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample',
+           'flatten')
 
 
 def remove(predicate, seq):
@@ -482,6 +483,7 @@ def concat(seqs):
 
     See also:
         itertools.chain.from_iterable  equivalent
+        flatten
     """
     return itertools.chain.from_iterable(seqs)
 
@@ -1055,3 +1057,56 @@ def random_sample(prob, seq, random_state=None):
 
         random_state = Random(random_state)
     return filter(lambda _: random_state.random() < prob, seq)
+
+
+def _default_descend(x):
+    return not isinstance(x, (str, bytes, Mapping))
+
+
+def flatten(level, seq, descend=_default_descend):
+    """ Flatten a possibly nested sequence
+
+    Inspired by Javascript's Array.flat(), this is a recursive,
+    depth limited flattening generator. A level 0 flattening will
+    yield the input sequence unchanged. A level -1 flattening
+    will flatten all possible levels of nesting.
+
+    >>> list(flatten(0, [1, [2], [[3]]]))    # flatten 0 levels
+    [1, [2], [[3]]]
+    >>> list(flatten(1, [1, [2], [[3]]]))    # flatten 1 level
+    [1, 2, [3]]
+    >>> list(flatten(2, [1, [2], [[3]]]))
+    [1, 2, 3]
+    >>> list(flatten(-1, [1, [[[[2]]]]]))    # flatten all levels
+    [1, 2]
+
+    An optional ``descend`` function can be provided by the user
+    to determine which iterable objects to recurse into. This function
+    should return a boolean with True meaning it is permissible to descend
+    another level of recursion. The recursion limit of the Python interpreter
+    is the ultimate bounding factor on depth. By default, stings, bytes,
+    and mappings are exempted.
+
+    >>> list(flatten(-1, ['abc', [{'a': 2}, [b'123']]]))
+    ['abc', {'a': 2}, b'123']
+
+    See also:
+        concat
+     """
+    if level < -1:
+        raise ValueError("Level must be >= -1")
+    if not callable(descend):
+        raise ValueError("descend must be a callable boolean function")
+
+    def flat(level, seq):
+        if level == 0:
+            yield from seq
+            return
+
+        for item in seq:
+            if isiterable(item) and descend(item):
+                yield from flat(level - 1, item)
+            else:
+                yield item
+
+    yield from flat(level, seq)
