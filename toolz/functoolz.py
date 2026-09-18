@@ -10,8 +10,6 @@ from .utils import no_default
 if sys.version_info >= (3, 14):
     import annotationlib  # already imported by inspect
 
-PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
-
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
            'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do',

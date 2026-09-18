@@ -4,3 +4,10 @@ updates:
     directory: '/'
     schedule:
       interval: 'monthly'
+    # Let new releases bake for a week before updating to them
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns:
+          - '*'
