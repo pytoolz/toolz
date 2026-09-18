@@ -319,6 +319,8 @@ def take(n, seq):
         drop
         tail
     """
+    if n < 0:
+        raise ValueError('take: n must be a non-negative integer, got %r' % (n,))
     return itertools.islice(seq, n)
 
 
@@ -348,6 +350,8 @@ def drop(n, seq):
         take
         tail
     """
+    if n < 0:
+        raise ValueError('drop: n must be a non-negative integer, got %r' % (n,))
     return itertools.islice(seq, n, None)
 
 
