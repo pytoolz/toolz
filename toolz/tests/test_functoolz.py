@@ -97,6 +97,38 @@ def test_memoize_kwargs():
     assert mf(1, y=3) == f(1, y=3)
 
 
+def test_memoize_unary_required_kwargs():
+    calls = []
+
+    def unary(x):
+        calls.append(x)
+        return x + 1
+
+    memoized = memoize(unary)
+    assert memoized(x=1) == 2
+    assert memoized(1) == 2
+    assert memoized(x=2) == 3
+    assert calls == [1, 2]
+
+
+def test_memoize_binary_required_kwargs():
+    calls = []
+
+    def binary(x, y):
+        calls.append((x, y))
+        return x + y
+
+    memoized = memoize(binary)
+    assert memoized(x=1, y=2) == 3
+    assert memoized(x=2, y=3) == 5
+    assert memoized(1, y=2) == 3
+    assert memoized(y=2, x=1) == 3
+    assert memoized(1, 2) == 3
+    assert calls == [(1, 2), (2, 3)]
+    assert raises(TypeError, lambda: memoized(1, 2, x=1))
+    assert raises(TypeError, lambda: memoized(1, 2, unknown=3))
+
+
 def test_memoize_curried():
     @curry
     def f(x, y=0):

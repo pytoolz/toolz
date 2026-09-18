@@ -441,6 +441,8 @@ def memoize(func, cache=None, key=None):
     if key is None:
         if is_unary:
             def key(args, kwargs):
+                if kwargs:
+                    args = inspect.signature(func).bind(*args, **kwargs).args
                 return args[0]
         elif may_have_kwargs:
             def key(args, kwargs):
@@ -450,6 +452,8 @@ def memoize(func, cache=None, key=None):
                 )
         else:
             def key(args, kwargs):
+                if kwargs:
+                    args = inspect.signature(func).bind(*args, **kwargs).args
                 return args
 
     def memof(*args, **kwargs):
