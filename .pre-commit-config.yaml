@@ -1,6 +1,6 @@
 ci:
   autofix_prs: false
-  skip: [no-commit-to-branch]
+  skip: [no-commit-to-branch, pysentry]
 fail_fast: false
 default_language_version:
   python: python3
@@ -77,6 +77,11 @@ repos:
       - id: check-dependabot
       - id: check-github-workflows
       - id: check-readthedocs
+  - repo: https://github.com/pysentry/pysentry-pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: pysentry
+        args: ["--format=human", "--fail-on=low", "--sources=pypa,osv,pypi"]
   - repo: meta
     hooks:
       - id: check-hooks-apply
