@@ -341,12 +341,19 @@ def test_partition():
     assert list(partition(3, range(4), pad=-1)) == [(0, 1, 2),
                                                     (3, -1, -1)]
     assert list(partition(2, [])) == []
+    assert list(partition(2, [1, 2, 3], pad='__no__pad__')) == [
+        (1, 2), (3, '__no__pad__')]
 
 
 def test_partition_all():
     assert list(partition_all(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
     assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
     assert list(partition_all(2, [])) == []
+
+    for seq in ([1, '__no__pad__'], [1, 2, '__no__pad__']):
+        expected = [tuple(seq[i:i + 2]) for i in range(0, len(seq), 2)]
+        assert list(partition_all(2, seq)) == expected
+        assert list(partition_all(2, iter(seq))) == expected
 
     # Regression test: https://github.com/pytoolz/toolz/issues/387
     class NoCompare:
