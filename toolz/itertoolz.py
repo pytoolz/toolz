@@ -676,7 +676,7 @@ def sliding_window(n, seq):
                for i, it in enumerate(itertools.tee(seq, n))))
 
 
-no_pad = '__no__pad__'
+no_pad = object()
 
 
 def partition(n, seq, pad=no_pad):
