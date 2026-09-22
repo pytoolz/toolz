@@ -1,6 +1,8 @@
 from collections import defaultdict as _defaultdict
+from collections import OrderedDict
 from collections.abc import Mapping
 import os
+import pytest
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter, assoc_in, get_in)
@@ -297,3 +299,13 @@ def test_dissoc_agrees_on_both_sides_of_its_size_heuristic():
     assert dissoc(d, "1", "2") == {k: v for k, v in d.items() if k not in ("1", "2")}
     assert dissoc(d, *[str(i) for i in range(9)]) == {"9": 9}
     assert dissoc(d) == d
+
+
+@pytest.mark.parametrize('factory', [dict, OrderedDict])
+@pytest.mark.parametrize('keys', [(), (0,), (0, 1, 2, 3), (0, 0, 1, 2, 3, 9)])
+def test_dissoc_preserves_key_order(factory, keys):
+    items = [(key, str(key)) for key in range(5, -1, -1)]
+    d = factory(items)
+    result = dissoc(d, *keys, factory=factory)
+    assert list(result.items()) == [(k, v) for k, v in items if k not in keys]
+    assert list(d.items()) == items

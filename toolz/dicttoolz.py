@@ -222,8 +222,9 @@ def dissoc(d, *keys, **kwargs):
     else:
         remaining = set(d)
         remaining.difference_update(keys)
-        for k in remaining:
-            d2[k] = d[k]
+        for k in d:
+            if k in remaining:
+                d2[k] = d[k]
     return d2
 
 
