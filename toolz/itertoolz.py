@@ -332,6 +332,11 @@ def tail(n, seq):
         drop
         take
     """
+    if n <= 0:
+        try:
+            return seq[0:0]
+        except (TypeError, KeyError):
+            return tuple()
     try:
         return seq[-n:]
     except (TypeError, KeyError):

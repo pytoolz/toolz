@@ -189,6 +189,13 @@ def test_tail():
     assert list(tail(3, 'ABCDE')) == list('CDE')
     assert list(tail(3, iter('ABCDE'))) == list('CDE')
     assert list(tail(2, (3, 2, 1))) == list((2, 1))
+    # tail(0) used to return the whole sequence because -0 == 0
+    # slices from the start; see issue #626
+    assert tail(0, 'ABCDE') == ''
+    assert tail(0, (3, 2, 1)) == ()
+    assert tail(0, [1, 2, 3]) == []
+    assert tail(0, iter('ABCDE')) == ()
+    assert tail(-2, [1, 2, 3]) == []
 
 
 def test_drop():
