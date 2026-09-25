@@ -189,6 +189,11 @@ def test_tail():
     assert list(tail(3, 'ABCDE')) == list('CDE')
     assert list(tail(3, iter('ABCDE'))) == list('CDE')
     assert list(tail(2, (3, 2, 1))) == list((2, 1))
+    assert tail(0, [10, 20, 30]) == []
+    assert list(tail(0, [10, 20, 30])) == []
+    assert tuple(tail(0, iter([10, 20, 30]))) == ()
+    assert tail(0, 'ABCDE') == ''
+    assert tail(0, (3, 2, 1)) == ()
 
 
 def test_drop():
