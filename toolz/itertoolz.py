@@ -13,7 +13,7 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv',
            'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate',
            'sliding_window', 'partition', 'partition_all', 'count', 'pluck',
-           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+           'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample', 'mapacc')
 
 
 def remove(predicate, seq):
@@ -66,6 +66,64 @@ def accumulate(binop, seq, initial=no_default):
     for elem in seq:
         result = binop(result, elem)
         yield result
+
+
+def mapacc(mapper, accumulator, sequence, accumulator_init):
+    """ Combination of map and accumulate
+
+    Apply a mapper function to transform each element while simultaneously
+    accumulating a value using an accumulator function.
+
+    Returns a tuple of (mapped_results, accumulator_values) where both are tuples.
+
+    Parameters
+    ----------
+    mapper : callable
+        Function that takes (accumulator_value, element) and returns the mapped element
+    accumulator : callable
+        Function that takes (accumulator_value, element) and returns the next accumulator value
+    sequence : iterable
+        Sequence to process
+    accumulator_init : initial value
+        Initial value for the accumulator
+
+    Returns
+    -------
+    tuple
+        (tuple of mapped elements, tuple of accumulator values)
+
+    Example
+    -------
+    >>> from toolz import mapacc, assoc_in
+    >>> data = [{'id': 'a', 'value': 1},
+    ...         {'id': 'b', 'value': 2},
+    ...         {'id': 'c', 'value': 3},
+    ...         {'id': 'd', 'value': 4}]
+    >>> result, acc_values = mapacc(
+    ...     mapper=lambda acc, elem: assoc_in(elem, ['value'], max(elem['value'] - acc, 0)),
+    ...     accumulator=lambda acc, elem: max(acc - elem['value'], 0),
+    ...     sequence=data,
+    ...     accumulator_init=4
+    ... )
+    >>> result
+    ({'id': 'a', 'value': 0}, {'id': 'b', 'value': 0}, {'id': 'c', 'value': 2}, {'id': 'd', 'value': 4})
+    >>> acc_values
+    (3, 1, 0, 0)
+    """
+    mapped_results = []
+    accumulator_values = []
+    current_acc = accumulator_init
+
+    for elem in sequence:
+        # Apply mapper to get the transformed element
+        mapped_elem = mapper(current_acc, elem)
+        mapped_results.append(mapped_elem)
+
+        # Update accumulator
+        current_acc = accumulator(current_acc, elem)
+        accumulator_values.append(current_acc)
+
+    return (tuple(mapped_results), tuple(accumulator_values))
 
 
 def groupby(key, seq):
