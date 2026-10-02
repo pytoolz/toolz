@@ -327,6 +327,23 @@ def get_in(keys, coll, default=None, no_default=False):
         ...
     KeyError: 'y'
 
+    ``keys`` is an iterable of successive keys, not a single key. A string
+    is therefore traversed one character at a time. Wrap a string in a list
+    to look it up as a single dictionary key:
+
+    >>> get_in('name', {'name': 'Alice'}, default='missing')
+    'missing'
+    >>> get_in(['name'], {'name': 'Alice'})
+    'Alice'
+
+    A string path can also find a nested value instead of the whole string key:
+
+    >>> data = {'x': {'y': 5}, 'xy': 7}
+    >>> get_in('xy', data)
+    5
+    >>> get_in(['xy'], data)
+    7
+
     See Also:
         itertoolz.get
         operator.getitem
