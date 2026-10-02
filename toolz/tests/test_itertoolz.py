@@ -99,6 +99,37 @@ def test_interleave():
     assert ''.join(interleave(('ABC', '1'))) == 'A1BC'
 
 
+def test_interleave_shared_iterator():
+    shared = iter([0, 1])
+    assert list(interleave([shared, shared, [10, 11]])) == [0, 1, 10, 11]
+
+    shared = iter([0, 1])
+    assert list(interleave([shared, [10, 11], shared, [20, 21]])) == [
+        0, 10, 1, 20, 11, 21]
+
+    shared = iter([0, 1, 2])
+    assert list(interleave([shared, shared, [10, 11]])) == [0, 1, 10, 2, 11]
+
+
+def test_interleave_shared_empty_iterator():
+    shared = iter([])
+    assert list(interleave([shared, shared, [10, 11]])) == [10, 11]
+
+    shared = iter([])
+    assert list(interleave([shared, shared])) == []
+    assert list(interleave([])) == []
+
+
+def test_interleave_shared_iterator_with_infinite_input():
+    shared = iter([0, 1])
+    result = interleave([shared, shared, itertools.count(10)])
+    assert list(take(6, result)) == [0, 1, 10, 11, 12, 13]
+
+    shared = iter([])
+    seqs = itertools.chain([shared, shared], ([n] for n in itertools.count()))
+    assert list(take(4, interleave(seqs))) == [0, 1, 2, 3]
+
+
 def test_unique():
     assert tuple(unique((1, 2, 3))) == (1, 2, 3)
     assert tuple(unique((1, 2, 1, 3))) == (1, 2, 3)
