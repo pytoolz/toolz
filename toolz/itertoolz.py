@@ -228,7 +228,8 @@ def interleave(seqs):
 
     Returns a lazy iterator
     """
-    iters = itertools.cycle(map(iter, seqs))
+    # Distinguish occurrences of the same iterator when removing a slot.
+    iters = itertools.cycle(map(itertools.chain, seqs))
     while True:
         try:
             for itr in iters:
