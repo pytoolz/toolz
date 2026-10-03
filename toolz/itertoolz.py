@@ -55,7 +55,8 @@ def accumulate(binop, seq, initial=no_default):
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
-    if initial == no_default:
+    if (isinstance(initial, (str, collections.UserString))
+            and initial == no_default):
         try:
             result = next(seq)
         except StopIteration:
