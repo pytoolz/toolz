@@ -1,4 +1,6 @@
 import itertools
+import pytest
+from collections import UserString
 from itertools import starmap
 from toolz.utils import raises
 from functools import partial
@@ -323,6 +325,32 @@ def test_accumulate():
 
 def test_accumulate_works_on_consumable_iterables():
     assert list(accumulate(add, iter((1, 2, 3)))) == [1, 3, 6]
+
+
+def test_accumulate_numpy_initial():
+    np = pytest.importorskip('numpy')
+    values = [np.array([1., 2.]), np.array([3., 4.])]
+    initial = np.zeros(2)
+    result = list(accumulate(np.add, values, initial))
+    expected = list(itertools.accumulate(values, np.add, initial=initial))
+
+    assert len(result) == len(expected)
+    assert result[0] is initial
+    for actual, wanted in zip(result, expected):
+        np.testing.assert_array_equal(actual, wanted)
+
+
+def test_accumulate_none_initial():
+    assert list(accumulate(lambda acc, item: item, [1, 2], None)) == [None, 1, 2]
+
+
+def test_accumulate_user_string_sentinel():
+    assert list(accumulate(add, [1, 2], UserString(no_default2))) == [1, 3]
+
+    initial = UserString('prefix')
+    result = list(accumulate(add, ['a', 'b'], initial))
+    assert result[0] is initial
+    assert result == ['prefix', 'prefixa', 'prefixab']
 
 
 def test_sliding_window():
