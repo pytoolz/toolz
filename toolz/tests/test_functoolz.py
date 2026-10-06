@@ -664,6 +664,17 @@ def test_compose_metadata():
     assert len(inspect.signature(MyClass().method).parameters) == 4
 
 
+def test_compose_signature_last_func_without_signature():
+    # ``max`` has no introspectable signature, but it is only used for the
+    # return annotation of the composition, so it must not break inspection.
+    def first(a: int, b: int) -> int:
+        return a + b
+
+    sig = inspect.signature(compose(max, first))
+    assert list(sig.parameters) == ['a', 'b']
+    assert sig.return_annotation is inspect.Signature.empty
+
+
 def test_compose_annotations():
     # Parameter annotations come from the first function applied and the
     # return annotation from the last one: the same view as __signature__.
