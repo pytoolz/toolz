@@ -2,6 +2,12 @@ from toolz import *
 import toolz
 import toolz.curried
 import pickle
+import subprocess
+import sys
+import textwrap
+
+import pytest
+
 from toolz.utils import raises
 
 
@@ -182,6 +188,49 @@ def test_curried_qualname():
     #     func2 = pickle.loads(pickle.dumps(func1))
     #     assert func1 is not func2
     #     assert func1(4) == func2(4) == 10
+
+
+def test_curry_main_cloudpickle_roundtrip(tmp_path):
+    """A curried ``__main__`` function reloads in a fresh process (#606).
+
+    ``cloudpickle`` can serialize the function object.  Storing only
+    ``__main__:f`` makes the reader raise ``AttributeError``.
+    """
+    pytest.importorskip("cloudpickle")
+    dumped = tmp_path / "dumped.pkl"
+    writer = tmp_path / "writer.py"
+    reader = tmp_path / "reader.py"
+    writer.write_text(
+        textwrap.dedent(
+            f"""
+            import cloudpickle
+            import toolz
+
+            @toolz.curry
+            def f(x, *args, **kwargs):
+                return x, args, kwargs
+
+            g = f(y=1)
+            with open({str(dumped)!r}, "wb") as fh:
+                fh.write(cloudpickle.dumps(g))
+            """
+        ),
+        encoding="utf-8",
+    )
+    reader.write_text(
+        textwrap.dedent(
+            f"""
+            import cloudpickle
+
+            with open({str(dumped)!r}, "rb") as fh:
+                g = cloudpickle.loads(fh.read())
+            assert g(1) == (1, (), {{"y": 1}})
+            """
+        ),
+        encoding="utf-8",
+    )
+    subprocess.check_call([sys.executable, str(writer)])
+    subprocess.check_call([sys.executable, str(reader)])
 
 
 def test_curried_bad_qualname():
