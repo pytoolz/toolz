@@ -352,7 +352,10 @@ class curry:
         if qualname is None:  # pragma: no cover
             qualname = getattr(func, '__name__', None)
         is_decorated = None
-        if modname and qualname:
+        # A function defined in ``__main__`` is not importable in another
+        # process.  Keep the function object so cloudpickle can serialize it
+        # instead of a ``__main__:name`` string that will not resolve (#606).
+        if modname and qualname and modname != "__main__":
             attrs = []
             obj = import_module(modname)
             for attr in qualname.split('.'):
