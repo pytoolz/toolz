@@ -927,10 +927,20 @@ def join(leftkey, leftseq, rightkey, rightseq,
 
 
 def diff(*seqs, **kwargs):
-    """ Return those items that differ between sequences
+    """ Yield tuples of items that differ at the same position in sequences.
+
+    Compare one item from each sequence at a time, yielding a tuple whenever
+    those items are not all equal.  By default, stop at the shortest sequence.
 
     >>> list(diff([1, 2, 3], [1, 2, 10, 100]))
     [(3, 10)]
+
+    For example, compare sales counts for the same months in two years:
+
+    >>> last_year = [10, 20, 30]
+    >>> this_year = [10, 30, 20]
+    >>> list(diff(last_year, this_year))
+    [(20, 30), (30, 20)]
 
     Shorter sequences may be padded with a ``default`` value:
 
