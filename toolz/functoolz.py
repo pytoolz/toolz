@@ -257,7 +257,7 @@ class curry:
             elif kind == param.VAR_POSITIONAL:
                 if kwonly:
                     continue
-            elif param.name in keywords:
+            elif param.name in keywords and kind != param.POSITIONAL_ONLY:
                 default = keywords[param.name]
                 kind = param.KEYWORD_ONLY
                 kwonly = True

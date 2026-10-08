@@ -238,6 +238,36 @@ def test_curry_kwargs():
     assert curry(h, func=str)(0.0) == '0.0'
 
 
+@pytest.mark.parametrize('kwargs', [{'a': 10}, {'b': 20}, {'a': 10, 'b': 20}])
+def test_curry_signature_positional_only_keywords(kwargs):
+    def f(a=1, b=2, /, c=3, *args, **keywords):
+        return a, b, c, args, keywords
+
+    curried = curry(f, **kwargs)
+    signature = inspect.signature(curried)
+
+    assert signature == inspect.signature(f)
+    bound = signature.bind(4, 5, 6, 7)
+    assert curried(*bound.args, **bound.kwargs) == (4, 5, 6, (7,), kwargs)
+    assert curried() == (1, 2, 3, (), kwargs)
+
+
+def test_curry_signature_positional_only_and_keyword_bound():
+    def f(a=1, /, b=2, *args, **kwargs):
+        return a, b, args, kwargs
+
+    curried = curry(f, a=10, b=20)
+    signature = inspect.signature(curried)
+
+    assert signature.parameters['a'].kind == inspect.Parameter.POSITIONAL_ONLY
+    assert signature.parameters['a'].default == 1
+    assert signature.parameters['b'].kind == inspect.Parameter.KEYWORD_ONLY
+    assert signature.parameters['b'].default == 20
+    assert 'args' not in signature.parameters
+    bound = signature.bind(3, b=4)
+    assert curried(*bound.args, **bound.kwargs) == (3, 4, (), {'a': 10})
+
+
 def test_curry_passes_errors():
     @curry
     def f(a, b):
