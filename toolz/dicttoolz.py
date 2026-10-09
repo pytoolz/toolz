@@ -1,12 +1,17 @@
-import operator
 import collections
+import operator
+from collections.abc import Callable, Hashable, Mapping, MutableMapping
 from functools import reduce
-from collections.abc import Mapping
+from typing import overload
+
+from typing_extensions import TypeVar
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
            'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
 
+K = TypeVar('K', bound=Hashable)
+V = TypeVar('V')
 
 def _get_factory(f, kwargs):
     factory = kwargs.pop('factory', dict)
@@ -182,20 +187,50 @@ def itemfilter(predicate, d, factory=dict):
     return rv
 
 
-def assoc(d, key, value, factory=dict):
-    """ Return a new dict with new key value pair
+@overload
+def assoc(d: Mapping[K, V], key: K, value: V, factory: Callable[[], dict[K, V]] = dict) -> dict[K, V]: ...
+@overload
+def assoc(d: Mapping[K, V], key: K, value: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
+def assoc(d: Mapping[K, V], key: K, value: V, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+	"""Create a new `Mapping`[1] with `key` associated with `value`.
 
-    New dict has d[key] set to value. Does not modify the initial dictionary.
+	You can use `assoc` (***assoc***iate) to copy `d` (***d***ictionary) to a new `Mapping` created by
+	`factory` and assign `value` to `key`. `assoc` does not change `d`.
 
-    >>> assoc({'x': 1}, 'x', 2)
-    {'x': 2}
-    >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
-    {'x': 1, 'y': 3}
-    """
-    d2 = factory()
-    d2.update(d)
-    d2[key] = value
-    return d2
+	Parameters
+	----------
+	d : Mapping[K, V]
+		Source `Mapping`.
+	key : K
+		`key` that `assoc` inserts or replaces.
+	value : V
+		`value` that `assoc` assigns to `key`.
+	factory : Callable[[], MutableMapping[K, V]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingUpdated : MutableMapping[K, V]
+		New `Mapping` with `key` associated to `value`.
+
+	Examples
+	--------
+	>>> assoc({}, 'a', 1)
+	{'a': 1}
+	>>> assoc({'a': 1}, 'a', 3)
+	{'a': 3}
+	>>> assoc({'a': 1}, 'b', 3)
+	{'a': 1, 'b': 3}
+
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
+	"""
+	d2: MutableMapping[K, V] = factory()
+	d2.update(d)
+	d2[key] = value
+	return d2
 
 
 def dissoc(d, *keys, **kwargs):
