@@ -16,6 +16,11 @@ __all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave',
            'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
 
 
+def _is_no_default(value):
+    return (isinstance(value, (str, collections.UserString))
+            and value == no_default)
+
+
 def remove(predicate, seq):
     """ Return those items of sequence for which predicate(item) is False
 
@@ -448,7 +453,7 @@ def get(ind, seq, default=no_default):
         return seq[ind]
     except TypeError:  # `ind` may be a list
         if isinstance(ind, list):
-            if default == no_default:
+            if _is_no_default(default):
                 if len(ind) > 1:
                     return operator.itemgetter(*ind)(seq)
                 elif ind:
@@ -457,12 +462,12 @@ def get(ind, seq, default=no_default):
                     return ()
             else:
                 return tuple(_get(i, seq, default) for i in ind)
-        elif default != no_default:
+        elif not _is_no_default(default):
             return default
         else:
             raise
     except (KeyError, IndexError):  # we know `ind` is not a list
-        if default == no_default:
+        if _is_no_default(default):
             raise
         else:
             return default
@@ -610,7 +615,7 @@ def reduceby(key, binop, seq, init=no_default):
     {True:  set([2, 4]),
      False: set([1, 3])}
     """
-    is_no_default = init == no_default
+    is_no_default = _is_no_default(init)
     if not is_no_default and not callable(init):
         _init = init
         init = lambda: _init
@@ -792,7 +797,7 @@ def pluck(ind, seqs, default=no_default):
         get
         map
     """
-    if default == no_default:
+    if _is_no_default(default):
         get = getter(ind)
         return map(get, seqs)
     elif isinstance(ind, list):
@@ -881,14 +886,14 @@ def join(leftkey, leftseq, rightkey, rightseq,
 
     d = groupby(leftkey, leftseq)
 
-    if left_default == no_default and right_default == no_default:
+    if _is_no_default(left_default) and _is_no_default(right_default):
         # Inner Join
         for item in rightseq:
             key = rightkey(item)
             if key in d:
                 for left_match in d[key]:
                     yield (left_match, item)
-    elif left_default != no_default and right_default == no_default:
+    elif not _is_no_default(left_default) and _is_no_default(right_default):
         # Right Join
         for item in rightseq:
             key = rightkey(item)
@@ -897,11 +902,11 @@ def join(leftkey, leftseq, rightkey, rightseq,
                     yield (left_match, item)
             else:
                 yield (left_default, item)
-    elif right_default != no_default:
+    elif not _is_no_default(right_default):
         seen_keys = set()
         seen = seen_keys.add
 
-        if left_default == no_default:
+        if _is_no_default(left_default):
             # Left Join
             for item in rightseq:
                 key = rightkey(item)

@@ -590,3 +590,59 @@ def test_random_sample():
     assert mk_rsample(b"a") == mk_rsample("a")
 
     assert raises(TypeError, lambda: mk_rsample([]))
+
+
+def test_get_numpy_default():
+    import pytest
+    np = pytest.importorskip('numpy')
+    default = np.zeros(2)
+    assert get('missing', {}, default) is default
+    values = get(['present', 'missing'], {'present': 1}, default)
+    assert values[0] == 1
+    assert values[1] is default
+
+
+def test_pluck_numpy_default():
+    import pytest
+    np = pytest.importorskip('numpy')
+    default = np.zeros(2)
+    values = list(pluck('value', [{'value': 1}, {}], default))
+    assert values[0] == 1
+    assert values[1] is default
+
+
+def test_reduceby_numpy_initial():
+    import pytest
+    np = pytest.importorskip('numpy')
+    initial = np.zeros(2)
+    data = [('a', np.array([1, 2])), ('a', np.array([3, 4])),
+            ('b', np.array([5, 6]))]
+    result = reduceby(0, lambda acc, item: acc + item[1], data, initial)
+    np.testing.assert_array_equal(result['a'], [4, 6])
+    np.testing.assert_array_equal(result['b'], [5, 6])
+    np.testing.assert_array_equal(initial, [0, 0])
+
+
+def test_join_numpy_defaults():
+    import pytest
+    np = pytest.importorskip('numpy')
+    default = np.zeros(2)
+    left = list(join(0, [(1, 'a')], 0, [], right_default=default))
+    assert left[0][0] == (1, 'a')
+    assert left[0][1] is default
+    right = list(join(0, [], 0, [(1, 'a')], left_default=default))
+    assert right[0][0] is default
+    assert right[0][1] == (1, 'a')
+
+
+def test_default_user_string_sentinel():
+    from collections import UserString
+    import pytest
+    default = UserString(no_default2)
+    with pytest.raises(KeyError):
+        get('missing', {}, default)
+    with pytest.raises(IndexError):
+        list(pluck(1, [[0]], default))
+    assert reduceby(lambda value: 0, add, [1, 2], default) == {0: 3}
+    assert list(join(0, [(1,)], 0, [], left_default=default,
+                     right_default=default)) == []
