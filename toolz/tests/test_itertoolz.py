@@ -374,6 +374,27 @@ def test_partition_all():
     assert raises(LookupError, lambda: list(partition_all(5, too_short_list)))
 
 
+def test_partition_all_rejects_nonpositive_size():
+    for size in (0, -1, -5):
+        for seq in ([], [1, 2, 3], iter([1, 2, 3])):
+            assert raises(ValueError, lambda: list(partition_all(size, seq)))
+
+
+def test_partition_all_invalid_size_does_not_consume_source():
+    seq = iter([1, 2, 3])
+    assert raises(ValueError, lambda: list(partition_all(0, seq)))
+    assert list(seq) == [1, 2, 3]
+
+
+def test_partition_all_indexable_size():
+    class Size:
+        def __index__(self):
+            return 2
+
+    for seq in ([1, 2, 3], iter([1, 2, 3])):
+        assert list(partition_all(Size(), seq)) == [(1, 2), (3,)]
+
+
 def test_count():
     assert count((1, 2, 3)) == 3
     assert count([]) == 0

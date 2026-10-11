@@ -708,6 +708,7 @@ def partition_all(n, seq):
     """ Partition all elements of sequence into tuples of length at most n
 
     The final tuple may be shorter to accommodate extra elements.
+    ``n`` must be a positive integer.
 
     >>> list(partition_all(2, [1, 2, 3, 4]))
     [(1, 2), (3, 4)]
@@ -718,6 +719,9 @@ def partition_all(n, seq):
     See Also:
         partition
     """
+    n = operator.index(n)
+    if n < 1:
+        raise ValueError('n must be a positive integer')
     args = [iter(seq)] * n
     it = zip_longest(*args, fillvalue=no_pad)
     try:
