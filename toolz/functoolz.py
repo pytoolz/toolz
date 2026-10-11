@@ -568,7 +568,13 @@ class Compose:
     @instanceproperty
     def __signature__(self):
         base = inspect.signature(self.first)
-        last = inspect.signature(self.funcs[-1])
+        try:
+            last = inspect.signature(self.funcs[-1])
+        except (TypeError, ValueError):
+            # The last function is only consulted for its return annotation,
+            # so a callable without an introspectable signature (e.g.
+            # ``max``) should not make the whole composition fail.
+            return base.replace(return_annotation=inspect.Signature.empty)
         return base.replace(return_annotation=last.return_annotation)
 
     __wrapped__ = instanceproperty(attrgetter('first'))
