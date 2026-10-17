@@ -147,6 +147,20 @@ def test_isdistinct():
     assert isdistinct(iter([1, 2, 1])) is False
 
 
+def test_isdistinct_unsized_iterable():
+    class Iterable:
+        def __init__(self, values):
+            self.values = values
+
+        def __iter__(self):
+            return iter(self.values)
+
+    for values, expected in [([], True), ([1, 2, 3], True), ([1, 2, 1], False)]:
+        seq = Iterable(values)
+        assert isdistinct(seq) is expected
+        assert isdistinct(seq) is expected
+
+
 def test_nth():
     assert nth(2, 'ABCDE') == 'C'
     assert nth(2, iter('ABCDE')) == 'C'
