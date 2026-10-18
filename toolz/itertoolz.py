@@ -4,7 +4,7 @@ import collections
 import operator
 from functools import partial
 from itertools import filterfalse, zip_longest
-from collections.abc import Sequence
+from collections.abc import Sequence, Sized
 from toolz.utils import no_default
 
 
@@ -297,7 +297,7 @@ def isdistinct(seq):
     >>> isdistinct("World")
     True
     """
-    if iter(seq) is seq:
+    if iter(seq) is seq or not isinstance(seq, Sized):
         seen = set()
         seen_add = seen.add
         for item in seq:
