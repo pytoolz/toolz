@@ -283,6 +283,70 @@ def test_curry_is_like_partial():
     assert p(1, 2) == c(1, 2)
 
 
+@pytest.mark.skipif(sys.version_info < (3, 14),
+                    reason='functools.Placeholder is new in Python 3.14')
+@pytest.mark.parametrize('bind', [
+    lambda base: curry(base, 1),
+    lambda base: curry(base).bind(1),
+    lambda base: curry(base)(1),
+    lambda base: curry(curry(base))(1),
+], ids=['constructor', 'bind', 'staged', 'idempotent'])
+def test_curry_partial_placeholder(bind):
+    def f(a, b, c):
+        return a, b, c
+
+    base = partial(f, functools.Placeholder, 2)
+    assert partial(base, 1)(3) == (1, 2, 3)
+    assert curry(base)(1, 3) == (1, 2, 3)
+    assert bind(base)(3) == (1, 2, 3)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 14),
+                    reason='functools.Placeholder is new in Python 3.14')
+def test_curry_partial_placeholders_staged():
+    def f(a, b, c, d):
+        return a, b, c, d
+
+    base = partial(f, functools.Placeholder, 2, functools.Placeholder, 4)
+    assert curry(base)(1)(3) == (1, 2, 3, 4)
+    retained = partial(partial(f, functools.Placeholder, 2),
+                       functools.Placeholder, 3, 4)
+    assert curry(retained).bind(1)() == (1, 2, 3, 4)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 14),
+                    reason='functools.Placeholder is new in Python 3.14')
+def test_curry_partial_placeholder_signature():
+    def f(a, b, c):
+        return a, b, c
+
+    wrapped = curry(partial(f, functools.Placeholder, 2))
+    sig = inspect.signature(wrapped)
+    assert list(sig.parameters) == ['a', 'c']
+    assert sig.parameters['a'].kind == inspect.Parameter.POSITIONAL_ONLY
+    assert sig.bind(1, 3).arguments == {'a': 1, 'c': 3}
+    assert list(inspect.signature(wrapped.bind(1)).parameters) == ['c']
+
+
+@pytest.mark.skipif(sys.version_info < (3, 14),
+                    reason='functools.Placeholder is new in Python 3.14')
+def test_curry_partial_placeholder_body_error():
+    def f(a, b, c):
+        raise TypeError('body error')
+
+    with pytest.raises(TypeError, match='body error'):
+        curry(partial(f, functools.Placeholder, 2))(1, 3)
+
+
+def test_curry_partial_argument_equality():
+    class NoEquality:
+        def __eq__(self, other):
+            raise AssertionError('argument equality must not be used')
+
+    value = NoEquality()
+    assert curry(partial(lambda a, b: a, value))(2) is value
+
+
 def test_curry_is_idempotent():
     def foo(a, b, c=1):
         return a + b + c

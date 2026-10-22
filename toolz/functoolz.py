@@ -9,6 +9,7 @@ from .utils import no_default
 
 if sys.version_info >= (3, 14):
     import annotationlib  # already imported by inspect
+    from functools import Placeholder as _Placeholder
 
 
 __all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize',
@@ -166,6 +167,11 @@ class InstanceProperty(property):
         return InstanceProperty, state
 
 
+def _has_placeholders(args):
+    return (sys.version_info >= (3, 14)
+            and any(arg is _Placeholder for arg in args))
+
+
 class curry:
     """ Curry a callable function
 
@@ -213,7 +219,10 @@ class curry:
                 _kwargs.update(func.keywords)
             _kwargs.update(kwargs)
             kwargs = _kwargs
-            args = func.args + args
+            if _has_placeholders(func.args):
+                args = partial(partial(func.func, *func.args), *args).args
+            else:
+                args = func.args + args
             func = func.func
 
         if kwargs:
@@ -234,10 +243,12 @@ class curry:
 
     @instanceproperty
     def __signature__(self):
-        sig = inspect.signature(self.func)
-        args = self.args or ()
-        keywords = self.keywords or {}
-        if is_partial_args(self.func, args, keywords, sig) is False:
+        if _has_placeholders(self.args):
+            func, args, keywords = self._partial, (), {}
+        else:
+            func, args, keywords = self.func, self.args or (), self.keywords or {}
+        sig = inspect.signature(func)
+        if is_partial_args(func, args, keywords, sig) is False:
             raise TypeError('curry object has incorrect arguments')
 
         params = list(sig.parameters.values())
@@ -309,10 +320,13 @@ class curry:
             raise
 
     def _should_curry(self, args, kwargs, exc=None):
-        func = self.func
-        args = self.args + args
-        if self.keywords:
-            kwargs = dict(self.keywords, **kwargs)
+        if _has_placeholders(self.args):
+            func = self._partial
+        else:
+            func = self.func
+            args = self.args + args
+            if self.keywords:
+                kwargs = dict(self.keywords, **kwargs)
         if self._sigspec is None:
             sigspec = self._sigspec = _sigs.signature_or_spec(func)
             self._has_unknown_args = has_varargs(func, sigspec) is not False
