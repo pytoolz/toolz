@@ -314,7 +314,13 @@ class curry:
         if self.keywords:
             kwargs = dict(self.keywords, **kwargs)
         if self._sigspec is None:
-            sigspec = self._sigspec = _sigs.signature_or_spec(func)
+            try:
+                sigspec = inspect.signature(func)
+            except (ValueError, TypeError) as exc:
+                # Cache failures too, without retaining their tracebacks.
+                sigspec = (ValueError() if isinstance(exc, ValueError)
+                           else TypeError())
+            self._sigspec = sigspec
             self._has_unknown_args = has_varargs(func, sigspec) is not False
         else:
             sigspec = self._sigspec
