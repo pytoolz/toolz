@@ -499,6 +499,31 @@ def test_curry_unknown_args():
     assert f(1, 2)(3, 4) == f(1, 2, 3, 4)
 
 
+@pytest.mark.parametrize('error_type', [ValueError, TypeError])
+def test_curry_caches_signature_failures(error_type):
+    class Uninspectable:
+        signature_lookups = 0
+
+        @property
+        def __signature__(self):
+            self.signature_lookups += 1
+            raise error_type('signature unavailable')
+
+        def __call__(self, x, y):
+            return x + y
+
+    func = Uninspectable()
+    wrapped = curry(func)
+    for _ in range(5):
+        if error_type is ValueError:
+            assert wrapped(1)(2) == 3
+        else:
+            with pytest.raises(TypeError):
+                wrapped(1)
+        assert wrapped(1, 2) == 3
+    assert func.signature_lookups == 1
+
+
 def test_curry_bad_types():
     assert raises(TypeError, lambda: curry(1))
 
