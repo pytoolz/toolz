@@ -203,6 +203,7 @@ def dissoc(d, *keys, **kwargs):
 
     New dict has d[key] deleted for each supplied key.
     Does not modify the initial dictionary.
+    Remaining items are inserted in their original order.
 
     >>> dissoc({'x': 1, 'y': 2}, 'y')
     {'x': 1}
@@ -222,8 +223,9 @@ def dissoc(d, *keys, **kwargs):
     else:
         remaining = set(d)
         remaining.difference_update(keys)
-        for k in remaining:
-            d2[k] = d[k]
+        for k in d:
+            if k in remaining:
+                d2[k] = d[k]
     return d2
 
 

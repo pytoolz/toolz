@@ -1,11 +1,32 @@
 from collections import defaultdict as _defaultdict
+from collections import OrderedDict
 from collections.abc import Mapping
 import os
+import pytest
 from toolz.dicttoolz import (merge, merge_with, valmap, keymap, update_in,
                              assoc, dissoc, keyfilter, valfilter, itemmap,
                              itemfilter, assoc_in, get_in)
 from toolz.functoolz import identity
 from toolz.utils import raises
+
+
+@pytest.mark.parametrize('mapping_type', [dict, OrderedDict])
+@pytest.mark.parametrize('factory', [dict, OrderedDict])
+@pytest.mark.parametrize('keys, remaining', [
+    ([9], list(range(8, -1, -1))),
+    ([9, 8, 7, 6, 5, 4], [3, 2, 1, 0]),
+    (list(range(100, 106)), list(range(9, -1, -1))),
+    ([9] * 6, list(range(8, -1, -1))),
+])
+def test_dissoc_preserves_insertion_order(mapping_type, factory, keys, remaining):
+    items = [(key, str(key)) for key in range(9, -1, -1)]
+    source = mapping_type(items)
+
+    result = dissoc(source, *keys, factory=factory)
+
+    assert list(result.items()) == [(key, str(key)) for key in remaining]
+    assert type(result) is factory
+    assert list(source.items()) == items
 
 
 def inc(x):
