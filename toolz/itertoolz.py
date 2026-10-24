@@ -672,8 +672,16 @@ def sliding_window(n, seq):
     >>> list(map(mean, sliding_window(2, [1, 2, 3, 4])))
     [1.5, 2.5, 3.5]
     """
-    return zip(*(collections.deque(itertools.islice(it, i), 0) or it
-               for i, it in enumerate(itertools.tee(seq, n))))
+    iters = list(itertools.tee(seq, n))
+    for i in range(1, len(iters)):
+        # Copy the previous offset, then advance just once. tee flattens
+        # nested copies, so this avoids replaying 0 + 1 + ... + (n - 1)
+        # cached items while retaining direct tee iterators in the zip.
+        # Older Python versions reuse the input as tee's first output.
+        # Advance the second output so the previous offset stays unchanged.
+        _, iters[i] = itertools.tee(iters[i - 1])
+        next(iters[i], None)
+    return zip(*iters)
 
 
 no_pad = '__no__pad__'
