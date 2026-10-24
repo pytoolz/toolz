@@ -335,6 +335,52 @@ def test_sliding_window_of_short_iterator():
     assert list(sliding_window(7, [1, 2])) == []
 
 
+def test_sliding_window_consumption():
+    for n in (1, 3, 64):
+        consumed = []
+
+        def source():
+            for item in itertools.count():
+                consumed.append(item)
+                yield item
+
+        windows = sliding_window(n, source())
+        assert consumed == list(range(n - 1))
+        assert next(windows) == tuple(range(n))
+        assert consumed == list(range(n))
+        assert next(windows) == tuple(range(1, n + 1))
+        assert consumed == list(range(n + 1))
+
+
+def test_sliding_window_large_window():
+    n = 8000
+    windows = sliding_window(n, range(n + 2))
+    assert list(windows) == [tuple(range(i, i + n)) for i in range(3)]
+
+
+def test_sliding_window_size_validation():
+    source = iter((1, 2))
+    assert list(sliding_window(0, source)) == []
+    assert next(source) == 1
+    assert list(sliding_window(True, (1, 2))) == [(1,), (2,)]
+    assert raises(ValueError, lambda: sliding_window(-1, (1, 2)))
+    assert raises(TypeError, lambda: sliding_window(1.5, (1, 2)))
+
+    class Index:
+        def __index__(self):
+            return 2
+
+    assert list(sliding_window(Index(), range(4))) == [(0, 1), (1, 2), (2, 3)]
+
+
+def test_sliding_window_tee_input():
+    source, other = itertools.tee(range(6))
+    assert next(source) == 0
+    windows = sliding_window(3, source)
+    assert list(windows) == [(1, 2, 3), (2, 3, 4), (3, 4, 5)]
+    assert list(other) == list(range(6))
+
+
 def test_partition():
     assert list(partition(2, [1, 2, 3, 4])) == [(1, 2), (3, 4)]
     assert list(partition(3, range(7))) == [(0, 1, 2), (3, 4, 5)]
