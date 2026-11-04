@@ -25,7 +25,7 @@ def _ensure_shakespeare():
 
 def stem(word):
     """ Stem word to primitive form """
-    return word.lower().rstrip(".,:;'-" ).lstrip("\"'")
+    return word.lower().rstrip(",.!:;'-\"").lstrip("'\"")
 
 wordcount = comp(frequencies, map(stem), concat, map(str.split))
 
