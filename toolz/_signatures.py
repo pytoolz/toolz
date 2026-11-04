@@ -67,7 +67,7 @@ module_info[builtins] = dict(
     bytearray=[
         lambda: None,
         lambda int: None,
-        lambda string, encoding='utf8', errors='strict': None],
+        (0, lambda source, encoding, errors='strict': None)],
     callable=[
         lambda obj: None],
     chr=[
@@ -243,7 +243,7 @@ module_info[builtins].update(
     bytes=[
         lambda: None,
         lambda int: None,
-        lambda string, encoding='utf8', errors='strict': None],
+        (0, lambda source, encoding, errors='strict': None)],
     compile=[
         (0, lambda source, filename, mode, flags=0,
             dont_inherit=False, optimize=-1: None)],
