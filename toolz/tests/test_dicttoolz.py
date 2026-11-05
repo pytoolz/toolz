@@ -279,6 +279,20 @@ def test_merge_kwarg_error_names_the_offending_keyword():
         assert "factoryy" in str(e)
 
 
+def test_empty_key_path_raises_indexerror():
+    """An empty path is not a location, and must not raise StopIteration."""
+    d = {"a": 1}
+    assert raises(IndexError, lambda: update_in(d, [], inc))
+    assert raises(IndexError, lambda: assoc_in(d, [], 0))
+    assert raises(IndexError, lambda: update_in(d, iter(()), str))
+    assert d == {"a": 1}
+    # list(map(...)) would otherwise stop at the empty path and drop the rest.
+    assert raises(
+        IndexError,
+        lambda: list(map(lambda keys: assoc_in(d, keys, 0), [["a"], [], ["b"]])),
+    )
+
+
 def test_get_in_returns_default_for_a_missing_path():
     assert get_in(["a", "b"], {"a": {"b": 7}}) == 7
     assert get_in(["a", "z"], {"a": {"b": 7}}) is None
