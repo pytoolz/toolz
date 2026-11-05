@@ -275,9 +275,17 @@ def update_in(d, keys, func, default=None, factory=dict):
     {1: {2: {3: 'bar'}}}
     >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
     {1: 'foo', 2: {3: {4: 1}}}
+    >>> update_in({'a': 1}, [], inc)
+    Traceback (most recent call last):
+        ...
+    IndexError: keys must not be empty
     """
     ks = iter(keys)
-    k = next(ks)
+    try:
+        k = next(ks)
+    except StopIteration:
+        # next() would end an enclosing iterator. cytoolz raises IndexError.
+        raise IndexError("keys must not be empty") from None
 
     rv = inner = factory()
     rv.update(d)
