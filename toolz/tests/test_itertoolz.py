@@ -1,4 +1,6 @@
 import itertools
+import pytest
+import sys
 from itertools import starmap
 from toolz.utils import raises
 from functools import partial
@@ -372,6 +374,77 @@ def test_partition_all():
     assert raises(LookupError, lambda: list(partition_all(5, too_long_list)))
     too_short_list = ListWithBadLength([1, 2], off_by=-1)
     assert raises(LookupError, lambda: list(partition_all(5, too_short_list)))
+
+
+def test_partition_all_large_size_short_input():
+    tracemalloc = pytest.importorskip('tracemalloc')
+    # A large partition size must not allocate padding for a short input.
+    for length in (0, 3):
+        for seq in (list(range(length)), iter(range(length))):
+            tracemalloc.start()
+            try:
+                result = list(partition_all(100000, seq))
+                _, peak = tracemalloc.get_traced_memory()
+            finally:
+                tracemalloc.stop()
+            assert result == ([tuple(range(length))] if length else [])
+            assert peak < 128 * 1024
+
+
+def test_partition_all_first_partition_boundaries():
+    for size in (1, 2, 8):
+        for length in (0, 1, size - 1, size, size + 1, 2 * size, 2 * size + 1):
+            values = list(range(length))
+            expected = [tuple(values[i:i + size])
+                        for i in range(0, length, size)]
+            assert list(partition_all(size, values)) == expected
+            assert list(partition_all(size, iter(values))) == expected
+
+
+def test_partition_all_single_pass():
+    class SinglePass:
+        def __init__(self, values):
+            self.values = iter(values)
+            self.started = False
+
+        def __iter__(self):
+            assert not self.started
+            self.started = True
+            return self.values
+
+    for length in (0, 3, 4, 5, 9):
+        expected = list(partition_all(4, range(length)))
+        assert list(partition_all(4, SinglePass(range(length)))) == expected
+
+    source = itertools.count()
+    assert list(take(3, partition_all(4, source))) == [
+        (0, 1, 2, 3), (4, 5, 6, 7), (8, 9, 10, 11)]
+
+
+def test_partition_all_size_types():
+    for size in (0, -1, False):
+        assert list(partition_all(size, [1, 2, 3])) == []
+    assert list(partition_all(True, [1, 2])) == [(1,), (2,)]
+    for size in (None, 1.5, '2'):
+        assert raises(TypeError, lambda: list(partition_all(size, [1, 2])))
+    for size in (sys.maxsize + 1, -sys.maxsize - 2):
+        for values in ([], [1, 2]):
+            assert raises(OverflowError, lambda: list(partition_all(size, values)))
+
+    class Index:
+        def __index__(self):
+            return 3
+
+    assert list(partition_all(Index(), [1, 2, 3, 4])) == [(1, 2, 3), (4,)]
+
+
+def test_partition_all_source_exception():
+    def broken(length):
+        yield from range(length)
+        raise RuntimeError('source failed')
+
+    for length in (0, 1, 4, 5, 9):
+        assert raises(RuntimeError, lambda: list(partition_all(4, broken(length))))
 
 
 def test_count():
