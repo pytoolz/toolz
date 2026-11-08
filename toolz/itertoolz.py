@@ -2,6 +2,7 @@ import itertools
 import heapq
 import collections
 import operator
+import sys
 from functools import partial
 from itertools import filterfalse, zip_longest
 from collections.abc import Sequence
@@ -718,12 +719,29 @@ def partition_all(n, seq):
     See Also:
         partition
     """
-    args = [iter(seq)] * n
-    it = zip_longest(*args, fillvalue=no_pad)
-    try:
-        prev = next(it)
-    except StopIteration:
+    iterator = iter(seq)
+    n = operator.index(n)
+    if not -sys.maxsize - 1 <= n <= sys.maxsize:
+        raise OverflowError('partition size exceeds platform limits')
+    if n <= 0:
         return
+    # Read the first partition before allocating n iterators and padding.
+    # This keeps short inputs cheap even when n is very large.
+    prev = tuple(itertools.islice(iterator, n))
+    if not prev:
+        return
+    if len(prev) < n:
+        try:
+            if len(seq) % n != len(prev):
+                raise LookupError(
+                    'The sequence passed to `parition_all` has invalid length'
+                )
+        except TypeError:
+            pass
+        yield prev
+        return
+    args = [iterator] * n
+    it = zip_longest(*args, fillvalue=no_pad)
     for item in it:
         yield prev
         prev = item
