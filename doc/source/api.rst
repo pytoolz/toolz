@@ -77,6 +77,7 @@ Dicttoolz
    assoc
    assoc_in
    dissoc
+   dissoc_in
    get_in
    itemfilter
    itemmap

@@ -5,7 +5,7 @@ from collections.abc import Mapping
 
 __all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap',
            'valfilter', 'keyfilter', 'itemfilter',
-           'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
+           'assoc', 'dissoc', 'assoc_in', 'dissoc_in', 'update_in', 'get_in')
 
 
 def _get_factory(f, kwargs):
@@ -225,6 +225,45 @@ def dissoc(d, *keys, **kwargs):
         for k in remaining:
             d2[k] = d[k]
     return d2
+
+
+def dissoc_in(d, keys, factory=dict):
+    """Return a new dictionary with the key at a nested path removed.
+
+    Copies only dictionaries along the path, without modifying the input.
+    Missing keys are ignored and empty parent dictionaries are retained.
+    ``keys`` may be any nonempty iterable. Intermediate values must be
+    mappings. ``factory`` creates the output and copied parent mappings.
+
+    >>> dissoc_in({'a': {'b': 1, 'c': 2}}, ['a', 'b'])
+    {'a': {'c': 2}}
+    >>> dissoc_in({'a': {'b': 1}}, ['a', 'b'])
+    {'a': {}}
+    >>> dissoc_in({'a': 1}, ['missing', 'leaf'])
+    {'a': 1}
+    """
+    keys = iter(keys)
+    try:
+        key = next(keys)
+    except StopIteration:
+        raise ValueError("keys must be a nonempty iterable") from None
+
+    result = factory()
+    result.update(d)
+    current = result
+    for next_key in keys:
+        if key not in current:
+            return result
+        child = current[key]
+        if not isinstance(child, Mapping):
+            raise TypeError("intermediate values must be mappings")
+        copied = factory()
+        copied.update(child)
+        current[key] = copied
+        current = copied
+        key = next_key
+    current.pop(key, None)
+    return result
 
 
 def assoc_in(d, keys, value, factory=dict):
