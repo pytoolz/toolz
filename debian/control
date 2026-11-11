@@ -1,0 +1,30 @@
+Source: toolz
+Maintainer: blake griffith <bgriffith@continuum.io>
+Section: python
+Priority: optional
+Build-Depends: dh-python, debhelper (>=9), python-all, python-setuptools, python3-all-dev, python3-setuptools
+Standards-Version: 3.9.6
+X-Python-Version: >= 2.6
+X-Python3-Version: >= 3.2
+
+Package: python-toolz
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}
+Homepage: http://github.com/pytoolz/toolz/
+Description: List processing tools and functional utilities
+ Toolz provides a set of utility functions for iterators, functions, and
+ dictionaries. These functions interoperate well and form the building blocks of
+ common data analytic operations. They extend the standard libraries itertools
+ and functools and borrow heavily from the standard libraries of contemporary
+ functional languages.
+
+Package: python3-toolz
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends}
+Homepage: http://github.com/pytoolz/toolz/
+Description: List processing tools and functional utilities
+ Toolz provides a set of utility functions for iterators, functions, and
+ dictionaries. These functions interoperate well and form the building blocks of
+ common data analytic operations. They extend the standard libraries itertools
+ and functools and borrow heavily from the standard libraries of contemporary
+ functional languages.
