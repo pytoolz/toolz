@@ -402,6 +402,24 @@ def test_pluck():
     assert raises(IndexError, lambda: list(pluck(1, [[0]], no_default2)))
 
 
+def test_pluck_default_typeerror():
+    for ind, seq in [('a', [1, 2]), (0, None)]:
+        for default in [None, 'missing']:
+            assert list(pluck(ind, [seq], default)) == [get(ind, seq, default)]
+        assert raises(TypeError, lambda: list(pluck(ind, [seq])))
+
+    # The multi-index path should keep the same behavior as get().
+    assert raises(TypeError, lambda: list(pluck(['a'], [[1, 2]], None)))
+    assert raises(TypeError, lambda: get(['a'], [1, 2], None))
+
+
+def test_pluck_default_is_lazy():
+    items = iter([[1], [2]])
+    result = pluck(0, items, None)
+    assert next(items) == [1]
+    assert list(result) == [2]
+
+
 def test_join():
     names = [(1, 'one'), (2, 'two'), (3, 'three')]
     fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
