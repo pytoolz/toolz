@@ -793,12 +793,12 @@ def pluck(ind, seqs, default=no_default):
         map
     """
     if default == no_default:
-        get = getter(ind)
-        return map(get, seqs)
+        getitem = getter(ind)
+        return map(getitem, seqs)
     elif isinstance(ind, list):
         return (tuple(_get(item, seq, default) for item in ind)
                 for seq in seqs)
-    return (_get(ind, seq, default) for seq in seqs)
+    return (get(ind, seq, default) for seq in seqs)
 
 
 def getter(index):
