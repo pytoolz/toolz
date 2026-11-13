@@ -30,6 +30,10 @@ class EqualityHashKey:
     >>> set(map(EqualityHashLen, [[], (), [1], [1]]))  # doctest: +SKIP
     {=[]=, =()=, =[1]=}
 
+    Wrappers whose key functions produce different hashes compare unequal,
+    even when their wrapped items are equal. This keeps equality consistent
+    with hashing when different key strategies are mixed.
+
     ``EqualityHashKey`` is convenient to use when a suitable key function
     is complicated or unavailable.  For example, the following returns all
     unique values based on equality:
@@ -78,14 +82,14 @@ class EqualityHashKey:
         return hash(val)
 
     def __eq__(self, other):
-        try:
-            return (self._default_hashkey == other._default_hashkey and
-                    self.item == other.item)
-        except AttributeError:
-            return False
+        if not isinstance(other, EqualityHashKey):
+            return NotImplemented
+        return (self._default_hashkey == other._default_hashkey and
+                hash(self) == hash(other) and self.item == other.item)
 
     def __ne__(self, other):
-        return not self.__eq__(other)
+        result = self.__eq__(other)
+        return NotImplemented if result is NotImplemented else not result
 
     def __str__(self):
         return '=%s=' % str(self.item)
