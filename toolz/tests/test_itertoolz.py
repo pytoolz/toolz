@@ -402,6 +402,50 @@ def test_pluck():
     assert raises(IndexError, lambda: list(pluck(1, [[0]], no_default2)))
 
 
+def test_pluck_default_for_invalid_index_types():
+    for item, index in [([1, 2], 'a'), ('abc', 'a'), (None, 0),
+                        (1, 0), ({}, {})]:
+        default = object()
+        assert list(pluck(index, [item], default)) == [default]
+        assert get(index, item, default) is default
+        assert raises(TypeError, lambda: list(pluck(index, [item])))
+
+
+def test_pluck_multiple_indices_keeps_per_key_defaults():
+    rows = [{'a': 10}, {'b': 20}]
+    default = object()
+    expected = [(10, default), (default, 20)]
+    assert list(pluck(['a', 'b'], rows, default)) == expected
+    assert [get(['a', 'b'], row, default) for row in rows] == expected
+    assert raises(TypeError, lambda: list(pluck([0, 'a'], [[10]], None)))
+    assert raises(TypeError, lambda: list(pluck([0], [None], None)))
+
+
+def test_pluck_default_keeps_input_lazy():
+    consumed = []
+
+    def rows():
+        for row in ([1], {'a': 2}, None):
+            consumed.append(row)
+            yield row
+
+    result = pluck('a', rows(), None)
+    assert consumed == []
+    assert next(result) is None
+    assert consumed == [[1]]
+    assert next(result) == 2
+    assert list(result) == [None]
+
+
+def test_pluck_default_does_not_mask_other_errors():
+    class BrokenIndex:
+        def __getitem__(self, index):
+            raise ValueError('unrelated failure')
+
+    assert raises(ValueError, lambda: list(pluck(0, [BrokenIndex()], None)))
+    assert raises(ValueError, lambda: list(pluck([0], [BrokenIndex()], None)))
+
+
 def test_join():
     names = [(1, 'one'), (2, 'two'), (3, 'three')]
     fruit = [('apple', 1), ('orange', 1), ('banana', 2), ('coconut', 2)]
